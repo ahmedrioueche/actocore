@@ -1,0 +1,23 @@
+# Local development only — production uses hosted services (see apps/backend/.env.example).
+services:
+  mongodb:
+    image: mongo:7
+    container_name: actocore-mongodb
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - actocore_mongodb_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: actocore-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - actocore_redis_data:/data
+
+volumes:
+  actocore_mongodb_data:
+  actocore_redis_data:
