@@ -1,0 +1,59 @@
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { ActocoreProvider } from '../../provider/actocore-provider';
+import { ActoChat } from './ActoChat';
+
+const sendMessage = vi.fn(async () => undefined);
+
+vi.mock('../../hooks/use-actocore-chat', () => {
+  return {
+    useActocoreChat: () => ({
+      messages: [],
+      sessionId: 'session-test',
+      isInitializing: false,
+      isSending: false,
+      error: null,
+      sendMessage,
+      clearError: vi.fn(),
+    }),
+  };
+});
+
+describe('ActoChat', () => {
+  it('sends a message through the hook', async () => {
+    sendMessage.mockClear();
+
+    render(
+      <ActocoreProvider apiKey="sdk-key" i18n={{ locale: 'en' }}>
+        <ActoChat />
+      </ActocoreProvider>,
+    );
+
+    const composer = screen.getByPlaceholderText('Type a message…');
+    fireEvent.change(composer, { target: { value: 'Hello from test' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+
+    await waitFor(() => {
+      expect(sendMessage).toHaveBeenCalledWith('Hello from test');
+    });
+  });
+
+  it('updates UI copy when locale changes', () => {
+    const { rerender } = render(
+      <ActocoreProvider apiKey="sdk-key" i18n={{ locale: 'en' }}>
+        <ActoChat />
+      </ActocoreProvider>,
+    );
+
+    expect(screen.getByPlaceholderText('Type a message…')).toBeTruthy();
+
+    rerender(
+      <ActocoreProvider apiKey="sdk-key" i18n={{ locale: 'fr' }}>
+        <ActoChat />
+      </ActocoreProvider>,
+    );
+
+    expect(screen.getByPlaceholderText('Écrivez un message…')).toBeTruthy();
+  });
+});
+

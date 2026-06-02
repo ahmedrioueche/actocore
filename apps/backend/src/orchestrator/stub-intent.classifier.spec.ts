@@ -12,9 +12,24 @@ describe('StubIntentClassifier', () => {
     sessionId: 's1',
   };
 
-  it('classifies action phrasing', async () => {
+  it('classifies explicit run commands as action', async () => {
     expect(
-      await classifier.classify({ ...base, message: 'Run the checkout flow' }),
+      await classifier.classify({
+        ...base,
+        message: 'Run the checkout flow',
+        enabledActionNames: ['checkout'],
+      }),
+    ).toBe('action');
+  });
+
+  it('classifies natural-language user management as action', async () => {
+    expect(
+      await classifier.classify({
+        ...base,
+        message:
+          'update user with email alice@demo.com, make their name Alice Kiro',
+        enabledActionNames: ['update_user'],
+      }),
     ).toBe('action');
   });
 
@@ -28,5 +43,15 @@ describe('StubIntentClassifier', () => {
     expect(
       await classifier.classify({ ...base, message: 'Hello there' }),
     ).toBe('direct');
+  });
+
+  it('detects typo delete user phrasing', async () => {
+    expect(
+      await classifier.classify({
+        ...base,
+        message: 'delte user',
+        enabledActionNames: ['delete_user'],
+      }),
+    ).toBe('action');
   });
 });

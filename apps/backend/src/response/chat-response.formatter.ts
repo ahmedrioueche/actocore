@@ -12,6 +12,7 @@ export interface OrchestratorBranchPayload {
   usage?: TokenUsageData;
   action?: ActionExecutionResult;
   sources?: QaSourceCitation[];
+  intentOverride?: ChatIntent;
 }
 
 @Injectable()
@@ -24,21 +25,22 @@ export class ChatResponseFormatter {
     branch: OrchestratorBranchPayload;
   }): ChatMessageData {
     const { sessionId, messageId, intent, branch } = input;
+    const resolvedIntent = branch.intentOverride ?? intent;
 
     const response: ChatMessageData = {
       sessionId,
       messageId,
       role: 'assistant',
       content: branch.content.trim(),
-      intent,
+      intent: resolvedIntent,
       usage: branch.usage,
     };
 
-    if (intent === 'action' && branch.action) {
+    if (resolvedIntent === 'action' && branch.action) {
       response.action = branch.action;
     }
 
-    if (intent === 'qa' && branch.sources && branch.sources.length > 0) {
+    if (resolvedIntent === 'qa' && branch.sources && branch.sources.length > 0) {
       response.sources = branch.sources;
     }
 

@@ -17,6 +17,8 @@ export * from './api/runtime';
 export * from './api/api-keys';
 export * from './api/projects';
 export * from './api/actions';
+export * from './api/sdk-actions';
 export * from './api/knowledge';
 export * from './api/usage';
 export * from './api/health';
+export * from './api/voice';

@@ -5,7 +5,7 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable, tap } from 'rxjs';
+import { catchError, finalize, Observable, throwError } from 'rxjs';
 import type { AuthenticatedRequest } from '../auth/guards/api-key.guard';
 
 @Injectable()
@@ -18,15 +18,20 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const startedAt = Date.now();
 
     return next.handle().pipe(
-      tap(() => {
+      catchError((error: unknown) => throwError(() => error)),
+      finalize(() => {
         const response = http.getResponse<{ statusCode: number }>();
         const durationMs = Date.now() - startedAt;
         const projectId =
           request.actocore?.context?.projectId ?? request.apiKey?.projectId;
+        const status = response.statusCode ?? 500;
+        const line = `${request.method} ${request.path} ${status} ${durationMs}ms project=${projectId ?? '-'}`;
 
-        this.logger.log(
-          `${request.method} ${request.path} ${response.statusCode} ${durationMs}ms project=${projectId ?? '-'}`,
-        );
+        if (status >= 500) {
+          this.logger.warn(line);
+        } else {
+          this.logger.log(line);
+        }
       }),
     );
   }

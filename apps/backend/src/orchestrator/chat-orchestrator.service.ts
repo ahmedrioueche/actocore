@@ -22,6 +22,8 @@ import {
   type IntentClassifier,
 } from './intent-classifier.interface';
 import { LLM_PROVIDER, type LlmMessage, type LlmProvider } from '../external/llm/llm-provider.interface';
+import { isLikelyActionMessage } from '../actions/natural-language-action.util';
+import { buildAppAssistantSystemPrompt } from './app-assistant-prompt.util';
 import { SessionsService } from '../sessions/sessions.service';
 
 @Injectable()
@@ -50,11 +52,22 @@ export class ChatOrchestratorService {
       {},
     );
 
-    const intent = await this.classifier.classify({
+    const enabledActions = await this.actions.listEnabled(projectId);
+    const enabledActionNames = enabledActions.map((a) => a.name);
+    let intent = await this.classifier.classify({
       context,
       message: body.message,
       sessionId,
+      enabledActionNames,
     });
+
+    if (
+      intent === 'direct' &&
+      enabledActionNames.length > 0 &&
+      isLikelyActionMessage(body.message, enabledActionNames)
+    ) {
+      intent = 'action';
+    }
 
     await this.sessions.appendMessage(projectId, sessionId, 'user', body.message);
 
@@ -170,8 +183,12 @@ export class ChatOrchestratorService {
       return { content: this.actionRunner.formatNoMatchMessage(enabled) };
     }
 
-    const { content, action } = this.actionRunner.prepareExecution(selection);
-    return { content, action };
+    const prepared = this.actionRunner.prepareExecution(selection);
+    return {
+      content: prepared.content,
+      action: prepared.action,
+      intentOverride: prepared.intentOverride,
+    };
   }
 
   private async completeWithLlm(
@@ -205,24 +222,15 @@ export class ChatOrchestratorService {
     modeNote?: string,
   ): Promise<LlmMessage[]> {
     const messages: LlmMessage[] = [];
+    const enabledActions = await this.actions.listEnabled(projectId);
 
-    if (context.settings.systemPrompt) {
-      messages.push({ role: 'system', content: context.settings.systemPrompt });
-    }
-
-    if (context.settings.rules?.length) {
-      messages.push({
-        role: 'system',
-        content: `Follow these rules:\n${context.settings.rules.join('\n')}`,
-      });
-    }
-
-    if (context.settings.tone) {
-      messages.push({
-        role: 'system',
-        content: `Use a ${context.settings.tone} tone.`,
-      });
-    }
+    messages.push({
+      role: 'system',
+      content: buildAppAssistantSystemPrompt(
+        context,
+        enabledActions.map((a) => a.name),
+      ),
+    });
 
     if (modeNote) {
       messages.push({ role: 'system', content: modeNote });

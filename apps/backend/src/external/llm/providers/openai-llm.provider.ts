@@ -1,6 +1,8 @@
+import { Logger } from '@nestjs/common';
 import type { OpenAiLlmConfig } from '../../../config/llm.config';
 import { LlmProviderException } from '../exceptions/llm-provider.exception';
-import { LlmHttpError, LlmTimeoutError, postJson } from '../llm-http';
+import { postJson } from '../llm-http';
+import { mapLlmProviderError } from '../llm-provider-error.util';
 import { toOpenAiMessages } from '../llm-message.util';
 import type {
   LlmCompletionResult,
@@ -20,6 +22,8 @@ interface OpenAiChatResponse {
 }
 
 export class OpenAiLlmProvider implements LlmProvider {
+  private readonly logger = new Logger(OpenAiLlmProvider.name);
+
   constructor(
     private readonly config: OpenAiLlmConfig,
     private readonly timeoutMs: number,
@@ -52,22 +56,7 @@ export class OpenAiLlmProvider implements LlmProvider {
         completionTokens: data.usage?.completion_tokens,
       };
     } catch (error) {
-      throw this.mapError(error, 'OpenAI');
+      throw mapLlmProviderError('OpenAI', error, this.logger);
     }
-  }
-
-  private mapError(error: unknown, label: string): LlmProviderException {
-    if (error instanceof LlmTimeoutError) {
-      return LlmProviderException.timeout();
-    }
-    if (error instanceof LlmHttpError) {
-      return LlmProviderException.upstream(
-        `${label} API error (${error.status})`,
-      );
-    }
-    if (error instanceof LlmProviderException) {
-      return error;
-    }
-    return LlmProviderException.upstream(`${label} request failed`);
   }
 }

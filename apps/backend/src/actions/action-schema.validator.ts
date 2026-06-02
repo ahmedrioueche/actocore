@@ -11,6 +11,7 @@ export interface ActionInputValidationResult {
 @Injectable()
 export class ActionSchemaValidator {
   private readonly ajv = new Ajv({ allErrors: true, strict: false });
+  private lastErrors: import('ajv').ErrorObject[] = [];
 
   assertCompilable(schema: ActionInputSchema): void {
     try {
@@ -33,13 +34,19 @@ export class ActionSchemaValidator {
         : {};
 
     if (validate(candidate)) {
+      this.lastErrors = [];
       return { valid: true, input: candidate };
     }
 
+    this.lastErrors = validate.errors ?? [];
     return {
       valid: false,
-      errors: (validate.errors ?? []).map(formatAjvError),
+      errors: this.lastErrors.map(formatAjvError),
     };
+  }
+
+  getLastErrors(): import('ajv').ErrorObject[] {
+    return this.lastErrors;
   }
 }
 

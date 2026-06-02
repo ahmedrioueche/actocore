@@ -1,0 +1,71 @@
+{
+  "chat": {
+    "title": "Assistant",
+    "subtitle": "Posez des questions ou exécutez des actions dans votre app.",
+    "headerIcon": "IA",
+    "placeholder": "Écrivez un message…",
+    "send": "Envoyer",
+    "sending": "Envoi…",
+    "emptyTitle": "Commencer une conversation",
+    "emptyDescription": "Posez une question ou décrivez ce que vous voulez faire.",
+    "actionsHint": "Demandez en langage naturel — l'assistant prépare l'action et vous confirmez une fois ; votre app exécute l'interface réelle.",
+    "loading": "Chargement de la conversation…",
+    "thinking": "Réflexion…",
+    "open": "Ouvrir le chat",
+    "close": "Fermer le chat"
+  },
+  "intent": {
+    "direct": "Réponse",
+    "qa": "Connaissance",
+    "action": "Action"
+  },
+  "sources": {
+    "title": "Sources",
+    "score": "Pertinence {{score}}"
+  },
+  "action": {
+    "pendingTitle": "Action prête",
+    "pendingDescription": "L'assistant a préparé « {{name}} ». Confirmez pour l'exécuter dans votre application.",
+    "parameters": "Paramètres",
+    "run": "Exécuter",
+    "running": "Exécution dans votre application…",
+    "successTitle": "{{name}} terminée",
+    "successDescription": "L'action s'est terminée avec succès dans votre application.",
+    "denied": "Cette action n'est pas autorisée dans votre application.",
+    "handlerMissing": "Aucun gestionnaire n'est enregistré pour « {{name}} ».",
+    "failed": "Échec de l'action : {{message}}",
+    "retry": "Réessayer",
+    "errorTitle": "Impossible d'exécuter {{name}}",
+    "errorHintNl": "Décrivez ce dont vous avez besoin dans votre prochain message (e-mail, etc.), puis confirmez quand l'assistant est prêt.",
+    "pickerOpen": "Raccourcis d'actions",
+    "pickerTitle": "Que voulez-vous faire ?",
+    "pickerHint": "Insère une phrase de départ — complétez, envoyez, puis confirmez l'action dans votre application."
+  },
+  "voice": {
+    "startListening": "Démarrer la saisie vocale",
+    "stopListening": "Arrêter la saisie vocale",
+    "transcribing": "Transcription…",
+    "listen": "Lire à voix haute",
+    "stopSpeaking": "Arrêter",
+    "unavailable": "La voix n'est pas disponible dans ce navigateur.",
+    "listenFailed": "Échec de la saisie vocale. Réessayez ou tapez votre message.",
+    "micDenied": "Accès au microphone refusé."
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "INTERNAL_ERROR": "Erreur serveur.",
+    "VALIDATION_ERROR": "Requête invalide.",
+    "NOT_FOUND": "Ressource introuvable.",
+    "UNAUTHORIZED": "Non autorisé.",
+    "FORBIDDEN": "Accès refusé.",
+    "CONFLICT": "Conflit détecté.",
+    "SERVICE_UNAVAILABLE": "Service temporairement indisponible.",
+    "API_KEY_MISSING": "Clé API manquante.",
+    "API_KEY_INVALID": "Clé API invalide.",
+    "API_KEY_REVOKED": "Clé API révoquée.",
+    "TOO_MANY_REQUESTS": "Trop de requêtes. Réessayez plus tard.",
+    "BAD_GATEWAY": "Impossible de joindre le fournisseur IA.",
+    "GATEWAY_TIMEOUT": "Délai d'attente dépassé.",
+    "UNKNOWN_ERROR": "Erreur inconnue."
+  }
+}

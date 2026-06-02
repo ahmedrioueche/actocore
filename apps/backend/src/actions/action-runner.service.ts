@@ -4,7 +4,19 @@ import type {
   ActionExecutionResult,
 } from '@ahmedrioueche/actocore-shared';
 import { ActionSchemaValidator } from './action-schema.validator';
+import {
+  formatActionValidationIssues,
+  formatActionValidationSummary,
+  formatClarifyingQuestion,
+} from './action-validation-message.util';
 import type { ActionSelection } from './action-selector.service';
+
+export type ActionPrepareResult = {
+  content: string;
+  action?: ActionExecutionResult;
+  /** Use direct intent for clarifying questions (no confirm card). */
+  intentOverride?: 'direct';
+};
 
 @Injectable()
 export class ActionRunnerService {
@@ -14,17 +26,31 @@ export class ActionRunnerService {
    * Validates input and returns a pending result for the SDK to execute in the host app.
    * Core never runs customer application code.
    */
-  prepareExecution(selection: ActionSelection): {
-    content: string;
-    action: ActionExecutionResult;
-  } {
+  prepareExecution(selection: ActionSelection): ActionPrepareResult {
     const { action, input } = selection;
     const validation = this.validator.validate(action.inputSchema, input);
+    const ajvErrors = this.validator.getLastErrors();
 
     if (!validation.valid) {
-      const error = validation.errors?.join('; ') ?? 'Invalid input';
+      const issues = formatActionValidationIssues(
+        action.inputSchema,
+        ajvErrors,
+      );
+
+      if (isOnlyMissingRequired(ajvErrors) && issues.length > 0) {
+        return {
+          content: formatClarifyingQuestion(action.name, issues),
+          intentOverride: 'direct',
+        };
+      }
+
+      const summary = formatActionValidationSummary(
+        action.name,
+        action.inputSchema,
+        ajvErrors,
+      );
       return {
-        content: `Could not run "${action.name}": ${error}`,
+        content: summary.content,
         action: {
           actionId: action.id,
           actionName: action.name,
@@ -33,7 +59,8 @@ export class ActionRunnerService {
             input !== null && typeof input === 'object' && !Array.isArray(input)
               ? (input as Record<string, unknown>)
               : {},
-          error,
+          error: summary.error,
+          validationIssues: summary.issues,
         },
       };
     }
@@ -59,4 +86,13 @@ export class ActionRunnerService {
     const names = actions.map((a) => a.name).join(', ');
     return `I could not match your request to an action. Available actions: ${names}.`;
   }
+}
+
+function isOnlyMissingRequired(
+  errors: import('ajv').ErrorObject[],
+): boolean {
+  return (
+    errors.length > 0 &&
+    errors.every((error) => error.keyword === 'required')
+  );
 }

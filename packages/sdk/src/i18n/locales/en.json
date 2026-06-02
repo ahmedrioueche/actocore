@@ -1,0 +1,71 @@
+{
+  "chat": {
+    "title": "Assistant",
+    "subtitle": "Ask questions or run actions in your app.",
+    "headerIcon": "AI",
+    "placeholder": "Type a message…",
+    "send": "Send",
+    "sending": "Sending…",
+    "emptyTitle": "Start a conversation",
+    "emptyDescription": "Ask a question or describe what you want to do.",
+    "actionsHint": "Ask in plain language — the assistant prepares actions and you confirm once; your app runs the real UI.",
+    "loading": "Loading conversation…",
+    "thinking": "Thinking…",
+    "open": "Open chat",
+    "close": "Close chat"
+  },
+  "intent": {
+    "direct": "Reply",
+    "qa": "Knowledge",
+    "action": "Action"
+  },
+  "sources": {
+    "title": "Sources",
+    "score": "Relevance {{score}}"
+  },
+  "action": {
+    "pendingTitle": "Action ready",
+    "pendingDescription": "The assistant prepared \"{{name}}\". Confirm to run it in your app.",
+    "parameters": "Parameters",
+    "run": "Run action",
+    "running": "Running in your app…",
+    "successTitle": "{{name}} completed",
+    "successDescription": "The action finished successfully in your application.",
+    "denied": "This action is not allowed in your application.",
+    "handlerMissing": "No handler is registered for \"{{name}}\".",
+    "failed": "Action failed: {{message}}",
+    "retry": "Try again",
+    "errorTitle": "Could not run {{name}}",
+    "errorHintNl": "Describe what you need in your next message (include details like email), then confirm when the assistant is ready.",
+    "pickerOpen": "Action prompt shortcuts",
+    "pickerTitle": "What do you want to do?",
+    "pickerHint": "Inserts a starter phrase — finish the sentence, send, then confirm the action in your app."
+  },
+  "voice": {
+    "startListening": "Start voice input",
+    "stopListening": "Stop voice input",
+    "transcribing": "Transcribing…",
+    "listen": "Read aloud",
+    "stopSpeaking": "Stop",
+    "unavailable": "Voice is not available in this browser.",
+    "listenFailed": "Voice input failed. Try again or type your message.",
+    "micDenied": "Microphone access was denied."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "INTERNAL_ERROR": "A server error occurred.",
+    "VALIDATION_ERROR": "The request was invalid.",
+    "NOT_FOUND": "The requested resource was not found.",
+    "UNAUTHORIZED": "You are not authorized.",
+    "FORBIDDEN": "Access was denied.",
+    "CONFLICT": "A conflict occurred.",
+    "SERVICE_UNAVAILABLE": "The service is temporarily unavailable.",
+    "API_KEY_MISSING": "API key is missing.",
+    "API_KEY_INVALID": "API key is invalid.",
+    "API_KEY_REVOKED": "API key was revoked.",
+    "TOO_MANY_REQUESTS": "Too many requests. Please wait and try again.",
+    "BAD_GATEWAY": "Could not reach the AI provider.",
+    "GATEWAY_TIMEOUT": "The request timed out.",
+    "UNKNOWN_ERROR": "An unknown error occurred."
+  }
+}

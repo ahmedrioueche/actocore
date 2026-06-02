@@ -2,22 +2,29 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from '../../auth/auth.module';
 import { BillingModule } from '../../billing/billing.module';
+import { ActionsModule } from '../../actions/actions.module';
 import { OrchestratorModule } from '../../orchestrator/orchestrator.module';
+import { VoiceModule } from '../../external/voice/voice.module';
 import { ProjectsModule } from '../../projects/projects.module';
 import { RequestContextInterceptor } from '../../request-context/request-context.interceptor';
 import { RequestContextModule } from '../../request-context/request-context.module';
 import { SessionsModule } from '../../sessions/sessions.module';
 import { SdkChatController } from './sdk-chat.controller';
 import { SdkChatService } from './sdk-chat.service';
+import { SdkActionsController } from './sdk-actions.controller';
 import { SdkRuntimeController } from './sdk-runtime.controller';
 import { SdkSessionsController } from './sdk-sessions.controller';
+import { SdkVoiceController } from './sdk-voice.controller';
+import { SdkVoiceService } from './sdk-voice.service';
 
 @Module({
   imports: [
     AuthModule,
     BillingModule,
     SessionsModule,
+    ActionsModule,
     OrchestratorModule,
+    VoiceModule,
     ProjectsModule,
     RequestContextModule,
   ],
@@ -25,9 +32,12 @@ import { SdkSessionsController } from './sdk-sessions.controller';
     SdkChatController,
     SdkSessionsController,
     SdkRuntimeController,
+    SdkActionsController,
+    SdkVoiceController,
   ],
   providers: [
     SdkChatService,
+    SdkVoiceService,
     {
       provide: APP_INTERCEPTOR,
       useClass: RequestContextInterceptor,

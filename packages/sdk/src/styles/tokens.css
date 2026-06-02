@@ -1,0 +1,82 @@
+/**
+ * ActoCore design tokens — override via ActocoreProvider `theme.tokens`
+ * or dashboard-published CSS variables on a parent element.
+ */
+[data-actocore] {
+  --ac-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ac-font-size-xs: 0.75rem;
+  --ac-font-size-sm: 0.875rem;
+  --ac-font-size-md: 1rem;
+  --ac-font-size-lg: 1.125rem;
+  --ac-line-height: 1.5;
+  --ac-space-xs: 0.25rem;
+  --ac-space-sm: 0.5rem;
+  --ac-space-md: 0.75rem;
+  --ac-space-lg: 1rem;
+  --ac-space-xl: 1.5rem;
+  --ac-radius-sm: 0.375rem;
+  --ac-radius-md: 0.625rem;
+  --ac-radius-lg: 1rem;
+  --ac-radius-xl: 1.25rem;
+  --ac-radius-pill: 999px;
+  --ac-border-width: 1px;
+  --ac-bubble-max-width: 82%;
+  --ac-color-bg: #ffffff;
+  --ac-color-surface: #f4f6fa;
+  --ac-color-surface-elevated: #ffffff;
+  --ac-color-chat-body-bg: #fafbfd;
+  --ac-color-header-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --ac-color-border: #e2e8f3;
+  --ac-color-text: #0f172a;
+  --ac-color-text-muted: #64748b;
+  --ac-color-primary: #4f46e5;
+  --ac-color-primary-contrast: #ffffff;
+  --ac-color-primary-muted: rgb(79 70 229 / 0.12);
+  --ac-color-user-bubble: #4f46e5;
+  --ac-color-user-bubble-text: #ffffff;
+  --ac-color-assistant-bubble: #ffffff;
+  --ac-color-assistant-bubble-text: #0f172a;
+  --ac-color-danger: #dc2626;
+  --ac-color-danger-surface: #fef2f2;
+  --ac-color-success: #16a34a;
+  --ac-color-success-surface: #f0fdf4;
+  --ac-shadow-sm: 0 1px 3px rgb(15 23 42 / 0.06);
+  --ac-shadow-md: 0 8px 24px rgb(15 23 42 / 0.08);
+  --ac-shadow-lg: 0 16px 48px rgb(15 23 42 / 0.16);
+  --ac-chat-max-width: 24rem;
+  --ac-composer-min-height: 2.5rem;
+  --ac-composer-max-rows: 5;
+  --ac-scrollbar-size: 0.375rem;
+  --ac-scrollbar-thumb: var(--ac-color-primary);
+  --ac-scrollbar-track: var(--ac-color-primary-muted);
+  --ac-send-button-size: 2.5rem;
+  --ac-header-icon-size: 2.25rem;
+  --ac-widget-offset-x: 1.25rem;
+  --ac-widget-offset-y: 1.25rem;
+  --ac-widget-button-size: 3.25rem;
+  --ac-launcher-icon-size: 1.375rem;
+  --ac-widget-panel-height: min(40rem, calc(100vh - 6rem));
+  --ac-backdrop-bg: rgb(15 23 42 / 0.4);
+}
+
+[data-actocore][data-actocore-theme='dark'] {
+  --ac-color-bg: #0f172a;
+  --ac-color-surface: #1e293b;
+  --ac-color-surface-elevated: #334155;
+  --ac-color-chat-body-bg: #0b1220;
+  --ac-color-header-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  --ac-color-border: #334155;
+  --ac-color-text: #f1f5f9;
+  --ac-color-text-muted: #94a3b8;
+  --ac-color-primary: #6366f1;
+  --ac-color-primary-contrast: #ffffff;
+  --ac-color-primary-muted: rgb(99 102 241 / 0.2);
+  --ac-color-user-bubble: #4f46e5;
+  --ac-color-user-bubble-text: #ffffff;
+  --ac-color-assistant-bubble: #1e293b;
+  --ac-color-assistant-bubble-text: #f1f5f9;
+  --ac-color-danger: #f87171;
+  --ac-color-danger-surface: #450a0a;
+  --ac-color-success-surface: #052e16;
+  --ac-backdrop-bg: rgb(2 6 23 / 0.65);
+}

@@ -4,6 +4,8 @@ export interface IntentClassificationInput {
   context: RequestContextData;
   message: string;
   sessionId: string;
+  /** Enabled action names for the project — used to detect natural-language action requests. */
+  enabledActionNames?: string[];
 }
 
 export interface IntentClassifier {

@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { ActionData } from '@ahmedrioueche/actocore-shared';
 import { LLM_PROVIDER, type LlmProvider } from '../external/llm/llm-provider.interface';
+import {
+  extractNaturalLanguageActionInput,
+  matchesNaturalLanguageAction,
+} from './natural-language-action.util';
 
 export interface ActionSelection {
   action: ActionData;
@@ -31,16 +35,18 @@ export class ActionSelectorService {
     userMessage: string,
     actions: ActionData[],
   ): ActionSelection | null {
-    const lower = userMessage.toLowerCase();
+    const jsonInput = this.extractJsonInput(userMessage);
 
     for (const action of actions) {
-      const name = action.name.toLowerCase();
-      if (lower.includes(name)) {
-        return {
-          action,
-          input: this.extractJsonInput(userMessage) ?? {},
-        };
+      if (!matchesNaturalLanguageAction(userMessage, action.name)) {
+        continue;
       }
+
+      const input =
+        jsonInput ??
+        extractNaturalLanguageActionInput(userMessage, action.name);
+
+      return { action, input };
     }
 
     return null;
@@ -61,7 +67,7 @@ export class ActionSelectorService {
       {
         role: 'system',
         content:
-          'You select one action for the user request. Reply with JSON only: {"action":"<name>","input":{}}. Use only listed action names.',
+          'You select one action for the user request. Infer parameters (email, name, etc.) from natural language. Reply with JSON only: {"action":"<name>","input":{}}. Use only listed action names.',
       },
       {
         role: 'user',

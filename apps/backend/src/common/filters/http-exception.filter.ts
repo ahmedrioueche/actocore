@@ -35,6 +35,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? (body.errorCode as ErrorCode)
           : this.mapStatusToErrorCode(status);
 
+      if (this.shouldLogHttpException(status, errorCode)) {
+        this.logger.warn(`HTTP ${status} ${errorCode}: ${message}`);
+      }
+
       response.status(status).json(apiError(errorCode, message));
       return;
     }
@@ -43,6 +47,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json(apiError(ErrorCode.INTERNAL_ERROR, 'Internal server error'));
+  }
+
+  private shouldLogHttpException(status: number, errorCode: ErrorCode): boolean {
+    return (
+      status >= HttpStatus.INTERNAL_SERVER_ERROR ||
+      status === HttpStatus.BAD_GATEWAY ||
+      status === HttpStatus.GATEWAY_TIMEOUT ||
+      status === HttpStatus.TOO_MANY_REQUESTS ||
+      errorCode === ErrorCode.BAD_GATEWAY ||
+      errorCode === ErrorCode.GATEWAY_TIMEOUT ||
+      errorCode === ErrorCode.TOO_MANY_REQUESTS
+    );
   }
 
   private formatMessage(message: unknown): string {

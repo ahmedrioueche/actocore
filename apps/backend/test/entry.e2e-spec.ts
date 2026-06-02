@@ -11,6 +11,7 @@ describe('Entry layer (e2e)', () => {
   let app: INestApplication<App>;
   let mongod: MongoMemoryServer;
   let apiKey: string;
+  let projectId: string;
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -34,6 +35,7 @@ describe('Entry layer (e2e)', () => {
 
     const seeded = await seedProjectAndApiKey(app.getHttpServer());
     apiKey = seeded.apiKey;
+    projectId = seeded.projectId;
   });
 
   afterEach(async () => {
@@ -49,6 +51,7 @@ describe('Entry layer (e2e)', () => {
         expect(res.headers['x-actocore-entry']).toBe('sdk');
         expect(res.body.success).toBe(true);
         expect(res.body.data.apiVersion).toBe('v1');
+        expect(res.body.data.projectId).toBe(projectId);
       });
   });
 

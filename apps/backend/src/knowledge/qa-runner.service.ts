@@ -19,7 +19,7 @@ export class QaRunnerService {
       return {
         citations: [],
         modeNote:
-          'The user is asking a knowledge question. No project documentation matched this query. Answer clearly from general knowledge and mention that no knowledge base excerpts were found.',
+          'The user is asking a knowledge question. No project documentation matched this query. Do not answer from general world knowledge. Say you can only help with this app, its documentation (when available), or in-app actions. Suggest rephrasing or ask what they want to do in the app.',
       };
     }
 

@@ -15,6 +15,12 @@ export interface ActionData {
 /** Result returned to the SDK for in-app execution (Core validates; host app runs). */
 export type ActionExecutionStatus = 'pending' | 'success' | 'error';
 
+export interface ActionValidationIssue {
+  field: string;
+  label: string;
+  message: string;
+}
+
 export interface ActionExecutionResult {
   actionId: string;
   actionName: string;
@@ -22,4 +28,6 @@ export interface ActionExecutionResult {
   input: Record<string, unknown>;
   output?: Record<string, unknown>;
   error?: string;
+  /** Present when status is `error` due to input validation. */
+  validationIssues?: ActionValidationIssue[];
 }

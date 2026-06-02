@@ -12,3 +12,4 @@ export * from './project';
 export * from './runtime';
 export * from './session';
 export * from './usage';
+export * from './voice';

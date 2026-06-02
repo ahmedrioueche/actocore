@@ -8,6 +8,7 @@ import {
 import { resolveAuthConfig } from './auth.config';
 import { resolveHttpConfig } from './http.config';
 import { resolveLlmConfig } from './llm.config';
+import { resolveVoiceConfig } from './voice.config';
 import { resolveQuotaLimits } from './quota.config';
 import { isRedisEnabled, resolveRedisUrl } from './redis.config';
 
@@ -32,6 +33,7 @@ export default () => {
     http: resolveHttpConfig(),
     auth: resolveAuthConfig(),
     llm: resolveLlmConfig(),
+    voice: resolveVoiceConfig(),
     quota: resolveQuotaLimits(),
   };
 };

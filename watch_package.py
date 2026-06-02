@@ -4,7 +4,7 @@ Package Version Watcher
 Monitors a dependency version in package.json and syncs it across multiple projects.
 """
 """
- python watch_package.py --watch packages/shared/package.json --dependency @ahmedrioueche/actocore-shared --targets  apps/backend/package.json
+ python watch_package.py --watch packages/shared/package.json --dependency @ahmedrioueche/actocore-shared --targets  apps/backend/package.json packages/sdk/package.json
 """
 import json
 import subprocess

@@ -1,6 +1,8 @@
+import { Logger } from '@nestjs/common';
 import type { GoogleLlmConfig } from '../../../config/llm.config';
 import { LlmProviderException } from '../exceptions/llm-provider.exception';
-import { LlmHttpError, LlmTimeoutError, postJson } from '../llm-http';
+import { postJson } from '../llm-http';
+import { mapLlmProviderError } from '../llm-provider-error.util';
 import { toGeminiPayload } from '../llm-message.util';
 import type {
   LlmCompletionResult,
@@ -19,6 +21,8 @@ interface GeminiGenerateResponse {
 }
 
 export class GoogleLlmProvider implements LlmProvider {
+  private readonly logger = new Logger(GoogleLlmProvider.name);
+
   constructor(
     private readonly config: GoogleLlmConfig,
     private readonly timeoutMs: number,
@@ -60,22 +64,7 @@ export class GoogleLlmProvider implements LlmProvider {
         completionTokens: data.usageMetadata?.candidatesTokenCount,
       };
     } catch (error) {
-      throw this.mapError(error, 'Gemini');
+      throw mapLlmProviderError('Gemini', error, this.logger);
     }
-  }
-
-  private mapError(error: unknown, label: string): LlmProviderException {
-    if (error instanceof LlmTimeoutError) {
-      return LlmProviderException.timeout();
-    }
-    if (error instanceof LlmHttpError) {
-      return LlmProviderException.upstream(
-        `${label} API error (${error.status})`,
-      );
-    }
-    if (error instanceof LlmProviderException) {
-      return error;
-    }
-    return LlmProviderException.upstream(`${label} request failed`);
   }
 }
