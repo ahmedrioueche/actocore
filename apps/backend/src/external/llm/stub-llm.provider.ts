@@ -5,7 +5,7 @@ import type {
   LlmProvider,
 } from './llm-provider.interface';
 
-/** Development placeholder until OpenAI / Claude adapters are wired. */
+/** Default when `LLM_PROVIDER=stub` (no external API calls). */
 @Injectable()
 export class StubLlmProvider implements LlmProvider {
   async complete(messages: LlmMessage[]): Promise<LlmCompletionResult> {

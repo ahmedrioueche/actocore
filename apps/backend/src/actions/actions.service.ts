@@ -1,0 +1,186 @@
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import type {
+  ActionData,
+  CreateActionDto,
+  UpdateActionDto,
+} from '@ahmedrioueche/actocore-shared';
+import { Model, Types } from 'mongoose';
+import { withProjectId } from '../common/tenant/tenant-scope';
+import { ProjectsService } from '../projects/projects.service';
+import { ActionSchemaValidator } from './action-schema.validator';
+import {
+  ProjectAction,
+  ProjectActionDocument,
+} from './schemas/project-action.schema';
+
+const DEFAULT_INPUT_SCHEMA = {
+  type: 'object',
+  properties: {},
+  additionalProperties: false,
+};
+
+@Injectable()
+export class ActionsService {
+  constructor(
+    @InjectModel(ProjectAction.name)
+    private readonly actionModel: Model<ProjectActionDocument>,
+    private readonly projects: ProjectsService,
+    private readonly schemaValidator: ActionSchemaValidator,
+  ) {}
+
+  async create(projectId: string, body: CreateActionDto): Promise<ActionData> {
+    await this.projects.assertExists(projectId);
+
+    const inputSchema = body.inputSchema ?? DEFAULT_INPUT_SCHEMA;
+    try {
+      this.schemaValidator.assertCompilable(inputSchema);
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Invalid inputSchema',
+      );
+    }
+
+    try {
+      const doc = await this.actionModel.create({
+        projectId,
+        name: body.name,
+        description: body.description,
+        inputSchema,
+        enabled: body.enabled ?? true,
+      });
+      return this.toData(doc);
+    } catch (error) {
+      if (this.isDuplicateNameError(error)) {
+        throw new ConflictException(
+          `Action "${body.name}" already exists for this project`,
+        );
+      }
+      throw error;
+    }
+  }
+
+  async list(projectId: string): Promise<ActionData[]> {
+    await this.projects.assertExists(projectId);
+
+    const docs = await this.actionModel
+      .find(withProjectId(projectId))
+      .sort({ name: 1 })
+      .exec();
+
+    return docs.map((doc) => this.toData(doc));
+  }
+
+  async listEnabled(projectId: string): Promise<ActionData[]> {
+    const all = await this.list(projectId);
+    return all.filter((action) => action.enabled);
+  }
+
+  async findById(projectId: string, actionId: string): Promise<ActionData> {
+    const doc = await this.require(projectId, actionId);
+    return this.toData(doc);
+  }
+
+  async update(
+    projectId: string,
+    actionId: string,
+    body: UpdateActionDto,
+  ): Promise<ActionData> {
+    await this.require(projectId, actionId);
+
+    const $set: Record<string, unknown> = {};
+    if (body.description !== undefined) {
+      $set.description = body.description;
+    }
+    if (body.inputSchema !== undefined) {
+      try {
+        this.schemaValidator.assertCompilable(body.inputSchema);
+      } catch (error) {
+        throw new BadRequestException(
+          error instanceof Error ? error.message : 'Invalid inputSchema',
+        );
+      }
+      $set.inputSchema = body.inputSchema;
+    }
+    if (body.enabled !== undefined) {
+      $set.enabled = body.enabled;
+    }
+
+    const doc = await this.actionModel
+      .findOneAndUpdate(
+        withProjectId(projectId, { _id: actionId }),
+        { $set },
+        { new: true },
+      )
+      .exec();
+
+    if (!doc) {
+      throw new NotFoundException(`Action ${actionId} not found`);
+    }
+
+    return this.toData(doc);
+  }
+
+  async remove(
+    projectId: string,
+    actionId: string,
+  ): Promise<{ id: string }> {
+    const doc = await this.actionModel
+      .findOneAndDelete(withProjectId(projectId, { _id: actionId }))
+      .exec();
+
+    if (!doc) {
+      throw new NotFoundException(`Action ${actionId} not found`);
+    }
+
+    return { id: doc._id.toString() };
+  }
+
+  private async require(
+    projectId: string,
+    actionId: string,
+  ): Promise<ProjectActionDocument> {
+    await this.projects.assertExists(projectId);
+
+    if (!Types.ObjectId.isValid(actionId)) {
+      throw new NotFoundException(`Action ${actionId} not found`);
+    }
+
+    const doc = await this.actionModel
+      .findOne(withProjectId(projectId, { _id: actionId }))
+      .exec();
+
+    if (!doc) {
+      throw new NotFoundException(`Action ${actionId} not found`);
+    }
+
+    return doc;
+  }
+
+  private toData(doc: ProjectActionDocument): ActionData {
+    return {
+      id: doc._id.toString(),
+      projectId: doc.projectId,
+      name: doc.name,
+      description: doc.description,
+      inputSchema: doc.inputSchema,
+      enabled: doc.enabled,
+      createdAt: (doc.createdAt ?? new Date()).toISOString(),
+      updatedAt: (doc.updatedAt ?? new Date()).toISOString(),
+    };
+  }
+
+  private isDuplicateNameError(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: number }).code === 11000
+    );
+  }
+}

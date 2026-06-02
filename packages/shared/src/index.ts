@@ -16,4 +16,7 @@ export * from './api/sessions';
 export * from './api/runtime';
 export * from './api/api-keys';
 export * from './api/projects';
+export * from './api/actions';
+export * from './api/knowledge';
+export * from './api/usage';
 export * from './api/health';

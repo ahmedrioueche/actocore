@@ -64,6 +64,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
         return ErrorCode.NOT_FOUND;
       case HttpStatus.CONFLICT:
         return ErrorCode.CONFLICT;
+      case HttpStatus.BAD_GATEWAY:
+        return ErrorCode.BAD_GATEWAY;
+      case HttpStatus.GATEWAY_TIMEOUT:
+        return ErrorCode.GATEWAY_TIMEOUT;
+      case HttpStatus.TOO_MANY_REQUESTS:
+        return ErrorCode.TOO_MANY_REQUESTS;
       case HttpStatus.SERVICE_UNAVAILABLE:
         return ErrorCode.SERVICE_UNAVAILABLE;
       default:

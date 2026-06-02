@@ -8,7 +8,7 @@ Update **Current focus** at the start of each work session.
 
 ## Current focus
 
-**Request context builder:** complete. Next: **AI orchestrator** (stub → live LLM, chat pipeline).
+**Core backend MVP:** feature-complete for SDK chat loop. Next: Studio/web auth, SDK package wiring.
 
 ---
 
@@ -61,13 +61,13 @@ _Resolve project and attach context before orchestration._
 
 _Intent detection, routing, LLM communication._
 
-- [ ] LLM provider adapter (OpenAI / Claude / Gemini)
-- [ ] Session management (create, continue, list messages)
-- [ ] `POST /v1/chat` (or equivalent) entry for SDK messages
-- [ ] Intent classification: Q&A vs Action vs direct response
-- [ ] Orchestration pipeline: context → classify → branch → format
-- [ ] Token usage capture per request
-- [ ] Mock/stub orchestrator for development before live LLM
+- [x] LLM provider adapter (OpenAI / Claude / Gemini)
+- [x] Session management (create, continue, list messages) — MongoDB `chat_sessions` / `chat_messages`
+- [x] `POST /v1/sdk/chat` entry for SDK messages
+- [x] Intent classification: Q&A vs Action vs direct response (heuristic stub)
+- [x] Orchestration pipeline: context → classify → branch → format
+- [x] Token usage capture per request
+- [x] Mock/stub orchestrator for development before live LLM
 
 ---
 
@@ -75,11 +75,11 @@ _Intent detection, routing, LLM communication._
 
 _Execute validated actions inside host applications._
 
-- [ ] Action/tool registry per project (JSON schema definitions)
-- [ ] CRUD for actions (web control plane)
-- [ ] Validate AI-selected action against schema
-- [ ] Safe execution path and structured result DTO
-- [ ] Return action results to SDK for UI rendering
+- [x] Action/tool registry per project (JSON schema definitions)
+- [x] CRUD for actions (web control plane)
+- [x] Validate AI-selected action against schema
+- [x] Safe execution path and structured result DTO
+- [x] Return action results to SDK for UI rendering
 
 ---
 
@@ -87,11 +87,11 @@ _Execute validated actions inside host applications._
 
 _Knowledge-based responses._
 
-- [ ] Knowledge source metadata (documents, URLs, files)
-- [ ] Chunk storage and embedding generation
-- [ ] Retrieval for user questions
-- [ ] Inject retrieved context into LLM prompt
-- [ ] Return formatted Q&A response to SDK
+- [x] Knowledge source metadata (documents, URLs, files)
+- [x] Chunk storage and embedding generation
+- [x] Retrieval for user questions
+- [x] Inject retrieved context into LLM prompt
+- [x] Return formatted Q&A response to SDK
 
 ---
 
@@ -110,9 +110,9 @@ _Per-project configuration for Studio and runtime._
 
 _Consistent API output after orchestration._
 
-- [ ] Standard success/error response shape (`ApiResponse`)
-- [ ] Map internal errors to `errorCode` values
-- [ ] Unify Q&A, Action, and direct response paths through one formatter
+- [x] Standard success/error response shape (`ApiResponse`)
+- [x] Map internal errors to `errorCode` values
+- [x] Unify Q&A, Action, and direct response paths through one formatter
 
 ---
 
@@ -120,10 +120,10 @@ _Consistent API output after orchestration._
 
 _Logs, decisions, actions, latency._
 
-- [ ] Log all incoming requests (project, route, latency)
-- [ ] Log AI decisions (intent, model, tokens)
-- [ ] Log executed actions and failures
-- [ ] Error and latency monitoring hooks
+- [x] Log all incoming requests (project, route, latency)
+- [x] Log AI decisions (intent, model, tokens)
+- [x] Log executed actions and failures
+- [x] Error and latency monitoring hooks
 
 ---
 
@@ -131,10 +131,10 @@ _Logs, decisions, actions, latency._
 
 _Quotas and consumption per project._
 
-- [ ] Usage events per request (tokens, calls)
-- [ ] Aggregate usage per project
-- [ ] Rate limits and quota enforcement
-- [ ] Data exposed for Studio analytics
+- [x] Usage events per request (tokens, calls)
+- [x] Aggregate usage per project
+- [x] Rate limits and quota enforcement
+- [x] Data exposed for Studio analytics
 
 ---
 
@@ -142,9 +142,9 @@ _Quotas and consumption per project._
 
 _Types and API client used by backend, web, and SDK — per [`_docs/RULES.md`](_docs/RULES.md)._
 
-- [ ] Define DTOs in `packages/shared` before each backend endpoint
-- [ ] Implement Core HTTP calls in `packages/shared/src/api/`
-- [ ] Backend imports types from `@actocore/shared` only (no duplicate DTOs)
+- [x] Define DTOs in `packages/shared` before each backend endpoint
+- [x] Implement Core HTTP calls in `packages/shared/src/api/`
+- [x] Backend imports types from `@actocore/shared` only (no duplicate DTOs)
 - [ ] SDK and web consume the same `api` modules
 
 ---

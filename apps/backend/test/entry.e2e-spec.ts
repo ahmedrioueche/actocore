@@ -74,5 +74,57 @@ describe('Entry layer (e2e)', () => {
     expect(chatRes.body.success).toBe(true);
     expect(chatRes.body.data.sessionId).toBe(sessionId);
     expect(chatRes.body.data.content).toContain('[stub]');
+    expect(chatRes.body.data.intent).toBe('direct');
+    expect(chatRes.body.data.usage?.model).toBe('stub');
+  });
+
+  it('continues a session and lists messages', async () => {
+    const server = app.getHttpServer();
+    const auth = { Authorization: `Bearer ${apiKey}` };
+
+    const sessionId = (
+      await request(server)
+        .post('/v1/sdk/sessions')
+        .set(auth)
+        .send({})
+        .expect(201)
+    ).body.data.id;
+
+    await request(server)
+      .post('/v1/sdk/chat')
+      .set(auth)
+      .send({ sessionId, message: 'First turn' })
+      .expect(201);
+
+    const second = await request(server)
+      .post('/v1/sdk/chat')
+      .set(auth)
+      .send({ sessionId, message: 'Second turn' })
+      .expect(201);
+
+    expect(second.body.data.intent).toBe('direct');
+
+    const messages = await request(server)
+      .get(`/v1/sdk/sessions/${sessionId}/messages`)
+      .set(auth)
+      .expect(200);
+
+    expect(messages.body.data).toHaveLength(4);
+    expect(messages.body.data[0].content).toBe('First turn');
+    expect(messages.body.data[2].content).toBe('Second turn');
+  });
+
+  it('routes action phrasing when no actions are configured', async () => {
+    const server = app.getHttpServer();
+    const auth = { Authorization: `Bearer ${apiKey}` };
+
+    const res = await request(server)
+      .post('/v1/sdk/chat')
+      .set(auth)
+      .send({ message: 'Run the deploy script' })
+      .expect(201);
+
+    expect(res.body.data.intent).toBe('action');
+    expect(res.body.data.content).toContain('No actions are configured');
   });
 });

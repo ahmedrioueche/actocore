@@ -7,6 +7,8 @@ import {
 } from './mongodb.config';
 import { resolveAuthConfig } from './auth.config';
 import { resolveHttpConfig } from './http.config';
+import { resolveLlmConfig } from './llm.config';
+import { resolveQuotaLimits } from './quota.config';
 import { isRedisEnabled, resolveRedisUrl } from './redis.config';
 
 export default () => {
@@ -29,5 +31,7 @@ export default () => {
     },
     http: resolveHttpConfig(),
     auth: resolveAuthConfig(),
+    llm: resolveLlmConfig(),
+    quota: resolveQuotaLimits(),
   };
 };
