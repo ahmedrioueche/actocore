@@ -92,6 +92,8 @@ The SDK is a React-based package embedded inside customer applications.
 
 The Studio is the SaaS dashboard used by developers integrating ActoCore.
 
+**Documentation:** [`_docs/studio/OVERVIEW.md`](studio/OVERVIEW.md) · [`_docs/studio/ARCHITECTURE.md`](studio/ARCHITECTURE.md) · app: [`apps/studio`](../apps/studio)
+
 ### Responsibilities:
 
 - Create and manage applications

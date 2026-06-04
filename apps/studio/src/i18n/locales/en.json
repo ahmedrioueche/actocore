@@ -1,0 +1,139 @@
+{
+  "app": {
+    "name": "ActoCore Studio"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "goBack": "Go back",
+    "continue": "Continue",
+    "viewMode": {
+      "cards": "Cards",
+      "table": "Table"
+    },
+    "pagination": {
+      "showing": "Showing {{from}}–{{to}} of {{total}}"
+    }
+  },
+  "confirm": {
+    "default": {
+      "title": "Confirm action",
+      "text": "Are you sure you want to continue?"
+    },
+    "typeToConfirm": "Type \"{{text}}\" to confirm"
+  },
+  "general": {
+    "loading": "Loading",
+    "please_wait": "Please wait…",
+    "no_data": "No data",
+    "no_data_desc": "There is nothing to show yet.",
+    "page_not_found": "Page not found",
+    "page_not_found_desc": "The page you are looking for does not exist."
+  },
+  "actions": {
+    "go_back": "Go back",
+    "go_home": "Go home"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "message": "An unexpected error occurred. Refresh the page or go back."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "invalidCredentials": "Invalid email, workspace, username, or password.",
+    "emailNotVerified": "Please verify your email before signing in.",
+    "emailAlreadyVerified": "This email is already verified.",
+    "invalidVerificationToken": "This verification link is invalid or expired.",
+    "invalidResetToken": "This reset link is invalid or expired.",
+    "invalidRefreshToken": "Your session expired. Please sign in again.",
+    "googleAuthFailed": "Google sign-in failed. Please try again.",
+    "googleNotConfigured": "Google sign-in is not available.",
+    "userAlreadyExists": "An account with this email already exists.",
+    "validation": "Please check your input and try again.",
+    "unauthorized": "You need to sign in to continue.",
+    "forbidden": "You do not have permission to do that.",
+    "internal": "A server error occurred. Please try again later.",
+    "tooManyRequests": "Too many attempts. Please wait and try again."
+  },
+  "auth": {
+    "brand": {
+      "tagline": "Configure AI for your applications",
+      "subtagline": "Manage projects, knowledge, SDK settings, and team access in one place."
+    },
+    "or": "or",
+    "google": "Continue with Google",
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Welcome back to ActoCore Studio",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Continue",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Create account",
+      "teamToggle": "Sign in as a team member",
+      "teamHide": "Sign in with email instead",
+      "workspaceId": "Workspace ID",
+      "workspaceIdHelp": "Ask your admin for the workspace ID (account ID) from Settings.",
+      "username": "Username"
+    },
+    "signup": {
+      "title": "Create account",
+      "subtitle": "Start configuring ActoCore for your apps",
+      "accountName": "Organization name",
+      "email": "Work email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters",
+      "displayName": "Display name (optional)",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "verifyTitle": "Check your email",
+      "verifySubtitle": "We sent a verification link to {{email}}",
+      "verifyInstructions": "Open the link in your email to activate your account, then sign in.",
+      "resend": "Resend verification email",
+      "resendSuccess": "Verification email sent.",
+      "goToLogin": "Go to sign in"
+    },
+    "verify": {
+      "title": "Verify email",
+      "subtitle": "Confirming your email address…",
+      "submit": "Verify email",
+      "tokenLabel": "Verification code",
+      "tokenPlaceholder": "Paste token from email",
+      "success": "Email verified. Redirecting…",
+      "missingToken": "No verification token found. Open the link from your email or paste the token below."
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "subtitle": "Enter your email and we will send reset instructions",
+      "email": "Email",
+      "submit": "Send reset link",
+      "successTitle": "Check your email",
+      "successSubtitle": "If an account exists for that email, you will receive reset instructions shortly.",
+      "backToLogin": "Back to sign in"
+    },
+    "reset": {
+      "title": "Reset password",
+      "subtitle": "Choose a new password for your account",
+      "password": "New password",
+      "submit": "Update password",
+      "success": "Password updated. You can sign in now.",
+      "missingToken": "Invalid reset link. Request a new one from the forgot password page."
+    },
+    "callback": {
+      "title": "Signing you in",
+      "subtitle": "Completing Google sign-in…",
+      "error": "Google sign-in failed. Please try again."
+    },
+    "logout": "Sign out"
+  },
+  "projects": {
+    "placeholderTitle": "Projects",
+    "placeholderSubtitle": "Your workspace is ready. Project management UI is coming next."
+  }
+}

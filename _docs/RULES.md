@@ -21,12 +21,13 @@ You are a Senior Full-Stack Developer specializing in TypeScript, React, NestJS,
 
 ### Technology Stack
 
-**Frontend (Web)**
+**Frontend (Web / Studio)**
 
 - React.js with TypeScript
 - TailwindCSS for styling
 - i18next for internationalization
-- Zustand for state management
+- Zustand for client UI state (modals, ephemeral UI)
+- **Studio (`apps/studio`):** TanStack Router (routing), TanStack Query (server cache), TanStack Table (lists/tables/pagination UI)
 
 **Backend**
 
@@ -77,6 +78,7 @@ If they don't exist, create them before using.
 - Always use BaseModal component, add the modal to the modal store with props
 - Add the modal to modals.tsx using React.Lazy
 - Do not add the modal to the components/pages, only call openModal form the modal store
+- Do not pass props directly to the modal, only pass them in modal store
 
 **Performance**
 
@@ -138,11 +140,11 @@ packages/shared/src/
 
 **Who imports what**
 
-| Consumer | Imports |
-| --- | --- |
-| `apps/backend` | `types/` only — controllers return these shapes |
-| `apps/studio` (web) | `types/` + `api/` |
-| `packages/sdk` | `types/` + `api/` |
+| Consumer            | Imports                                         |
+| ------------------- | ----------------------------------------------- |
+| `apps/backend`      | `types/` only — controllers return these shapes |
+| `apps/studio` (web) | `types/` + `api/` — docs: [`_docs/studio/`](studio/OVERVIEW.md) |
+| `packages/sdk`      | `types/` + `api/`                               |
 
 **API calls (mandatory)**
 
@@ -156,7 +158,7 @@ packages/shared/src/
 
 - Define request/response interfaces in `packages/shared/src/types/` (one file per domain: `project.ts`, `chat.ts`, …)
 - **Check if types already exist** before creating new ones
-- **Never define API DTOs in** `apps/backend`, components, or the SDK UI package
+- **Never define API DTOs in** `apps/backend`, `apps/studio`, components, or the SDK UI package
 - Backend controllers and services import DTOs from `@actocore/shared`
 
 **Build**
@@ -184,13 +186,21 @@ export interface ApiResponse<T = unknown> {
 - Use `getMessage` and `ShowStatusToast` from `src/utils/statusMessage` for user-facing messages (web)
 - Backend controllers must use the `apiResponse()` helper and return `ApiResponse` shapes from `@actocore/shared`
 
+**Studio server state (TanStack Query)**
+
+- Wrap shared `api/*` calls in `useQuery` / `useMutation` inside `src/hooks/` — not in page components
+- Use `src/lib/query-keys.ts` for cache keys; invalidate on mutations
+- Parse responses with `parseApiResponse` (or equivalent) — **do not** redefine `ApiResponse` in Studio
+- List pages: pair Query with `useStudioPagination` + `DataTable` (TanStack Table); pagination types live in `src/types/`
+
 ### 7. Type Safety
 
 **Type definitions**
 
-- Domain types for APIs: `packages/shared/src/types/<domain>.ts`
-- App-only UI types may live in the app, but **never duplicate API DTOs**
-- **Never create API types inside components**
+- **Global (API contract):** `packages/shared/src/types/` and `packages/shared/src/dtos/` only
+- **Studio local (UI only):** `apps/studio/src/types/` — pagination, table state, modal props, form state, view-models
+- Import global types from `@actocore/shared`; **never copy or extend API shapes** in Studio — map to view-models in hooks if needed
+- **Never create API types inside components** or pages
 - Keep backend responses aligned with `@actocore/shared` types
 
 ### 8. Error Handling
@@ -330,7 +340,9 @@ When creating a new page:
 - Create types in components
 - Use fetch/axios directly in components or SDK UI (use `@actocore/shared` api instead)
 - Define API DTOs outside `packages/shared`
+- Put API request/response interfaces in `apps/studio/src/types/` (use `packages/shared` + local view-models only)
 - Call Core HTTP from web/SDK without going through `packages/shared/src/api`
+- Use `react-router-dom` or ad-hoc `fetch` in Studio (use TanStack Router + Query + shared `api`)
 - Use arbitrary Tailwind values
 - Install dependencies without checking existing ones
 - Leave incomplete code or TODOs

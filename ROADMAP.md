@@ -516,5 +516,8 @@ _Principle: dashboard controls presentation/policy; code keeps runtime logic/sec
 - [`apps/backend/README.md`](apps/backend/README.md) — API routes, knowledge matrix, env vars, curl examples
 - [`_docs/backend/ARCHITECTURE.md`](_docs/backend/ARCHITECTURE.md) — layers and request flow
 - [`_docs/backend/OVERVIEW.md`](_docs/backend/OVERVIEW.md) — responsibilities
+- [`_docs/studio/OVERVIEW.md`](_docs/studio/OVERVIEW.md) — Studio dashboard product
+- [`_docs/studio/ARCHITECTURE.md`](_docs/studio/ARCHITECTURE.md) — `apps/studio` frontend structure
+- [`_docs/studio/DESIGN.md`](_docs/studio/DESIGN.md) — brand colors & tokens
 - [`_docs/PROJECT.md`](_docs/PROJECT.md) — product context
 - [`_docs/RULES.md`](_docs/RULES.md) — implementation rules

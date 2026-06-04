@@ -1,0 +1,113 @@
+/**
+ * ActoCore Studio brand & semantic tokens.
+ * Aligned with packages/sdk/src/styles/tokens.css (--ac-color-*).
+ * Components use Tailwind utilities mapped in tailwind.config.js — no arbitrary hex in TSX.
+ */
+
+:root {
+  --ac-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Brand */
+  --ac-brand-primary: #4f46e5;
+  --ac-brand-primary-hover: #4338ca;
+  --ac-brand-secondary: #7c3aed;
+  --ac-brand-secondary-hover: #6d28d9;
+  --ac-brand-accent: #a855f7;
+
+  /* Semantic (light) */
+  --ac-color-primary: var(--ac-brand-primary);
+  --ac-color-primary-hover: var(--ac-brand-primary-hover);
+  --ac-color-primary-contrast: #ffffff;
+  --ac-color-primary-muted: rgb(79 70 229 / 0.12);
+  --ac-color-secondary: var(--ac-brand-secondary);
+  --ac-color-secondary-hover: var(--ac-brand-secondary-hover);
+  --ac-color-accent: var(--ac-brand-accent);
+
+  --ac-color-bg: #f8fafc;
+  --ac-color-surface: #ffffff;
+  --ac-color-surface-secondary: #f1f5f9;
+  --ac-color-surface-hover: #e2e8f0;
+  --ac-color-surface-elevated: #ffffff;
+
+  --ac-color-border: #e2e8f3;
+  --ac-color-border-hover: #cbd5e1;
+
+  --ac-color-text: #0f172a;
+  --ac-color-text-muted: #64748b;
+  --ac-color-muted: #94a3b8;
+
+  --ac-color-danger: #dc2626;
+  --ac-color-danger-hover: #b91c1c;
+  --ac-color-danger-surface: #fef2f2;
+  --ac-color-success: #16a34a;
+  --ac-color-success-hover: #15803d;
+  --ac-color-success-surface: #f0fdf4;
+  --ac-color-warning: #d97706;
+  --ac-color-warning-surface: #fffbeb;
+
+  --ac-gradient-brand: linear-gradient(
+    135deg,
+    var(--ac-brand-primary) 0%,
+    var(--ac-brand-secondary) 55%,
+    var(--ac-brand-accent) 100%
+  );
+  --ac-gradient-brand-soft: linear-gradient(
+    135deg,
+    rgb(79 70 229 / 0.15) 0%,
+    rgb(124 58 237 / 0.12) 100%
+  );
+
+  --ac-shadow-sm: 0 1px 3px rgb(15 23 42 / 0.06);
+  --ac-shadow-md: 0 8px 24px rgb(15 23 42 / 0.08);
+  --ac-shadow-brand: 0 8px 32px rgb(79 70 229 / 0.22);
+
+  --ac-radius-sm: 0.375rem;
+  --ac-radius-md: 0.625rem;
+  --ac-radius-lg: 1rem;
+  --ac-radius-xl: 1.25rem;
+}
+
+.dark {
+  --ac-brand-primary: #6366f1;
+  --ac-brand-primary-hover: #818cf8;
+  --ac-brand-secondary: #8b5cf6;
+  --ac-brand-secondary-hover: #a78bfa;
+  --ac-brand-accent: #c084fc;
+
+  --ac-color-primary: var(--ac-brand-primary);
+  --ac-color-primary-hover: var(--ac-brand-primary-hover);
+  --ac-color-primary-muted: rgb(99 102 241 / 0.2);
+  --ac-color-secondary: var(--ac-brand-secondary);
+  --ac-color-secondary-hover: var(--ac-brand-secondary-hover);
+  --ac-color-accent: var(--ac-brand-accent);
+
+  --ac-color-bg: #0f172a;
+  --ac-color-surface: #1e293b;
+  --ac-color-surface-secondary: #334155;
+  --ac-color-surface-hover: #475569;
+  --ac-color-surface-elevated: #1e293b;
+
+  --ac-color-border: #334155;
+  --ac-color-border-hover: #475569;
+
+  --ac-color-text: #f1f5f9;
+  --ac-color-text-muted: #94a3b8;
+  --ac-color-muted: #64748b;
+
+  --ac-color-danger: #f87171;
+  --ac-color-danger-hover: #fca5a5;
+  --ac-color-danger-surface: #450a0a;
+  --ac-color-success: #4ade80;
+  --ac-color-success-hover: #86efac;
+  --ac-color-success-surface: #052e16;
+  --ac-color-warning: #fbbf24;
+  --ac-color-warning-surface: #422006;
+
+  --ac-gradient-brand-soft: linear-gradient(
+    135deg,
+    rgb(99 102 241 / 0.2) 0%,
+    rgb(139 92 246 / 0.15) 100%
+  );
+
+  --ac-shadow-brand: 0 8px 32px rgb(99 102 241 / 0.35);
+}

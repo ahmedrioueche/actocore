@@ -174,5 +174,7 @@ Static `STUDIO_DEV_TOKEN` can remain **only** for automated tests or a single bo
 
 - [`README.md`](./README.md) — route tables (update when auth routes land)
 - [`DEV.md`](./DEV.md) — daily workflow
+- [`_docs/studio/OVERVIEW.md`](../../_docs/studio/OVERVIEW.md) — Studio product (frontend)
+- [`_docs/studio/ARCHITECTURE.md`](../../_docs/studio/ARCHITECTURE.md) — `apps/studio` structure
 - [`ROADMAP.md`](../../ROADMAP.md) — Studio checklist
 - [`_docs/PROJECT.md`](../../_docs/PROJECT.md) — Studio responsibilities

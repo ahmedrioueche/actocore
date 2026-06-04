@@ -1,0 +1,50 @@
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: var(--ac-font-family);
+  }
+
+  body {
+    @apply bg-background text-text-primary antialiased;
+  }
+}
+
+@layer components {
+  .mesh-bg {
+    background-color: var(--ac-brand-primary);
+    background-image: var(--ac-gradient-brand);
+  }
+
+  .bg-brand-gradient {
+    background-image: var(--ac-gradient-brand);
+  }
+
+  .bg-brand-gradient-soft {
+    background-image: var(--ac-gradient-brand-soft);
+  }
+
+  .text-brand-gradient {
+    background-image: var(--ac-gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar {
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shadow-brand {
+    box-shadow: var(--ac-shadow-brand);
+  }
+}
