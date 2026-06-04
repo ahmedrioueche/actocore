@@ -1,3 +1,4 @@
+import type { SdkRuntimeConfigData } from './sdk-config';
 import type { RuntimeVoiceConfig } from './voice';
 
 export interface RuntimeConfigData {
@@ -6,4 +7,6 @@ export interface RuntimeConfigData {
   /** Project bound to the authenticated SDK API key. */
   projectId: string;
   voice?: RuntimeVoiceConfig;
+  /** Dashboard-driven SDK presentation config (merge under host props). */
+  sdk?: SdkRuntimeConfigData;
 }

@@ -2,6 +2,8 @@
 
 The ActoCore backend is the central system that powers all AI reasoning, action execution, and data processing for applications using ActoCore.
 
+**Local development:** [`apps/backend/DEV.md`](../../apps/backend/DEV.md) · **API reference:** [`apps/backend/README.md`](../../apps/backend/README.md)
+
 It is responsible for transforming natural language requests from the SDK into either:
 
 - Informational responses (Q&A mode)
@@ -75,6 +77,12 @@ It handles:
 - Track API usage per project
 - Measure token consumption
 - Enforce rate limits and quotas
+
+---
+
+# 📖 API reference (implemented routes)
+
+For endpoint tables, knowledge ingest matrix, env vars, and curl examples, see **[`apps/backend/README.md`](../../apps/backend/README.md)**.
 
 ---
 

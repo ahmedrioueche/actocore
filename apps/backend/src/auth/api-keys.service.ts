@@ -21,6 +21,8 @@ import {
 } from './utils/api-key-crypto';
 import { ErrorCode } from '@ahmedrioueche/actocore-shared';
 import { ProjectsService } from '../projects/projects.service';
+import { StudioAccessService } from '../studio/studio-access.service';
+import type { StudioRequestContext } from '../studio/studio-context';
 
 export interface ValidatedApiKey {
   id: string;
@@ -35,7 +37,51 @@ export class ApiKeysService {
     @InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKeyDocument>,
     private readonly config: ConfigService,
     private readonly projects: ProjectsService,
+    private readonly studioAccess: StudioAccessService,
   ) {}
+
+  async listForProject(
+    ctx: StudioRequestContext | null,
+    projectId: string,
+    includeRevoked = false,
+  ): Promise<ApiKeyMetadata[]> {
+    if (ctx) {
+      this.studioAccess.assertProjectAccess(ctx, projectId);
+      await this.projects.assertExistsForAccount(ctx, projectId);
+    } else {
+      await this.projects.assertExists(projectId);
+    }
+
+    const docs = await this.apiKeyModel
+      .find(
+        includeRevoked
+          ? { projectId }
+          : { projectId, revokedAt: { $exists: false } },
+      )
+      .sort({ createdAt: -1 })
+      .exec();
+
+    return docs.map((doc) => this.toMetadata(doc));
+  }
+
+  async rotateAllForProject(
+    ctx: StudioRequestContext | null,
+    projectId: string,
+  ): Promise<{ revokedCount: number }> {
+    if (ctx) {
+      this.studioAccess.assertProjectAccess(ctx, projectId);
+      await this.projects.assertExistsForAccount(ctx, projectId);
+    } else {
+      await this.projects.assertExists(projectId);
+    }
+
+    const result = await this.apiKeyModel.updateMany(
+      { projectId, revokedAt: { $exists: false } },
+      { revokedAt: new Date() },
+    );
+
+    return { revokedCount: result.modifiedCount ?? 0 };
+  }
 
   async issue(body: CreateApiKeyDto): Promise<ApiKeyIssuedData> {
     await this.projects.assertExists(body.projectId);
@@ -61,7 +107,20 @@ export class ApiKeysService {
     };
   }
 
-  async revoke(keyId: string): Promise<ApiKeyMetadata> {
+  async revoke(
+    ctx: StudioRequestContext | null,
+    keyId: string,
+  ): Promise<ApiKeyMetadata> {
+    const existing = await this.apiKeyModel.findById(keyId).exec();
+    if (!existing) {
+      throw new NotFoundException(`API key ${keyId} not found`);
+    }
+
+    if (ctx) {
+      this.studioAccess.assertProjectAccess(ctx, existing.projectId);
+      await this.projects.assertExistsForAccount(ctx, existing.projectId);
+    }
+
     const doc = await this.apiKeyModel
       .findByIdAndUpdate(keyId, { revokedAt: new Date() }, { new: true })
       .exec();

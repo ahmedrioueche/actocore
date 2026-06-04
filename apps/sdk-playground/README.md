@@ -2,30 +2,53 @@
 
 Local host app to validate `@ahmedrioueche/actocore-sdk` against a real ActoCore backend.
 
-## Run
+| Doc | Purpose |
+|-----|---------|
+| [MANUAL_E2E.md](./MANUAL_E2E.md) | Full manual test checklist |
+| [packages/sdk/DEV.md](../../packages/sdk/DEV.md) | SDK + playground dev workflow |
+| [apps/backend/DEV.md](../backend/DEV.md) | Backend, env, auth, tests |
+
+## Quick start (from repo root)
+
+```powershell
+docker compose -f compose.yml up -d
+npm run dev:backend
+```
+
+New terminal:
+
+```powershell
+cd apps/sdk-playground
+cp .env.example .env
+npm install
+npm run setup
+npm run dev
+```
+
+Open http://localhost:5173. `npm run setup` creates a project + API key (writes `.env`) and seeds actions + knowledge.
+
+## Run (playground only)
 
 ```bash
 cd apps/sdk-playground
 cp .env.example .env
 npm install
+npm run setup
 npm run dev
 ```
 
-Set `VITE_ACTOCORE_API_KEY` with a valid project API key (same project as seeded data).
-
 Backend must be running (`apps/backend`) with MongoDB connected.
 
-## Seed demo data
+## Scripts
 
-```bash
-# In-app actions (add_user, list_users, …)
-npm run seed:actions
-
-# Knowledge / Q&A (RAG chunks for the playground project)
-npm run seed:knowledge
-```
-
-Both scripts resolve the project from `VITE_ACTOCORE_API_KEY` in `.env`.
+| Command | Purpose |
+|---------|---------|
+| `npm run setup` | Project/key (if needed) + `seed:actions` + `seed:knowledge` |
+| `npm run seed:actions` | Register `add_user`, `list_users`, … on Core |
+| `npm run seed:knowledge` | Ingest demo FAQ for Q&A |
+| `npm run config:fr` | PATCH sdk-config for French remote-config test |
+| `npm run config:allowlist` | PATCH sdk-config (server allowlist: `list_users` only) |
+| `npm run config:reset` | PATCH sdk-config back to defaults |
 
 ## Test Knowledge (Q&A)
 
@@ -48,30 +71,21 @@ npm run seed:knowledge -- --file ./path/to/faq.md
 
 The file is ingested as a `text` knowledge source (title = filename without extension).
 
-### PDF
+### Upload files (PDF, text, markdown)
 
-The HTTP API does not accept raw PDF uploads yet (`type: "document"` is reserved but not implemented). For now, extract text and ingest as `text`:
-
-**Option A — seed script (recommended for local dev)**
+Backend multipart API:
 
 ```bash
-npm install   # includes optional devDependency pdf-parse
-npm run seed:knowledge -- --pdf ./path/to/manual.pdf
+npm run seed:knowledge -- --upload ./path/to/manual.pdf
 ```
 
-**Option B — extract text yourself, then use `--file`**
+Also accepts `.txt` and `.md`. PDF text extraction runs on Core (`pdf-parse`); scanned PDFs without text are rejected.
+
+Direct API:
 
 ```bash
-pdftotext manual.pdf manual.txt
-npm run seed:knowledge -- --file ./manual.txt
-```
-
-**Option C — paste via API**
-
-```bash
-curl -X POST "http://localhost:3000/v1/web/projects/PROJECT_ID/knowledge" \
-  -H "Content-Type: application/json" \
-  -d "{\"type\":\"text\",\"title\":\"My doc\",\"content\":\"...paste extracted text...\"}"
+curl -X POST "http://localhost:3000/v1/web/projects/PROJECT_ID/knowledge/upload?title=My%20doc" \
+  -F "file=@./manual.pdf"
 ```
 
 ### Public web pages (HTML only)
@@ -84,7 +98,22 @@ curl -X POST "http://localhost:3000/v1/web/projects/PROJECT_ID/knowledge" \
   -d "{\"type\":\"url\",\"title\":\"Docs page\",\"url\":\"https://example.com/docs\"}"
 ```
 
-Direct PDF URLs will not work until document/PDF parsing is added to the backend.
+Direct PDF URLs work when the response is a PDF (`Content-Type` or magic bytes); HTML-only pages are stripped to text.
+
+## Voice and remote SDK config
+
+Sidebar toggles:
+
+- **Voice input / output** — mic in the composer and read-aloud on assistant messages. Server STT needs `VOICE_STT_PROVIDER=openai` on Core; otherwise use browser dictation (`inputMode: 'auto'`).
+- **Load SDK config from backend** — enables `loadRemoteConfig` on the provider. Patch settings first:
+
+```bash
+curl -X PATCH "http://localhost:3000/v1/web/projects/PROJECT_ID/sdk-config" \
+  -H "Content-Type: application/json" \
+  -d '{"ui":{"showIntentBadge":true},"i18n":{"locale":"fr"}}'
+```
+
+See [`apps/backend/README.md`](../backend/README.md) for API details.
 
 ## What this app demonstrates
 
@@ -92,4 +121,5 @@ Direct PDF URLs will not work until document/PDF parsing is added to the backend
 - Theme switching (`light` / `dark` / `system`)
 - Action allowlist enforcement
 - UI feature flags (`showSources`, `showIntentBadge`)
+- Voice input/output and optional dashboard-driven config (`loadRemoteConfig`)
 - Demo users panel with action handlers

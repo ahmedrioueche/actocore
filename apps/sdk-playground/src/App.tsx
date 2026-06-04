@@ -30,6 +30,7 @@ export default function App() {
   const [showIntentBadge, setShowIntentBadge] = useState(true);
   const [voiceInput, setVoiceInput] = useState(true);
   const [voiceOutput, setVoiceOutput] = useState(true);
+  const [loadRemoteConfig, setLoadRemoteConfig] = useState(false);
   const [users, setUsers] = useState(INITIAL_DEMO_USERS);
   const usersRef = useRef(users);
   usersRef.current = users;
@@ -137,13 +138,22 @@ export default function App() {
           />
           {' '}Voice output (read aloud)
         </label>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={loadRemoteConfig}
+            onChange={(e) => setLoadRemoteConfig(e.target.checked)}
+          />
+          {' '}Load SDK config from backend (PATCH sdk-config first)
+        </label>
       </div>
 
       {!API_KEY ? (
         <div style={{ marginBottom: '16px', color: '#fbbf24' }}>
-          Missing <code>VITE_ACTOCORE_API_KEY</code>. Run{' '}
-          <code>npm run seed:actions</code> in this app (with backend running) or add a
-          key in <code>.env</code>.
+          Missing <code>VITE_ACTOCORE_API_KEY</code>. With backend running, run{' '}
+          <code>npm run setup</code> (see <code>MANUAL_E2E.md</code>) or add a key in{' '}
+          <code>.env</code>.
         </div>
       ) : null}
 
@@ -152,6 +162,7 @@ export default function App() {
       <ActocoreProvider
         apiKey={API_KEY}
         baseURL={API_URL}
+        loadRemoteConfig={loadRemoteConfig}
         i18n={{ locale }}
         theme={{ mode: themeMode }}
         security={{

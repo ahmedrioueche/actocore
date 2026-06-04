@@ -46,6 +46,30 @@ export class KnowledgeApi extends BaseApi {
       ),
     );
   }
+
+  upload(
+    projectId: string,
+    file: Blob,
+    options?: { title?: string; filename?: string },
+  ): Promise<ApiResponse<KnowledgeSourceData>> {
+    const form = new FormData();
+    form.append('file', file, options?.filename ?? 'upload.bin');
+
+    const params = new URLSearchParams();
+    if (options?.title?.trim()) {
+      params.set('title', options.title.trim());
+    }
+    const query = params.toString();
+    const path = query
+      ? `${apiPath(`web/projects/${projectId}/knowledge/upload`)}?${query}`
+      : apiPath(`web/projects/${projectId}/knowledge/upload`);
+
+    return this.request(() =>
+      this.client.post<ApiResponse<KnowledgeSourceData>>(path, form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }),
+    );
+  }
 }
 
 export const knowledgeApi = new KnowledgeApi();

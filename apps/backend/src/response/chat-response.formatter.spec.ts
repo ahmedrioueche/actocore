@@ -39,6 +39,27 @@ describe('ChatResponseFormatter', () => {
     expect(result.action?.actionName).toBe('deploy');
   });
 
+  it('shows pending action even when intentOverride is direct', () => {
+    const result = formatter.format({
+      sessionId: 's1',
+      messageId: 'm1',
+      intent: 'action',
+      branch: {
+        content: 'Ready to run "delete_user" in your application.',
+        intentOverride: 'direct',
+        action: {
+          actionId: 'a1',
+          actionName: 'delete_user',
+          status: 'pending',
+          input: { email: 'bob@demo.com' },
+        },
+      },
+    });
+
+    expect(result.intent).toBe('action');
+    expect(result.action?.status).toBe('pending');
+  });
+
   it('includes sources only for qa intent', () => {
     const result = formatter.format({
       sessionId: 's1',

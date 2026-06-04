@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ActionsModule } from '../actions/actions.module';
+import { ProjectsModule } from '../projects/projects.module';
 import { KnowledgeModule } from '../knowledge/knowledge.module';
 import { ObservabilityModule } from '../observability/observability.module';
 import { ResponseModule } from '../response/response.module';
@@ -13,6 +14,7 @@ import { StubIntentClassifier } from './stub-intent.classifier';
 @Module({
   imports: [
     ActionsModule,
+    ProjectsModule,
     KnowledgeModule,
     LlmModule,
     ObservabilityModule,

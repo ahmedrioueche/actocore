@@ -1,7 +1,17 @@
 {
   "name": "@ahmedrioueche/actocore-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Embeddable ActoCore chat SDK for React applications",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmedrioueche/actocore.git",
+    "directory": "packages/sdk"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -17,6 +27,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json && node scripts/copy-styles.mjs",
     "prepublishOnly": "npm run build",
+    "publish:package": "npm publish --registry https://registry.npmjs.org --access public",
+    "publish:public": "npm run publish:package",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -25,7 +37,7 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@ahmedrioueche/actocore-shared": "0.0.21",
+    "@ahmedrioueche/actocore-shared": "^0.0.24",
     "i18next": "^25.5.2",
     "react-i18next": "^16.0.0",
     "reflect-metadata": "^0.2.2"

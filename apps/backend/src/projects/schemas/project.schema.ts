@@ -1,11 +1,23 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import type { ProjectSettings } from '@ahmedrioueche/actocore-shared';
+import type {
+  ProjectSettings,
+  SdkProjectConfigData,
+} from '@ahmedrioueche/actocore-shared';
 
 @Schema({ collection: 'projects', timestamps: true })
 export class Project {
+  @Prop({ required: true, index: true })
+  accountId!: string;
+
   @Prop({ required: true })
   name!: string;
+
+  @Prop({ default: false, index: true })
+  archived!: boolean;
+
+  @Prop({ type: Date })
+  archivedAt?: Date;
 
   @Prop({
     type: {
@@ -16,6 +28,9 @@ export class Project {
     default: () => ({}),
   })
   settings!: ProjectSettings;
+
+  @Prop({ type: Object, default: () => ({ sdkConfigVersion: 0 }) })
+  sdkConfig!: SdkProjectConfigData;
 
   createdAt?: Date;
   updatedAt?: Date;

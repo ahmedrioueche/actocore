@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  PayloadTooLargeException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   CreateKnowledgeSourceDto,
@@ -11,9 +13,12 @@ import type {
   KnowledgeSourceType,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
+import { basename } from 'node:path';
+import type { KnowledgeResolvedConfig } from '../config/knowledge.config';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import { ProjectsService } from '../projects/projects.service';
 import { KnowledgeIngestService } from './knowledge-ingest.service';
+import { KnowledgeStorageService } from './knowledge-storage.service';
 import {
   KnowledgeChunk,
   KnowledgeChunkDocument,
@@ -22,6 +27,7 @@ import {
   KnowledgeSource,
   KnowledgeSourceDocument,
 } from './schemas/knowledge-source.schema';
+import { resolveKnowledgeMimeType } from './utils/knowledge-mime.util';
 
 @Injectable()
 export class KnowledgeService {
@@ -32,6 +38,8 @@ export class KnowledgeService {
     private readonly chunkModel: Model<KnowledgeChunkDocument>,
     private readonly projects: ProjectsService,
     private readonly ingest: KnowledgeIngestService,
+    private readonly storage: KnowledgeStorageService,
+    private readonly config: ConfigService,
   ) {}
 
   async create(
@@ -51,6 +59,57 @@ export class KnowledgeService {
     });
 
     const ingested = await this.ingest.ingestSource(doc, body);
+    return this.toData(ingested);
+  }
+
+  async uploadFile(
+    projectId: string,
+    file: Express.Multer.File | undefined,
+    title?: string,
+  ): Promise<KnowledgeSourceData> {
+    await this.projects.assertExists(projectId);
+
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('file is required');
+    }
+
+    const knowledge = this.config.getOrThrow<KnowledgeResolvedConfig>('knowledge');
+    if (file.size > knowledge.maxUploadBytes) {
+      throw new PayloadTooLargeException(
+        `File exceeds maximum size of ${knowledge.maxUploadBytes} bytes`,
+      );
+    }
+
+    const originalFilename = file.originalname?.trim() || 'upload.bin';
+    const mimeType = resolveKnowledgeMimeType(file.mimetype, originalFilename);
+    const docTitle = title?.trim() || basename(originalFilename).replace(/\.[^.]+$/, '') || 'Document';
+
+    const doc = await this.sourceModel.create({
+      projectId,
+      type: 'document',
+      title: docTitle,
+      status: 'pending',
+      chunkCount: 0,
+      originalFilename,
+      mimeType,
+      byteSize: file.size,
+    });
+
+    const storageKey = this.storage.storageKey(
+      projectId,
+      doc._id.toString(),
+      originalFilename,
+    );
+    doc.storageKey = storageKey;
+    await this.storage.save(storageKey, file.buffer);
+    await doc.save();
+
+    const ingested = await this.ingest.ingestUploadedFile(doc, {
+      buffer: file.buffer,
+      mimeType,
+      originalFilename,
+    });
+
     return this.toData(ingested);
   }
 
@@ -84,6 +143,7 @@ export class KnowledgeService {
       sourceId: doc._id,
     });
 
+    await this.storage.remove(doc.storageKey);
     await doc.deleteOne();
     return { id: sourceId };
   }
@@ -118,13 +178,13 @@ export class KnowledgeService {
     }
     if (body.type === 'document') {
       throw new BadRequestException(
-        'document type is not supported yet; use text with content',
+        'document type requires file upload; use POST .../knowledge/upload',
       );
     }
   }
 
   private toData(doc: KnowledgeSourceDocument): KnowledgeSourceData {
-    return {
+    const data: KnowledgeSourceData = {
       id: doc._id.toString(),
       projectId: doc.projectId,
       type: doc.type as KnowledgeSourceType,
@@ -136,5 +196,15 @@ export class KnowledgeService {
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: (doc.updatedAt ?? new Date()).toISOString(),
     };
+
+    if (doc.originalFilename && doc.mimeType && doc.byteSize != null) {
+      data.file = {
+        originalFilename: doc.originalFilename,
+        mimeType: doc.mimeType,
+        byteSize: doc.byteSize,
+      };
+    }
+
+    return data;
   }
 }

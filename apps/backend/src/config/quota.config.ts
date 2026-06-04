@@ -5,6 +5,8 @@ export interface QuotaLimits {
   chatPerMinute: number;
   chatPerDay: number;
   chatPerMonth: number;
+  /** Email account admins when monthly usage crosses these % thresholds */
+  alertPercentages: [number, number, number];
 }
 
 function parsePositiveInt(
@@ -26,8 +28,19 @@ export function resolveQuotaLimits(): QuotaLimits {
     process.env.QUOTA_ENFORCE === 'true' ||
     (process.env.QUOTA_ENFORCE !== 'false' && nodeEnv === 'production');
 
+  const alertRaw = process.env.QUOTA_ALERT_PERCENTAGES?.trim() || '80,90,100';
+  const alertParts = alertRaw.split(',').map((s) => Number(s.trim()));
+  if (
+    alertParts.length !== 3 ||
+    alertParts.some((n) => !Number.isFinite(n) || n < 1 || n > 100)
+  ) {
+    throw new Error('QUOTA_ALERT_PERCENTAGES must be three integers 1–100 (e.g. 80,90,100)');
+  }
+  const alertPercentages = alertParts as [number, number, number];
+
   return {
     enabled,
+    alertPercentages,
     chatPerMinute: parsePositiveInt(
       process.env.QUOTA_CHAT_PER_MINUTE,
       nodeEnv === 'test' ? 10_000 : 120,

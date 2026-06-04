@@ -24,6 +24,15 @@ export class UsageEvent {
   @Prop()
   apiKeyId?: string;
 
+  @Prop()
+  latencyMs?: number;
+
+  @Prop({ default: true })
+  success!: boolean;
+
+  @Prop()
+  errorCode?: string;
+
   createdAt?: Date;
 }
 

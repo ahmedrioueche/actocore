@@ -129,48 +129,66 @@ async function upsertKnowledgeSource(projectId, source) {
   }
 }
 
-async function readTextFromFile(filePath) {
+async function uploadKnowledgeFile(projectId, filePath, title) {
   const resolved = join(process.cwd(), filePath);
   if (!existsSync(resolved)) {
     throw new Error(`File not found: ${resolved}`);
-  }
-  return readFileSync(resolved, 'utf8').trim();
-}
-
-async function readTextFromPdf(filePath) {
-  const resolved = join(process.cwd(), filePath);
-  if (!existsSync(resolved)) {
-    throw new Error(`File not found: ${resolved}`);
-  }
-
-  let pdfParse;
-  try {
-    pdfParse = (await import('pdf-parse')).default;
-  } catch {
-    throw new Error(
-      'pdf-parse is not installed. Run: npm install --save-dev pdf-parse (in apps/sdk-playground), or extract text with pdftotext and use --file instead.',
-    );
   }
 
   const buffer = readFileSync(resolved);
-  const result = await pdfParse(buffer);
-  const text = result.text?.trim() ?? '';
-  if (!text) {
-    throw new Error(`No extractable text in PDF: ${resolved}`);
+  const filename = basename(resolved);
+  const docTitle =
+    title?.trim() || filename.replace(/\.[^.]+$/, '') || 'Document';
+
+  const list = await requestJson(
+    'GET',
+    `/v1/web/projects/${projectId}/knowledge`,
+  );
+  const existing = list.data?.find((s) => s.title === docTitle);
+  if (existing) {
+    await requestJson(
+      'DELETE',
+      `/v1/web/projects/${projectId}/knowledge/${existing.id}`,
+    );
   }
-  return text;
+
+  const form = new FormData();
+  form.append('file', new Blob([buffer]), filename);
+
+  const params = new URLSearchParams({ title: docTitle });
+  const res = await fetch(
+    `${baseUrl}/v1/web/projects/${projectId}/knowledge/upload?${params}`,
+    { method: 'POST', body: form },
+  );
+  const text = await res.text();
+  let json;
+  try {
+    json = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(`upload failed (${res.status}): ${text}`);
+  }
+  if (!res.ok) {
+    throw new Error(`upload failed (${res.status}): ${json.message ?? text}`);
+  }
+
+  const data = json.data;
+  console.log(
+    `  uploaded "${docTitle}" (${filename}) — ${data.status}, ${data.chunkCount} chunk(s)`,
+  );
+  if (data.status === 'error') {
+    throw new Error(data.errorMessage ?? 'Ingestion failed');
+  }
 }
 
-function parseCliSources(argv) {
-  const extra = [];
+function parseCliUploads(argv) {
+  const paths = [];
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--file' && argv[i + 1]) {
-      extra.push({ kind: 'file', path: argv[++i] });
-      continue;
-    }
-    if (arg === '--pdf' && argv[i + 1]) {
-      extra.push({ kind: 'pdf', path: argv[++i] });
+    if (
+      (arg === '--upload' || arg === '--file' || arg === '--pdf') &&
+      argv[i + 1]
+    ) {
+      paths.push(argv[++i]);
       continue;
     }
     if (arg === '--help' || arg === '-h') {
@@ -179,32 +197,19 @@ function parseCliSources(argv) {
 Seeds demo text knowledge for the playground project (from VITE_ACTOCORE_API_KEY).
 
 Options:
-  --file <path>   Ingest a .txt or .md file as type "text"
-  --pdf <path>    Extract text from a PDF and ingest (requires pdf-parse)
-  -h, --help      Show this help
+  --upload <path>  Upload PDF, .txt, or .md via Core multipart API (recommended)
+  --file <path>    Alias for --upload
+  --pdf <path>     Alias for --upload (backend extracts text)
+  -h, --help       Show this help
 `);
       process.exit(0);
     }
   }
-  return extra;
-}
-
-async function buildSourcesFromCli(extra) {
-  const sources = [];
-  for (const item of extra) {
-    const name = basename(item.path);
-    const title = name.replace(/\.[^.]+$/, '') || 'Uploaded document';
-    const content =
-      item.kind === 'pdf'
-        ? await readTextFromPdf(item.path)
-        : await readTextFromFile(item.path);
-    sources.push({ type: 'text', title, content });
-  }
-  return sources;
+  return paths;
 }
 
 async function main() {
-  const cliExtra = parseCliSources(process.argv);
+  const uploadPaths = parseCliUploads(process.argv);
   if (process.argv.includes('--help') || process.argv.includes('-h')) {
     return;
   }
@@ -212,22 +217,21 @@ async function main() {
   console.log(`Seeding playground knowledge at ${baseUrl} ...`);
   const projectId = await ensureProject();
 
-  const sources = [...PLAYGROUND_KNOWLEDGE, ...(await buildSourcesFromCli(cliExtra))];
-
-  for (const source of sources) {
+  for (const source of PLAYGROUND_KNOWLEDGE) {
     await upsertKnowledgeSource(projectId, source);
+  }
+
+  for (const filePath of uploadPaths) {
+    await uploadKnowledgeFile(projectId, filePath);
   }
 
   console.log('\nDone. Example Knowledge (Q&A) prompts in the playground chat:');
   console.log('  What is ActoCore?');
   console.log('  How do I add a user in the playground?');
   console.log('  Tell me about demo users');
-  if (cliExtra.length === 0) {
-    console.log('\nTo ingest your own PDF:');
-    console.log('  npm install --save-dev pdf-parse');
-    console.log('  npm run seed:knowledge -- --pdf ./docs/manual.pdf');
-    console.log('\nOr ingest plain text:');
-    console.log('  npm run seed:knowledge -- --file ./docs/faq.md');
+  if (uploadPaths.length === 0) {
+    console.log('\nTo upload a file via the backend API:');
+    console.log('  npm run seed:knowledge -- --upload ./docs/manual.pdf');
   }
 }
 

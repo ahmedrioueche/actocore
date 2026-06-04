@@ -1,6 +1,17 @@
 {
   "name": "@ahmedrioueche/actocore-shared",
-  "version": "0.0.22",
+  "version": "0.0.24",
+  "description": "ActoCore API types, DTOs, and HTTP clients for backend, SDK, and Studio",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmedrioueche/actocore.git",
+    "directory": "packages/shared"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -15,6 +26,10 @@
     "./dtos": {
       "types": "./dist/dtos/index.d.ts",
       "default": "./dist/dtos/index.js"
+    },
+    "./constants/knowledge-upload": {
+      "types": "./dist/constants/knowledge-upload.d.ts",
+      "default": "./dist/constants/knowledge-upload.js"
     }
   },
   "files": [
@@ -23,7 +38,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "prepublishOnly": "npm run build",
-    "publish:package": "npm publish"
+    "publish:package": "npm publish --registry https://registry.npmjs.org --access public",
+    "publish:public": "npm run publish:package"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

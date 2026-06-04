@@ -46,6 +46,26 @@ export class SessionsService {
     return this.toSessionData(doc);
   }
 
+  async listForProject(
+    projectId: string,
+    options: { limit?: number; externalUserId?: string } = {},
+  ): Promise<SessionData[]> {
+    const filter: Record<string, unknown> = {};
+    const externalUserId = options.externalUserId?.trim();
+    if (externalUserId) {
+      filter.externalUserId = externalUserId;
+    }
+
+    const limit = Math.min(Math.max(options.limit ?? 50, 1), 200);
+    const docs = await this.sessionModel
+      .find(withProjectId(projectId, filter))
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+
+    return docs.map((doc) => this.toSessionData(doc));
+  }
+
   async listMessages(
     projectId: string,
     sessionId: string,

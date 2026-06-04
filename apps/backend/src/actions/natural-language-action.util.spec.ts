@@ -42,4 +42,13 @@ describe('natural-language-action.util', () => {
       ),
     ).toBe(true);
   });
+
+  it('detects delete + email without the word user', () => {
+    const message = 'delte bob@demo.com';
+    expect(isLikelyActionMessage(message, userActions)).toBe(true);
+    expect(matchesNaturalLanguageAction(message, 'delete_user')).toBe(true);
+    expect(extractNaturalLanguageActionInput(message, 'delete_user')).toEqual({
+      email: 'bob@demo.com',
+    });
+  });
 });

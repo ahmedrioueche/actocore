@@ -25,7 +25,10 @@ export class ChatResponseFormatter {
     branch: OrchestratorBranchPayload;
   }): ChatMessageData {
     const { sessionId, messageId, intent, branch } = input;
-    const resolvedIntent = branch.intentOverride ?? intent;
+    let resolvedIntent = branch.intentOverride ?? intent;
+    if (branch.action?.status === 'pending') {
+      resolvedIntent = 'action';
+    }
 
     const response: ChatMessageData = {
       sessionId,

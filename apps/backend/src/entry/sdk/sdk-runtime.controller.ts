@@ -6,24 +6,31 @@ import {
   ApiKeyGuard,
   type AuthenticatedRequest,
 } from '../../auth/guards/api-key.guard';
+import { SdkConfigService } from '../../projects/sdk-config/sdk-config.service';
 
 @UseGuards(ApiKeyGuard)
 @Controller('sdk/runtime')
 export class SdkRuntimeController {
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly sdkConfig: SdkConfigService,
+  ) {}
 
   @Get()
-  getConfig(@Req() request: AuthenticatedRequest) {
+  async getConfig(@Req() request: AuthenticatedRequest) {
     const voice = this.config.get<VoiceResolvedConfig>('voice');
-    const features = ['chat', 'sessions', 'voice'];
+    const projectId = request.apiKey!.projectId;
+    const sdk = await this.sdkConfig.getConfig(projectId);
+
     const payload: RuntimeConfigData = {
       apiVersion: this.config.getOrThrow<string>('apiVersion'),
-      features,
-      projectId: request.apiKey!.projectId,
+      features: ['chat', 'sessions', 'voice', 'sdk-config'],
+      projectId,
       voice: {
         serverTranscription: voice?.sttProvider === 'openai',
         sttProvider: voice?.sttProvider ?? 'stub',
       },
+      sdk,
     };
     return apiSuccess(payload);
   }

@@ -1,0 +1,5 @@
+# Optional — only if you publish/install from GitHub Packages instead of public npm.
+# For public npm, use: npm login && npm run publish:public
+#
+# @ahmedrioueche:registry=https://npm.pkg.github.com
+# //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}

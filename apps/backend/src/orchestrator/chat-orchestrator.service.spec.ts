@@ -8,6 +8,7 @@ import { ChatResponseFormatter } from '../response/chat-response.formatter';
 import { UsageService } from '../usage/usage.service';
 import { LLM_PROVIDER } from '../external/llm/llm-provider.interface';
 import { SessionsService } from '../sessions/sessions.service';
+import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
 import { ChatOrchestratorService } from './chat-orchestrator.service';
 import { INTENT_CLASSIFIER } from './intent-classifier.interface';
 
@@ -44,6 +45,12 @@ describe('ChatOrchestratorService', () => {
   };
   const usageMock = { recordChatUsage: jest.fn().mockResolvedValue(undefined) };
   const aiLoggerMock = { log: jest.fn(), logActionFailure: jest.fn() };
+  const sdkConfigMock = {
+    getConfig: jest.fn().mockResolvedValue({ sdkConfigVersion: 0 }),
+    filterEnabledActions: jest.fn(
+      (_projectId: string, actions: unknown[]) => actions,
+    ),
+  };
 
   let orchestrator: ChatOrchestratorService;
 
@@ -80,6 +87,7 @@ describe('ChatOrchestratorService', () => {
         { provide: AiDecisionLogger, useValue: aiLoggerMock },
         { provide: LLM_PROVIDER, useValue: llmMock },
         { provide: INTENT_CLASSIFIER, useValue: classifierMock },
+        { provide: SdkConfigService, useValue: sdkConfigMock },
       ],
     }).compile();
 

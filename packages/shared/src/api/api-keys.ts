@@ -5,6 +5,19 @@ import type { ApiKeyIssuedData, ApiKeyMetadata } from '../types/api-key';
 import { BaseApi } from './helper';
 
 export class ApiKeysApi extends BaseApi {
+  listForProject(
+    projectId: string,
+    options?: { includeRevoked?: boolean },
+  ): Promise<ApiResponse<ApiKeyMetadata[]>> {
+    const params = options?.includeRevoked ? { includeRevoked: 'true' } : undefined;
+    return this.request(() =>
+      this.client.get<ApiResponse<ApiKeyMetadata[]>>(
+        apiPath(`web/projects/${projectId}/api-keys`),
+        { params },
+      ),
+    );
+  }
+
   issue(body: CreateApiKeyDto): Promise<ApiResponse<ApiKeyIssuedData>> {
     return this.request(() =>
       this.client.post<ApiResponse<ApiKeyIssuedData>>(

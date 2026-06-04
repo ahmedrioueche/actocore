@@ -64,6 +64,7 @@
     "API_KEY_INVALID": "API key is invalid.",
     "API_KEY_REVOKED": "API key was revoked.",
     "TOO_MANY_REQUESTS": "Too many requests. Please wait and try again.",
+    "QUOTA_EXCEEDED": "This assistant is temporarily unavailable. Please try again later.",
     "BAD_GATEWAY": "Could not reach the AI provider.",
     "GATEWAY_TIMEOUT": "The request timed out.",
     "UNKNOWN_ERROR": "An unknown error occurred."

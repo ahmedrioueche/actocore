@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsOptional,
   IsString,
   MinLength,
@@ -32,6 +33,17 @@ export class CreateProjectDto {
   @ValidateNested()
   @Type(() => ProjectSettingsDto)
   settings?: ProjectSettingsDto;
+}
+
+export class UpdateProjectDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  name?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  archived?: boolean;
 }
 
 export class UpdateProjectSettingsDto {

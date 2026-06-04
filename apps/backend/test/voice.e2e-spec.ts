@@ -6,6 +6,7 @@ import { App } from 'supertest/types';
 import { configureApp } from '../src/common/bootstrap/configure-app';
 import { AppModule } from '../src/app.module';
 import { seedProjectAndApiKey } from './helpers/e2e-seed';
+import { applyDefaultE2eEnv } from './helpers/e2e-env';
 
 describe('SDK voice (e2e)', () => {
   let app: INestApplication<App>;
@@ -13,7 +14,7 @@ describe('SDK voice (e2e)', () => {
   let apiKey: string;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
+    applyDefaultE2eEnv();
     process.env.VOICE_STT_PROVIDER = 'stub';
     mongod = await MongoMemoryServer.create();
     process.env.MONGODB_URI = mongod.getUri();

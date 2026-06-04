@@ -7,8 +7,12 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "setup": "node scripts/seed-playground-setup.mjs",
     "seed:actions": "node scripts/seed-playground-actions.mjs",
-    "seed:knowledge": "node scripts/seed-playground-knowledge.mjs"
+    "seed:knowledge": "node scripts/seed-playground-knowledge.mjs",
+    "config:fr": "node scripts/patch-sdk-config.mjs --preset fr",
+    "config:allowlist": "node scripts/patch-sdk-config.mjs --preset allowlist",
+    "config:reset": "node scripts/patch-sdk-config.mjs --preset reset"
   },
   "dependencies": {
     "@ahmedrioueche/actocore-sdk": "file:../../packages/sdk",

@@ -25,6 +25,17 @@ const EXPLICIT_ACTION_PATTERN =
 
 const EMAIL_PATTERN = /[\w.+-]+@[\w.-]+\.\w+/i;
 
+const DELETE_VERB = /\b(?:delete|delte|delet|remove|remov)\w*\b/i;
+const ADD_VERB = /\b(?:add|creat\w*|register|invite)\w*\b/i;
+const UPDATE_VERB = /\b(?:update|change|rename|edit|modify)\b/i;
+
+function matchesVerbWithEmail(
+  message: string,
+  verb: RegExp,
+): boolean {
+  return verb.test(message) && EMAIL_PATTERN.test(message);
+}
+
 export function isExplicitActionCommand(message: string): boolean {
   return EXPLICIT_ACTION_PATTERN.test(message.trim());
 }
@@ -35,6 +46,16 @@ export function matchesNaturalLanguageAction(
 ): boolean {
   const lower = message.toLowerCase();
   if (lower.includes(actionName.toLowerCase())) {
+    return true;
+  }
+
+  if (actionName === 'delete_user' && matchesVerbWithEmail(message, DELETE_VERB)) {
+    return true;
+  }
+  if (actionName === 'add_user' && matchesVerbWithEmail(message, ADD_VERB)) {
+    return true;
+  }
+  if (actionName === 'update_user' && matchesVerbWithEmail(message, UPDATE_VERB)) {
     return true;
   }
 

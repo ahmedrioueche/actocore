@@ -29,6 +29,18 @@ export class KnowledgeSource {
   @Prop()
   errorMessage?: string;
 
+  @Prop()
+  originalFilename?: string;
+
+  @Prop()
+  mimeType?: string;
+
+  @Prop()
+  byteSize?: number;
+
+  @Prop()
+  storageKey?: string;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

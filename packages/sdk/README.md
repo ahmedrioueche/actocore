@@ -2,11 +2,34 @@
 
 Embeddable React chat SDK for ActoCore projects.
 
+**Monorepo developer guide:** [DEV.md](./DEV.md) (playground, build, shared package, manual testing).
+
 ## Install
+
+Published on the **public npm registry** (no `.npmrc` required):
 
 ```bash
 npm install @ahmedrioueche/actocore-sdk
 ```
+
+`@ahmedrioueche/actocore-shared` is installed automatically as a dependency. You only need a separate install if you import shared types/APIs directly in your app.
+
+## Required host configuration
+
+| Variable / prop | Purpose |
+|----------------|---------|
+| `apiKey` (required) | Project API key from ActoCore (`Bearer` on SDK routes) |
+| `baseURL` (recommended) | Core origin, e.g. `http://localhost:3000` (Vite: `VITE_ACTOCORE_API_URL`) |
+| `apiVersion` (optional) | API prefix segment (default `v1`) |
+
+Example (Vite):
+
+```env
+VITE_ACTOCORE_API_URL=http://localhost:3000
+VITE_ACTOCORE_API_KEY=ac_...
+```
+
+Create a project and key via backend web routes — see [`apps/backend/README.md`](../../apps/backend/README.md).
 
 ## Quick start
 
@@ -53,6 +76,46 @@ export function App() {
 - `voice.input` / `voice.output` — microphone dictation and read-aloud on assistant messages.
 - `voice.inputMode` — `browser` (Web Speech API), `server` (POST audio to Core STT), or `auto` (default).
 - `voice.autoSendOnFinalize` — send when dictation completes (default `false`; user taps Send).
+- `loadRemoteConfig` — fetch `GET /v1/sdk/runtime` and merge `sdk` settings (dashboard) under local props.
+
+### Dashboard-driven config (no Studio UI required)
+
+Patch project SDK settings via control plane API:
+
+```bash
+curl -X PATCH "http://localhost:3000/v1/web/projects/PROJECT_ID/sdk-config" \
+  -H "Content-Type: application/json" \
+  -d '{"ui":{"showIntentBadge":true},"i18n":{"locale":"fr"},"security":{"allowedActionNames":["list_users"]}}'
+```
+
+In the host app, enable remote merge:
+
+```tsx
+<ActocoreProvider apiKey={key} loadRemoteConfig>
+  <ActoChatWidget />
+</ActocoreProvider>
+```
+
+Merge order: **local props override dashboard (`runtime.sdk`) override SDK defaults.**
+
+Override copy without forking components — either shallow `ui.text` or full locale bundles:
+
+```tsx
+<ActocoreProvider
+  i18n={{
+    locale: 'fr',
+    translations: {
+      fr: {
+        chat: { placeholder: 'Écrivez à Acme…' },
+      },
+    },
+  }}
+  ui={{ text: { headerTitle: 'Acme Support' } }}
+>
+```
+
+`ui.text` applies for the active locale; `i18n.translations` deep-merges over bundled SDK locale JSON.
+
 - `voice.language` — BCP-47 hint for speech recognition.
 
 ### Voice

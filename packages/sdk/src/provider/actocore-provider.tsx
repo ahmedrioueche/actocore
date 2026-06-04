@@ -1,7 +1,9 @@
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { configureApi } from '@ahmedrioueche/actocore-shared';
+import { configureApi, runtimeApi } from '@ahmedrioueche/actocore-shared';
+import type { SdkRuntimeConfigData } from '@ahmedrioueche/actocore-shared';
 import type { ActocoreSdkConfig } from '../config/types';
+import { mergeRemoteSdkConfig } from '../config/merge-remote-sdk-config';
 import { resolveConfig } from '../config/resolve-config';
 import { createActocoreI18n } from '../i18n/create-i18n';
 import type { ActionRegistry } from '../actions/types';
@@ -12,14 +14,49 @@ export interface ActocoreProviderProps extends ActocoreSdkConfig {
   children: ReactNode;
   /** Host-registered action handlers keyed by action name */
   actions?: ActionRegistry;
+  /**
+   * When true, fetches GET /v1/sdk/runtime and merges `sdk` config under local props.
+   * Local `i18n`, `theme`, `security`, `ui`, and `voice` override dashboard values.
+   */
+  loadRemoteConfig?: boolean;
 }
 
 export function ActocoreProvider({
   children,
   actions = {},
+  loadRemoteConfig = false,
   ...sdkConfig
 }: ActocoreProviderProps) {
-  const resolved = useMemo(() => resolveConfig(sdkConfig), [sdkConfig]);
+  const [remoteSdk, setRemoteSdk] = useState<SdkRuntimeConfigData | null>(null);
+
+  useEffect(() => {
+    if (!loadRemoteConfig) {
+      setRemoteSdk(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      const res = await runtimeApi.getConfig();
+      if (!cancelled && res.success) {
+        setRemoteSdk(res.data?.sdk ?? null);
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadRemoteConfig, sdkConfig.apiKey, sdkConfig.baseURL]);
+
+  const mergedConfig = useMemo(
+    () => mergeRemoteSdkConfig(sdkConfig, remoteSdk),
+    [sdkConfig, remoteSdk],
+  );
+
+  const resolved = useMemo(() => resolveConfig(mergedConfig), [mergedConfig]);
 
   useMemo(() => {
     configureApi({

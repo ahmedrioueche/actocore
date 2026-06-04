@@ -6,6 +6,7 @@ import { App } from 'supertest/types';
 import { configureApp } from '../src/common/bootstrap/configure-app';
 import { AppModule } from '../src/app.module';
 import { seedProjectAndApiKey } from './helpers/e2e-seed';
+import { applyDefaultE2eEnv } from './helpers/e2e-env';
 
 describe('Actions (e2e)', () => {
   let app: INestApplication<App>;
@@ -14,7 +15,7 @@ describe('Actions (e2e)', () => {
   let apiKey: string;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
+    applyDefaultE2eEnv();
     mongod = await MongoMemoryServer.create();
     process.env.MONGODB_URI = mongod.getUri();
     delete process.env.REDIS_URL;

@@ -13,3 +13,8 @@ export * from './runtime';
 export * from './session';
 export * from './usage';
 export * from './voice';
+export * from './sdk-config';
+export * from './studio';
+export * from './account';
+export * from './billing-common';
+export * from './billing';

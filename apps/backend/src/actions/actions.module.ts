@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { StudioModule } from '../studio/studio.module';
 import { LlmModule } from '../external/llm/llm.module';
 import { ProjectsModule } from '../projects/projects.module';
 import { ActionRunnerService } from './action-runner.service';
@@ -14,6 +15,7 @@ import {
 
 @Module({
   imports: [
+    StudioModule,
     MongooseModule.forFeature([
       { name: ProjectAction.name, schema: ProjectActionSchema },
     ]),

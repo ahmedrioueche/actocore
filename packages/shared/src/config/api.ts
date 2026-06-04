@@ -8,12 +8,15 @@ export interface ApiConfig {
   timeout?: number;
   /** SDK / server: default Bearer API key (overrides localStorage when set). */
   apiKey?: string;
+  /** Studio dashboard JWT (overrides stored access token when set). */
+  studioAccessToken?: string;
   /** API path prefix segment (default `v1`). */
   apiVersion?: string;
 }
 
 let configuredBaseURL: string | null = null;
 let configuredApiKey: string | null = null;
+let configuredStudioAccessToken: string | null = null;
 let configuredTimeout = 10000;
 
 export let IS_DEV = false;
@@ -44,6 +47,9 @@ export const configureApi = (config: ApiConfig): void => {
   if (config.apiKey !== undefined) {
     configuredApiKey = config.apiKey;
   }
+  if (config.studioAccessToken !== undefined) {
+    configuredStudioAccessToken = config.studioAccessToken;
+  }
   if (config.apiVersion !== undefined) {
     setApiVersion(config.apiVersion);
   }
@@ -62,7 +68,10 @@ export const getApiClient = (): AxiosInstance => {
     });
 
     apiClientInstance.interceptors.request.use((reqConfig) => {
-      const token = configuredApiKey ?? TokenManager.getBearerToken();
+      const token =
+        configuredApiKey ??
+        configuredStudioAccessToken ??
+        TokenManager.getAccessToken();
       if (token && reqConfig.headers) {
         reqConfig.headers.Authorization = `Bearer ${token}`;
       }

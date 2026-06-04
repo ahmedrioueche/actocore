@@ -3,6 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ErrorCode } from '@ahmedrioueche/actocore-shared';
 import { ProjectsService } from '../projects/projects.service';
+import { StudioAccessService } from '../studio/studio-access.service';
 import { ApiKeysService } from './api-keys.service';
 import { ApiKeyException } from './exceptions/api-key.exception';
 import { ApiKey } from './schemas/api-key.schema';
@@ -32,6 +33,35 @@ describe('ApiKeysService', () => {
     findOne: jest.fn(({ prefix }: { prefix: string }) => ({
       exec: async () => store.get(prefix) ?? null,
     })),
+    find: jest.fn(
+      (filter: {
+        projectId?: string;
+        revokedAt?: { $exists: boolean };
+      } = {}) => ({
+        sort: () => ({
+          exec: async () =>
+            [...store.values()].filter((item) => {
+              if (
+                filter.projectId &&
+                item.projectId !== filter.projectId
+              ) {
+                return false;
+              }
+              if (
+                filter.revokedAt?.$exists === false &&
+                item.revokedAt
+              ) {
+                return false;
+              }
+              return true;
+            }),
+        }),
+      }),
+    ),
+    findById: jest.fn((id: string) => ({
+      exec: async () =>
+        [...store.values()].find((item) => item._id.toString() === id) ?? null,
+    })),
     findByIdAndUpdate: jest.fn(
       (id: string, update: Record<string, unknown>) => ({
         exec: async () => {
@@ -43,6 +73,30 @@ describe('ApiKeysService', () => {
           return entry;
         },
       }),
+    ),
+    updateMany: jest.fn(
+      (
+        filter: { projectId?: string; revokedAt?: { $exists: boolean } },
+        update: { revokedAt?: Date },
+      ) => {
+        let modifiedCount = 0;
+        for (const entry of store.values()) {
+          if (
+            filter.projectId &&
+            entry.projectId !== filter.projectId
+          ) {
+            continue;
+          }
+          if (filter.revokedAt?.$exists === false && entry.revokedAt) {
+            continue;
+          }
+          if (update.revokedAt) {
+            entry.revokedAt = update.revokedAt;
+            modifiedCount += 1;
+          }
+        }
+        return Promise.resolve({ modifiedCount });
+      },
     ),
   };
 
@@ -62,7 +116,14 @@ describe('ApiKeysService', () => {
         },
         {
           provide: ProjectsService,
-          useValue: { assertExists: jest.fn().mockResolvedValue(undefined) },
+          useValue: {
+            assertExists: jest.fn().mockResolvedValue(undefined),
+            assertExistsForAccount: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: StudioAccessService,
+          useValue: { assertProjectAccess: jest.fn() },
         },
       ],
     }).compile();
@@ -82,7 +143,7 @@ describe('ApiKeysService', () => {
 
   it('rejects revoked keys', async () => {
     const issued = await service.issue({ projectId: 'proj-1' });
-    await service.revoke(issued.id);
+    await service.revoke(null, issued.id);
 
     await expect(
       service.validateBearerToken(`Bearer ${issued.key}`),
@@ -91,6 +152,23 @@ describe('ApiKeysService', () => {
         errorCode: ErrorCode.API_KEY_REVOKED,
       },
     });
+  });
+
+  it('rotates all active keys for a project', async () => {
+    await service.issue({ projectId: 'proj-1', name: 'a' });
+    await service.issue({ projectId: 'proj-1', name: 'b' });
+    const result = await service.rotateAllForProject(null, 'proj-1');
+    expect(result.revokedCount).toBe(2);
+    const list = await service.listForProject(null, 'proj-1');
+    expect(list).toHaveLength(0);
+  });
+
+  it('lists keys for a project', async () => {
+    await service.issue({ projectId: 'proj-1', name: 'a' });
+    const list = await service.listForProject(null, 'proj-1');
+    expect(list).toHaveLength(1);
+    expect(list[0].name).toBe('a');
+    expect((list[0] as { key?: string }).key).toBeUndefined();
   });
 
   it('rejects missing bearer token', async () => {

@@ -6,15 +6,15 @@ import { App } from 'supertest/types';
 import { configureApp } from '../src/common/bootstrap/configure-app';
 import { AppModule } from '../src/app.module';
 import { seedProjectAndApiKey } from './helpers/e2e-seed';
+import { applyDefaultE2eEnv, clearQuotaEnforceEnv } from './helpers/e2e-env';
 
 describe('Quota (e2e)', () => {
   let app: INestApplication<App>;
   let mongod: MongoMemoryServer;
   let apiKey: string;
-  const env = process.env;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
+    applyDefaultE2eEnv();
     process.env.QUOTA_ENFORCE = 'true';
     process.env.QUOTA_CHAT_PER_MINUTE = '2';
     process.env.QUOTA_CHAT_PER_DAY = '100';
@@ -25,7 +25,7 @@ describe('Quota (e2e)', () => {
   });
 
   afterAll(async () => {
-    process.env = env;
+    clearQuotaEnforceEnv();
     await mongod.stop();
   });
 

@@ -6,6 +6,7 @@ import { App } from 'supertest/types';
 import { configureApp } from '../src/common/bootstrap/configure-app';
 import { AppModule } from '../src/app.module';
 import { seedProjectAndApiKey } from './helpers/e2e-seed';
+import { applyDefaultE2eEnv } from './helpers/e2e-env';
 
 describe('Entry layer (e2e)', () => {
   let app: INestApplication<App>;
@@ -14,7 +15,7 @@ describe('Entry layer (e2e)', () => {
   let projectId: string;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
+    applyDefaultE2eEnv();
     mongod = await MongoMemoryServer.create();
     process.env.MONGODB_URI = mongod.getUri();
     delete process.env.REDIS_URL;
@@ -117,7 +118,7 @@ describe('Entry layer (e2e)', () => {
     expect(messages.body.data[2].content).toBe('Second turn');
   });
 
-  it('routes action phrasing when no actions are configured', async () => {
+  it('uses direct LLM when action phrasing is sent but no actions exist', async () => {
     const server = app.getHttpServer();
     const auth = { Authorization: `Bearer ${apiKey}` };
 
@@ -127,7 +128,7 @@ describe('Entry layer (e2e)', () => {
       .send({ message: 'Run the deploy script' })
       .expect(201);
 
-    expect(res.body.data.intent).toBe('action');
-    expect(res.body.data.content).toContain('No actions are configured');
+    expect(res.body.data.intent).toBe('direct');
+    expect(res.body.data.content).toContain('[stub]');
   });
 });

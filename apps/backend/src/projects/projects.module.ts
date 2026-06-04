@@ -1,15 +1,75 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ApiKey, ApiKeySchema } from '../auth/schemas/api-key.schema';
+import { AuthModule } from '../auth/auth.module';
+import {
+  ProjectAction,
+  ProjectActionSchema,
+} from '../actions/schemas/project-action.schema';
+import {
+  KnowledgeChunk,
+  KnowledgeChunkSchema,
+} from '../knowledge/schemas/knowledge-chunk.schema';
+import {
+  KnowledgeSource,
+  KnowledgeSourceSchema,
+} from '../knowledge/schemas/knowledge-source.schema';
+import { KnowledgeStorageService } from '../knowledge/knowledge-storage.service';
+import {
+  ChatMessage,
+  ChatMessageSchema,
+} from '../sessions/schemas/chat-message.schema';
+import {
+  ChatSession,
+  ChatSessionSchema,
+} from '../sessions/schemas/chat-session.schema';
+import { UsageEvent, UsageEventSchema } from '../usage/schemas/usage-event.schema';
+import { StudioBillingModule } from '../studio-billing/studio-billing.module';
+import { StudioModule } from '../studio/studio.module';
+import { SessionsModule } from '../sessions/sessions.module';
+import {
+  StudioMembership,
+  StudioMembershipSchema,
+} from '../studio/schemas/studio-membership.schema';
 import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
+import { ProjectDeleteService } from './project-delete.service';
+import { SdkConfigAuditLogger } from './sdk-config/sdk-config-audit.logger';
+import {
+  SdkConfigAudit,
+  SdkConfigAuditSchema,
+} from './schemas/sdk-config-audit.schema';
+import { SdkConfigController } from './sdk-config/sdk-config.controller';
+import { SdkConfigService } from './sdk-config/sdk-config.service';
 import { Project, ProjectSchema } from './schemas/project.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Project.name, schema: ProjectSchema }]),
+    forwardRef(() => StudioModule),
+    forwardRef(() => StudioBillingModule),
+    forwardRef(() => AuthModule),
+    SessionsModule,
+    MongooseModule.forFeature([
+      { name: Project.name, schema: ProjectSchema },
+      { name: SdkConfigAudit.name, schema: SdkConfigAuditSchema },
+      { name: ApiKey.name, schema: ApiKeySchema },
+      { name: ProjectAction.name, schema: ProjectActionSchema },
+      { name: KnowledgeSource.name, schema: KnowledgeSourceSchema },
+      { name: KnowledgeChunk.name, schema: KnowledgeChunkSchema },
+      { name: ChatSession.name, schema: ChatSessionSchema },
+      { name: ChatMessage.name, schema: ChatMessageSchema },
+      { name: UsageEvent.name, schema: UsageEventSchema },
+      { name: StudioMembership.name, schema: StudioMembershipSchema },
+    ]),
   ],
-  controllers: [ProjectsController],
-  providers: [ProjectsService],
-  exports: [ProjectsService],
+  controllers: [ProjectsController, SdkConfigController],
+  providers: [
+    ProjectsService,
+    ProjectDeleteService,
+    SdkConfigService,
+    SdkConfigAuditLogger,
+    KnowledgeStorageService,
+  ],
+  exports: [ProjectsService, SdkConfigService, ProjectDeleteService],
 })
 export class ProjectsModule {}

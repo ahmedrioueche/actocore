@@ -1,4 +1,6 @@
 export * from './constants/app';
+export * from './constants/knowledge-upload';
+export * from './constants/studio-permissions';
 export * from './config/api';
 export * from './config/api-version';
 
@@ -22,3 +24,9 @@ export * from './api/knowledge';
 export * from './api/usage';
 export * from './api/health';
 export * from './api/voice';
+export * from './api/sdk-config';
+export * from './api/auth';
+export * from './api/studio-auth';
+export * from './api/account';
+export * from './api/billing';
+export * from './api/platform';

@@ -22,9 +22,11 @@ import {
   type IntentClassifier,
 } from './intent-classifier.interface';
 import { LLM_PROVIDER, type LlmMessage, type LlmProvider } from '../external/llm/llm-provider.interface';
+import { resolveActionFollowUp } from '../actions/action-follow-up.util';
 import { isLikelyActionMessage } from '../actions/natural-language-action.util';
 import { buildAppAssistantSystemPrompt } from './app-assistant-prompt.util';
 import { SessionsService } from '../sessions/sessions.service';
+import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
 
 @Injectable()
 export class ChatOrchestratorService {
@@ -37,6 +39,7 @@ export class ChatOrchestratorService {
     private readonly formatter: ChatResponseFormatter,
     private readonly aiLogger: AiDecisionLogger,
     private readonly usage: UsageService,
+    private readonly sdkConfig: SdkConfigService,
     @Inject(LLM_PROVIDER) private readonly llm: LlmProvider,
     @Inject(INTENT_CLASSIFIER) private readonly classifier: IntentClassifier,
   ) {}
@@ -52,8 +55,15 @@ export class ChatOrchestratorService {
       {},
     );
 
-    const enabledActions = await this.actions.listEnabled(projectId);
+    const enabledActions = await this.listProjectActions(projectId);
     const enabledActionNames = enabledActions.map((a) => a.name);
+    const history = await this.sessions.listMessages(projectId, sessionId);
+    const followUp = resolveActionFollowUp(
+      body.message,
+      history,
+      enabledActionNames,
+    );
+
     let intent = await this.classifier.classify({
       context,
       message: body.message,
@@ -61,7 +71,9 @@ export class ChatOrchestratorService {
       enabledActionNames,
     });
 
-    if (
+    if (followUp) {
+      intent = 'action';
+    } else if (
       intent === 'direct' &&
       enabledActionNames.length > 0 &&
       isLikelyActionMessage(body.message, enabledActionNames)
@@ -71,13 +83,16 @@ export class ChatOrchestratorService {
 
     await this.sessions.appendMessage(projectId, sessionId, 'user', body.message);
 
-    const branch = await this.runBranch(
-      intent,
-      context,
-      projectId,
-      sessionId,
-      body.message,
-    );
+    const startedAt = Date.now();
+    const branch = followUp
+      ? await this.runActionBranchFromFollowUp(projectId, followUp)
+      : await this.runBranch(
+          intent,
+          context,
+          projectId,
+          sessionId,
+          body.message,
+        );
 
     const assistant = await this.sessions.appendMessage(
       projectId,
@@ -113,12 +128,16 @@ export class ChatOrchestratorService {
       );
     }
 
+    const actionFailed = branch.action?.status === 'error';
     void this.usage
       .recordChatUsage({
         projectId,
         apiKeyId: context.apiKeyId,
         intent,
         usage: branch.usage,
+        latencyMs: Date.now() - startedAt,
+        success: !actionFailed,
+        errorCode: actionFailed ? 'action_error' : undefined,
       })
       .catch(() => undefined);
 
@@ -167,11 +186,17 @@ export class ChatOrchestratorService {
     };
   }
 
+  private async listProjectActions(projectId: string) {
+    const sdk = await this.sdkConfig.getConfig(projectId);
+    const enabled = await this.actions.listEnabled(projectId);
+    return this.sdkConfig.filterEnabledActions(projectId, enabled, sdk);
+  }
+
   private async runActionBranch(
     projectId: string,
     userMessage: string,
   ): Promise<OrchestratorBranchPayload> {
-    const enabled = await this.actions.listEnabled(projectId);
+    const enabled = await this.listProjectActions(projectId);
 
     if (enabled.length === 0) {
       return { content: this.actionRunner.formatNoActionsMessage() };
@@ -184,6 +209,29 @@ export class ChatOrchestratorService {
     }
 
     const prepared = this.actionRunner.prepareExecution(selection);
+    return {
+      content: prepared.content,
+      action: prepared.action,
+      intentOverride: prepared.intentOverride,
+    };
+  }
+
+  private async runActionBranchFromFollowUp(
+    projectId: string,
+    followUp: { actionName: string; input: Record<string, unknown> },
+  ): Promise<OrchestratorBranchPayload> {
+    const enabled = await this.listProjectActions(projectId);
+    const action = enabled.find((a) => a.name === followUp.actionName);
+
+    if (!action) {
+      return { content: this.actionRunner.formatNoMatchMessage(enabled) };
+    }
+
+    const prepared = this.actionRunner.prepareExecution({
+      action,
+      input: followUp.input,
+    });
+
     return {
       content: prepared.content,
       action: prepared.action,

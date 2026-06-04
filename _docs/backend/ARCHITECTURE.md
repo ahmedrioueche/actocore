@@ -4,6 +4,8 @@ This document describes the internal architecture of the ActoCore backend system
 
 The backend is responsible for processing all requests coming from the SDK and the web dashboard, and transforming them into either AI responses or executed actions.
 
+**Route reference:** [`apps/backend/README.md`](../../apps/backend/README.md) — HTTP paths, knowledge ingest matrix, env vars.
+
 ---
 
 # 🧠 High-Level System Overview

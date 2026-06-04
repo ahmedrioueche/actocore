@@ -10,7 +10,7 @@ Update **Current focus** at the start of each work session.
 
 ## Current focus
 
-**SDK package + example host:** ship an installable React SDK wired to Core via `@actocore/shared`, with **i18n for all UI copy**, **theme tokens (no hardcoded styles)**, **security allowlists**, and a **dashboard-ready config surface** so Studio can later drive language, theme, and chat UI — plus an example app for end-to-end testing outside the monorepo.
+**Studio tenant backend (user admin / editor, not super admin):** subscription & plan limits, richer usage/analytics per project, team management (update/remove), account & project settings — see [Studio tenant workspace](#studio-tenant-workspace-user-admin--editor--backend) below. **Done:** product auth + RBAC on `/v1/web/*`. **Later:** `apps/studio` UI, platform super-admin APIs, Excel/Word parsers, S3 knowledge storage.
 
 ---
 
@@ -87,13 +87,77 @@ _Execute validated actions inside host applications._
 
 ## Q&A mode (RAG domain)
 
-_Knowledge-based responses._
+_Knowledge-based responses. Ingestion API: `POST /v1/web/projects/:projectId/knowledge` (JSON). Storage: MongoDB `knowledge_sources` + `knowledge_chunks` (text + embeddings only — **no file blobs today**)._
 
-- [x] Knowledge source metadata (documents, URLs, files)
-- [x] Chunk storage and embedding generation
-- [x] Retrieval for user questions
-- [x] Inject retrieved context into LLM prompt
-- [x] Return formatted Q&A response to SDK
+### RAG pipeline (done)
+
+- [x] Chunk + embed + retrieve + inject into LLM + citations on `POST /v1/sdk/chat`
+- [x] `EMBEDDING_PROVIDER` stub | openai (`apps/backend/.env.example`)
+- [x] List / get / delete knowledge sources (metadata only on source record)
+
+### Backend ingest — what is supported now
+
+| Input                            | Supported?  | How it works today (`apps/backend`)                                                                                  |
+| -------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Plain text**                   | **Yes**     | `type: "text"` + `content` in JSON. Chunks only after ingest (not full `content` on source).                         |
+| **External URLs**                | **Partial** | `type: "url"` — HTML strip; **PDF URLs** parsed when `Content-Type` or magic bytes indicate PDF. No auth-gated URLs. |
+| **PDF / text / markdown upload** | **Yes**     | `POST .../knowledge/upload` multipart (`file`, optional `title`). PDF via `pdf-parse`; `.txt`/`.md` as UTF-8.        |
+| **Excel / Word / etc.**          | **No**      | Phase 2 — no parsers yet.                                                                                            |
+| **Multipart + storage**          | **Yes**     | Local disk under `KNOWLEDGE_STORAGE_PATH` (default `.data/knowledge`). S3 driver not implemented.                    |
+
+_Playground:_ `npm run seed:knowledge -- --upload ./file.pdf` uses the real upload API.\_
+
+### Backend — Knowledge ingest (build checklist)
+
+_Implement missing rows in the table above. Order: storage + upload route → parsers → URL PDF → shared client → tests._
+
+#### 1. Multipart upload API
+
+- [x] `POST /v1/web/projects/:projectId/knowledge/upload` — `multipart/form-data` (`file`, optional `title`)
+- [x] `memoryStorage` / size limit (`KNOWLEDGE_UPLOAD_MAX_BYTES` + env `KNOWLEDGE_MAX_UPLOAD_BYTES`)
+- [x] Create `knowledge_sources` with `type: "document"`, `pending` → `ready` | `error`
+- [x] JSON `POST .../knowledge` rejects `type: "document"` — use upload route
+
+#### 2. Store originals (local disk v1)
+
+- [x] Env: `KNOWLEDGE_STORAGE_PATH`, `KNOWLEDGE_MAX_UPLOAD_BYTES`
+- [x] Schema: `storageKey`, `originalFilename`, `mimeType`, `byteSize`
+- [x] Delete blob on source delete
+- [ ] S3-compatible driver (prod) — phase 2
+
+#### 3. Document parsers
+
+- [x] **PDF** — `pdf-parse` (text PDFs; scanned/OCR out of scope)
+- [x] **Plain text / markdown** — `.txt`, `.md`
+- [ ] **Excel** `.xlsx` — phase 2
+- [ ] **Word** `.docx` — phase 2
+- [x] MIME + extension allowlist (`packages/shared` constants)
+- [ ] Dedicated re-upload route (workaround: delete source + upload again)
+
+#### 4. URL ingest improvements
+
+- [x] PDF `Content-Type` / magic-byte detection on URL fetch
+- [ ] Auth headers for private URLs (Studio config later)
+
+#### 5. Shared package
+
+- [x] `KnowledgeFileMetadata` on `KnowledgeSourceData`
+- [x] `KNOWLEDGE_*` upload constants
+- [x] `knowledgeApi.upload(projectId, file)`
+
+#### 6. Tests and docs
+
+- [x] E2e: upload `.txt` → `ready` + `file` metadata
+- [x] Unit tests: MIME util, plain text extractor
+- [x] E2e: PDF fixture + chat citation
+- [x] Backend README: support matrix + env vars ([`apps/backend/README.md`](apps/backend/README.md))
+
+#### 7. Follow-ups
+
+- [ ] Large uploads: `chunkText` size/overlap tuning
+- [x] `EMBEDDING_PROVIDER=openai` documented for production RAG ([`apps/backend/README.md`](apps/backend/README.md))
+
+_Out of scope for this checklist:_ Studio drag-and-drop UI, SDK upload (knowledge is control-plane only).
 
 ---
 
@@ -173,7 +237,7 @@ _Embedded React UI for customer apps. All Core HTTP calls go through `@ahmedriou
 - [x] Peer dependencies: `react`, `react-dom` (document supported versions)
 - [x] Dependency: `@ahmedrioueche/actocore-shared` (version range aligned with backend)
 - [x] `ActocoreProvider` — `configureApi({ baseURL, apiKey, apiVersion })` + nested providers (i18n, theme, security context)
-- [ ] Document required env/config: API key (Bearer), Core base URL (e.g. `http://localhost:3000`)
+- [x] Document required env/config: API key (Bearer), Core base URL (e.g. `http://localhost:3000`) — [`packages/sdk/README.md`](packages/sdk/README.md)
 
 ### 2. Internationalization (i18n) — all UI text
 
@@ -184,8 +248,8 @@ _Align with [`RULES.md`](_docs/RULES.md) (web uses i18next); SDK must be locale-
 - [x] Namespaced keys: `chat.*`, `intent.*`, `sources.*`, `action.*`, `errors.*` (map `ApiResponse.errorCode` → `errors.<code>`)
 - [x] `ActocoreI18nConfig` on provider: `locale` (BCP‑47), optional `translations` deep-merge over bundled locales
 - [x] `changeLanguage` when `locale` prop changes (host or dashboard-driven)
-- [ ] Document how hosts override strings without forking components (pass `translations` on provider)
-- [ ] Future (Studio): `GET/PATCH` project SDK settings returns `locale` + optional translation overrides — SDK reads same shape when API exists
+- [x] Document how hosts override strings without forking components (pass `translations` on provider) — [`packages/sdk/README.md`](packages/sdk/README.md)
+- [x] Control plane `GET/PATCH` project SDK settings — SDK reads via `loadRemoteConfig` + `GET /v1/sdk/runtime` (Studio UI still pending)
 
 ### 3. Theming and styles — no hardcoded look & feel
 
@@ -195,7 +259,7 @@ _SDK ships a default look via tokens, not inline colors. Hosts and Studio custom
 - [x] Root wrapper `[data-actocore]` + optional `data-actocore-theme="light|dark"`; support `theme.mode: 'system'` via `prefers-color-scheme`
 - [x] `ActocoreThemeConfig`: `mode`, `tokens` (map to `--ac-<name>`), optional `className`
 - [x] Components use **token-backed CSS** (class modules or a single `components.css` referencing `var(--ac-…)` only — no `#2563eb`-style literals in TSX)
-- [x] Export `@ahmedrioueche/actocore-sdk/styles.css` (documentation pending: “import tokens once in host app”)
+- [x] Export `@ahmedrioueche/actocore-sdk/styles.css` — documented in SDK README (“import tokens once in host app”)
 - [x] Optional slot/className props per subcomponent for layout tweaks without breaking token contract
 - [ ] Future (Studio): dashboard publishes theme JSON → host passes `theme.tokens` to provider (or injects CSS on parent)
 
@@ -207,13 +271,13 @@ _Defense in depth: Core validates schemas; SDK enforces what the **host app** ma
 - [x] Before invoking a host handler: check allowlist; show i18n `action.denied` when blocked (never silent no-op)
 - [x] Handler registry keyed by action **name**; clear i18n when handler missing (`action.handlerMissing`)
 - [x] Document host responsibility: register only actions they implement; align allowlist with actions enabled in Studio
-- [ ] Future (Studio): project settings API returns allowed action names → provider `security.allowedActionNames`
+- [x] Project settings API returns allowed action names → runtime + `PATCH sdk-config`; SDK via `loadRemoteConfig` (Studio UI pending)
 
 ### 5. UI feature flags (dashboard-ready)
 
 - [x] `ActocoreUiConfig`: `showSources`, `showIntentBadge`, `composerMinRows` / `composerMaxRows`, etc.
 - [x] Components read flags from context — no hardcoded “always show sources”
-- [ ] Future (Studio): same flags stored per project and passed into `ActocoreProvider`
+- [x] Same flags stored per project (`sdk-config`) and passed into `ActocoreProvider` when `loadRemoteConfig` (Studio UI pending)
 
 ### 6. Data layer (hooks → shared `api/`)
 
@@ -243,7 +307,7 @@ _Defense in depth: Core validates schemas; SDK enforces what the **host app** ma
 
 - [x] Publish to GitHub Packages (or npm) with same registry flow as `actocore-shared`
 - [x] `README.md`: install, import `styles.css`, `ActocoreProvider` (api + i18n + theme + security), `<ActoChat />`
-- [ ] `.npmrc` / auth notes for consumers (no secrets in repo)
+- [x] Public npm publish (`publishConfig` + `publish:public` scripts); consumers: `npm install @ahmedrioueche/actocore-sdk` only
 - [x] Verify install in a **clean directory** outside the monorepo (`npm pack` or registry version)
 
 ### 10. Example host app (integration testing in monorepo)
@@ -253,53 +317,179 @@ _Separate app to prove “install SDK → talk to real Core” without publishin
 - [x] Add `apps/sdk-playground` (or `examples/sdk-host`) — Vite + React + TypeScript
 - [x] Depends on local `packages/sdk` (workspace) or packed tarball; depends on published `actocore-shared`
 - [x] `.env.example`: `VITE_ACTOCORE_API_URL`, `VITE_ACTOCORE_API_KEY`
-- [ ] Seed script or docs: create project + API key via Studio/web routes, paste key into env
+- [x] Seed script or docs: create project + API key via web routes — `npm run setup` writes `.env` ([`apps/sdk-playground/MANUAL_E2E.md`](apps/sdk-playground/MANUAL_E2E.md))
 - [x] Demo page: `<ActocoreProvider>` with `locale`, `theme`, `security.allowedActionNames` + `<ActoChat />` + sample action handler
 - [x] Playground toggles locale / theme to prove i18n and tokens (no hardcoded demo strings in SDK)
-- [ ] Root `package.json` script: run playground + document “start backend + compose first”
+- [x] Root `package.json` script: `dev:infra`, `dev:backend`, `dev:playground`, `playground:setup` ([`package.json`](package.json))
 
 ### 11. Tests and quality
 
 - [x] Unit tests: hooks (mock shared api), allowlist helper, i18n error mapping
 - [x] Component tests: `ActoChat` send flow, locale switch, denied action UI (Vitest + RTL)
-- [ ] Manual E2E checklist: backend up → playground → chat → Q&A sources → action pending → allowlist deny/allow → handler runs
+- [x] Unit tests: `mergeRemoteSdkConfig` merge order (local overrides dashboard)
+- [ ] Manual E2E checklist: follow [`apps/sdk-playground/MANUAL_E2E.md`](apps/sdk-playground/MANUAL_E2E.md) and sign off
 - [ ] Optional: Playwright smoke against playground + local Core
 
 ---
 
 ## Studio (web dashboard)
 
-_Control plane UI — not started in repo; listed for sequencing after SDK. Studio will eventually **drive SDK behavior** without customers redeploying._
+_Control plane — **tenant auth + RBAC shipped** on `/v1/web/*`; **next** subscription, analytics, team CRUD, settings for **user admin / editor** (not platform super admin). Plan: [`apps/backend/STUDIO_BACKEND.md`](apps/backend/STUDIO_BACKEND.md)._
 
-- [ ] Scaffold `apps/studio` (or equivalent)
-- [ ] Consume `@ahmedrioueche/actocore-shared` `api/` for projects, API keys, actions, knowledge
-- [ ] Auth for `/web/*` routes (replace `@Public()` on control plane)
-- [ ] **Project SDK settings** (future API): default `locale`, translation overrides, theme tokens / mode, `allowedActionNames`, UI flags (`showSources`, etc.) — same types as `ActocoreProvider` config
-- [ ] **Chat preview** in Studio: embed SDK with settings from control plane (live preview of customized widget)
-- [ ] **Security UI:** manage which actions are exposed to end users vs disabled in project; sync to SDK allowlist contract
+### Studio product auth & guards (done)
+
+- [x] Signup, email verify, login, refresh, logout, forgot/reset password, change password
+- [x] Google OAuth (`GET /web/auth/google`, callback)
+- [x] `GET /web/auth/me`, delete-account OTP (`request-otp` + `confirm`)
+- [x] `StudioUser`, `StudioAccount`, `StudioMembership`; JWT + `StudioAuthGuard` + `StudioPermissionsGuard`
+- [x] RBAC: `user_admin`, `user_editor` (+ `super_admin` role in model; **platform routes not built**)
+- [x] Team seats (admin): `GET/POST/PATCH/DELETE /web/auth/members` (workspace username/password + projectIds)
+- [x] Project/account scoping on web routes (`accountId`, editor `projectIds`)
+- [x] `STUDIO_AUTH_DISABLED` for e2e/scripts only (not product dev workflow)
+- [x] Auth e2e: refresh token flow (`studio-product-auth.e2e-spec.ts`)
+- [x] Auth e2e: verify-email, forgot/reset password, logout (`studio-auth-flows.e2e-spec.ts`)
+- [x] Auth e2e: Google OAuth URL (`studio-google-auth.e2e-spec.ts`; callback needs live Google)
+
+### Studio tenant workspace (user admin & editor) — backend
+
+_Scope: **one Studio account (tenant)**. Roles: **user admin** (account owner) and **user editor** (invited). **Out of scope here:** super-admin platform console (all tenants, global billing, impersonation)._
+
+#### Subscription & billing (account-level)
+
+- [x] Paddle integration: `studio_plans`, `studio_subscriptions` (per `accountId`), webhook, checkout
+- [x] `GET /v1/web/billing/plans` (public), `GET /v1/web/billing/subscription` (summary + limits + usage)
+- [x] `POST /v1/web/billing/paddle/checkout`, cancel/reactivate, transaction status
+- [x] Super-admin plan CRUD: `GET/POST/PATCH/DELETE /v1/web/admin/plans` (dynamic catalog in MongoDB)
+- [x] Enforce plan limits: `maxProjects`, `maxTeamSeats` on create project / invite editor
+- [x] Account-level `monthlyChatQuota` enforced in `QuotaService` (aggregated per account)
+- [x] Free trial: `GET /v1/web/billing/trial/eligibility`, `POST /v1/web/billing/trial/start` (internal, no card), Paddle checkout includes trial when eligible, expiry + conversion on payment
+- [x] Scheduled downgrade (`POST .../subscription/downgrade`) + cancel pending change
+- [x] Payment history (`GET /v1/web/billing/payments` from subscription history)
+- [x] `billing.read` for subscription summary + payments; `billing.write` for checkout/cancel
+- [x] `npm run seed:plans` — default free/starter/pro/premium catalog
+- [x] Upgrade preview / immediate upgrade via Paddle (`POST .../subscription/upgrade/preview`, `POST .../upgrade`)
+- [x] Customer billing portal (`POST /v1/web/billing/paddle/customer-portal`)
+
+#### Projects
+
+- [x] `GET/POST /v1/web/projects`, `GET /v1/web/projects/:id`, `PATCH .../settings`
+- [x] List scoped to account; editors limited to `projectIds`
+- [x] `DELETE /v1/web/projects/:id` (admin; cascade keys, knowledge, sessions, usage)
+- [x] `PATCH /v1/web/projects/:id` — rename, `archived` flag
+- [x] Account-level project list filters: `?archived=`, `?search=` by name
+- [x] Default project on signup (`STUDIO_DEFAULT_PROJECT_ON_SIGNUP`, name via `STUDIO_DEFAULT_PROJECT_NAME`)
+- [x] Project creation blocked when account at plan project limit (`assertCanCreateProject`)
+
+#### Usage & analytics
+
+- [x] Platform LLM via server env only (no tenant BYOK in v1)
+- [x] Usage events on `POST /v1/sdk/chat` for operator analytics
+- [x] **Super admin only:** `GET /v1/web/admin/usage/*` (projects, accounts, series, export, knowledge, sessions)
+- [x] **Tenant admins:** `GET /v1/web/billing/quota` only (`billing.read`) — no usage dashboards
+- [x] Quota enforcement: per-minute / per-day / per-month (plan `monthlyChatQuota` or env)
+- [x] SDK `QUOTA_EXCEEDED` — end-user friendly message when limits hit
+- [x] Email account admins at 80% / 90% / 100% monthly (`QUOTA_ALERT_PERCENTAGES`, SMTP optional)
+- [x] Breakdowns: by route, error rate, p95 latency (`GET /v1/web/admin/usage/projects/:id/breakdown`, extended `usage_events`)
+
+#### Team (workspace seat logins — not org/email invites)
+
+- [x] `GET /v1/web/auth/members` — list seats + owner
+- [x] `POST /v1/web/auth/members` — create editor seat (`username`, `password`, `projectIds`, optional `permissions`)
+- [x] `PATCH /v1/web/auth/members/:userId` — update `username`, `projectIds`, `permissions`, `displayName`, reset `password` (editors only)
+- [x] `DELETE /v1/web/auth/members/:userId` — remove editor seat (not owner; not self)
+- [x] Seat login: `workspaceId` (account id) + `username` + `password`; owner login: `email` + `password`
+- [x] Seat users cannot self-delete via OTP (`SEAT_SELF_DELETE_BLOCKED`); admin removes seat
+- [ ] ~~Email invite / pending invites / multi-account~~ — **out of scope** (no org model)
+- [x] Team audit log: `GET /v1/web/auth/members/audit` (seat created/updated/removed)
+
+#### Settings
+
+**Account (tenant)**
+
+- [x] `GET/PATCH /v1/web/account` — org name, billing email, timezone, default locale
+- [x] `GET/PATCH /v1/web/account/preferences` — notification toggles (usage alerts, billing, product email)
+- [x] User profile via `GET /web/auth/me`; `PATCH /web/auth/me` for `displayName`, `picture`
+- [x] Password via `change-password`; delete account via OTP (owner only)
+
+**User (session)**
+
+- [x] `change-password`, `logout` (token version bump), `refresh`
+- [ ] Active sessions / devices list + revoke (optional)
+- [ ] 2FA TOTP (optional, later)
+
+**Project**
+
+- [x] `PATCH /v1/web/projects/:id/settings` — system prompt, rules, tone (existing project settings)
+- [x] `GET/PATCH /v1/web/projects/:id/sdk-config` — widget i18n, theme, UI flags, action allowlist
+- [x] Project-level “danger zone”: `DELETE` project, `POST .../api-keys/rotate-all`
+
+#### Already on `/v1/web/*` (supporting Studio screens)
+
+- [x] API keys: issue + revoke (`POST/DELETE /web/api-keys`)
+- [x] `GET /v1/web/projects/:projectId/api-keys` — list keys (prefix, name, `lastUsedAt`, no secret)
+- [x] Actions CRUD, knowledge CRUD + upload, sdk-config, usage summary (see above)
+
+#### Suggested additions (easy to forget)
+
+- [x] **API keys list** (required for Studio keys screen)
+- [x] **Project delete** + confirm dialog contract
+- [x] **Project quota status** — `GET /web/projects/:id/usage/quota` (plan or env limits + monthly used)
+- [x] **SDK config audit API** — `GET /v1/web/projects/:id/sdk-config/audit` (persisted in MongoDB)
+- [x] **Chat/session browser** (read-only) — `GET .../sessions`, `GET .../sessions/:id/messages`
+- [x] **Webhook outbound** — `preferences.quotaWebhookUrl` + POST on quota thresholds
+- [ ] ~~**Multi-account membership**~~ — **won't do**; one seat = one workspace login
+- [ ] **SSO/SAML** for enterprise accounts (Google OAuth only today)
+- [x] **Rate limit headers** on `/v1/web/*` (`X-RateLimit-*`, `STUDIO_WEB_RATE_LIMIT_PER_MINUTE`)
+- [x] Shared client: `billingApi` upgrade/portal, `platformApi`, `platformUsageAdminApi` breakdown
+- [ ] E2e matrix with `STUDIO_AUTH_DISABLED=false` for new routes
+
+### Studio platform operator (super admin) — later
+
+_Not the current focus; keep role in JWT/model but build when tenant workspace is stable._
+
+- [x] `/v1/web/platform/*` with `super_admin` guard
+- [x] List/search accounts (`GET /v1/web/platform/accounts`)
+- [ ] Impersonate tenant admin (audited)
+- [ ] Global plan catalog, manual plan overrides, suspend account
+- [ ] Platform-wide usage/revenue dashboards
+
+### Studio frontend (`apps/studio`)
+
+- [ ] Scaffold `apps/studio` (Vite/React)
+- [ ] Auth screens (signup, login, verify, forgot password, Google callback)
+- [ ] Shell nav: Projects, Usage, Team, Billing, Settings
+- [ ] Projects list/create/settings; SDK config editor; knowledge upload UI
+- [ ] Usage/analytics charts per project (depends on time-range APIs)
+- [ ] Team management UI (depends on PATCH/DELETE members)
+- [ ] Billing/subscription UI (depends on Stripe APIs)
+- [ ] API keys screen (depends on list endpoint)
+- [ ] Chat preview: embed SDK with live `sdk-config`
+- [ ] Security UI: action allowlist vs disabled actions
 
 ### Studio-driven customization contract (hybrid: dashboard + code)
 
-_Principle: dashboard controls presentation/policy; code keeps runtime logic/security boundaries._
+_Principle: dashboard controls presentation/policy; code keeps runtime logic/security boundaries. **Backend + SDK shipped** (curl/JSON today; Studio UI later)._
 
-- [ ] Define shared contract (`SdkProjectConfigData`) in `packages/shared/types` for dashboard-driven SDK config
-- [ ] Add shared DTOs for web API patch/get of SDK config (`GetSdkConfigDto`, `UpdateSdkConfigDto`)
-- [ ] Add backend endpoint(s): `GET /v1/web/projects/:id/sdk-config` and `PATCH /v1/web/projects/:id/sdk-config`
-- [ ] Persist SDK config per project (language, translations, theme tokens/mode, UI flags, action allowlist)
-- [ ] Validate payload schema server-side (strict key whitelist, type checks, size limits)
-- [ ] Add config versioning field (`sdkConfigVersion`) for future migration safety
-- [ ] Add backend fallback behavior when config is missing/invalid (safe defaults)
-- [ ] Add backend enforcement for action allowlist in orchestration/request path (defense in depth)
-- [ ] Add audit log events for config mutations (`actor`, `projectId`, changed keys, timestamp)
-- [ ] Expose minimal runtime-safe subset for SDK consumption (never leak internal/admin-only fields)
-- [ ] Update SDK provider docs: merge order = local props override dashboard defaults override SDK defaults
-- [ ] Add test matrix: per-project isolation, invalid payload rejection, allowlist enforcement, fallback behavior
+- [x] Define shared contract (`SdkProjectConfigData`) in `packages/shared/types` for dashboard-driven SDK config
+- [x] Add shared DTOs for web API patch/get of SDK config (`UpdateSdkProjectConfigDto`)
+- [x] Add backend endpoint(s): `GET /v1/web/projects/:id/sdk-config` and `PATCH /v1/web/projects/:id/sdk-config`
+- [x] Persist SDK config per project (language, translations, theme tokens/mode, UI flags, action allowlist)
+- [x] Validate payload schema server-side (class-validator DTOs, size limits)
+- [x] Add config versioning field (`sdkConfigVersion`) for future migration safety
+- [x] Add backend fallback behavior when config is missing/invalid (safe defaults)
+- [x] Add backend enforcement for action allowlist in orchestration/request path (defense in depth)
+- [x] Add audit log events for config mutations (`SdkConfigAudit`)
+- [x] Expose runtime-safe subset for SDK consumption via `GET /v1/sdk/runtime` (`sdk` field)
+- [x] Update SDK provider docs: merge order = local props override dashboard defaults override SDK defaults
+- [x] Add test matrix: per-project isolation, invalid payload rejection, allowlist enforcement (e2e); fallback via unit sanitize tests
 
 ---
 
 ## Suggested build order
 
-**Backend (done)** — infrastructure → auth → orchestrator → actions → RAG → observability → billing.
+**Backend (done)** — infrastructure → auth → orchestrator → actions → RAG (text/url) → observability → billing.
+
+**Backend (next)** — Excel/Word parsers, S3 storage, `/web/*` auth, remaining e2e (PDF citation, sdk-config matrix).
 
 **SDK (current):**
 
@@ -313,14 +503,17 @@ _Principle: dashboard controls presentation/policy; code keeps runtime logic/sec
 8. Publish + verify external install
 9. Tests
 
-**Then (Studio):** control plane APIs for SDK settings → preview customized chat in dashboard.
+**Then (Studio tenant backend):** broader auth e2e; optional project rename/archive; upgrade preview (Paddle v2).
 
-**Then:** Studio web app, then production auth on web routes.
+**Then (Studio UI):** `apps/studio` against the above APIs.
+
+**Later:** super-admin platform APIs; knowledge Excel/Word + S3.
 
 ---
 
 ## References
 
+- [`apps/backend/README.md`](apps/backend/README.md) — API routes, knowledge matrix, env vars, curl examples
 - [`_docs/backend/ARCHITECTURE.md`](_docs/backend/ARCHITECTURE.md) — layers and request flow
 - [`_docs/backend/OVERVIEW.md`](_docs/backend/OVERVIEW.md) — responsibilities
 - [`_docs/PROJECT.md`](_docs/PROJECT.md) — product context

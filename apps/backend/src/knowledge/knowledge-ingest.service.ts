@@ -1,7 +1,8 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { CreateKnowledgeSourceDto } from '@ahmedrioueche/actocore-shared';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
+import { DocumentTextExtractor } from './document-text.extractor';
 import {
   EMBEDDING_PROVIDER,
   type EmbeddingProvider,
@@ -14,7 +15,14 @@ import {
   KnowledgeSource,
   KnowledgeSourceDocument,
 } from './schemas/knowledge-source.schema';
+import { isPdfBuffer } from './utils/knowledge-mime.util';
 import { chunkText } from './utils/text-chunker';
+
+export interface KnowledgeUploadedFile {
+  buffer: Buffer;
+  mimeType: string;
+  originalFilename: string;
+}
 
 @Injectable()
 export class KnowledgeIngestService {
@@ -25,6 +33,7 @@ export class KnowledgeIngestService {
     private readonly chunkModel: Model<KnowledgeChunkDocument>,
     @Inject(EMBEDDING_PROVIDER)
     private readonly embeddings: EmbeddingProvider,
+    private readonly documentText: DocumentTextExtractor,
   ) {}
 
   async ingestSource(
@@ -33,42 +42,71 @@ export class KnowledgeIngestService {
   ): Promise<KnowledgeSourceDocument> {
     try {
       const text = await this.resolveSourceText(body);
+      return await this.ingestExtractedText(source, text);
+    } catch (error) {
+      return await this.markIngestError(source, error);
+    }
+  }
 
-      await this.chunkModel.deleteMany({
+  async ingestUploadedFile(
+    source: KnowledgeSourceDocument,
+    file: KnowledgeUploadedFile,
+  ): Promise<KnowledgeSourceDocument> {
+    try {
+      const text = await this.documentText.extractText(
+        file.buffer,
+        file.mimeType,
+        file.originalFilename,
+      );
+      return await this.ingestExtractedText(source, text);
+    } catch (error) {
+      return await this.markIngestError(source, error);
+    }
+  }
+
+  private async ingestExtractedText(
+    source: KnowledgeSourceDocument,
+    text: string,
+  ): Promise<KnowledgeSourceDocument> {
+    await this.chunkModel.deleteMany({
+      projectId: source.projectId,
+      sourceId: source._id,
+    });
+
+    const chunks = chunkText(text);
+    if (chunks.length === 0) {
+      throw new BadRequestException('Knowledge source has no indexable text');
+    }
+
+    for (const chunk of chunks) {
+      const embedding = await this.embeddings.embed(chunk.content);
+      await this.chunkModel.create({
         projectId: source.projectId,
         sourceId: source._id,
+        sourceTitle: source.title,
+        chunkIndex: chunk.index,
+        content: chunk.content,
+        embedding,
       });
-
-      const chunks = chunkText(text);
-      if (chunks.length === 0) {
-        throw new BadRequestException('Knowledge source has no indexable text');
-      }
-
-      for (const chunk of chunks) {
-        const embedding = await this.embeddings.embed(chunk.content);
-        await this.chunkModel.create({
-          projectId: source.projectId,
-          sourceId: source._id,
-          sourceTitle: source.title,
-          chunkIndex: chunk.index,
-          content: chunk.content,
-          embedding,
-        });
-      }
-
-      source.status = 'ready';
-      source.chunkCount = chunks.length;
-      source.errorMessage = undefined;
-      await source.save();
-      return source;
-    } catch (error) {
-      source.status = 'error';
-      source.errorMessage =
-        error instanceof Error ? error.message : 'Ingestion failed';
-      source.chunkCount = 0;
-      await source.save();
-      return source;
     }
+
+    source.status = 'ready';
+    source.chunkCount = chunks.length;
+    source.errorMessage = undefined;
+    await source.save();
+    return source;
+  }
+
+  private async markIngestError(
+    source: KnowledgeSourceDocument,
+    error: unknown,
+  ): Promise<KnowledgeSourceDocument> {
+    source.status = 'error';
+    source.errorMessage =
+      error instanceof Error ? error.message : 'Ingestion failed';
+    source.chunkCount = 0;
+    await source.save();
+    return source;
   }
 
   private async resolveSourceText(
@@ -89,7 +127,7 @@ export class KnowledgeIngestService {
     }
 
     throw new BadRequestException(
-      'document ingestion is not implemented yet; use type "text" with content',
+      'document type requires file upload; use POST .../knowledge/upload',
     );
   }
 
@@ -102,12 +140,36 @@ export class KnowledgeIngestService {
       if (!response.ok) {
         throw new Error(`Failed to fetch URL (${response.status})`);
       }
-      const html = await response.text();
-      return stripHtml(html);
+
+      const contentType =
+        response.headers.get('content-type')?.split(';')[0].trim().toLowerCase() ??
+        '';
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+
+      if (contentType.includes('pdf') || isPdfBuffer(buffer)) {
+        return this.documentText.extractText(
+          buffer,
+          'application/pdf',
+          'remote.pdf',
+        );
+      }
+
+      const asText = buffer.toString('utf8');
+      if (contentType.includes('html') || looksLikeHtml(asText)) {
+        return stripHtml(asText);
+      }
+
+      return asText.trim();
     } finally {
       clearTimeout(timer);
     }
   }
+}
+
+function looksLikeHtml(text: string): boolean {
+  const sample = text.slice(0, 512).toLowerCase();
+  return sample.includes('<html') || sample.includes('<!doctype');
 }
 
 function stripHtml(html: string): string {

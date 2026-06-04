@@ -1,6 +1,5 @@
 import type { Server } from 'http';
 import request from 'supertest';
-
 export async function seedProjectAndApiKey(
   server: Server,
   projectName = 'E2E Project',

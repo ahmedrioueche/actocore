@@ -2,6 +2,12 @@ export type KnowledgeSourceType = 'text' | 'url' | 'document';
 
 export type KnowledgeSourceStatus = 'pending' | 'ready' | 'error';
 
+export interface KnowledgeFileMetadata {
+  originalFilename: string;
+  mimeType: string;
+  byteSize: number;
+}
+
 export interface KnowledgeSourceData {
   id: string;
   projectId: string;
@@ -11,6 +17,8 @@ export interface KnowledgeSourceData {
   status: KnowledgeSourceStatus;
   chunkCount: number;
   errorMessage?: string;
+  /** Present when source was created from an uploaded file. */
+  file?: KnowledgeFileMetadata;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,13 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   CreateProjectDto,
+  ListProjectsQuery,
   ProjectData,
   ProjectSettings,
+  UpdateProjectDto,
   UpdateProjectSettingsDto,
 } from '@ahmedrioueche/actocore-shared';
+import { ErrorCode, StudioRole } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
+import { ProjectDeleteService } from './project-delete.service';
 import { withProjectId } from '../common/tenant/tenant-scope';
+import { StudioEntitlementsService } from '../studio-billing/studio-entitlements.service';
+import { StudioAccessService } from '../studio/studio-access.service';
+import type { StudioRequestContext } from '../studio/studio-context';
 import { Project, ProjectDocument } from './schemas/project.schema';
 
 @Injectable()
@@ -15,26 +28,119 @@ export class ProjectsService {
   constructor(
     @InjectModel(Project.name)
     private readonly projectModel: Model<ProjectDocument>,
+    private readonly studioAccess: StudioAccessService,
+    @Inject(forwardRef(() => StudioEntitlementsService))
+    private readonly entitlements: StudioEntitlementsService,
+    private readonly projectDelete: ProjectDeleteService,
   ) {}
 
-  async create(body: CreateProjectDto): Promise<ProjectData> {
+  async delete(
+    ctx: StudioRequestContext,
+    projectId: string,
+  ): Promise<{ message: string }> {
+    if (
+      ctx.role !== StudioRole.USER_ADMIN &&
+      ctx.role !== StudioRole.SUPER_ADMIN
+    ) {
+      throw new ForbiddenException({
+        errorCode: ErrorCode.INSUFFICIENT_PERMISSIONS,
+        message: 'Only workspace admins can delete projects',
+      });
+    }
+
+    const project = await this.findByIdOrFail(ctx, projectId);
+    await this.projectDelete.deleteProject(projectId, project.accountId);
+    return { message: 'Project deleted.' };
+  }
+
+  async create(
+    ctx: StudioRequestContext | null,
+    body: CreateProjectDto,
+  ): Promise<ProjectData> {
+    const accountId = ctx?.accountId;
+    if (accountId) {
+      await this.entitlements.assertCanCreateProject(accountId);
+    }
+    if (!accountId) {
+      const doc = await this.projectModel.create({
+        name: body.name,
+        accountId: 'legacy',
+        settings: body.settings ?? {},
+      });
+      return this.toData(doc);
+    }
+
     const doc = await this.projectModel.create({
       name: body.name,
+      accountId,
       settings: body.settings ?? {},
     });
     return this.toData(doc);
   }
 
-  async findById(projectId: string): Promise<ProjectData | null> {
+  async list(
+    ctx: StudioRequestContext | null,
+    query: ListProjectsQuery = {},
+  ): Promise<ProjectData[]> {
+    const limit = query.limit ?? 50;
+    const filter: Record<string, unknown> = ctx
+      ? {
+          ...this.studioAccess.accountFilter(ctx),
+          ...this.studioAccess.projectIdFilter(ctx),
+        }
+      : {};
+
+    if (query.archived === true) {
+      filter.archived = true;
+    } else if (query.archived === false) {
+      filter.archived = { $ne: true };
+    } else {
+      filter.archived = { $ne: true };
+    }
+
+    const search = query.search?.trim();
+    if (search) {
+      filter.name = { $regex: this.escapeRegex(search), $options: 'i' };
+    }
+
+    const docs = await this.projectModel
+      .find(filter)
+      .sort({ updatedAt: -1 })
+      .limit(Math.min(Math.max(limit, 1), 200))
+      .exec();
+    return docs.map((doc) => this.toData(doc));
+  }
+
+  async findById(
+    ctx: StudioRequestContext | null,
+    projectId: string,
+  ): Promise<ProjectData | null> {
     if (!Types.ObjectId.isValid(projectId)) {
       return null;
     }
     const doc = await this.projectModel.findById(projectId).exec();
-    return doc ? this.toData(doc) : null;
+    if (!doc) {
+      return null;
+    }
+    if (ctx) {
+      this.studioAccess.assertProjectAccess(ctx, projectId);
+      if (
+        ctx.accountId &&
+        doc.accountId &&
+        doc.accountId !== 'legacy' &&
+        doc.accountId !== ctx.accountId
+      ) {
+        return null;
+      }
+    }
+    return this.toData(doc);
   }
 
-  async findByIdOrFail(projectId: string): Promise<ProjectData> {
-    const project = await this.findById(projectId);
+  async findByIdOrFail(
+    ctx: StudioRequestContext | null,
+    projectId: string,
+  ): Promise<ProjectData> {
+    const project = await this.findById(ctx, projectId);
     if (!project) {
       throw new NotFoundException(`Project ${projectId} not found`);
     }
@@ -42,14 +148,53 @@ export class ProjectsService {
   }
 
   async assertExists(projectId: string): Promise<void> {
-    await this.findByIdOrFail(projectId);
+    await this.findByIdOrFail(null, projectId);
+  }
+
+  async assertExistsForAccount(
+    ctx: StudioRequestContext,
+    projectId: string,
+  ): Promise<void> {
+    await this.findByIdOrFail(ctx, projectId);
+  }
+
+  async update(
+    ctx: StudioRequestContext | null,
+    projectId: string,
+    patch: UpdateProjectDto,
+  ): Promise<ProjectData> {
+    await this.findByIdOrFail(ctx, projectId);
+
+    const $set: Record<string, unknown> = {};
+    if (patch.name !== undefined) {
+      $set.name = patch.name.trim();
+    }
+    if (patch.archived !== undefined) {
+      $set.archived = patch.archived;
+      $set.archivedAt = patch.archived ? new Date() : null;
+    }
+
+    if (Object.keys($set).length === 0) {
+      return this.findByIdOrFail(ctx, projectId);
+    }
+
+    const doc = await this.projectModel
+      .findByIdAndUpdate(projectId, { $set }, { new: true })
+      .exec();
+
+    if (!doc) {
+      throw new NotFoundException(`Project ${projectId} not found`);
+    }
+
+    return this.toData(doc);
   }
 
   async updateSettings(
+    ctx: StudioRequestContext | null,
     projectId: string,
     patch: UpdateProjectSettingsDto,
   ): Promise<ProjectData> {
-    await this.findByIdOrFail(projectId);
+    await this.findByIdOrFail(ctx, projectId);
 
     const $set: Record<string, unknown> = {};
     if (patch.systemPrompt !== undefined) {
@@ -92,10 +237,20 @@ export class ProjectsService {
     }
   }
 
+  private escapeRegex(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   private toData(doc: ProjectDocument): ProjectData {
+    const archived = doc.archived === true;
     return {
       id: doc._id.toString(),
+      accountId: doc.accountId ?? 'legacy',
       name: doc.name,
+      archived,
+      archivedAt: archived && doc.archivedAt
+        ? doc.archivedAt.toISOString()
+        : undefined,
       settings: this.normalizeSettings(doc.settings),
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: (doc.updatedAt ?? new Date()).toISOString(),

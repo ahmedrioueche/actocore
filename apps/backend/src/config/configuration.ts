@@ -6,11 +6,14 @@ import {
   resolveMongoUri,
 } from './mongodb.config';
 import { resolveAuthConfig } from './auth.config';
+import { resolveStudioAuthConfig } from './studio-auth.config';
 import { resolveHttpConfig } from './http.config';
 import { resolveLlmConfig } from './llm.config';
 import { resolveVoiceConfig } from './voice.config';
+import { resolveKnowledgeConfig } from './knowledge.config';
 import { resolveQuotaLimits } from './quota.config';
 import { isRedisEnabled, resolveRedisUrl } from './redis.config';
+import { resolvePaddleConfig } from './paddle.config';
 
 export default () => {
   const uri = resolveMongoUri();
@@ -32,8 +35,11 @@ export default () => {
     },
     http: resolveHttpConfig(),
     auth: resolveAuthConfig(),
+    studioAuth: resolveStudioAuthConfig(),
     llm: resolveLlmConfig(),
     voice: resolveVoiceConfig(),
+    knowledge: resolveKnowledgeConfig(),
     quota: resolveQuotaLimits(),
+    paddle: resolvePaddleConfig(),
   };
 };

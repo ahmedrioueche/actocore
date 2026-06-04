@@ -23,6 +23,17 @@ export function configureApp(app: INestApplication): void {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.disable('x-powered-by');
 
+  const paddleWebhookPath = `${webPrefix}/billing/paddle/webhook`;
+  app.use(
+    paddleWebhookPath,
+    json({
+      limit: http.bodyLimitWeb,
+      verify: (req: Request & { rawBody?: Buffer }, _res, buf) => {
+        req.rawBody = buf;
+      },
+    }),
+  );
+
   app.use(sdkPrefix, json({ limit: http.bodyLimitSdk }));
   app.use(webPrefix, json({ limit: http.bodyLimitWeb }));
   app.use(json({ limit: http.bodyLimitSdk }));

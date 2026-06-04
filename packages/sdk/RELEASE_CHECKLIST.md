@@ -35,12 +35,14 @@ Use this checklist for every `@ahmedrioueche/actocore-sdk` release.
   - `@ahmedrioueche/actocore-sdk`
   - `@ahmedrioueche/actocore-sdk/styles.css`
 
-## 5) Publish
+## 5) Publish (public npm)
 
-- [ ] Ensure auth/registry config is valid (without committing secrets)
-- [ ] Publish:
-  - `npm -C packages/sdk publish`
-- [ ] Confirm published version is installable in another clean project
+- [ ] `npm login` on https://registry.npmjs.org
+- [ ] Publish shared first: `npm -C packages/shared run publish:public`
+- [ ] Publish SDK: `npm -C packages/sdk run publish:public`
+- [ ] Confirm published version is installable in another clean project (no `.npmrc` in host app)
+
+See [`../PUBLISH.md`](../PUBLISH.md).
 
 ## 6) Post-publish
 

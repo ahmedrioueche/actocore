@@ -34,6 +34,7 @@ export {
   actionsApi,
   sdkActionsApi,
   knowledgeApi,
+  sdkConfigApi,
   usageApi,
   healthApi,
 } from '@ahmedrioueche/actocore-shared';
