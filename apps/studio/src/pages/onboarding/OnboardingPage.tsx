@@ -7,9 +7,8 @@ import { OnboardingLayout, OnboardingShell } from '@/components/onboarding/Onboa
 import { OnboardingLocaleSelect } from '@/components/onboarding/OnboardingLocaleSelect';
 import { OnboardingStepPanel } from '@/components/onboarding/OnboardingStepPanel';
 import { OnboardingWelcomeFeatures } from '@/components/onboarding/OnboardingWelcomeFeatures';
-import { AsyncContent } from '@/components/states';
+import { AsyncContent, PageSkeleton } from '@/components/states';
 import InputField from '@/components/ui/InputField';
-import Loading from '@/components/ui/Loading';
 import Button from '@/components/ui/Button';
 import {
   isAccountLocaleCode,
@@ -184,7 +183,7 @@ export default function OnboardingPage() {
   if (stateQuery.isLoading || authLoading) {
     return (
       <OnboardingShell>
-        <Loading fullScreen={false} className="py-16" />
+        <PageSkeleton variant="form" showHeader={false} />
       </OnboardingShell>
     );
   }
@@ -203,7 +202,7 @@ export default function OnboardingPage() {
   if (currentStep === 'done') {
     return (
       <OnboardingShell>
-        <Loading fullScreen={false} className="py-16" />
+        <PageSkeleton variant="form" showHeader={false} />
       </OnboardingShell>
     );
   }

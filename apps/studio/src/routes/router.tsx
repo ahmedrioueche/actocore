@@ -6,21 +6,27 @@ import {
   redirect,
 } from '@tanstack/react-router';
 
+import StudioLayout from '@/components/layout/StudioLayout';
 import LoginPage from '@/pages/auth/LoginPage';
 import SignupPage from '@/pages/auth/SignupPage';
 import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 import AuthCallbackPage from '@/pages/auth/AuthCallbackPage';
-import ProjectsPlaceholderPage from '@/pages/projects/ProjectsPlaceholderPage';
+import BillingPage from '@/pages/billing/BillingPage';
 import OnboardingPage from '@/pages/onboarding/OnboardingPage';
-import LoadingPage from '@/pages/system/LoadingPage';
+import ProjectOverviewPage from '@/pages/projects/ProjectOverviewPage';
+import ProjectApiKeysPage from '@/pages/projects/ProjectApiKeysPage';
+import ProjectSectionPage from '@/pages/projects/ProjectSectionPage';
+import ProjectsPage from '@/pages/projects/ProjectsPage';
+import SettingsPage from '@/pages/settings/SettingsPage';
+import TeamPage from '@/pages/team/TeamPage';
 import NotFoundPage from '@/pages/system/NotFoundPage';
 import {
   redirectIfAuthenticated,
-  requireAuth,
-  requireOnboardingComplete,
   requireOnboardingPending,
+  requireProjectAccessSync,
+  requireStudioSession,
 } from '@/routes/guards';
 
 const rootRoute = createRootRoute({
@@ -91,12 +97,77 @@ const onboardingRoute = createRoute({
   component: OnboardingPage,
 });
 
-const projectsRoute = createRoute({
+const studioLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: 'studio',
+  beforeLoad: requireStudioSession,
+  component: StudioLayout,
+});
+
+const projectsRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
   path: '/projects',
-  beforeLoad: requireOnboardingComplete,
-  pendingComponent: () => <LoadingPage type="inner" />,
-  component: ProjectsPlaceholderPage,
+  component: ProjectsPage,
+});
+
+const projectOverviewRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: ProjectOverviewPage,
+});
+
+const projectKnowledgeRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId/knowledge',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: () => <ProjectSectionPage section="knowledge" />,
+});
+
+const projectActionsRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId/actions',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: () => <ProjectSectionPage section="actions" />,
+});
+
+const projectSdkConfigRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId/sdk-config',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: () => <ProjectSectionPage section="sdk-config" />,
+});
+
+const projectApiKeysRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId/api-keys',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: ProjectApiKeysPage,
+});
+
+const projectUsageRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId/usage',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: () => <ProjectSectionPage section="usage" />,
+});
+
+const teamRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/team',
+  component: TeamPage,
+});
+
+const billingRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/billing',
+  component: BillingPage,
+});
+
+const settingsRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/settings',
+  component: SettingsPage,
 });
 
 const routeTree = rootRoute.addChildren([
@@ -108,14 +179,25 @@ const routeTree = rootRoute.addChildren([
   resetPasswordRoute,
   authCallbackRoute,
   onboardingRoute,
-  projectsRoute,
+  studioLayoutRoute.addChildren([
+    projectsRoute,
+    projectOverviewRoute,
+    projectKnowledgeRoute,
+    projectActionsRoute,
+    projectSdkConfigRoute,
+    projectApiKeysRoute,
+    projectUsageRoute,
+    teamRoute,
+    billingRoute,
+    settingsRoute,
+  ]),
 ]);
 
 export const router = createRouter({
   routeTree,
   defaultNotFoundComponent: NotFoundPage,
-  defaultPendingComponent: () => <LoadingPage type="inner" />,
-  defaultPendingMs: 0,
+  defaultPreload: 'intent',
+  defaultPreloadStaleTime: 30_000,
 });
 
 declare module '@tanstack/react-router' {

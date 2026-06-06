@@ -1,16 +1,8 @@
-import { studioAuthApi, TokenManager } from '@ahmedrioueche/actocore-shared';
-
+import { signOut } from '@/lib/auth-session';
 import { ensureApiConfigured } from '@/lib/configure-api';
 
-/** Studio logout — clears tokens and optional server session. */
+/** Studio logout — clears tokens and reloads on the login page. */
 export async function handleLogout(redirectTo = '/login'): Promise<void> {
   ensureApiConfigured();
-  try {
-    if (TokenManager.getAccessToken()) {
-      await studioAuthApi.logout();
-    }
-  } finally {
-    TokenManager.clearTokens();
-    window.location.assign(redirectTo);
-  }
+  await signOut(redirectTo);
 }

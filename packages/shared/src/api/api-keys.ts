@@ -1,5 +1,5 @@
 import { apiPath } from '../config/api-version';
-import { CreateApiKeyDto } from '../dtos/api-key.dto';
+import { CreateApiKeyDto, UpdateApiKeyDto } from '../dtos/api-key.dto';
 import type { ApiResponse } from '../types/api-response';
 import type { ApiKeyIssuedData, ApiKeyMetadata } from '../types/api-key';
 import { BaseApi } from './helper';
@@ -22,6 +22,18 @@ export class ApiKeysApi extends BaseApi {
     return this.request(() =>
       this.client.post<ApiResponse<ApiKeyIssuedData>>(
         apiPath('web/api-keys'),
+        body,
+      ),
+    );
+  }
+
+  update(
+    keyId: string,
+    body: UpdateApiKeyDto,
+  ): Promise<ApiResponse<ApiKeyMetadata>> {
+    return this.request(() =>
+      this.client.patch<ApiResponse<ApiKeyMetadata>>(
+        apiPath(`web/api-keys/${keyId}`),
         body,
       ),
     );

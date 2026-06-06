@@ -9,3 +9,10 @@ export class CreateApiKeyDto {
   @IsString()
   name?: string;
 }
+
+export class UpdateApiKeyDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  name?: string;
+}

@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 
 import Error from '@/components/ui/Error';
-import Loading from '@/components/ui/Loading';
 import NoData from '@/components/ui/NoData';
+
+import { PageSkeleton, type PageSkeletonVariant } from './PageSkeleton';
 
 interface AsyncContentProps {
   isLoading?: boolean;
@@ -13,15 +14,12 @@ interface AsyncContentProps {
   emptyDescription?: string;
   onRetry?: () => void;
   loadingClassName?: string;
+  loadingVariant?: PageSkeletonVariant;
   emptyClassName?: string;
   children?: ReactNode;
 }
 
-/**
- * Inline section states — use inside a page or card, not as a route.
- * For full-viewport loading/errors/404, use pages under `@/pages/system/`.
- */
-export function AsyncContent({
+function renderBody({
   isLoading,
   isError,
   error,
@@ -29,12 +27,19 @@ export function AsyncContent({
   emptyTitle,
   emptyDescription,
   onRetry,
-  loadingClassName = 'py-16',
+  loadingClassName,
+  loadingVariant,
   emptyClassName,
   children,
 }: AsyncContentProps) {
   if (isLoading) {
-    return <Loading fullScreen={false} className={loadingClassName} />;
+    return (
+      <PageSkeleton
+        variant={loadingVariant}
+        showHeader={false}
+        className={loadingClassName}
+      />
+    );
   }
 
   if (isError) {
@@ -47,9 +52,18 @@ export function AsyncContent({
         title={emptyTitle}
         description={emptyDescription}
         className={emptyClassName}
+        centered={false}
       />
     );
   }
 
   return children;
+}
+
+/**
+ * Inline dynamic section states — pair with a static `PageHeader` (or shell) above.
+ * For full-viewport boot loading, use `@/pages/system/LoadingPage`.
+ */
+export function AsyncContent(props: AsyncContentProps) {
+  return renderBody(props);
 }

@@ -103,7 +103,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
 
     switch (variant) {
       case "primary":
-        return `${baseClasses} bg-brand-gradient hover:opacity-95 text-primary-contrast ring-1 ring-primary/30 hover:shadow-brand ${className || ""}`;
+        return `${baseClasses} bg-brand-gradient hover:opacity-90 text-primary-contrast ring-1 ring-primary/30 ${className || ""}`;
       case "danger":
         return `${baseClasses} bg-danger hover:bg-danger-hover text-white shadow-sm hover:shadow-md ${className || ""}`;
       case "ghost":
@@ -155,7 +155,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
       onClick={hideCloseButton ? undefined : onClose}
     >
       <div
-        className={`bg-surface shadow-2xl ${maxWidth} w-full border-t-2 md:border-2 border-primary/30 overflow-hidden animate-in fade-in duration-300 flex flex-col
+        className={`bg-surface shadow-2xl ${maxWidth} w-full border-t md:border border-border overflow-hidden animate-in fade-in duration-300 flex flex-col
           rounded-t-2xl md:rounded-2xl
           max-h-[92vh] md:max-h-[95vh]
           slide-in-from-bottom-4 md:slide-in-from-bottom-0 md:zoom-in`}
@@ -166,12 +166,12 @@ const BaseModal: React.FC<BaseModalProps> = ({
           (customHeader ? (
             customHeader
           ) : (
-            <div className="bg-gradient-to-r from-primary to-secondary p-3 md:p-4 flex-shrink-0">
+            <div className="bg-surface-secondary border-b border-border p-3 md:p-4 flex-shrink-0">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 md:gap-4 min-w-0">
                   {Icon && (
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 shadow-inner border border-white/20">
-                      <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary">
+                      <Icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                     </div>
                   )}
                   <div className="min-w-0">
@@ -180,15 +180,15 @@ const BaseModal: React.FC<BaseModalProps> = ({
                         type="text"
                         value={displayTitle}
                         onChange={(e) => onTitleChange(e.target.value)}
-                        className="text-lg md:text-xl font-bold text-white bg-white/20 rounded-lg px-2 md:px-3 py-1 border border-white/30 outline-none focus:border-white/50 mb-0.5 w-full"
+                        className="text-lg md:text-xl font-bold text-text-primary bg-surface rounded-lg px-2 md:px-3 py-1 border border-border outline-none focus:border-primary/50 mb-0.5 w-full"
                       />
                     ) : (
-                      <h2 className="text-lg md:text-xl font-bold text-white mb-0.5 truncate">
+                      <h2 className="text-lg md:text-xl font-bold text-text-primary mb-0.5 truncate">
                         {displayTitle}
                       </h2>
                     )}
                     {subtitle && (
-                      <p className="text-white/90 text-xs md:text-sm truncate">
+                      <p className="text-text-secondary text-xs md:text-sm truncate">
                         {subtitle}
                       </p>
                     )}
@@ -198,18 +198,18 @@ const BaseModal: React.FC<BaseModalProps> = ({
                   {showEditButton && !isEditMode && onEditClick && (
                     <button
                       onClick={onEditClick}
-                      className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary flex items-center justify-center transition-colors"
                       title={t("common.edit")}
                     >
-                      <Edit3 className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                      <Edit3 className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   )}
                   {!hideCloseButton && (
                     <button
                       onClick={onClose}
-                      className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary flex items-center justify-center transition-colors"
                     >
-                      <X className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                      <X className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   )}
                 </div>

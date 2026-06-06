@@ -1,13 +1,15 @@
-import type { LucideIcon } from "lucide-react";
-import { MessageCircle } from "lucide-react";
-import React, { type ElementType } from "react";
-import { useTranslation } from "react-i18next";
+import type { LucideIcon } from 'lucide-react';
+import { Inbox } from 'lucide-react';
+import type { ElementType, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import Button from '@/components/ui/Button';
+import { cn } from '@/utils/helper';
 
 interface ActionButton {
   label: string;
   icon?: ElementType;
   onClick: () => void;
-  className?: string;
 }
 
 interface NoDataProps {
@@ -16,72 +18,110 @@ interface NoDataProps {
   title?: string;
   description?: string;
   actionButton?: ActionButton;
+  footer?: ReactNode;
   className?: string;
-  iconBg?: string;
+  centered?: boolean;
 }
 
-const NoData: React.FC<NoDataProps> = ({
+const NoData = ({
   icon: Icon,
   emoji,
   title,
   description,
   actionButton,
-  className = "bg-surface border border-border rounded-3xl p-12 md:p-20 shadow-sm",
-  iconBg = "bg-primary/5",
-}) => {
+  footer,
+  className,
+  centered = false,
+}: NoDataProps) => {
   const { t } = useTranslation();
 
-  const IconComponent = Icon || MessageCircle;
-  const displayTitle = title || t("general.no_data");
-  const displayDescription = description || t("general.no_data_desc");
+  const IconComponent = Icon || Inbox;
+  const displayTitle = title || t('general.no_data');
+  const displayDescription = description || t('general.no_data_desc');
   const ActionIcon = actionButton?.icon;
 
-  return (
+  const content = (
     <div
-      className={`relative overflow-hidden flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 ${className}`}
+      className={cn(
+        'empty-state relative w-full max-w-lg px-4 text-center md:px-6',
+        !centered &&
+          'rounded-3xl bg-gradient-to-b from-primary/[0.04] via-transparent to-secondary/[0.05] py-10 md:py-12',
+        className,
+      )}
     >
-      <div className="relative mb-8">
-        {/* Subtle glow behind icon/emoji */}
-        <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-40 scale-150" />
+      <div
+        className="empty-state__glow empty-state__glow--primary -top-10 left-1/2 h-36 w-36 -translate-x-1/2"
+        aria-hidden
+      />
+      <div
+        className="empty-state__glow empty-state__glow--secondary bottom-4 right-1/4 h-28 w-28"
+        aria-hidden
+      />
 
-        <div
-          className={`relative z-10 ${
-            emoji
-              ? "text-7xl md:text-8xl drop-shadow-2xl animate-float"
-              : `w-20 h-20 md:w-24 md:h-24 rounded-[2rem] flex items-center justify-center shadow-inner ${iconBg}`
-          }`}
-        >
-          {emoji ? (
-            <span>{emoji}</span>
-          ) : (
-            <IconComponent className="w-10 h-10 md:w-12 md:h-12 text-primary opacity-80" />
-          )}
+      <div className="empty-state__content relative z-10 flex flex-col items-center">
+        <div className="empty-state__icon-wrap relative mb-8">
+          {!emoji ? (
+            <div className="empty-state__ring" aria-hidden />
+          ) : null}
+
+          <div
+            className={cn(
+              'relative flex items-center justify-center',
+              emoji ? 'text-6xl md:text-7xl' : 'h-[5.5rem] w-[5.5rem] md:h-24 md:w-24',
+            )}
+          >
+            {emoji ? (
+              <span role="img" aria-hidden>
+                {emoji}
+              </span>
+            ) : (
+              <div className="empty-state__icon flex h-full w-full items-center justify-center rounded-[1.35rem] md:rounded-[1.5rem]">
+                <IconComponent
+                  className="h-9 w-9 text-primary-contrast md:h-10 md:w-10"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-sm mx-auto relative z-10">
-        <h3 className="text-xl md:text-2xl font-black text-text-primary tracking-tight mb-2 uppercase">
-          {displayTitle}
+        <h3 className="mb-3 text-xl font-bold tracking-tight md:text-2xl">
+          <span className="text-brand-gradient">{displayTitle}</span>
         </h3>
-        <p className="text-sm md:text-base text-text-secondary leading-relaxed opacity-70 mb-8 px-4">
+
+        <p className="mx-auto max-w-sm text-sm leading-relaxed text-text-secondary md:text-base">
           {displayDescription}
         </p>
-      </div>
 
-      {actionButton && (
-        <div className="w-full md:w-auto relative z-10">
-          <button
-            onClick={actionButton.onClick}
-            className={
-              actionButton.className ||
-              "w-full md:w-auto group inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-[11px] font-black uppercase tracking-[0.15em] text-white bg-primary hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all duration-300"
-            }
-          >
-            {ActionIcon && <ActionIcon size={16} className="stroke-[2.5]" />}
-            {actionButton.label}
-          </button>
-        </div>
-      )}
+        {actionButton ? (
+          <div className="mt-8">
+            <Button
+              type="button"
+              onClick={actionButton.onClick}
+              icon={
+                ActionIcon ? (
+                  <ActionIcon className="h-4 w-4" strokeWidth={2.5} />
+                ) : undefined
+              }
+            >
+              {actionButton.label}
+            </Button>
+          </div>
+        ) : null}
+
+        {footer ? <div className="mt-6">{footer}</div> : null}
+      </div>
+    </div>
+  );
+
+  if (!centered) {
+    return <div className="flex w-full justify-center">{content}</div>;
+  }
+
+  return (
+    <div className="flex w-full flex-1 flex-col items-center justify-center py-8">
+      {content}
     </div>
   );
 };

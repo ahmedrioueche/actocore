@@ -4,6 +4,7 @@ import {
   Delete,
   HttpCode,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import {
   apiSuccess,
   CreateApiKeyDto,
   StudioPermission,
+  UpdateApiKeyDto,
 } from '@ahmedrioueche/actocore-shared';
 import { RequireStudioPermission } from '../studio/decorators/require-studio-permission.decorator';
 import { StudioCtx } from '../studio/decorators/studio-context.decorator';
@@ -44,6 +46,16 @@ export class ApiKeysController {
       this.projects,
     );
     return apiSuccess(await this.apiKeys.issue(body));
+  }
+
+  @Patch(':keyId')
+  @RequireStudioPermission(StudioPermission.API_KEYS_WRITE)
+  async update(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('keyId') keyId: string,
+    @Body() body: UpdateApiKeyDto,
+  ) {
+    return apiSuccess(await this.apiKeys.update(ctx, keyId, body));
   }
 
   @Delete(':keyId')

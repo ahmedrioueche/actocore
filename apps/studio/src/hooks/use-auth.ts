@@ -7,6 +7,7 @@ import {
   type StudioSignupDto,
 } from '@ahmedrioueche/actocore-shared';
 
+import { signOut, fetchAuthSession } from '@/lib/auth-session';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
 import { ensureApiConfigured } from '@/lib/configure-api';
@@ -32,8 +33,8 @@ export function useLogin() {
       const res = await studioAuthApi.login(body);
       return parseApiResponse(res);
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+    onSuccess: async () => {
+      await fetchAuthSession();
     },
   });
 }
@@ -71,8 +72,8 @@ export function useVerifyEmail() {
       const res = await studioAuthApi.verifyEmail({ token });
       return parseApiResponse(res);
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+    onSuccess: async () => {
+      await fetchAuthSession();
     },
   });
 }
@@ -114,25 +115,16 @@ export function useCompleteGoogleAuth() {
       const res = await studioAuthApi.completeGoogleAuth({ code });
       return parseApiResponse(res);
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+    onSuccess: async () => {
+      await fetchAuthSession();
     },
   });
 }
 
 export function useLogout() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      ensureApiConfigured();
-      if (TokenManager.getAccessToken()) {
-        await studioAuthApi.logout();
-      } else {
-        TokenManager.clearTokens();
-      }
-    },
-    onSettled: () => {
-      queryClient.clear();
+      await signOut('/login');
     },
   });
 }
@@ -143,8 +135,8 @@ export function useStoreOAuthTokens() {
     mutationFn: async (tokens: { accessToken: string; refreshToken: string }) => {
       TokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+    onSuccess: async () => {
+      await fetchAuthSession();
     },
   });
 }

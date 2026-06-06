@@ -115,7 +115,7 @@ export function useRenameOnboardingProject() {
 export function useOnboardingProjects(enabled: boolean) {
   ensureApiConfigured();
   return useQuery({
-    queryKey: [...queryKeys.projects.all(), 'onboarding'] as const,
+    queryKey: queryKeys.projects.list({ archived: false }),
     queryFn: async () =>
       parseApiResponse(await projectsApi.list({ archived: false })),
     enabled,

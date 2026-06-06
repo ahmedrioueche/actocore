@@ -9,6 +9,7 @@ import type {
   ApiKeyIssuedData,
   ApiKeyMetadata,
   CreateApiKeyDto,
+  UpdateApiKeyDto,
 } from '@ahmedrioueche/actocore-shared';
 import { Model } from 'mongoose';
 import { ApiKeyException } from './exceptions/api-key.exception';
@@ -123,6 +124,41 @@ export class ApiKeysService {
 
     const doc = await this.apiKeyModel
       .findByIdAndUpdate(keyId, { revokedAt: new Date() }, { new: true })
+      .exec();
+
+    if (!doc) {
+      throw new NotFoundException(`API key ${keyId} not found`);
+    }
+
+    return this.toMetadata(doc);
+  }
+
+  async update(
+    ctx: StudioRequestContext | null,
+    keyId: string,
+    body: UpdateApiKeyDto,
+  ): Promise<ApiKeyMetadata> {
+    const existing = await this.apiKeyModel.findById(keyId).exec();
+    if (!existing) {
+      throw new NotFoundException(`API key ${keyId} not found`);
+    }
+
+    if (existing.revokedAt) {
+      throw new NotFoundException(`API key ${keyId} not found`);
+    }
+
+    if (ctx) {
+      this.studioAccess.assertProjectAccess(ctx, existing.projectId);
+      await this.projects.assertExistsForAccount(ctx, existing.projectId);
+    }
+
+    const trimmedName = body.name?.trim();
+    const doc = await this.apiKeyModel
+      .findByIdAndUpdate(
+        keyId,
+        { name: trimmedName || undefined },
+        { new: true },
+      )
       .exec();
 
     if (!doc) {

@@ -90,60 +90,81 @@
   --ac-radius-md: 0.625rem;
   --ac-radius-lg: 1rem;
   --ac-radius-xl: 1.25rem;
+
+  /* Authenticated app shell content area */
+  --ac-content-max-width: 72rem;
+  --ac-content-padding-x: 1rem;
+  --ac-content-padding-y: 1rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --ac-content-padding-x: 1rem;
+    --ac-content-padding-y: 1.5rem;
+  }
 }
 
 .dark {
-  --ac-brand-primary: #6366f1;
-  --ac-brand-primary-hover: #818cf8;
-  --ac-brand-secondary: #8b5cf6;
-  --ac-brand-secondary-hover: #a78bfa;
-  --ac-brand-accent: #c084fc;
+  --ac-brand-primary: #818cf8;
+  --ac-brand-primary-hover: #a5b4fc;
+  --ac-brand-secondary: #a78bfa;
+  --ac-brand-secondary-hover: #c4b5fd;
+  --ac-brand-accent: #d8b4fe;
 
   --ac-color-primary: var(--ac-brand-primary);
   --ac-color-primary-hover: var(--ac-brand-primary-hover);
-  --ac-color-primary-muted: rgb(99 102 241 / 0.2);
+  --ac-color-primary-muted: rgb(129 140 248 / 0.14);
   --ac-color-secondary: var(--ac-brand-secondary);
   --ac-color-secondary-hover: var(--ac-brand-secondary-hover);
   --ac-color-accent: var(--ac-brand-accent);
 
-  --ac-color-bg: #0f172a;
-  --ac-color-surface: #1e293b;
-  --ac-color-surface-secondary: #334155;
-  --ac-color-surface-hover: #475569;
-  --ac-color-surface-elevated: #1e293b;
+  /* Midnight canvas with indigo/violet undertone — not flat grey-on-black */
+  --ac-color-bg: #09090f;
+  --ac-color-surface: #12121c;
+  --ac-color-surface-secondary: #181824;
+  --ac-color-surface-hover: #1f1f2e;
+  --ac-color-surface-elevated: #232336;
 
-  --ac-color-border: #334155;
-  --ac-color-border-hover: #475569;
+  --ac-color-border: rgb(129 140 248 / 0.12);
+  --ac-color-border-hover: rgb(129 140 248 / 0.26);
 
-  --ac-color-text: #f1f5f9;
-  --ac-color-text-muted: #94a3b8;
-  --ac-color-muted: #64748b;
+  --ac-color-text: #eeeff8;
+  --ac-color-text-muted: #9494a8;
+  --ac-color-muted: #6e6e82;
 
-  --ac-color-danger: #f87171;
-  --ac-color-danger-hover: #fca5a5;
-  --ac-color-danger-surface: #450a0a;
+  --ac-color-danger: #fb7185;
+  --ac-color-danger-hover: #fda4af;
+  --ac-color-danger-surface: rgb(251 113 133 / 0.1);
   --ac-color-success: #4ade80;
   --ac-color-success-hover: #86efac;
-  --ac-color-success-surface: #052e16;
+  --ac-color-success-surface: rgb(74 222 128 / 0.1);
   --ac-color-warning: #fbbf24;
-  --ac-color-warning-surface: #422006;
+  --ac-color-warning-surface: rgb(251 191 36 / 0.1);
 
   --ac-gradient-brand-soft: linear-gradient(
     135deg,
-    rgb(99 102 241 / 0.2) 0%,
-    rgb(139 92 246 / 0.15) 100%
+    rgb(129 140 248 / 0.16) 0%,
+    rgb(167 139 250 / 0.1) 100%
   );
 
-  --ac-shadow-brand: 0 8px 32px rgb(99 102 241 / 0.35);
-  --ac-shadow-auth-code: 0 0 40px rgb(139 92 246 / 0.35);
-  --ac-shadow-auth-primary-hover: 0 4px 12px rgb(99 102 241 / 0.3);
+  --ac-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.45);
+  --ac-shadow-md: 0 12px 40px rgb(0 0 0 / 0.5);
+  --ac-shadow-brand: 0 8px 40px rgb(99 102 241 / 0.28);
+  --ac-shadow-auth-code: 0 0 48px rgb(139 92 246 / 0.28);
+  --ac-shadow-auth-primary-hover: 0 4px 20px rgb(99 102 241 / 0.35);
 
   --ac-auth-form-bg: radial-gradient(
-    circle at top right,
-    rgb(99 102 241 / 0.15) 0%,
-    var(--ac-color-bg) 100%
+    circle at 85% 0%,
+    rgb(99 102 241 / 0.14) 0%,
+    rgb(139 92 246 / 0.06) 28%,
+    var(--ac-color-bg) 62%
   );
-  --ac-auth-glass-bg: rgb(30 41 59 / 0.85);
-  --ac-auth-glass-border: var(--ac-color-border);
-  --ac-auth-code-surface: rgb(15 23 42 / 0.65);
+  --ac-auth-glass-bg: rgb(18 18 28 / 0.82);
+  --ac-auth-glass-border: rgb(129 140 248 / 0.16);
+  --ac-auth-blob: radial-gradient(
+    circle,
+    rgb(129 140 248 / 0.14) 0%,
+    rgb(129 140 248 / 0) 70%
+  );
+  --ac-auth-code-surface: rgb(9 9 15 / 0.72);
 }

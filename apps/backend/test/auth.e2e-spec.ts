@@ -91,4 +91,31 @@ describe('Authentication (e2e)', () => {
         expect(res.body.errorCode).toBe(ErrorCode.API_KEY_REVOKED);
       });
   });
+
+  it('updates an API key name', async () => {
+    const server = app.getHttpServer();
+    const issueRes = await request(server)
+      .post('/v1/web/api-keys')
+      .send({ projectId, name: 'before-rename' })
+      .expect(201);
+
+    const keyId = issueRes.body.data.id;
+
+    await request(server)
+      .patch(`/v1/web/api-keys/${keyId}`)
+      .send({ name: 'after-rename' })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.name).toBe('after-rename');
+      });
+
+    await request(server)
+      .get(`/v1/web/projects/${projectId}/api-keys`)
+      .expect(200)
+      .expect((res) => {
+        const key = res.body.data.find((item: { id: string }) => item.id === keyId);
+        expect(key?.name).toBe('after-rename');
+      });
+  });
 });

@@ -3,6 +3,7 @@
  * Route-level screens live in `@/pages/system/`.
  */
 export { AsyncContent } from './AsyncContent';
+export { PageSkeleton, type PageSkeletonVariant } from './PageSkeleton';
 export { default as Loading } from '@/components/ui/Loading';
 export { default as LoadingScreen } from '@/components/ui/LoadingScreen';
 export { default as EmptyState } from '@/components/ui/NoData';

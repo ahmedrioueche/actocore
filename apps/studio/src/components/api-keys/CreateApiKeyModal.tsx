@@ -1,0 +1,103 @@
+import { Dices, KeyRound } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import BaseModal from '@/components/ui/BaseModal';
+import InputField from '@/components/ui/InputField';
+import { getRandomApiKeyName } from '@/constants/api-keys';
+import { getApiErrorMessage } from '@/utils/statusMessage';
+
+interface CreateApiKeyModalProps {
+  isOpen: boolean;
+  loading?: boolean;
+  onClose: () => void;
+  onCreate: (name?: string) => Promise<void>;
+}
+
+export function CreateApiKeyModal({
+  isOpen,
+  loading,
+  onClose,
+  onCreate,
+}: CreateApiKeyModalProps) {
+  const { t } = useTranslation();
+  const [name, setName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setName(getRandomApiKeyName());
+      setError(null);
+    }
+  }, [isOpen]);
+
+  const handleSuggest = () => {
+    setName((current) => getRandomApiKeyName(current.trim()));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await onCreate(name.trim() || undefined);
+      onClose();
+    } catch (err) {
+      const code = (err as Error & { errorCode?: string }).errorCode;
+      setError(
+        getApiErrorMessage(t, {
+          errorCode: code,
+          message: err instanceof Error ? err.message : undefined,
+        }),
+      );
+    }
+  };
+
+  return (
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('apiKeys.create.title')}
+      subtitle={t('apiKeys.create.subtitle')}
+      icon={KeyRound}
+      maxWidth="max-w-md"
+      primaryButton={{
+        label: t('apiKeys.create.submit'),
+        type: 'submit',
+        form: 'create-api-key-form',
+        loading,
+      }}
+      secondaryButton={{
+        label: t('common.cancel'),
+        onClick: onClose,
+        variant: 'ghost',
+      }}
+      showSecondaryButton
+    >
+      <form id="create-api-key-form" onSubmit={(e) => void handleSubmit(e)}>
+        <InputField
+          label={t('apiKeys.fields.name')}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t('apiKeys.fields.namePlaceholder')}
+          autoFocus
+          rightIcon={
+            <button
+              type="button"
+              onClick={handleSuggest}
+              className="p-1 text-text-secondary transition-colors duration-200 hover:text-text-primary"
+              title={t('apiKeys.fields.suggestName')}
+              aria-label={t('apiKeys.fields.suggestName')}
+            >
+              <Dices className="h-5 w-5" />
+            </button>
+          }
+        />
+        {error ? (
+          <p className="mt-3 text-sm text-danger" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </form>
+    </BaseModal>
+  );
+}

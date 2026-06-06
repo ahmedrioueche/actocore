@@ -10,21 +10,36 @@ const { getAccessToken, clearTokens, me, refresh, getOnboardingState } =
     getOnboardingState: vi.fn(),
   }));
 
-vi.mock('@ahmedrioueche/actocore-shared', () => ({
-  TokenManager: { getAccessToken, clearTokens },
-  studioAuthApi: { me, refresh },
-  onboardingApi: { getState: getOnboardingState },
-}));
+vi.mock('@ahmedrioueche/actocore-shared', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@ahmedrioueche/actocore-shared')>();
+  return {
+    ...actual,
+    TokenManager: { getAccessToken, clearTokens },
+    studioAuthApi: { me, refresh },
+    onboardingApi: { getState: getOnboardingState },
+  };
+});
 
 vi.mock('@/lib/configure-api', () => ({
   ensureApiConfigured: vi.fn(),
 }));
 
+vi.mock('@/lib/query-client', () => ({
+  queryClient: {
+    getQueryData: vi.fn(),
+    prefetchQuery: vi.fn(),
+  },
+}));
+
+import { queryClient } from '@/lib/query-client';
 import {
   redirectIfAuthenticated,
   requireAuth,
-  requireOnboardingComplete,
   requireOnboardingPending,
+  requireOnboardingPendingSync,
+  requireProjectAccessSync,
+  requireStudioSession,
 } from '@/routes/guards';
 
 describe('auth route guards', () => {
@@ -47,6 +62,13 @@ describe('auth route guards', () => {
     it('does nothing when no token', () => {
       getAccessToken.mockReturnValue(null);
       expect(() => redirectIfAuthenticated()).not.toThrow();
+    });
+  });
+
+  describe('requireStudioSession', () => {
+    it('redirects to login when no token', () => {
+      getAccessToken.mockReturnValue(null);
+      expect(() => requireStudioSession()).toThrow();
     });
   });
 
@@ -91,12 +113,13 @@ describe('auth route guards', () => {
       me.mockResolvedValue({ success: true, data: {} });
     });
 
-    it('requireOnboardingComplete redirects to onboarding when pending', async () => {
-      getOnboardingState.mockResolvedValue({
-        success: true,
-        data: { required: true, completed: false, skipped: false },
+    it('requireOnboardingPendingSync redirects to projects when done', () => {
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        required: true,
+        completed: true,
+        skipped: false,
       });
-      await expect(requireOnboardingComplete()).rejects.toSatisfy(isRedirect);
+      expect(() => requireOnboardingPendingSync()).toThrow();
     });
 
     it('requireOnboardingPending redirects to projects when done', async () => {
@@ -104,8 +127,24 @@ describe('auth route guards', () => {
         success: true,
         data: { required: true, completed: true, skipped: false },
       });
+      vi.mocked(queryClient.prefetchQuery).mockResolvedValue(undefined);
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        required: true,
+        completed: true,
+        skipped: false,
+      });
       await expect(requireOnboardingPending()).rejects.toSatisfy(isRedirect);
     });
   });
-});
 
+  describe('requireProjectAccessSync', () => {
+    it('redirects to projects when editor lacks access', () => {
+      getAccessToken.mockReturnValue('token');
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        role: 'user_editor',
+        projectIds: ['other-project'],
+      });
+      expect(() => requireProjectAccessSync('project-1')).toThrow();
+    });
+  });
+});

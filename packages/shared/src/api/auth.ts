@@ -120,12 +120,12 @@ export class StudioAuthApi extends BaseApi {
   }
 
   logout(): Promise<ApiResponse<StudioMessageData>> {
-    return this.request(async () => {
-      const res = await this.client.post<ApiResponse<StudioMessageData>>(
+    return this.request(() =>
+      this.client.post<ApiResponse<StudioMessageData>>(
         apiPath('web/auth/logout'),
-      );
+      ),
+    ).finally(() => {
       TokenManager.clearTokens();
-      return res;
     });
   }
 

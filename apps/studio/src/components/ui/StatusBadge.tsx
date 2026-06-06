@@ -31,6 +31,24 @@ const statusConfig: Record<
     text: "text-green-500",
     border: "border-green-500/20",
   },
+  trialing: {
+    label: "Trial",
+    bg: "bg-primary/10",
+    text: "text-primary",
+    border: "border-primary/20",
+  },
+  cancelled: {
+    label: "Cancelled",
+    bg: "bg-red-500/10",
+    text: "text-red-500",
+    border: "border-red-500/20",
+  },
+  expired: {
+    label: "Expired",
+    bg: "bg-gray-500/10",
+    text: "text-gray-500",
+    border: "border-gray-500/20",
+  },
   inactive: {
     label: "Inactive",
     bg: "bg-gray-500/10",

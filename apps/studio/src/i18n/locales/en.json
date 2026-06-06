@@ -5,6 +5,7 @@
   "common": {
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "close": "Close",
     "edit": "Edit",
     "loading": "Loading…",
     "error": "Something went wrong",
@@ -180,10 +181,166 @@
     "logout": "Sign out"
   },
   "projects": {
-    "placeholderTitle": "Projects",
-    "placeholderSubtitle": "Your workspace is ready. Project management UI is coming next.",
+    "title": "Projects",
+    "listSubtitle_one": "{{count}} project in your workspace",
+    "listSubtitle_other": "{{count}} projects in your workspace",
+    "created": "Created {{date}}",
     "emptyTitle": "No projects yet",
     "emptyDescription": "Create a project to manage API keys, knowledge, and SDK settings for an app."
+  },
+  "projectPages": {
+    "overviewSubtitle": "Project overview and identifiers.",
+    "sectionSubtitle": "In {{project}}",
+    "fields": {
+      "name": "Name",
+      "created": "Created",
+      "id": "Project ID"
+    },
+    "sections": {
+      "knowledge": {
+        "title": "Knowledge",
+        "emptyTitle": "No knowledge sources yet",
+        "emptyDescription": "Upload documents and URLs so your assistant can answer from your content."
+      },
+      "actions": {
+        "title": "Actions",
+        "emptyTitle": "No actions yet",
+        "emptyDescription": "Define tools your assistant can call from chat and voice."
+      },
+      "sdkConfig": {
+        "title": "SDK config",
+        "emptyTitle": "SDK config not set up",
+        "emptyDescription": "Configure branding, prompts, and runtime behavior for the embedded SDK."
+      },
+      "apiKeys": {
+        "title": "API keys",
+        "emptyTitle": "No API keys yet",
+        "emptyDescription": "Create keys to authenticate SDK and server requests for this project."
+      },
+      "usage": {
+        "title": "Usage",
+        "emptyTitle": "No usage data yet",
+        "emptyDescription": "Usage metrics for this project will appear here once traffic starts."
+      }
+    }
+  },
+  "apiKeys": {
+    "neverUsed": "Never",
+    "create": {
+      "button": "Create API key",
+      "title": "Create API key",
+      "subtitle": "Optional label to identify where this key is used.",
+      "submit": "Create key"
+    },
+    "edit": {
+      "title": "Rename API key",
+      "subtitle": "Update the label for this key.",
+      "submit": "Save name",
+      "nameRequired": "Name is required."
+    },
+    "issued": {
+      "title": "Copy your API key",
+      "subtitle": "This is the only time the full key will be shown.",
+      "copy": "Copy key",
+      "copied": "Copied",
+      "done": "Done",
+      "warning": "Store this key securely. You won't be able to view it again."
+    },
+    "delete": {
+      "title": "Revoke API key?",
+      "text": "“{{name}}” will stop working immediately. This cannot be undone.",
+      "confirm": "Revoke key"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Production SDK",
+      "suggestName": "Suggest a name"
+    },
+    "columns": {
+      "name": "Key",
+      "created": "Created",
+      "lastUsed": "Last used"
+    }
+  },
+  "nav": {
+    "title": "Navigation",
+    "projects": "Projects",
+    "allProjects": "All projects",
+    "team": "Team",
+    "billing": "Billing",
+    "settings": "Settings",
+    "workspace": "Workspace",
+    "pin": "Pin sidebar",
+    "unpin": "Unpin sidebar",
+    "openMenu": "Open menu",
+    "accountMenu": "Account menu",
+    "userFallback": "User",
+    "project": {
+      "label": "Project",
+      "section": "Project",
+      "loadingName": "Loading…",
+      "overview": "Overview",
+      "knowledge": "Knowledge",
+      "actions": "Actions",
+      "sdkConfig": "SDK config",
+      "apiKeys": "API keys",
+      "usage": "Usage"
+    }
+  },
+  "roles": {
+    "super_admin": "Super admin",
+    "user_admin": "Admin",
+    "user_editor": "Editor"
+  },
+  "team": {
+    "title": "Team",
+    "subtitle_one": "{{count}} member in your workspace",
+    "subtitle_other": "{{count}} members in your workspace",
+    "emptyTitle": "No team members yet",
+    "emptyDescription": "Invite editors and admins to collaborate on your workspace.",
+    "allProjects": "All",
+    "columns": {
+      "member": "Member",
+      "role": "Role",
+      "projects": "Projects"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "subtitle": "Plan, usage, and subscription details for your workspace.",
+    "currentPlan": "Current plan",
+    "freePlan": "Free",
+    "usageTitle": "Usage",
+    "projects": "Projects",
+    "teamSeats": "Team seats",
+    "monthlyChat": "Monthly chat requests",
+    "usageValue": "{{used}} / {{limit}}",
+    "usageUnlimited": "{{used}} used",
+    "trialEnds": "Trial ends {{date}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Workspace details used across projects and billing.",
+    "name": "Organization name",
+    "namePlaceholder": "e.g. Acme Inc.",
+    "nameRequired": "Organization name is required.",
+    "billingEmail": "Billing email",
+    "billingEmailPlaceholder": "billing@company.com",
+    "timezone": "Timezone",
+    "timezonePlaceholder": "e.g. Europe/Paris",
+    "save": "Save changes",
+    "saved": "Settings saved.",
+    "appearanceTitle": "Appearance",
+    "appearanceSubtitle": "Personal preference on this device — saved locally in your browser."
+  },
+  "theme": {
+    "label": "Theme",
+    "hint": "Light, dark, or match your system setting.",
+    "modes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
   },
   "onboarding": {
     "skip": "Skip for now",
