@@ -157,6 +157,7 @@
       "title": "Forgot password",
       "subtitle": "Enter your email and we will send reset instructions",
       "email": "Email",
+      "emailPlaceholder": "name@company.com",
       "submit": "Send reset link",
       "successTitle": "Check your email",
       "successSubtitle": "If an account exists for that email, you will receive reset instructions shortly.",
@@ -166,6 +167,7 @@
       "title": "Reset password",
       "subtitle": "Choose a new password for your account",
       "password": "New password",
+      "passwordPlaceholder": "At least 8 characters",
       "submit": "Update password",
       "success": "Password updated. You can sign in now.",
       "missingToken": "Invalid reset link. Request a new one from the forgot password page."
@@ -179,11 +181,18 @@
   },
   "projects": {
     "placeholderTitle": "Projects",
-    "placeholderSubtitle": "Your workspace is ready. Project management UI is coming next."
+    "placeholderSubtitle": "Your workspace is ready. Project management UI is coming next.",
+    "emptyTitle": "No projects yet",
+    "emptyDescription": "Create a project to manage API keys, knowledge, and SDK settings for an app."
   },
   "onboarding": {
     "skip": "Skip for now",
+    "setupLabel": "Setup",
+    "setupHint": "A quick tour before you ship.",
+    "setupHintShort": "About 2 minutes",
     "progressLabel": "Setup progress",
+    "stepCounter": "Step {{current}} of {{total}}",
+    "stepComplete": "complete",
     "steps": {
       "welcome": "Welcome",
       "workspace": "Workspace",
@@ -201,18 +210,23 @@
       "title": "Workspace details",
       "subtitle": "These settings apply to your whole organization.",
       "name": "Organization name",
+      "namePlaceholder": "e.g. Acme Inc. or your team name",
       "nameRequired": "Organization name is required.",
       "timezone": "Timezone (optional)",
       "timezonePlaceholder": "e.g. Europe/Paris",
-      "locale": "Default locale (optional)"
+      "locale": "Default language (optional)",
+      "localePlaceholder": "Select a language",
+      "localeHint": "Default language for new projects and the embedded assistant."
     },
     "project": {
       "title": "Create your first project",
       "subtitle": "Each project has its own API keys, knowledge, and SDK configuration.",
+      "subtitleRename": "Name the project created for your workspace — you can add more later.",
       "name": "Project name",
       "nameRequired": "Project name is required.",
       "namePlaceholder": "e.g. My SaaS app",
-      "cta": "Create project and finish"
+      "cta": "Create project and finish",
+      "ctaRename": "Save and finish"
     }
   }
 }

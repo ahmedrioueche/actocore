@@ -1,80 +1,78 @@
-import { Zap } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import "../../styles/animatedLogo.css";
+import { Sparkles } from 'lucide-react';
 
-const AnimatedLogo = ({
-  height = "h-16",
-  width = "w-full max-w-[400px]",
-  logoSize = "w-12 h-12 md:w-16 md:h-16",
-  textSize = "text-xl md:text-3xl",
-  leftPosition = "50%",
-  mobileLeftPosition,
-  paddingTop = "pt-0",
-  onClick,
-  compact = false,
-  gradientFrom = "from-primary",
-  gradientTo = "to-secondary",
-  animateOnce = false,
-}: {
-  height?: string;
-  width?: string;
-  logoSize?: string;
-  textSize?: string;
-  leftPosition?: string;
-  mobileLeftPosition?: string;
-  paddingTop?: string;
-  onClick?: () => void;
+import { APP_DATA } from '@/constants/app';
+import { cn } from '@/utils/helper';
+
+import '@/styles/animatedLogo.css';
+
+export interface AnimatedLogoProps {
+  /** `onDark` = auth panel / mesh loading screen; `default` = light app shell */
+  variant?: 'default' | 'onDark';
   compact?: boolean;
-  gradientFrom?: string;
-  gradientTo?: string;
   animateOnce?: boolean;
-}) => {
-  const { t } = useTranslation();
+  className?: string;
+}
+
+export default function AnimatedLogo({
+  variant = 'default',
+  compact = false,
+  animateOnce = false,
+  className,
+}: AnimatedLogoProps) {
+  const onDark = variant === 'onDark';
+  const loop = animateOnce ? 1 : 'infinite';
 
   return (
     <div
-      onClick={() => {
-        if (onClick) onClick();
-      }}
-      className={`flex items-center justify-center mb-3 ${height} relative ${width} ${paddingTop} ${
-        onClick ? "cursor-pointer" : " "
-      }`}
+      className={cn(
+        'ac-animated-logo',
+        compact && 'ac-animated-logo--compact',
+        className,
+      )}
+      aria-label={APP_DATA.name}
     >
-      {/* Zap Icon with smooth horizontal shift */}
       <div
-        className="zap-container animate-zap-move"
-        style={
-          {
-            "--left-position": leftPosition,
-            "--mobile-left-position": mobileLeftPosition || leftPosition,
-            animationIterationCount: animateOnce ? 1 : "infinite",
-          } as React.CSSProperties
-        }
+        className={cn(
+          'ac-logo-mark ac-logo-mark-animate',
+          onDark ? 'ac-logo-mark--on-dark' : 'ac-logo-mark--default',
+        )}
+        style={{ animationIterationCount: loop }}
+        aria-hidden
       >
-        <div
-          className={`${logoSize} bg-gradient-to-br ${gradientFrom} ${gradientTo} rounded-xl flex items-center justify-center shadow-lg zap-shine`}
-        >
-          <Zap className="w-8 h-8 text-white" />
-        </div>
+        <Sparkles
+          className={cn(
+            'text-primary-contrast',
+            compact ? 'h-5 w-5' : 'h-7 w-7 md:h-8 md:w-8',
+          )}
+        />
       </div>
 
-      {/* App Name with slide-in and shiny effect */}
-      {!compact && (
-        <span
-          className={`${textSize} app-name animate-app-slide font-bold whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r ${gradientFrom} ${gradientTo}`}
-          style={
-            {
-              "--left-position": leftPosition,
-              "--mobile-left-position": mobileLeftPosition || leftPosition,
-              animationIterationCount: animateOnce ? 1 : "infinite",
-            } as React.CSSProperties
-          }
+      {!compact ? (
+        <div
+          className="ac-logo-wordmark ac-logo-wordmark-animate"
+          style={{ animationIterationCount: loop }}
         >
-          {t("app.name")}
-        </span>
-      )}
+          <span
+            className={cn(
+              'font-bold tracking-tight',
+              onDark ? 'text-white' : 'text-brand-gradient',
+              compact ? 'text-lg' : 'text-2xl md:text-3xl',
+            )}
+          >
+            {APP_DATA.brandName}
+          </span>
+          <span
+            className={cn(
+              'font-semibold tracking-tight',
+              onDark ? 'text-white/75' : 'text-text-secondary',
+              compact ? 'text-lg' : 'text-2xl md:text-3xl',
+            )}
+          >
+            {' '}
+            {APP_DATA.shortName}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
-};
-
-export default AnimatedLogo;
+}

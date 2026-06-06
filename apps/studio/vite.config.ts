@@ -19,7 +19,8 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['reflect-metadata', '@ahmedrioueche/actocore-shared'],
+    include: ['reflect-metadata'],
+    exclude: ['@ahmedrioueche/actocore-shared'],
   },
   server: {
     fs: {

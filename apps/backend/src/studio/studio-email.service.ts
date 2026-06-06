@@ -3,14 +3,23 @@ import { ConfigService } from '@nestjs/config';
 import type { StudioAuthConfig } from '../config/studio-auth.config';
 import { buildStudioAppUrl } from './utils/studio-redirect.util';
 
+const RESEND_API_URL = 'https://api.resend.com/emails';
+
 @Injectable()
 export class StudioEmailService {
   private readonly logger = new Logger(StudioEmailService.name);
 
   constructor(private readonly config: ConfigService) {}
 
+  /** True when Resend API or SMTP is configured (real delivery, not console-only). */
+  isEmailConfigured(): boolean {
+    const cfg = this.cfg();
+    return Boolean(cfg.resendApiKey || cfg.smtpHost);
+  }
+
+  /** @deprecated Use {@link isEmailConfigured} */
   isSmtpConfigured(): boolean {
-    return Boolean(this.cfg().smtpHost);
+    return this.isEmailConfigured();
   }
 
   buildVerificationUrl(token: string): string {
@@ -53,16 +62,59 @@ export class StudioEmailService {
 
   private async send(to: string, subject: string, text: string): Promise<void> {
     const cfg = this.cfg();
-    if (!cfg.smtpHost) {
-      this.logger.log(
-        `[Studio email] To: ${to} | Subject: ${subject}\n${text}`,
-      );
+
+    if (cfg.resendApiKey) {
+      await this.sendViaResend(cfg, to, subject, text);
       return;
     }
 
+    if (cfg.smtpHost) {
+      await this.sendViaSmtp(cfg, to, subject, text);
+      return;
+    }
+
+    this.logger.log(`[Studio email] To: ${to} | Subject: ${subject}\n${text}`);
+  }
+
+  private async sendViaResend(
+    cfg: StudioAuthConfig,
+    to: string,
+    subject: string,
+    text: string,
+  ): Promise<void> {
+    const res = await fetch(RESEND_API_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${cfg.resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: cfg.emailFrom,
+        to: [to],
+        subject,
+        text,
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      const detail = parseResendError(body);
+      this.logger.error(
+        `Resend API failed (${res.status}): from=${cfg.emailFrom} ${detail}`,
+      );
+      throw new Error(`Failed to send email via Resend (${res.status}): ${detail}`);
+    }
+  }
+
+  private async sendViaSmtp(
+    cfg: StudioAuthConfig,
+    to: string,
+    subject: string,
+    text: string,
+  ): Promise<void> {
     const nodemailer = await import('nodemailer');
     const transport = nodemailer.createTransport({
-      host: cfg.smtpHost,
+      host: cfg.smtpHost!,
       port: cfg.smtpPort,
       secure: cfg.smtpPort === 465,
       auth:
@@ -82,4 +134,16 @@ export class StudioEmailService {
   private cfg(): StudioAuthConfig {
     return this.config.getOrThrow<StudioAuthConfig>('studioAuth');
   }
+}
+
+function parseResendError(body: string): string {
+  try {
+    const parsed = JSON.parse(body) as { message?: string };
+    if (parsed.message) {
+      return parsed.message;
+    }
+  } catch {
+    // keep raw body
+  }
+  return body;
 }

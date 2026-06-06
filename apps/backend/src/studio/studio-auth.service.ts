@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -32,8 +33,8 @@ import {
   resolveStudioPermissions,
   StudioRole,
 } from '@ahmedrioueche/actocore-shared';
-import { randomBytes } from 'crypto';
 import { Model, Types } from 'mongoose';
+import { randomBytes } from 'crypto';
 import type { StudioAuthConfig } from '../config/studio-auth.config';
 import { StudioAuthException } from './exceptions/studio-auth.exception';
 import { ProjectsService } from '../projects/projects.service';
@@ -54,6 +55,7 @@ import {
   assertValidStudioSeatUsername,
   isSeatUser,
 } from './utils/studio-seat.util';
+import { maskEmail } from './utils/mask-email.util';
 
 type JwtPayload = {
   sub: string;
@@ -64,6 +66,8 @@ type JwtPayload = {
 
 @Injectable()
 export class StudioAuthService {
+  private readonly logger = new Logger(StudioAuthService.name);
+
   constructor(
     @InjectModel(StudioUser.name)
     private readonly userModel: Model<StudioUserDocument>,
@@ -81,6 +85,12 @@ export class StudioAuthService {
 
   private static readonly DELETE_OTP_TTL_MS = 15 * 60 * 1000;
   private static readonly DELETE_OTP_RESEND_MS = 60 * 1000;
+  private static readonly GOOGLE_OAUTH_CODE_TTL_MS = 5 * 60 * 1000;
+
+  private readonly pendingGoogleOAuth = new Map<
+    string,
+    { session: StudioSessionData; expiresAt: number }
+  >();
 
   async signup(body: StudioSignupDto): Promise<StudioSignupResultData> {
     const email = body.email.trim().toLowerCase();
@@ -146,7 +156,7 @@ export class StudioAuthService {
   }
 
   private maybeDevVerificationUrl(token: string): string | undefined {
-    if (getAppEnvironment() === 'production' || this.email.isSmtpConfigured()) {
+    if (getAppEnvironment() === 'production' || this.email.isEmailConfigured()) {
       return undefined;
     }
     return this.email.buildVerificationUrl(token);
@@ -182,6 +192,7 @@ export class StudioAuthService {
   ): Promise<StudioSessionData> {
     const user = await this.userModel.findOne({ email }).exec();
     if (!user || !user.passwordHash) {
+      this.logLoginFailure('email', maskEmail(email), 'user_not_found_or_no_password');
       throw new StudioAuthException(
         ErrorCode.INVALID_CREDENTIALS,
         'Invalid email or password',
@@ -194,6 +205,7 @@ export class StudioAuthService {
       user.passwordHash,
     );
     if (!valid) {
+      this.logLoginFailure('email', maskEmail(email), 'wrong_password');
       throw new StudioAuthException(
         ErrorCode.INVALID_CREDENTIALS,
         'Invalid email or password',
@@ -201,6 +213,7 @@ export class StudioAuthService {
     }
 
     if (!user.emailVerified) {
+      this.logLoginFailure('email', maskEmail(email), 'email_not_verified');
       throw new StudioAuthException(
         ErrorCode.EMAIL_NOT_VERIFIED,
         'Please verify your email before signing in',
@@ -232,6 +245,11 @@ export class StudioAuthService {
       .exec();
 
     if (!membership) {
+      this.logLoginFailure(
+        'seat',
+        `workspace=${workspaceId} username=${loginName}`,
+        'seat_not_found',
+      );
       throw new StudioAuthException(
         ErrorCode.INVALID_CREDENTIALS,
         'Invalid workspace, username, or password',
@@ -240,6 +258,11 @@ export class StudioAuthService {
 
     const user = await this.userModel.findById(membership.userId).exec();
     if (!user?.passwordHash) {
+      this.logLoginFailure(
+        'seat',
+        `workspace=${workspaceId} username=${loginName}`,
+        'seat_user_missing_password',
+      );
       throw new StudioAuthException(
         ErrorCode.INVALID_CREDENTIALS,
         'Invalid workspace, username, or password',
@@ -252,6 +275,11 @@ export class StudioAuthService {
       user.passwordHash,
     );
     if (!valid) {
+      this.logLoginFailure(
+        'seat',
+        `workspace=${workspaceId} username=${loginName}`,
+        'wrong_password',
+      );
       throw new StudioAuthException(
         ErrorCode.INVALID_CREDENTIALS,
         'Invalid workspace, username, or password',
@@ -260,6 +288,11 @@ export class StudioAuthService {
 
     const account = await this.accountModel.findById(workspaceId).exec();
     if (!account) {
+      this.logLoginFailure(
+        'seat',
+        `workspace=${workspaceId} username=${loginName}`,
+        'workspace_not_found',
+      );
       throw new StudioAuthException(
         ErrorCode.INVALID_CREDENTIALS,
         'Invalid workspace, username, or password',
@@ -649,6 +682,10 @@ export class StudioAuthService {
     });
 
     if (!tokenRes.ok) {
+      const detail = await tokenRes.text().catch(() => '');
+      this.logger.warn(
+        `Google token exchange failed (${tokenRes.status}): ${detail.slice(0, 300)}`,
+      );
       throw new StudioAuthException(
         ErrorCode.GOOGLE_AUTH_FAILED,
         'Failed to authenticate with Google',
@@ -720,20 +757,43 @@ export class StudioAuthService {
     return this.buildSessionForUser(user);
   }
 
+  issueGoogleOAuthCode(session: StudioSessionData): string {
+    const code = randomBytes(24).toString('hex');
+    this.pendingGoogleOAuth.set(code, {
+      session,
+      expiresAt: Date.now() + StudioAuthService.GOOGLE_OAUTH_CODE_TTL_MS,
+    });
+    return code;
+  }
+
+  completeGoogleAuth(code: string): StudioSessionData {
+    const trimmed = code.trim();
+    const pending = trimmed ? this.pendingGoogleOAuth.get(trimmed) : undefined;
+
+    if (!pending || pending.expiresAt < Date.now()) {
+      if (trimmed) {
+        this.pendingGoogleOAuth.delete(trimmed);
+      }
+      throw new StudioAuthException(
+        ErrorCode.GOOGLE_AUTH_FAILED,
+        'Google sign-in expired. Please try again.',
+      );
+    }
+
+    return pending.session;
+  }
+
   buildGoogleCallbackRedirect(
     success: boolean,
-    tokens?: { accessToken: string; refreshToken: string },
+    oauthCode?: string,
     origin?: string,
   ): string {
     const base = origin ?? this.getConfig().studioAppUrl;
+    if (success && oauthCode) {
+      return buildStudioAppUrl(base, '/auth/callback', { code: oauthCode });
+    }
     return buildStudioAppUrl(base, '/auth/callback', {
-      success: success ? 'true' : 'false',
-      ...(tokens
-        ? {
-            accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken,
-          }
-        : { error: 'google_auth_failed' }),
+      error: 'google_auth_failed',
     });
   }
 
@@ -1000,5 +1060,15 @@ export class StudioAuthService {
 
   private getConfig(): StudioAuthConfig {
     return this.config.getOrThrow<StudioAuthConfig>('studioAuth');
+  }
+
+  private logLoginFailure(
+    mode: 'email' | 'seat',
+    identifier: string,
+    reason: string,
+  ): void {
+    this.logger.warn(
+      `Studio auth login failed (${mode}): ${identifier} reason=${reason}`,
+    );
   }
 }

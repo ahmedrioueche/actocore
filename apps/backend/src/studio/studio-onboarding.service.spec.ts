@@ -3,7 +3,6 @@ import { getModelToken } from '@nestjs/mongoose';
 import { StudioRole } from '@ahmedrioueche/actocore-shared';
 import { StudioOnboardingService } from './studio-onboarding.service';
 import { StudioAccount } from './schemas/studio-account.schema';
-import { Project } from '../projects/schemas/project.schema';
 
 describe('StudioOnboardingService', () => {
   const accountId = '507f1f77bcf86cd799439011';
@@ -25,12 +24,6 @@ describe('StudioOnboardingService', () => {
       .mockReturnValue({ exec: jest.fn().mockResolvedValue(accountDoc) }),
   };
 
-  const projectModel = {
-    countDocuments: jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) }),
-  };
-
   let service: StudioOnboardingService;
 
   beforeEach(async () => {
@@ -46,7 +39,6 @@ describe('StudioOnboardingService', () => {
       providers: [
         StudioOnboardingService,
         { provide: getModelToken(StudioAccount.name), useValue: accountModel },
-        { provide: getModelToken(Project.name), useValue: projectModel },
       ],
     }).compile();
 
@@ -77,13 +69,12 @@ describe('StudioOnboardingService', () => {
     expect(state.currentStep).toBe('workspace');
   });
 
-  it('auto-completes project step when a project exists', async () => {
-    projectModel.countDocuments.mockReturnValue({
-      exec: jest.fn().mockResolvedValue(1),
-    });
+  it('does not auto-complete the project step when projects already exist', async () => {
+    accountDoc.onboarding.completedSteps = ['welcome', 'workspace'];
 
     const state = await service.getState(adminCtx);
-    expect(state.completedSteps).toContain('project');
-    expect(accountDoc.save).toHaveBeenCalled();
+    expect(state.completedSteps).not.toContain('project');
+    expect(state.currentStep).toBe('project');
+    expect(accountDoc.save).not.toHaveBeenCalled();
   });
 });

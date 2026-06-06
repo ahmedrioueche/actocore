@@ -16,6 +16,8 @@ export type StudioAuthConfig = {
   googleClientSecret: string | null;
   googleRedirectUri: string | null;
   emailFrom: string;
+  /** HTTPS API — works on Render free tier (no SMTP ports). */
+  resendApiKey: string | null;
   smtpHost: string | null;
   smtpPort: number;
   smtpUser: string | null;
@@ -23,6 +25,18 @@ export type StudioAuthConfig = {
   defaultProjectOnSignup: boolean;
   defaultProjectName: string;
 };
+
+function resolveEmailFrom(): string {
+  const studioFrom = process.env.STUDIO_EMAIL_FROM?.trim();
+  if (studioFrom) {
+    return studioFrom;
+  }
+  const resendFrom = process.env.RESEND_EMAIL_FROM?.trim();
+  if (resendFrom) {
+    return resendFrom.includes('<') ? resendFrom : `ActoCore Studio <${resendFrom}>`;
+  }
+  return 'noreply@actocore.local';
+}
 
 export function resolveStudioAuthConfig(): StudioAuthConfig {
   const nodeEnv = getAppEnvironment();
@@ -65,7 +79,8 @@ export function resolveStudioAuthConfig(): StudioAuthConfig {
     googleClientId: process.env.GOOGLE_CLIENT_ID?.trim() || null,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim() || null,
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI?.trim() || null,
-    emailFrom: process.env.STUDIO_EMAIL_FROM?.trim() || 'noreply@actocore.local',
+    emailFrom: resolveEmailFrom(),
+    resendApiKey: process.env.RESEND_API_KEY?.trim() || null,
     smtpHost: process.env.SMTP_HOST?.trim() || null,
     smtpPort: parseInt(process.env.SMTP_PORT ?? '587', 10),
     smtpUser: process.env.SMTP_USER?.trim() || null,

@@ -64,6 +64,12 @@ export class StudioVerifyEmailDto {
   token!: string;
 }
 
+export class StudioCompleteGoogleAuthDto {
+  @IsString()
+  @MinLength(1)
+  code!: string;
+}
+
 export class StudioResendVerificationDto {
   @IsEmail()
   email!: string;

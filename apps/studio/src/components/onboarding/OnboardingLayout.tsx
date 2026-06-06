@@ -2,9 +2,11 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AuthBrandPanel } from '@/components/auth/AuthBrandPanel';
-import Logo from '@/components/ui/Logo';
+import { AuthFormPanel } from '@/components/auth/AuthFormPanel';
+import { AuthGlassCard } from '@/components/auth/AuthGlassCard';
 import { OnboardingProgress } from '@/components/onboarding/OnboardingProgress';
 import type { StudioOnboardingCurrentStep } from '@ahmedrioueche/actocore-shared';
+import { cn } from '@/utils/helper';
 
 interface OnboardingLayoutProps {
   children: ReactNode;
@@ -22,29 +24,43 @@ export function OnboardingLayout({
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-background">
-      <AuthBrandPanel />
-      <div className="flex-1 flex flex-col px-4 py-8 lg:py-12 bg-background">
-        <div className="w-full max-w-xl mx-auto flex flex-col flex-1 gap-8">
-          <div className="flex items-center justify-between gap-4">
-            <Logo />
-            {onSkip ? (
-              <button
-                type="button"
-                onClick={onSkip}
-                disabled={skipPending}
-                className="text-sm text-text-secondary hover:text-text-primary disabled:opacity-50"
-              >
-                {t('onboarding.skip')}
-              </button>
-            ) : null}
+    <div className="auth-shell flex w-full flex-col md:flex-row">
+      <AuthBrandPanel variant="signup" />
+      <AuthFormPanel align="start" maxWidthClass="max-w-[440px]">
+        {onSkip ? (
+          <div className="mb-4 flex justify-end">
+            <button
+              type="button"
+              onClick={onSkip}
+              disabled={skipPending}
+              className={cn(
+                'text-sm font-medium text-text-secondary transition-colors',
+                'hover:text-primary',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+              )}
+            >
+              {t('onboarding.skip')}
+            </button>
           </div>
+        ) : null}
 
+        <AuthGlassCard>
           <OnboardingProgress currentStep={currentStep} />
+          <div className="mt-7">{children}</div>
+        </AuthGlassCard>
+      </AuthFormPanel>
+    </div>
+  );
+}
 
-          <div className="flex-1 flex flex-col justify-center">{children}</div>
-        </div>
-      </div>
+/** Same split shell for loading / error states on the onboarding route. */
+export function OnboardingShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="auth-shell flex w-full flex-col md:flex-row">
+      <AuthBrandPanel variant="signup" />
+      <AuthFormPanel align="center" maxWidthClass="max-w-[440px]">
+        {children}
+      </AuthFormPanel>
     </div>
   );
 }

@@ -11,7 +11,11 @@ describe('HttpExceptionFilter', () => {
   const filter = new HttpExceptionFilter();
 
   const mockResponse = () => {
-    const res = { status: jest.fn(), json: jest.fn() };
+    const res = {
+      headersSent: false,
+      status: jest.fn(),
+      json: jest.fn(),
+    };
     res.status.mockReturnValue(res);
     return res;
   };
@@ -60,5 +64,14 @@ describe('HttpExceptionFilter', () => {
       errorCode: ErrorCode.NOT_FOUND,
       message: 'Not Found',
     });
+  });
+
+  it('skips response when headers were already sent', () => {
+    const res = mockResponse();
+    res.headersSent = true;
+    filter.catch(new NotFoundException(), mockHost(res) as never);
+
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
   });
 });

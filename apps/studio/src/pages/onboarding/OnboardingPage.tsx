@@ -2,19 +2,41 @@ import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { OnboardingLayout } from '@/components/onboarding/OnboardingLayout';
+import { AuthPrimaryButton } from '@/components/auth/AuthPrimaryButton';
+import { OnboardingLayout, OnboardingShell } from '@/components/onboarding/OnboardingLayout';
+import { OnboardingLocaleSelect } from '@/components/onboarding/OnboardingLocaleSelect';
+import { OnboardingStepPanel } from '@/components/onboarding/OnboardingStepPanel';
+import { OnboardingWelcomeFeatures } from '@/components/onboarding/OnboardingWelcomeFeatures';
+import { AsyncContent } from '@/components/states';
 import InputField from '@/components/ui/InputField';
 import Loading from '@/components/ui/Loading';
 import Button from '@/components/ui/Button';
+import {
+  isAccountLocaleCode,
+  resolveBrowserAccountLocale,
+} from '@/constants/account-locales';
 import { useAuth } from '@/context/AuthContext';
 import {
   useCompleteOnboardingStep,
   useCreateOnboardingProject,
+  useOnboardingProjects,
   useOnboardingState,
+  useRenameOnboardingProject,
   useSkipOnboarding,
   useUpdateWorkspaceSettings,
 } from '@/hooks/use-onboarding';
 import { getApiErrorMessage } from '@/utils/statusMessage';
+
+function OnboardingError({ message }: { message: string }) {
+  return (
+    <p
+      className="rounded-lg border border-danger/15 bg-danger-surface/80 px-3.5 py-2.5 text-sm text-danger"
+      role="alert"
+    >
+      {message}
+    </p>
+  );
+}
 
 export default function OnboardingPage() {
   const { t } = useTranslation();
@@ -25,12 +47,19 @@ export default function OnboardingPage() {
   const skipOnboarding = useSkipOnboarding();
   const updateWorkspace = useUpdateWorkspaceSettings();
   const createProject = useCreateOnboardingProject();
+  const renameProject = useRenameOnboardingProject();
+
+  const state = stateQuery.data;
+  const currentStep = state?.currentStep ?? 'welcome';
+  const projectsQuery = useOnboardingProjects(currentStep === 'project');
 
   const [workspaceName, setWorkspaceName] = useState('');
   const [timezone, setTimezone] = useState('');
-  const [defaultLocale, setDefaultLocale] = useState('en');
+  const [defaultLocale, setDefaultLocale] = useState('');
   const [projectName, setProjectName] = useState('');
+  const [existingProjectId, setExistingProjectId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [localeInitialized, setLocaleInitialized] = useState(false);
 
   useEffect(() => {
     if (session?.account.name) {
@@ -39,10 +68,26 @@ export default function OnboardingPage() {
     if (session?.account.timezone) {
       setTimezone(session.account.timezone);
     }
-    if (session?.account.defaultLocale) {
+    if (
+      session?.account.defaultLocale &&
+      isAccountLocaleCode(session.account.defaultLocale)
+    ) {
       setDefaultLocale(session.account.defaultLocale);
+      setLocaleInitialized(true);
+    } else if (!localeInitialized) {
+      setDefaultLocale(resolveBrowserAccountLocale());
+      setLocaleInitialized(true);
     }
-  }, [session?.account]);
+  }, [session?.account, localeInitialized]);
+
+  useEffect(() => {
+    if (currentStep !== 'project' || !projectsQuery.data?.length) {
+      return;
+    }
+    const first = projectsQuery.data[0]!;
+    setExistingProjectId(first.id);
+    setProjectName((prev) => (prev.trim() ? prev : first.name));
+  }, [currentStep, projectsQuery.data]);
 
   useEffect(() => {
     if (
@@ -55,13 +100,12 @@ export default function OnboardingPage() {
     }
   }, [stateQuery.data, navigate]);
 
-  const state = stateQuery.data;
-  const currentStep = state?.currentStep ?? 'welcome';
   const isBusy =
     completeStep.isPending ||
     skipOnboarding.isPending ||
     updateWorkspace.isPending ||
-    createProject.isPending;
+    createProject.isPending ||
+    renameProject.isPending;
 
   const goToProjects = () => {
     void navigate({ to: '/projects' });
@@ -86,7 +130,8 @@ export default function OnboardingPage() {
     }
   };
 
-  const finishWorkspace = async () => {
+  const finishWorkspace = async (e: React.FormEvent) => {
+    e.preventDefault();
     setFormError(null);
     const name = workspaceName.trim();
     if (!name) {
@@ -105,7 +150,8 @@ export default function OnboardingPage() {
     }
   };
 
-  const finishProject = async () => {
+  const finishProject = async (e: React.FormEvent) => {
+    e.preventDefault();
     setFormError(null);
     const name = projectName.trim();
     if (!name) {
@@ -113,7 +159,11 @@ export default function OnboardingPage() {
       return;
     }
     try {
-      await createProject.mutateAsync(name);
+      if (existingProjectId) {
+        await renameProject.mutateAsync({ projectId: existingProjectId, name });
+      } else {
+        await createProject.mutateAsync(name);
+      }
       await completeStep.mutateAsync('project');
       goToProjects();
     } catch (err) {
@@ -133,28 +183,28 @@ export default function OnboardingPage() {
 
   if (stateQuery.isLoading || authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loading fullScreen={false} />
-      </div>
+      <OnboardingShell>
+        <Loading fullScreen={false} className="py-16" />
+      </OnboardingShell>
     );
   }
 
   if (stateQuery.isError || !state) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background p-4">
-        <p className="text-text-secondary">{t('common.error')}</p>
-        <Button type="button" onClick={() => void stateQuery.refetch()}>
-          {t('common.retry')}
-        </Button>
-      </div>
+      <OnboardingShell>
+        <AsyncContent
+          isError
+          onRetry={() => void stateQuery.refetch()}
+        />
+      </OnboardingShell>
     );
   }
 
   if (currentStep === 'done') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loading fullScreen={false} />
-      </div>
+      <OnboardingShell>
+        <Loading fullScreen={false} className="py-16" />
+      </OnboardingShell>
     );
   }
 
@@ -165,57 +215,35 @@ export default function OnboardingPage() {
       skipPending={skipOnboarding.isPending}
     >
       {currentStep === 'welcome' ? (
-        <section className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t('onboarding.welcome.title')}
-            </h1>
-            <p className="mt-2 text-text-secondary">
-              {t('onboarding.welcome.subtitle')}
-            </p>
+        <OnboardingStepPanel
+          title={t('onboarding.welcome.title')}
+          subtitle={t('onboarding.welcome.subtitle')}
+        >
+          <div className="space-y-6">
+            <OnboardingWelcomeFeatures />
+            {formError ? <OnboardingError message={formError} /> : null}
+            <AuthPrimaryButton
+              type="button"
+              loading={isBusy}
+              onClick={() => void finishWelcome()}
+            >
+              {t('onboarding.welcome.cta')}
+            </AuthPrimaryButton>
           </div>
-          <ul className="space-y-3 text-sm text-text-secondary list-disc pl-5">
-            <li>{t('onboarding.welcome.pointProjects')}</li>
-            <li>{t('onboarding.welcome.pointKnowledge')}</li>
-            <li>{t('onboarding.welcome.pointSdk')}</li>
-          </ul>
-          {formError ? (
-            <p className="text-sm text-danger" role="alert">
-              {formError}
-            </p>
-          ) : null}
-          <Button
-            type="button"
-            onClick={() => void finishWelcome()}
-            disabled={isBusy}
-            className="w-full"
-          >
-            {t('onboarding.welcome.cta')}
-          </Button>
-        </section>
+        </OnboardingStepPanel>
       ) : null}
 
       {currentStep === 'workspace' ? (
-        <section className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t('onboarding.workspace.title')}
-            </h1>
-            <p className="mt-2 text-text-secondary">
-              {t('onboarding.workspace.subtitle')}
-            </p>
-          </div>
-          <form
-            className="space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void finishWorkspace();
-            }}
-          >
+        <OnboardingStepPanel
+          title={t('onboarding.workspace.title')}
+          subtitle={t('onboarding.workspace.subtitle')}
+        >
+          <form className="space-y-5" onSubmit={finishWorkspace}>
             <InputField
               label={t('onboarding.workspace.name')}
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
+              placeholder={t('onboarding.workspace.namePlaceholder')}
               required
             />
             <InputField
@@ -224,41 +252,28 @@ export default function OnboardingPage() {
               onChange={(e) => setTimezone(e.target.value)}
               placeholder={t('onboarding.workspace.timezonePlaceholder')}
             />
-            <InputField
-              label={t('onboarding.workspace.locale')}
+            <OnboardingLocaleSelect
               value={defaultLocale}
-              onChange={(e) => setDefaultLocale(e.target.value)}
-              placeholder="en"
+              onChange={setDefaultLocale}
             />
-            {formError ? (
-              <p className="text-sm text-danger" role="alert">
-                {formError}
-              </p>
-            ) : null}
-            <Button type="submit" disabled={isBusy} className="w-full">
+            {formError ? <OnboardingError message={formError} /> : null}
+            <AuthPrimaryButton type="submit" loading={isBusy}>
               {t('common.continue')}
-            </Button>
+            </AuthPrimaryButton>
           </form>
-        </section>
+        </OnboardingStepPanel>
       ) : null}
 
       {currentStep === 'project' ? (
-        <section className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t('onboarding.project.title')}
-            </h1>
-            <p className="mt-2 text-text-secondary">
-              {t('onboarding.project.subtitle')}
-            </p>
-          </div>
-          <form
-            className="space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void finishProject();
-            }}
-          >
+        <OnboardingStepPanel
+          title={t('onboarding.project.title')}
+          subtitle={
+            existingProjectId
+              ? t('onboarding.project.subtitleRename')
+              : t('onboarding.project.subtitle')
+          }
+        >
+          <form className="space-y-5" onSubmit={finishProject}>
             <InputField
               label={t('onboarding.project.name')}
               value={projectName}
@@ -266,16 +281,14 @@ export default function OnboardingPage() {
               placeholder={t('onboarding.project.namePlaceholder')}
               required
             />
-            {formError ? (
-              <p className="text-sm text-danger" role="alert">
-                {formError}
-              </p>
-            ) : null}
-            <Button type="submit" disabled={isBusy} className="w-full">
-              {t('onboarding.project.cta')}
-            </Button>
+            {formError ? <OnboardingError message={formError} /> : null}
+            <AuthPrimaryButton type="submit" loading={isBusy}>
+              {existingProjectId
+                ? t('onboarding.project.ctaRename')
+                : t('onboarding.project.cta')}
+            </AuthPrimaryButton>
           </form>
-        </section>
+        </OnboardingStepPanel>
       ) : null}
     </OnboardingLayout>
   );

@@ -89,6 +89,7 @@ export default function ResetPasswordPage() {
             id="reset-password"
             type="password"
             label={t('auth.reset.password')}
+            placeholder={t('auth.reset.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"

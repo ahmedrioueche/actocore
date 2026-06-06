@@ -1,7 +1,8 @@
-import type { ErrorInfo, ReactNode } from "react";
-import { Component } from "react";
-import { useTranslation } from "react-i18next";
-import ErrorSection from "@/components/ui/ErrorSection";
+import type { ErrorInfo, ReactNode } from 'react';
+import { Component } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import ErrorPage from '@/pages/system/ErrorPage';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -22,7 +23,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    // Update state so the next render will show the fallback UI
     return {
       hasError: true,
       error,
@@ -30,11 +30,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // Log error details to console for debugging
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
-
-    // You could also log to an error reporting service here
-    // Example: logErrorToService(error, errorInfo);
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   render() {
@@ -48,10 +44,11 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 function ErrorBoundaryFallback({ error }: { error: Error | null }) {
   const { t } = useTranslation();
+
   return (
-    <ErrorSection
-      message={t("errorBoundary.title")}
-      subtext={error?.message ?? t("errorBoundary.message")}
+    <ErrorPage
+      subtext={error?.message ?? t('errorBoundary.message')}
+      onRetry={() => window.location.reload()}
     />
   );
 }

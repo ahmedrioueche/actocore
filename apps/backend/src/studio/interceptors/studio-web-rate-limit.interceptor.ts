@@ -60,7 +60,13 @@ export class StudioWebRateLimitInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
-        res.setHeader('X-RateLimit-Remaining', String(Math.max(0, limit - count)));
+        if (res.headersSent) {
+          return;
+        }
+        res.setHeader(
+          'X-RateLimit-Remaining',
+          String(Math.max(0, limit - count)),
+        );
       }),
     );
   }

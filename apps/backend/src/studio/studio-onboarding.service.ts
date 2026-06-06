@@ -17,7 +17,6 @@ import {
   StudioRole,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
-import { Project, ProjectDocument } from '../projects/schemas/project.schema';
 import type { StudioRequestContext } from './studio-context';
 import {
   StudioAccount,
@@ -30,8 +29,6 @@ export class StudioOnboardingService {
   constructor(
     @InjectModel(StudioAccount.name)
     private readonly accountModel: Model<StudioAccountDocument>,
-    @InjectModel(Project.name)
-    private readonly projectModel: Model<ProjectDocument>,
   ) {}
 
   async getState(ctx: StudioRequestContext): Promise<StudioOnboardingStateData> {
@@ -40,7 +37,6 @@ export class StudioOnboardingService {
     }
 
     const account = await this.requireAccount(ctx.accountId);
-    await this.syncProjectStep(account);
     return this.toStateData(account);
   }
 
@@ -81,7 +77,6 @@ export class StudioOnboardingService {
     }
 
     await account.save();
-    await this.syncProjectStep(account);
     return this.toStateData(account);
   }
 
@@ -151,31 +146,6 @@ export class StudioOnboardingService {
     if (onboarding.currentStep === 'done') {
       onboarding.completed = true;
       onboarding.completedAt = new Date();
-    }
-  }
-
-  /** Auto-complete project step when the workspace already has a project. */
-  private async syncProjectStep(account: StudioAccountDocument): Promise<void> {
-    const onboarding = this.ensureOnboarding(account);
-    if (onboarding.completed || onboarding.skipped) {
-      return;
-    }
-
-    const completed = onboarding.completedSteps ?? [];
-    if (completed.includes('project')) {
-      return;
-    }
-
-    const count = await this.projectModel
-      .countDocuments({
-        accountId: account._id.toString(),
-        archived: { $ne: true },
-      })
-      .exec();
-
-    if (count > 0) {
-      this.markStepComplete(onboarding, 'project');
-      await account.save();
     }
   }
 

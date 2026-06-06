@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
@@ -28,6 +29,7 @@ import {
   StudioResetPasswordDto,
   StudioSignupDto,
   StudioVerifyEmailDto,
+  StudioCompleteGoogleAuthDto,
 } from '@ahmedrioueche/actocore-shared';
 import type { Request, Response } from 'express';
 import { StudioPublic } from './decorators/studio-public.decorator';
@@ -45,6 +47,8 @@ import { ErrorCode } from '@ahmedrioueche/actocore-shared';
 @Controller('web/auth')
 @UseGuards(StudioAuthGuard, StudioPermissionsGuard)
 export class StudioAuthController {
+  private readonly logger = new Logger(StudioAuthController.name);
+
   constructor(
     private readonly auth: StudioAuthService,
     private readonly members: StudioMembersService,
@@ -167,18 +171,22 @@ export class StudioAuthController {
 
     try {
       const session = await this.auth.googleAuth(code);
-      const url = this.auth.buildGoogleCallbackRedirect(
-        true,
-        {
-          accessToken: session.accessToken,
-          refreshToken: session.refreshToken,
-        },
-        origin,
-      );
+      const oauthCode = this.auth.issueGoogleOAuthCode(session);
+      const url = this.auth.buildGoogleCallbackRedirect(true, oauthCode, origin);
       res.redirect(url);
-    } catch {
+    } catch (err) {
+      this.logger.warn(
+        `Google OAuth callback failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+      );
       res.redirect(this.auth.buildGoogleCallbackRedirect(false, undefined, origin));
     }
+  }
+
+  @StudioPublic()
+  @Post('google/complete')
+  async completeGoogleAuth(@Body() body: StudioCompleteGoogleAuthDto) {
+    this.logger.log('Google OAuth studio code exchange');
+    return apiSuccess(this.auth.completeGoogleAuth(body.code));
   }
 
   @Get('members/audit')

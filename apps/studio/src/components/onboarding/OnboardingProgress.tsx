@@ -5,37 +5,47 @@ import {
   type StudioOnboardingStep,
 } from '@ahmedrioueche/actocore-shared';
 
+import { cn } from '@/utils/helper';
+
 interface OnboardingProgressProps {
   currentStep: StudioOnboardingCurrentStep;
 }
 
 export function OnboardingProgress({ currentStep }: OnboardingProgressProps) {
   const { t } = useTranslation();
+  const totalSteps = STUDIO_ONBOARDING_STEPS.length;
   const activeIndex =
     currentStep === 'done'
-      ? STUDIO_ONBOARDING_STEPS.length
+      ? totalSteps
       : STUDIO_ONBOARDING_STEPS.indexOf(currentStep as StudioOnboardingStep);
 
   return (
-    <nav aria-label={t('onboarding.progressLabel')} className="w-full">
-      <ol className="flex items-center gap-2">
-        {STUDIO_ONBOARDING_STEPS.map((step, index: number) => {
-          const done = index < activeIndex;
+    <nav aria-label={t('onboarding.progressLabel')} className="space-y-2.5">
+      <p className="text-xs font-medium tabular-nums text-text-secondary">
+        {t('onboarding.stepCounter', {
+          current: Math.min(activeIndex + 1, totalSteps),
+          total: totalSteps,
+        })}
+      </p>
+
+      <ol className="flex gap-1.5">
+        {STUDIO_ONBOARDING_STEPS.map((step, index) => {
+          const filled = index < activeIndex;
           const active = index === activeIndex;
+
           return (
-            <li key={step} className="flex-1 flex flex-col gap-2 min-w-0">
+            <li key={step} className="flex-1">
               <div
-                className={`h-1.5 rounded-full transition-colors ${
-                  done || active ? 'bg-primary' : 'bg-border'
-                }`}
-              />
-              <span
-                className={`text-xs truncate ${
-                  active ? 'text-text-primary font-medium' : 'text-text-secondary'
-                }`}
+                className={cn(
+                  'h-1 rounded-full transition-colors duration-300',
+                  filled && 'bg-primary',
+                  active && 'bg-brand-gradient',
+                  !filled && !active && 'bg-border',
+                )}
+                aria-current={active ? 'step' : undefined}
               >
-                {t(`onboarding.steps.${step}`)}
-              </span>
+                <span className="sr-only">{t(`onboarding.steps.${step}`)}</span>
+              </div>
             </li>
           );
         })}

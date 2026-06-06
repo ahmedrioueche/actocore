@@ -96,3 +96,28 @@ export function useCreateOnboardingProject() {
     },
   });
 }
+
+export function useRenameOnboardingProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { projectId: string; name: string }) => {
+      ensureApiConfigured();
+      return parseApiResponse(
+        await projectsApi.update(input.projectId, { name: input.name.trim() }),
+      );
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
+    },
+  });
+}
+
+export function useOnboardingProjects(enabled: boolean) {
+  ensureApiConfigured();
+  return useQuery({
+    queryKey: [...queryKeys.projects.all(), 'onboarding'] as const,
+    queryFn: async () =>
+      parseApiResponse(await projectsApi.list({ archived: false })),
+    enabled,
+  });
+}

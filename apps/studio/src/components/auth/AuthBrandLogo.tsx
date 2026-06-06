@@ -1,5 +1,4 @@
 import { Sparkles } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 import { APP_DATA } from '@/constants/app';
 import { cn } from '@/utils/helper';
@@ -9,8 +8,6 @@ interface AuthBrandLogoProps {
 }
 
 export function AuthBrandLogo({ compact = false }: AuthBrandLogoProps) {
-  const { t } = useTranslation();
-
   return (
     <div className={cn('flex items-center', compact ? 'gap-2' : 'gap-3')}>
       <div
@@ -33,7 +30,8 @@ export function AuthBrandLogo({ compact = false }: AuthBrandLogoProps) {
           compact ? 'text-base' : 'text-xl',
         )}
       >
-        {t('app.name', { defaultValue: APP_DATA.name })}
+        <span className="font-bold">{APP_DATA.brandName}</span>
+        <span className="font-medium opacity-80"> {APP_DATA.shortName}</span>
       </span>
     </div>
   );

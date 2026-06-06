@@ -5,6 +5,7 @@ import type {
   StudioChangePasswordDto,
   StudioConfirmDeleteAccountDto,
   StudioForgotPasswordDto,
+  StudioCompleteGoogleAuthDto,
   StudioLoginDto,
   StudioRefreshDto,
   StudioResendVerificationDto,
@@ -170,6 +171,21 @@ export class StudioAuthApi extends BaseApi {
       if (res.success && res.data?.authUrl && typeof window !== 'undefined') {
         window.location.href = res.data.authUrl;
       }
+    });
+  }
+
+  completeGoogleAuth(
+    body: StudioCompleteGoogleAuthDto,
+  ): Promise<ApiResponse<StudioSessionData>> {
+    return this.request(async () => {
+      const res = await this.client.post<ApiResponse<StudioSessionData>>(
+        apiPath('web/auth/google/complete'),
+        body,
+      );
+      if (res.data.success && res.data.data) {
+        storeSession(res.data.data);
+      }
+      return res;
     });
   }
 

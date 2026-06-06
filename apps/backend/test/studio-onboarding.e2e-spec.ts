@@ -101,6 +101,20 @@ describe('Studio onboarding (e2e)', () => {
       .send({ name: 'First app' })
       .expect(201);
 
+    const afterCreate = await request(server)
+      .get('/v1/web/onboarding')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(afterCreate.body.data.currentStep).toBe('project');
+    expect(afterCreate.body.data.completedSteps).not.toContain('project');
+
+    await request(server)
+      .patch('/v1/web/onboarding')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ completeStep: 'project' })
+      .expect(200);
+
     const afterProject = await request(server)
       .get('/v1/web/onboarding')
       .set('Authorization', `Bearer ${token}`)

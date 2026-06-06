@@ -106,6 +106,20 @@ export function useGoogleAuth() {
   });
 }
 
+export function useCompleteGoogleAuth() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (code: string) => {
+      ensureApiConfigured();
+      const res = await studioAuthApi.completeGoogleAuth({ code });
+      return parseApiResponse(res);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+    },
+  });
+}
+
 export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation({

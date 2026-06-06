@@ -14,6 +14,8 @@ import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 import AuthCallbackPage from '@/pages/auth/AuthCallbackPage';
 import ProjectsPlaceholderPage from '@/pages/projects/ProjectsPlaceholderPage';
 import OnboardingPage from '@/pages/onboarding/OnboardingPage';
+import LoadingPage from '@/pages/system/LoadingPage';
+import NotFoundPage from '@/pages/system/NotFoundPage';
 import {
   redirectIfAuthenticated,
   requireAuth,
@@ -76,13 +78,7 @@ const authCallbackRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/auth/callback',
   validateSearch: (search: Record<string, unknown>) => ({
-    success: typeof search.success === 'string' ? search.success : undefined,
-    accessToken:
-      typeof search.accessToken === 'string' ? search.accessToken : undefined,
-    refreshToken:
-      typeof search.refreshToken === 'string'
-        ? search.refreshToken
-        : undefined,
+    code: typeof search.code === 'string' ? search.code : undefined,
     error: typeof search.error === 'string' ? search.error : undefined,
   }),
   component: AuthCallbackPage,
@@ -99,6 +95,7 @@ const projectsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/projects',
   beforeLoad: requireOnboardingComplete,
+  pendingComponent: () => <LoadingPage type="inner" />,
   component: ProjectsPlaceholderPage,
 });
 
@@ -114,7 +111,12 @@ const routeTree = rootRoute.addChildren([
   projectsRoute,
 ]);
 
-export const router = createRouter({ routeTree });
+export const router = createRouter({
+  routeTree,
+  defaultNotFoundComponent: NotFoundPage,
+  defaultPendingComponent: () => <LoadingPage type="inner" />,
+  defaultPendingMs: 0,
+});
 
 declare module '@tanstack/react-router' {
   interface Register {

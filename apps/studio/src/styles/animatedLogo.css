@@ -1,0 +1,119 @@
+.ac-animated-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+}
+
+.ac-animated-logo--compact {
+  gap: 0.5rem;
+}
+
+.ac-logo-mark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--ac-radius-xl);
+  overflow: hidden;
+}
+
+.ac-logo-mark--default {
+  width: 3.25rem;
+  height: 3.25rem;
+  background-image: var(--ac-gradient-brand);
+  box-shadow: var(--ac-shadow-brand);
+}
+
+.ac-logo-mark--on-dark {
+  width: 3.25rem;
+  height: 3.25rem;
+  background: rgb(255 255 255 / 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgb(255 255 255 / 0.12);
+}
+
+@media (min-width: 768px) {
+  .ac-logo-mark--default,
+  .ac-logo-mark--on-dark {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+.ac-logo-mark--default::after,
+.ac-logo-mark--on-dark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.35) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+  animation: ac-logo-shine 2.4s ease-in-out infinite;
+}
+
+.ac-logo-mark-animate {
+  animation: ac-logo-mark-pulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.ac-logo-wordmark {
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.ac-logo-wordmark-animate {
+  animation: ac-logo-wordmark-in 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes ac-logo-mark-pulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.75;
+  }
+
+  18% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  45%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ac-logo-wordmark-in {
+  0%,
+  22% {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  42%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ac-logo-shine {
+  0%,
+  28% {
+    transform: translateX(-130%);
+  }
+
+  48%,
+  100% {
+    transform: translateX(130%);
+  }
+}

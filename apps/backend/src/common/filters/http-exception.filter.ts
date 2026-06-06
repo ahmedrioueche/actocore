@@ -17,6 +17,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    if (response.headersSent) {
+      return;
+    }
+
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const body = exception.getResponse();
@@ -50,6 +54,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   private shouldLogHttpException(status: number, errorCode: ErrorCode): boolean {
+    if (
+      status === HttpStatus.UNAUTHORIZED ||
+      status === HttpStatus.FORBIDDEN ||
+      status === HttpStatus.CONFLICT
+    ) {
+      return true;
+    }
     return (
       status >= HttpStatus.INTERNAL_SERVER_ERROR ||
       status === HttpStatus.BAD_GATEWAY ||
