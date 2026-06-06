@@ -34,6 +34,59 @@
     background-clip: text;
     color: transparent;
   }
+
+  .auth-brand-panel {
+    background-image: var(--ac-auth-panel-gradient);
+  }
+
+  .auth-form-panel {
+    background-image: var(--ac-auth-form-bg);
+  }
+
+  .auth-glass-card {
+    background: var(--ac-auth-glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--ac-auth-glass-border);
+  }
+
+  .auth-primary-button {
+    background-image: var(--ac-auth-panel-gradient);
+    color: var(--ac-color-primary-contrast);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .auth-primary-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--ac-shadow-auth-primary-hover);
+  }
+
+  .auth-primary-button:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .auth-code-glow {
+    box-shadow: var(--ac-shadow-auth-code);
+  }
+
+  .auth-floating-blob {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: var(--ac-auth-blob);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /** Full-viewport auth shell — form panel scrolls only when content overflows. */
+  .auth-shell {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
 }
 
 @layer utilities {

@@ -60,6 +60,31 @@
   --ac-shadow-sm: 0 1px 3px rgb(15 23 42 / 0.06);
   --ac-shadow-md: 0 8px 24px rgb(15 23 42 / 0.08);
   --ac-shadow-brand: 0 8px 32px rgb(79 70 229 / 0.22);
+  --ac-shadow-auth-code: 0 0 40px rgb(124 58 237 / 0.3);
+  --ac-shadow-auth-primary-hover: 0 4px 12px rgb(79 70 229 / 0.25);
+
+  /* Auth shell */
+  --ac-auth-panel-gradient: linear-gradient(
+    135deg,
+    var(--ac-brand-primary) 0%,
+    var(--ac-brand-secondary) 100%
+  );
+  --ac-auth-form-bg: radial-gradient(
+    circle at top right,
+    rgb(79 70 229 / 0.1) 0%,
+    var(--ac-color-bg) 100%
+  );
+  --ac-auth-glass-bg: rgb(255 255 255 / 0.82);
+  --ac-auth-glass-border: var(--ac-color-border);
+  --ac-auth-blob: radial-gradient(
+    circle,
+    rgb(255 255 255 / 0.12) 0%,
+    rgb(255 255 255 / 0) 70%
+  );
+  --ac-auth-code-surface: rgb(15 23 42 / 0.45);
+  --ac-auth-code-keyword: var(--ac-brand-accent);
+  --ac-auth-code-string: var(--ac-brand-secondary);
+  --ac-auth-code-accent: var(--ac-color-warning);
 
   --ac-radius-sm: 0.375rem;
   --ac-radius-md: 0.625rem;
@@ -110,4 +135,15 @@
   );
 
   --ac-shadow-brand: 0 8px 32px rgb(99 102 241 / 0.35);
+  --ac-shadow-auth-code: 0 0 40px rgb(139 92 246 / 0.35);
+  --ac-shadow-auth-primary-hover: 0 4px 12px rgb(99 102 241 / 0.3);
+
+  --ac-auth-form-bg: radial-gradient(
+    circle at top right,
+    rgb(99 102 241 / 0.15) 0%,
+    var(--ac-color-bg) 100%
+  );
+  --ac-auth-glass-bg: rgb(30 41 59 / 0.85);
+  --ac-auth-glass-border: var(--ac-color-border);
+  --ac-auth-code-surface: rgb(15 23 42 / 0.65);
 }

@@ -14,4 +14,7 @@ export const queryKeys = {
   team: {
     members: () => ['team', 'members'] as const,
   },
+  onboarding: {
+    state: () => ['onboarding', 'state'] as const,
+  },
 } as const;

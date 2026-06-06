@@ -77,15 +77,11 @@ export class StudioWebRateLimitInterceptor implements NestInterceptor {
     key: string,
     windowSec: number,
   ): Promise<{ count: number; resetAt: number }> {
-    const client = this.redis.getClient();
-    if (client) {
-      const redisKey = `ratelimit:${key}`;
-      const count = await client.incr(redisKey);
-      if (count === 1) {
-        await client.expire(redisKey, windowSec);
-      }
-      const ttl = await client.ttl(redisKey);
-      const resetAt = Date.now() + Math.max(ttl, 1) * 1000;
+    const redisKey = `ratelimit:${key}`;
+    const count = await this.redis.incrWithTtl(redisKey, windowSec);
+    if (count != null) {
+      const ttl = await this.redis.ttlSeconds(redisKey);
+      const resetAt = Date.now() + Math.max(ttl ?? windowSec, 1) * 1000;
       return { count, resetAt };
     }
 

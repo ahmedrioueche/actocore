@@ -54,6 +54,8 @@ export interface StudioSignupResultData {
   email: string;
   /** Present when `STUDIO_DEFAULT_PROJECT_ON_SIGNUP` is enabled (default). */
   defaultProjectId?: string;
+  /** Non-production only: verification link when SMTP is not configured. */
+  devVerificationUrl?: string;
 }
 
 export type StudioTeamAuditAction =
@@ -89,6 +91,8 @@ export interface StudioRefreshResultData {
 
 export interface StudioMessageData {
   message: string;
+  /** Non-production only: action link when SMTP is not configured. */
+  devVerificationUrl?: string;
 }
 
 export interface PlatformAccountListItemData {

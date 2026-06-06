@@ -1,18 +1,22 @@
 import type { ReactNode } from 'react';
 
 import { AuthBrandPanel } from '@/components/auth/AuthBrandPanel';
+import { AuthFormPanel } from '@/components/auth/AuthFormPanel';
+import type { AuthBrandVariant } from '@/components/auth/auth-panel.types';
 
 interface AuthLayoutProps {
   children: ReactNode;
+  brandVariant?: AuthBrandVariant;
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout({
+  children,
+  brandVariant = 'login',
+}: AuthLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-background">
-      <AuthBrandPanel />
-      <div className="flex-1 flex items-center justify-center px-4 py-10 lg:py-12 bg-background">
-        {children}
-      </div>
+    <div className="auth-shell flex w-full flex-col md:flex-row">
+      <AuthBrandPanel variant={brandVariant} />
+      <AuthFormPanel>{children}</AuthFormPanel>
     </div>
   );
 }

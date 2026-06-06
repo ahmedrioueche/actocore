@@ -2,12 +2,14 @@ import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthDivider } from '@/components/auth/AuthDivider';
+import { AuthFormHeader } from '@/components/auth/AuthFormHeader';
+import { AuthGlassCard } from '@/components/auth/AuthGlassCard';
 import { AuthLayout } from '@/components/auth/AuthLayout';
+import { AuthLegalNotice } from '@/components/auth/AuthLegalNotice';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
-import Button from '@/components/ui/Button';
-import InputField from '@/components/ui/InputField';
+import { SignupCredentialsForm } from '@/components/auth/SignupCredentialsForm';
+import { SignupVerifyPanel } from '@/components/auth/SignupVerifyPanel';
 import { useResendVerification, useSignup } from '@/hooks/use-auth';
 import { maskEmail } from '@/utils/mask-email';
 import { getApiErrorMessage, getMessage } from '@/utils/statusMessage';
@@ -18,24 +20,32 @@ export default function SignupPage() {
   const resend = useResendVerification();
 
   const [successEmail, setSuccessEmail] = useState<string | null>(null);
-  const [accountName, setAccountName] = useState('');
+  const [devVerificationUrl, setDevVerificationUrl] = useState<string | null>(
+    null,
+  );
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    const name = fullName.trim();
+    if (!name) {
+      setFormError(t('auth.signup.fullNameRequired'));
+      return;
+    }
     try {
       const result = await signup.mutateAsync({
-        accountName: accountName.trim(),
+        accountName: name,
         email: email.trim(),
         password,
-        displayName: displayName.trim() || undefined,
+        displayName: name,
       });
       setSuccessEmail(result.email);
+      setDevVerificationUrl(result.devVerificationUrl ?? null);
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
       setFormError(
@@ -51,8 +61,11 @@ export default function SignupPage() {
     if (!successEmail) return;
     setResendMessage(null);
     try {
-      await resend.mutateAsync(successEmail);
+      const result = await resend.mutateAsync(successEmail);
       setResendMessage(t('auth.signup.resendSuccess'));
+      if (result.devVerificationUrl) {
+        setDevVerificationUrl(result.devVerificationUrl);
+      }
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
       setResendMessage(
@@ -67,117 +80,53 @@ export default function SignupPage() {
 
   if (successEmail) {
     return (
-      <AuthLayout>
-        <AuthCard
-          title={t('auth.signup.verifyTitle')}
-          subtitle={t('auth.signup.verifySubtitle', {
-            email: maskEmail(successEmail),
-          })}
-        >
-          <p className="text-sm text-text-secondary mb-6">
-            {t('auth.signup.verifyInstructions')}
-          </p>
-          {resendMessage && (
-            <p className="text-sm text-success mb-4" role="status">
-              {resendMessage}
-            </p>
-          )}
-          <div className="space-y-3">
-            <Button
-              type="button"
-              variant="outline"
-              fullWidth
-              loading={resend.isPending}
-              onClick={handleResend}
-            >
-              {t('auth.signup.resend')}
-            </Button>
-            <Link
-              to="/login"
-              className="block w-full text-center py-3 rounded-xl font-semibold bg-primary text-primary-contrast hover:brightness-110"
-            >
-              {t('auth.signup.goToLogin')}
-            </Link>
-          </div>
-        </AuthCard>
+      <AuthLayout brandVariant="signup">
+        <SignupVerifyPanel
+          maskedEmail={maskEmail(successEmail)}
+          devVerificationUrl={devVerificationUrl}
+          resendMessage={resendMessage}
+          resendPending={resend.isPending}
+          onResend={handleResend}
+        />
       </AuthLayout>
     );
   }
 
   return (
-    <AuthLayout>
-      <AuthCard
+    <AuthLayout brandVariant="signup">
+      <AuthFormHeader
         title={t('auth.signup.title')}
         subtitle={t('auth.signup.subtitle')}
-        footer={
-          <p>
-            {t('auth.signup.hasAccount')}{' '}
-            <Link
-              to="/login"
-              className="text-primary font-semibold hover:underline"
-            >
-              {t('auth.signup.loginLink')}
-            </Link>
-          </p>
-        }
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <InputField
-            id="accountName"
-            label={t('auth.signup.accountName')}
-            value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
-            required
-            minLength={2}
-          />
-          <InputField
-            id="signup-email"
-            type="email"
-            label={t('auth.signup.email')}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-          />
-          <InputField
-            id="signup-password"
-            type="password"
-            label={t('auth.signup.password')}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            required
-            minLength={8}
-          />
-          <p className="text-xs text-text-secondary -mt-2">
-            {t('auth.signup.passwordHint')}
-          </p>
-          <InputField
-            id="displayName"
-            label={t('auth.signup.displayName')}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
+      />
 
-          {formError && (
-            <p className="text-sm text-danger" role="alert">
-              {formError}
-            </p>
-          )}
+      <AuthGlassCard>
+        <GoogleAuthButton labelKey="auth.signup.google" />
+        <AuthDivider labelKey="auth.signup.dividerEmail" />
+        <SignupCredentialsForm
+          fullName={fullName}
+          email={email}
+          password={password}
+          formError={formError}
+          loading={signup.isPending}
+          onFullNameChange={setFullName}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          onSubmit={handleSubmit}
+        />
+        <AuthLegalNotice />
+      </AuthGlassCard>
 
-          <Button
-            type="submit"
-            fullWidth
-            loading={signup.isPending}
-            disabled={signup.isPending}
+      <footer className="mt-5 text-center">
+        <p className="text-sm text-text-secondary">
+          {t('auth.signup.hasAccount')}{' '}
+          <Link
+            to="/login"
+            className="font-semibold text-primary transition-colors hover:underline"
           >
-            {t('auth.signup.submit')}
-          </Button>
-        </form>
-
-        <AuthDivider />
-        <GoogleAuthButton />
-      </AuthCard>
+            {t('auth.signup.loginLink')}
+          </Link>
+        </p>
+      </footer>
     </AuthLayout>
   );
 }

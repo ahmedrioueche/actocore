@@ -61,7 +61,7 @@ export function resolveStudioAuthConfig(): StudioAuthConfig {
       process.env.STUDIO_JWT_REFRESH_EXPIRES_IN?.trim() || '7d',
     passwordPepper: passwordPepper || DEV_PASSWORD_PEPPER,
     studioAppUrl:
-      process.env.STUDIO_APP_URL?.trim() || 'http://localhost:5174',
+      process.env.STUDIO_APP_URL?.trim() || 'http://localhost:5173',
     googleClientId: process.env.GOOGLE_CLIENT_ID?.trim() || null,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim() || null,
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI?.trim() || null,

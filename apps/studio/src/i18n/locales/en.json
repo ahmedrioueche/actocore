@@ -60,21 +60,53 @@
     "tooManyRequests": "Too many attempts. Please wait and try again."
   },
   "auth": {
+    "securityBadge": "Enterprise Grade Security",
     "brand": {
-      "tagline": "Configure AI for your applications",
-      "subtagline": "Manage projects, knowledge, SDK settings, and team access in one place."
+      "headline": "The intelligence layer for your application",
+      "tagline": "Embed natural language interaction and autonomous AI capabilities into your software with our enterprise-grade infrastructure.",
+      "subtagline": "Manage projects, knowledge, SDK settings, and team access in one place.",
+      "signup": {
+        "headline": "Build intelligent apps in minutes",
+        "tagline": "Harness the power of Q&A and Action modes to create seamless AI-driven experiences for your users.",
+        "code": {
+          "const": "const",
+          "variable": "app",
+          "modeKey": "mode",
+          "modeValue": "action",
+          "intelligenceKey": "intelligence",
+          "intelligenceValue": "true",
+          "featuresKey": "features",
+          "featureQa": "QA",
+          "featureAutomation": "Automation",
+          "comment": "// Ready to deploy in 2 minutes"
+        }
+      },
+      "code": {
+        "const": "const",
+        "variable": "studio",
+        "engineKey": "engine",
+        "engineValue": "neural-v4",
+        "contextKey": "context",
+        "contextValue": "app_state",
+        "comment": "// Ready to interact"
+      }
     },
     "or": "or",
     "google": "Continue with Google",
     "login": {
-      "title": "Sign in",
-      "subtitle": "Welcome back to ActoCore Studio",
-      "email": "Email",
+      "title": "Welcome back",
+      "subtitle": "Log in to manage your AI integrations.",
+      "dividerEmail": "or continue with email",
+      "email": "Email Address",
+      "emailPlaceholder": "name@company.com",
       "password": "Password",
-      "submit": "Continue",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Remember for 30 days",
+      "submit": "Sign In",
+      "submitting": "Signing in…",
       "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
-      "signupLink": "Create account",
+      "signupLink": "Sign up",
       "teamToggle": "Sign in as a team member",
       "teamHide": "Sign in with email instead",
       "workspaceId": "Workspace ID",
@@ -82,19 +114,32 @@
       "username": "Username"
     },
     "signup": {
-      "title": "Create account",
-      "subtitle": "Start configuring ActoCore for your apps",
-      "accountName": "Organization name",
-      "email": "Work email",
+      "title": "Create your account",
+      "subtitle": "Start building intelligent apps today.",
+      "google": "Sign up with Google",
+      "dividerEmail": "or sign up with email",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "John Doe",
+      "fullNameRequired": "Full name is required.",
+      "email": "Work Email",
+      "emailPlaceholder": "john@company.com",
       "password": "Password",
+      "passwordPlaceholder": "••••••••",
       "passwordHint": "At least 8 characters",
-      "displayName": "Display name (optional)",
-      "submit": "Create account",
+      "submit": "Create Account",
+      "submitting": "Creating account…",
+      "legalPrefix": "By signing up, you agree to our",
+      "legalAnd": "and",
+      "termsLink": "Terms of Service",
+      "privacyLink": "Privacy Policy",
       "hasAccount": "Already have an account?",
-      "loginLink": "Sign in",
+      "loginLink": "Log in",
       "verifyTitle": "Check your email",
       "verifySubtitle": "We sent a verification link to {{email}}",
       "verifyInstructions": "Open the link in your email to activate your account, then sign in.",
+      "devVerifyTitle": "Development mode",
+      "devVerifyHint": "No email server is configured. Use this link to verify your account:",
+      "devVerifyLink": "Verify account",
       "resend": "Resend verification email",
       "resendSuccess": "Verification email sent.",
       "goToLogin": "Go to sign in"
@@ -135,5 +180,39 @@
   "projects": {
     "placeholderTitle": "Projects",
     "placeholderSubtitle": "Your workspace is ready. Project management UI is coming next."
+  },
+  "onboarding": {
+    "skip": "Skip for now",
+    "progressLabel": "Setup progress",
+    "steps": {
+      "welcome": "Welcome",
+      "workspace": "Workspace",
+      "project": "First project"
+    },
+    "welcome": {
+      "title": "Welcome to ActoCore Studio",
+      "subtitle": "A short setup will help you configure AI for your applications.",
+      "pointProjects": "Create projects for each app or environment you embed ActoCore in.",
+      "pointKnowledge": "Upload knowledge and define actions your assistant can run.",
+      "pointSdk": "Tune SDK theme, locale, and security from the dashboard.",
+      "cta": "Get started"
+    },
+    "workspace": {
+      "title": "Workspace details",
+      "subtitle": "These settings apply to your whole organization.",
+      "name": "Organization name",
+      "nameRequired": "Organization name is required.",
+      "timezone": "Timezone (optional)",
+      "timezonePlaceholder": "e.g. Europe/Paris",
+      "locale": "Default locale (optional)"
+    },
+    "project": {
+      "title": "Create your first project",
+      "subtitle": "Each project has its own API keys, knowledge, and SDK configuration.",
+      "name": "Project name",
+      "nameRequired": "Project name is required.",
+      "namePlaceholder": "e.g. My SaaS app",
+      "cta": "Create project and finish"
+    }
   }
 }

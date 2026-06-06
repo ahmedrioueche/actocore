@@ -11,5 +11,6 @@ export * from './knowledge.dto';
 export * from './sdk-config.dto';
 export * from './studio-auth.dto';
 export * from './account.dto';
+export * from './onboarding.dto';
 export * from './billing.dto';
 export * from './usage.dto';

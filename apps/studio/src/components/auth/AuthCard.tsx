@@ -20,19 +20,19 @@ export function AuthCard({
   return (
     <div
       className={cn(
-        'w-full max-w-md mx-auto bg-surface border border-border rounded-2xl shadow-md p-6 md:p-8',
+        'w-full max-w-md mx-auto bg-surface border border-border rounded-2xl shadow-md p-5 md:p-6',
         className,
       )}
     >
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-text-primary">{title}</h1>
+      <header className="mb-4">
+        <h1 className="text-xl font-bold text-text-primary md:text-2xl">{title}</h1>
         {subtitle && (
-          <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>
+          <p className="mt-1.5 text-sm text-text-secondary">{subtitle}</p>
         )}
       </header>
       {children}
       {footer && (
-        <footer className="mt-6 pt-4 border-t border-border text-sm text-text-secondary">
+        <footer className="mt-4 pt-3 border-t border-border text-sm text-text-secondary">
           {footer}
         </footer>
       )}

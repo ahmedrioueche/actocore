@@ -13,7 +13,13 @@ import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 import AuthCallbackPage from '@/pages/auth/AuthCallbackPage';
 import ProjectsPlaceholderPage from '@/pages/projects/ProjectsPlaceholderPage';
-import { redirectIfAuthenticated, requireAuth } from '@/routes/guards';
+import OnboardingPage from '@/pages/onboarding/OnboardingPage';
+import {
+  redirectIfAuthenticated,
+  requireAuth,
+  requireOnboardingComplete,
+  requireOnboardingPending,
+} from '@/routes/guards';
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -82,10 +88,17 @@ const authCallbackRoute = createRoute({
   component: AuthCallbackPage,
 });
 
+const onboardingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/onboarding',
+  beforeLoad: requireOnboardingPending,
+  component: OnboardingPage,
+});
+
 const projectsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/projects',
-  beforeLoad: requireAuth,
+  beforeLoad: requireOnboardingComplete,
   component: ProjectsPlaceholderPage,
 });
 
@@ -97,6 +110,7 @@ const routeTree = rootRoute.addChildren([
   verifyEmailRoute,
   resetPasswordRoute,
   authCallbackRoute,
+  onboardingRoute,
   projectsRoute,
 ]);
 

@@ -236,12 +236,8 @@ export class QuotaService {
   }
 
   private async increment(key: string, ttlSeconds: number): Promise<number> {
-    const client = this.redis.getClient();
-    if (client) {
-      const count = await client.incr(key);
-      if (count === 1) {
-        await client.expire(key, ttlSeconds);
-      }
+    const count = await this.redis.incrWithTtl(key, ttlSeconds);
+    if (count != null) {
       return count;
     }
 

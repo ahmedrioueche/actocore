@@ -54,4 +54,42 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       return false;
     }
   }
+
+  /** Returns null when Redis is disabled or unreachable (caller should use in-memory fallback). */
+  async incrWithTtl(key: string, ttlSeconds: number): Promise<number | null> {
+    if (!this.client) {
+      return null;
+    }
+
+    try {
+      if (this.client.status !== 'ready') {
+        await this.client.connect();
+      }
+      const count = await this.client.incr(key);
+      if (count === 1) {
+        await this.client.expire(key, ttlSeconds);
+      }
+      return count;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Redis unavailable (${message}); using in-memory fallback`);
+      return null;
+    }
+  }
+
+  async ttlSeconds(key: string): Promise<number | null> {
+    if (!this.client) {
+      return null;
+    }
+
+    try {
+      if (this.client.status !== 'ready') {
+        await this.client.connect();
+      }
+      const ttl = await this.client.ttl(key);
+      return ttl;
+    } catch {
+      return null;
+    }
+  }
 }

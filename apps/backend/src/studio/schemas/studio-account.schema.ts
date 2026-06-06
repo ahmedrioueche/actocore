@@ -17,6 +17,24 @@ export class StudioAccountPreferencesSchema {
 }
 
 @Schema({ _id: false })
+export class StudioOnboardingSchema {
+  @Prop({ default: false })
+  completed!: boolean;
+
+  @Prop({ default: false })
+  skipped!: boolean;
+
+  @Prop()
+  completedAt?: Date;
+
+  @Prop({ type: [String], default: [] })
+  completedSteps!: string[];
+
+  @Prop({ default: 'welcome' })
+  currentStep!: string;
+}
+
+@Schema({ _id: false })
 class QuotaAlertStateSchema {
   @Prop({ required: true })
   monthKey!: string;
@@ -54,6 +72,17 @@ export class StudioAccount {
     }),
   })
   preferences!: StudioAccountPreferencesSchema;
+
+  @Prop({
+    type: StudioOnboardingSchema,
+    default: () => ({
+      completed: false,
+      skipped: false,
+      completedSteps: [],
+      currentStep: 'welcome',
+    }),
+  })
+  onboarding!: StudioOnboardingSchema;
 
   @Prop()
   paddleCustomerId?: string;

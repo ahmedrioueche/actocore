@@ -9,10 +9,18 @@ export class StudioEmailService {
 
   constructor(private readonly config: ConfigService) {}
 
-  async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const verifyUrl = buildStudioAppUrl(this.cfg().studioAppUrl, '/auth/verify-email', {
+  isSmtpConfigured(): boolean {
+    return Boolean(this.cfg().smtpHost);
+  }
+
+  buildVerificationUrl(token: string): string {
+    return buildStudioAppUrl(this.cfg().studioAppUrl, '/auth/verify-email', {
       token,
     });
+  }
+
+  async sendVerificationEmail(email: string, token: string): Promise<void> {
+    const verifyUrl = this.buildVerificationUrl(token);
     await this.send(
       email,
       'Verify your ActoCore Studio email',

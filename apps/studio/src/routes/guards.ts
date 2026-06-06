@@ -1,7 +1,23 @@
 import { redirect } from '@tanstack/react-router';
-import { studioAuthApi, TokenManager } from '@ahmedrioueche/actocore-shared';
+import {
+  onboardingApi,
+  studioAuthApi,
+  TokenManager,
+} from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
+
+function isOnboardingPending(
+  state: {
+    required: boolean;
+    completed: boolean;
+    skipped: boolean;
+  } | undefined,
+): boolean {
+  return Boolean(
+    state?.required && !state.completed && !state.skipped,
+  );
+}
 
 export async function requireAuth(): Promise<void> {
   ensureApiConfigured();
@@ -28,6 +44,22 @@ export async function requireAuth(): Promise<void> {
 export function redirectIfAuthenticated(): void {
   ensureApiConfigured();
   if (TokenManager.getAccessToken()) {
+    throw redirect({ to: '/projects' });
+  }
+}
+
+export async function requireOnboardingComplete(): Promise<void> {
+  await requireAuth();
+  const res = await onboardingApi.getState();
+  if (res.success && isOnboardingPending(res.data)) {
+    throw redirect({ to: '/onboarding' });
+  }
+}
+
+export async function requireOnboardingPending(): Promise<void> {
+  await requireAuth();
+  const res = await onboardingApi.getState();
+  if (!res.success || !isOnboardingPending(res.data)) {
     throw redirect({ to: '/projects' });
   }
 }

@@ -41,6 +41,8 @@ import { StudioQuotaWebhookService } from './studio-quota-webhook.service';
 import { StudioAccountDeleteService } from './studio-account-delete.service';
 import { StudioAccountController } from './studio-account.controller';
 import { StudioAccountService } from './studio-account.service';
+import { StudioOnboardingController } from './studio-onboarding.controller';
+import { StudioOnboardingService } from './studio-onboarding.service';
 import { StudioAuthController } from './studio-auth.controller';
 import { StudioEmailService } from './studio-email.service';
 import { StudioAccessService } from './studio-access.service';
@@ -99,6 +101,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
   controllers: [
     StudioAuthController,
     StudioAccountController,
+    StudioOnboardingController,
     StudioPlatformController,
   ],
   providers: [
@@ -108,6 +111,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     },
     StudioAuthService,
     StudioAccountService,
+    StudioOnboardingService,
     StudioEmailService,
     StudioMembersService,
     StudioTeamAuditService,
@@ -127,6 +131,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioRoleGuard,
     StudioMembersService,
     StudioAccountService,
+    StudioOnboardingService,
     StudioEmailService,
     StudioQuotaWebhookService,
   ],

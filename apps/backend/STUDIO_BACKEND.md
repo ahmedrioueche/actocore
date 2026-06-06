@@ -46,6 +46,7 @@ SDK embed       →  project API key (unchanged)
 | Auth | signup, login (email or workspaceId+username), refresh, `GET/PATCH /web/auth/me`, Google OAuth |
 | Team | `GET/POST/PATCH/DELETE /web/auth/members` (user admin; seat usernames) |
 | Account | `GET/PATCH /web/account`, preferences |
+| Onboarding | `GET/PATCH /web/onboarding` — post-signup wizard state (user admin; editors skip) |
 | Projects | list (`?archived=`, `?search=`), create, `PATCH` rename/archive, `DELETE`; settings + sdk-config |
 | Projects | `GET .../usage/quota`; `GET .../sessions`, `GET .../sessions/:id/messages` (debug browser) |
 | API keys | issue/revoke; `GET .../api-keys`; `POST .../api-keys/rotate-all` |

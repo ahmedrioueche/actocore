@@ -38,6 +38,7 @@ import type { StudioAuthConfig } from '../config/studio-auth.config';
 import { StudioAuthException } from './exceptions/studio-auth.exception';
 import { ProjectsService } from '../projects/projects.service';
 import { StudioAccountDeleteService } from './studio-account-delete.service';
+import { getAppEnvironment } from '../config/mongodb.config';
 import { StudioEmailService } from './studio-email.service';
 import { generateNumericOtp, hashOtp, verifyOtp } from './utils/studio-otp.util';
 import { StudioAccount, StudioAccountDocument } from './schemas/studio-account.schema';
@@ -140,7 +141,15 @@ export class StudioAuthService {
       message: 'Check your email to verify your account before signing in.',
       email,
       defaultProjectId,
+      devVerificationUrl: this.maybeDevVerificationUrl(verificationToken),
     };
+  }
+
+  private maybeDevVerificationUrl(token: string): string | undefined {
+    if (getAppEnvironment() === 'production' || this.email.isSmtpConfigured()) {
+      return undefined;
+    }
+    return this.email.buildVerificationUrl(token);
   }
 
   async login(body: StudioLoginDto): Promise<StudioSessionData> {
@@ -319,7 +328,10 @@ export class StudioAuthService {
 
     await this.email.sendVerificationEmail(email, verificationToken);
 
-    return { message: 'Verification email sent.' };
+    return {
+      message: 'Verification email sent.',
+      devVerificationUrl: this.maybeDevVerificationUrl(verificationToken),
+    };
   }
 
   async forgotPassword(body: StudioForgotPasswordDto): Promise<StudioMessageData> {
