@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { chatApi } from '@ahmedrioueche/actocore-shared';
 import type {
   ChatIntent,
@@ -20,6 +21,8 @@ export interface UiChatMessage {
   intent?: ChatIntent;
   action?: ActionExecutionResult;
   sources?: QaSourceCitation[];
+  /** Assistant bubble shown when a request fails instead of blocking the chat UI. */
+  isErrorNotice?: boolean;
 }
 
 export interface UseActocoreChatOptions {
@@ -39,6 +42,8 @@ export interface UseActocoreChatResult {
   sendMessage: (content: string) => Promise<void>;
   clearError: () => void;
 }
+
+const SESSION_ERROR_ID = 'session-error';
 
 function asUiMessageFromHistory(msg: SessionMessageData): UiChatMessage | null {
   if (msg.role !== 'user' && msg.role !== 'assistant') return null;
@@ -61,6 +66,16 @@ function asUiMessageFromAssistant(assistant: ChatMessageData): UiChatMessage {
   };
 }
 
+function createAssistantErrorMessage(content: string): UiChatMessage {
+  return {
+    id: `error-${Date.now()}`,
+    role: 'assistant',
+    content,
+    intent: 'direct',
+    isErrorNotice: true,
+  };
+}
+
 export function useActocoreChat(
   options: UseActocoreChatOptions = {},
 ): UseActocoreChatResult {
@@ -72,6 +87,7 @@ export function useActocoreChat(
     onSessionId,
   } = options;
 
+  const { t } = useTranslation();
   const {
     sessionId,
     history,
@@ -87,12 +103,19 @@ export function useActocoreChat(
   const formatError = useApiErrorMessage();
   const [messages, setMessages] = useState<UiChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [hydratedSessionId, setHydratedSessionId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setError(sessionError);
-  }, [sessionError]);
+  const formatSendFailure = useCallback(
+    (error: unknown): string => {
+      const formatted = formatError(error);
+      const generic = t('errors.generic');
+      if (formatted === generic) {
+        return t('chat.sendFailed');
+      }
+      return formatted;
+    },
+    [formatError, t],
+  );
 
   const initialUiMessages = useMemo(() => {
     return history.map(asUiMessageFromHistory).filter(Boolean) as UiChatMessage[];
@@ -105,13 +128,24 @@ export function useActocoreChat(
       return;
     }
 
-    // Hydrate from backend history once per session to avoid clobbering
-    // local optimistic/live conversation state on subsequent re-renders.
     if (hydratedSessionId !== sessionId) {
       setMessages(initialUiMessages);
       setHydratedSessionId(sessionId);
     }
   }, [hydratedSessionId, initialUiMessages, sessionId]);
+
+  useEffect(() => {
+    if (!sessionError) {
+      setMessages((prev) => prev.filter((m) => m.id !== SESSION_ERROR_ID));
+      return;
+    }
+
+    const notice = createAssistantErrorMessage(formatSendFailure(sessionError));
+    setMessages((prev) => {
+      const withoutSessionError = prev.filter((m) => m.id !== SESSION_ERROR_ID);
+      return [...withoutSessionError, { ...notice, id: SESSION_ERROR_ID }];
+    });
+  }, [formatSendFailure, sessionError]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -119,7 +153,6 @@ export function useActocoreChat(
       if (!trimmed || isSending || !sessionId) return;
 
       setIsSending(true);
-      setError(null);
 
       const optimisticId = `local-${Date.now()}`;
       const optimisticUser: UiChatMessage = {
@@ -136,24 +169,27 @@ export function useActocoreChat(
         });
 
         if (!res.success || !res.data) {
-          setError(formatError(res));
-          setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+          setMessages((prev) => [
+            ...prev,
+            createAssistantErrorMessage(formatSendFailure(res)),
+          ]);
           return;
         }
 
         const assistant = asUiMessageFromAssistant(res.data);
-        // Core always returns sessionId inside ChatMessageData; we treat it as authoritative.
         onSessionId?.(res.data.sessionId);
 
         setMessages((prev) => [...prev, assistant]);
       } catch (e) {
-        setError(formatError(e));
-        setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+        setMessages((prev) => [
+          ...prev,
+          createAssistantErrorMessage(formatSendFailure(e)),
+        ]);
       } finally {
         setIsSending(false);
       }
     },
-    [formatError, isSending, onSessionId, sessionId],
+    [formatSendFailure, isSending, onSessionId, sessionId],
   );
 
   return {
@@ -161,9 +197,8 @@ export function useActocoreChat(
     messages,
     isInitializing,
     isSending,
-    error,
+    error: null,
     sendMessage,
-    clearError: () => setError(null),
+    clearError: () => undefined,
   };
 }
-

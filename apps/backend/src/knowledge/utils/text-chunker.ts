@@ -1,3 +1,5 @@
+import { normalizeKnowledgeText } from './normalize-knowledge-text';
+
 export interface TextChunk {
   index: number;
   content: string;
@@ -9,7 +11,7 @@ export function chunkText(
 ): TextChunk[] {
   const maxChars = options?.maxChars ?? 800;
   const overlap = options?.overlap ?? 100;
-  const normalized = text.replace(/\r\n/g, '\n').trim();
+  const normalized = normalizeKnowledgeText(text);
 
   if (!normalized) {
     return [];

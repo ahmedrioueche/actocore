@@ -1,11 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { useActocoreChat } from '../../hooks/use-actocore-chat';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
 import { MessageList } from './MessageList';
 import { Composer } from './Composer';
 import { ChatEmpty } from './ChatEmpty';
-import { ChatError } from './ChatError';
 import { ChatLoading } from './ChatLoading';
 import { ChatHeader } from './ChatHeader';
 
@@ -15,6 +14,8 @@ export interface ActoChatProps {
   metadata?: Record<string, unknown>;
   loadHistory?: boolean;
   className?: string;
+  /** Custom header/launcher icon — overrides `ui.launcher.iconUrl`. */
+  launcherIcon?: ReactNode;
 }
 
 export function ActoChat({
@@ -23,6 +24,7 @@ export function ActoChat({
   metadata,
   loadHistory,
   className,
+  launcherIcon,
 }: ActoChatProps) {
   const ui = useActocoreUiConfig();
 
@@ -31,7 +33,6 @@ export function ActoChat({
     sessionId: resolvedSessionId,
     isInitializing,
     isSending,
-    error,
     sendMessage,
   } = useActocoreChat({
     sessionId,
@@ -47,17 +48,15 @@ export function ActoChat({
     [sendMessage],
   );
 
-  const showEmpty = !error && messages.length === 0;
+  const showEmpty = messages.length === 0;
 
   return (
     <div className={mergeClassNames('ac-chat', ui.classNames?.chat, className)}>
-      <ChatHeader />
+      <ChatHeader launcherIcon={launcherIcon} />
 
       <div className={mergeClassNames('ac-chat__body', 'ac-scrollbar')}>
         {isInitializing ? (
           <ChatLoading />
-        ) : error ? (
-          <ChatError message={error} />
         ) : showEmpty ? (
           <ChatEmpty />
         ) : (

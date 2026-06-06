@@ -90,6 +90,32 @@ describe('SDK project config (e2e)', () => {
       .expect(400);
   });
 
+  it('accepts branding PATCH with empty launcher fields omitted', async () => {
+    const server = app.getHttpServer();
+
+    const patched = await request(server)
+      .patch(`/v1/web/projects/${projectId}/sdk-config`)
+      .send({
+        theme: {
+          mode: 'light',
+          tokens: { 'color-primary': '#4f46e5' },
+        },
+        ui: {
+          showSources: true,
+          showIntentBadge: false,
+          showActionsHint: true,
+          showActionPicker: false,
+          composerMinRows: 1,
+          composerMaxRows: 6,
+          text: {},
+          launcher: {},
+        },
+      })
+      .expect(200);
+
+    expect(patched.body.data.theme.tokens['color-primary']).toBe('#4f46e5');
+  });
+
   it('filters orchestrator actions by dashboard allowlist', async () => {
     const server = app.getHttpServer();
     const auth = { Authorization: `Bearer ${apiKey}` };

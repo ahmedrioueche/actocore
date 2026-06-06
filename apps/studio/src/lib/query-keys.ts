@@ -48,4 +48,7 @@ export const queryKeys = {
   actionSections: {
     list: (projectId: string) => ["actionSections", "list", projectId] as const,
   },
+  sdkConfig: {
+    detail: (projectId: string) => ["sdkConfig", "detail", projectId] as const,
+  },
 } as const;

@@ -91,7 +91,7 @@ export function ActoChatWidget({
             )}
             aria-hidden={!isOpen}
           >
-            <ActoChat />
+            <ActoChat launcherIcon={launcherIcon} />
           </div>
         ) : null}
 

@@ -55,5 +55,28 @@ describe('ActoChat', () => {
 
     expect(screen.getByPlaceholderText('Écrivez un message…')).toBeTruthy();
   });
+
+  it('uses launcher icon URL in the chat header', () => {
+    render(
+      <ActocoreProvider
+        apiKey="sdk-key"
+        i18n={{ locale: 'en' }}
+        ui={{
+          launcher: {
+            iconUrl: 'https://cdn.example.com/brand.svg',
+          },
+        }}
+      >
+        <ActoChat />
+      </ActocoreProvider>,
+    );
+
+    const headerIcon = document.querySelector('.ac-chat__header-icon img');
+    expect(headerIcon).toBeTruthy();
+    expect(headerIcon).toHaveAttribute(
+      'src',
+      'https://cdn.example.com/brand.svg',
+    );
+  });
 });
 

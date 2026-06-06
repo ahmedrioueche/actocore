@@ -1,4 +1,5 @@
 import type { ActocoreSdkConfig, ResolvedActocoreConfig } from './types';
+import { SDK_VOICE_DEFAULTS } from './sdk-defaults';
 
 export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig {
   return {
@@ -36,10 +37,11 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
       translations: config.i18n?.translations,
     },
     voice: {
-      input: config.voice?.input ?? false,
-      output: config.voice?.output ?? false,
-      inputMode: config.voice?.inputMode ?? 'auto',
-      autoSendOnFinalize: config.voice?.autoSendOnFinalize ?? false,
+      input: config.voice?.input ?? SDK_VOICE_DEFAULTS.input,
+      output: config.voice?.output ?? SDK_VOICE_DEFAULTS.output,
+      inputMode: config.voice?.inputMode ?? SDK_VOICE_DEFAULTS.inputMode,
+      autoSendOnFinalize:
+        config.voice?.autoSendOnFinalize ?? SDK_VOICE_DEFAULTS.autoSendOnFinalize,
       language: config.voice?.language,
     },
   };

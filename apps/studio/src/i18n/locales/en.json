@@ -11,6 +11,7 @@
     "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Try again",
+    "dismiss": "Dismiss",
     "goBack": "Go back",
     "continue": "Continue",
     "viewMode": {
@@ -467,6 +468,104 @@
       "errors": {
         "nameRequired": "Please enter a section name."
       }
+    }
+  },
+  "sdkConfig": {
+    "title": "SDK config",
+    "save": "Save changes",
+    "saved": "SDK settings saved.",
+    "readOnly": "You can view SDK settings but do not have permission to change them.",
+    "readOnlyTitle": "View only",
+    "loadRemoteConfigTip": {
+      "title": "Apply settings in your app",
+      "body": "Saved settings are loaded by the embedded SDK when the host app enables loadRemoteConfig on ActocoreProvider. Props you pass in code still override these dashboard values.",
+      "codeExample": "<ActocoreProvider\n  apiKey={apiKey}\n  loadRemoteConfig\n  actions={{ ... }}\n>"
+    },
+    "sections": {
+      "appearance": {
+        "title": "Appearance",
+        "description": "Theme mode, brand colors, and typography for the embedded chat widget."
+      },
+      "chatUi": {
+        "title": "Chat UI",
+        "description": "Control what appears in the chat experience."
+      },
+      "copyLauncher": {
+        "title": "Copy & launcher",
+        "description": "Customize labels and the floating launcher button."
+      }
+    },
+    "fields": {
+      "themeMode": "Theme mode",
+      "themeModeHint": "Applies when the host app uses loadRemoteConfig or merges dashboard settings.",
+      "themeModeDefault": "Default: {{mode}}.",
+      "defaultPlaceholder": "Default: {{value}}",
+      "defaultOn": "Default: on",
+      "defaultOff": "Default: off",
+      "leaveBlankHint": "Leave blank to use the SDK default shown as the placeholder.",
+      "copyLauncherHint": "Pre-filled with SDK defaults. Only customized values are saved to your project config.",
+      "colorsGroup": "Brand colors",
+      "colorPaletteTabs": "Color palette",
+      "colorPalettes": {
+        "light": "Light palette",
+        "dark": "Dark palette"
+      },
+      "themeColorsSystemHint": "Configure separate palettes for light and dark. The SDK picks the right set from theme mode (including system preference).",
+      "themeColorsModeHint": "Editing the {{mode}} palette. Switch tabs to customize the other appearance.",
+      "themeColorsHint": "Leave blank to use SDK defaults for that palette. Pick a swatch or enter a hex code (#RGB or #RRGGBB).",
+      "themeColors": {
+        "color-primary": "Primary",
+        "color-primary-contrast": "Primary text",
+        "color-bg": "Background",
+        "color-text": "Text",
+        "color-text-muted": "Muted text",
+        "color-border": "Border",
+        "color-user-bubble": "User bubble",
+        "color-user-bubble-text": "User bubble text",
+        "color-assistant-bubble": "Assistant bubble",
+        "color-assistant-bubble-text": "Assistant bubble text"
+      },
+      "fontFamily": "Font",
+      "fontFamilyHint": "Applied to the chat widget via the font-family design token.",
+      "fontFamilyDefault": "Default: system font stack.",
+      "fontFamilyCustom": "Custom font stack",
+      "fontFamilyCustomPlaceholder": "e.g. 'DM Sans', system-ui, sans-serif",
+      "fontPresets": {
+        "systemDefault": "System default",
+        "inter": "Inter",
+        "roboto": "Roboto",
+        "openSans": "Open Sans",
+        "georgia": "Georgia (serif)",
+        "monospace": "Monospace",
+        "custom": "Custom…"
+      },
+      "showSources": "Show knowledge sources",
+      "showIntentBadge": "Show intent badge",
+      "showActionsHint": "Show actions hint",
+      "showActionPicker": "Show action picker",
+      "composerMinRows": "Composer minimum rows",
+      "composerMaxRows": "Composer maximum rows",
+      "composerRowsHint": "Each row must be between 1 and 12. Minimum cannot exceed maximum. SDK defaults: 1 minimum, 6 maximum.",
+      "headerTitle": "Header title",
+      "headerSubtitle": "Header subtitle",
+      "emptyTitle": "Empty state title",
+      "emptyDescription": "Empty state description",
+      "actionsHint": "Actions hint",
+      "placeholder": "Message placeholder",
+      "send": "Send button label",
+      "open": "Open launcher label",
+      "launcherGroup": "Launcher",
+      "launcherIconUrl": "Launcher icon URL",
+      "launcherIconUrlDefault": "Default: built-in icon (leave empty)",
+      "launcherAriaLabel": "Launcher aria label"
+    },
+    "errors": {
+      "composerRowsInvalid": "Composer rows must be whole numbers between 1 and 12.",
+      "composerRowsOrder": "Minimum composer rows cannot be greater than maximum.",
+      "launcherIconUrlInvalid": "Launcher icon URL must be a valid http or https URL.",
+      "fieldTooLong": "One or more fields exceed the maximum length.",
+      "invalidHexColor": "Each color must be a valid hex code (#RGB or #RRGGBB) or left empty.",
+      "fontFamilyTooLong": "Font stack is too long (max 200 characters)."
     }
   },
   "nav": {

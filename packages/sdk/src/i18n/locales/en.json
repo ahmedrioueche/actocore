@@ -11,6 +11,7 @@
     "actionsHint": "Ask in plain language — the assistant prepares actions and you confirm once; your app runs the real UI.",
     "loading": "Loading conversation…",
     "thinking": "Thinking…",
+    "sendFailed": "I couldn't respond right now. Please try again in a moment.",
     "open": "Open chat",
     "close": "Close chat"
   },
@@ -37,7 +38,8 @@
     "retry": "Try again",
     "errorTitle": "Could not run {{name}}",
     "errorHintNl": "Describe what you need in your next message (include details like email), then confirm when the assistant is ready.",
-    "pickerOpen": "Action prompt shortcuts",
+    "pickerOpen": "Action shortcuts",
+    "pickerLabel": "Actions",
     "pickerTitle": "What do you want to do?",
     "pickerHint": "Inserts a starter phrase — finish the sentence, send, then confirm the action in your app."
   },
@@ -53,20 +55,20 @@
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
-    "INTERNAL_ERROR": "A server error occurred.",
-    "VALIDATION_ERROR": "The request was invalid.",
-    "NOT_FOUND": "The requested resource was not found.",
-    "UNAUTHORIZED": "You are not authorized.",
-    "FORBIDDEN": "Access was denied.",
-    "CONFLICT": "A conflict occurred.",
-    "SERVICE_UNAVAILABLE": "The service is temporarily unavailable.",
-    "API_KEY_MISSING": "API key is missing.",
-    "API_KEY_INVALID": "API key is invalid.",
-    "API_KEY_REVOKED": "API key was revoked.",
-    "TOO_MANY_REQUESTS": "Too many requests. Please wait and try again.",
+    "INTERNAL_ERROR": "I couldn't respond right now. Please try again in a moment.",
+    "VALIDATION_ERROR": "Something didn't look right. Check your message and try again.",
+    "NOT_FOUND": "We couldn't find what you were looking for.",
+    "UNAUTHORIZED": "This chat session couldn't be verified.",
+    "FORBIDDEN": "You don't have permission to do that.",
+    "CONFLICT": "Something changed while we were processing that. Please try again.",
+    "SERVICE_UNAVAILABLE": "The assistant is temporarily unavailable. Please try again soon.",
+    "API_KEY_MISSING": "Chat isn't configured yet. Contact the app administrator.",
+    "API_KEY_INVALID": "Chat isn't configured correctly. Contact the app administrator.",
+    "API_KEY_REVOKED": "Chat access was revoked. Contact the app administrator.",
+    "TOO_MANY_REQUESTS": "Too many messages in a short time. Please wait a moment and try again.",
     "QUOTA_EXCEEDED": "This assistant is temporarily unavailable. Please try again later.",
-    "BAD_GATEWAY": "Could not reach the AI provider.",
-    "GATEWAY_TIMEOUT": "The request timed out.",
-    "UNKNOWN_ERROR": "An unknown error occurred."
+    "BAD_GATEWAY": "I couldn't respond right now. Please try again in a moment.",
+    "GATEWAY_TIMEOUT": "That took too long. Please try again in a moment.",
+    "UNKNOWN_ERROR": "Something went wrong. Please try again."
   }
 }

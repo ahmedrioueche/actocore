@@ -19,6 +19,7 @@ import ProjectOverviewPage from '@/pages/projects/ProjectOverviewPage';
 import ProjectActionsPage from '@/pages/projects/ProjectActionsPage';
 import ProjectApiKeysPage from '@/pages/projects/ProjectApiKeysPage';
 import ProjectKnowledgePage from '@/pages/projects/ProjectKnowledgePage';
+import ProjectSdkConfigPage from '@/pages/projects/ProjectSdkConfigPage';
 import ProjectSectionPage from '@/pages/projects/ProjectSectionPage';
 import ProjectsPage from '@/pages/projects/ProjectsPage';
 import SettingsPage from '@/pages/settings/SettingsPage';
@@ -137,7 +138,7 @@ const projectSdkConfigRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: '/projects/$projectId/sdk-config',
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
-  component: () => <ProjectSectionPage section="sdk-config" />,
+  component: ProjectSdkConfigPage,
 });
 
 const projectApiKeysRoute = createRoute({

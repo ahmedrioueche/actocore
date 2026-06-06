@@ -9,7 +9,11 @@ function parseOrigins(value: string | undefined, fallback: string[]): string[] {
 }
 
 export function resolveHttpConfig() {
-  const devOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+  const devOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://localhost:5174',
+  ];
 
   return {
     bodyLimitSdk: process.env.HTTP_BODY_LIMIT_SDK?.trim() ?? '2mb',

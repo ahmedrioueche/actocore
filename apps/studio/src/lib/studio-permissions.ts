@@ -49,3 +49,9 @@ export function canWriteActions(
 ): boolean {
   return canAccessNavItem(session, StudioPermission.ACTIONS_WRITE);
 }
+
+export function canWriteSdkConfig(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return canAccessNavItem(session, StudioPermission.SDK_CONFIG_WRITE);
+}

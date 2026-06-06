@@ -3,6 +3,8 @@ interface ToggleSwitchProps {
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   label?: string;
+  /** Secondary hint shown under the label (e.g. default value). */
+  description?: string;
   /** Accessible label when no visible text label is rendered. */
   ariaLabel?: string;
 }
@@ -12,6 +14,7 @@ export default function ToggleSwitch({
   onChange,
   disabled = false,
   label,
+  description,
   ariaLabel,
 }: ToggleSwitchProps) {
   const button = (
@@ -39,9 +42,16 @@ export default function ToggleSwitch({
   }
 
   return (
-    <label className="flex items-center gap-3">
-      {button}
-      <span className="text-sm font-medium text-text-primary">{label}</span>
+    <label className="flex items-start gap-3">
+      <span className="mt-0.5 shrink-0">{button}</span>
+      <span className="min-w-0">
+        <span className="block text-sm font-medium text-text-primary">{label}</span>
+        {description ? (
+          <span className="mt-0.5 block text-xs text-text-secondary">
+            {description}
+          </span>
+        ) : null}
+      </span>
     </label>
   );
 }

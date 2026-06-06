@@ -1,5 +1,9 @@
-import { useEffect, useMemo, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { useActocoreConfig } from '../context/actocore-context';
+import {
+  resolveEffectiveThemeMode,
+  resolveThemeTokensForMode,
+} from './resolve-theme-tokens';
 
 function tokensToStyle(tokens: Record<string, string> | undefined): CSSProperties {
   if (!tokens) {
@@ -13,6 +17,25 @@ function tokensToStyle(tokens: Record<string, string> | undefined): CSSPropertie
   return style as CSSProperties;
 }
 
+function usePrefersDark(): boolean {
+  const [prefersDark, setPrefersDark] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => setPrefersDark(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
+  return prefersDark;
+}
+
 export function ActocoreThemeRoot({
   children,
   className,
@@ -21,7 +44,13 @@ export function ActocoreThemeRoot({
   className?: string;
 }) {
   const { theme } = useActocoreConfig();
-  const style = useMemo(() => tokensToStyle(theme.tokens), [theme.tokens]);
+  const prefersDark = usePrefersDark();
+  const effectiveMode = resolveEffectiveThemeMode(theme.mode, prefersDark);
+  const activeTokens = useMemo(
+    () => resolveThemeTokensForMode(theme.tokens, effectiveMode),
+    [theme.tokens, effectiveMode],
+  );
+  const style = useMemo(() => tokensToStyle(activeTokens), [activeTokens]);
   const mode =
     theme.mode === 'system'
       ? undefined

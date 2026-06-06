@@ -6,6 +6,7 @@ import { SourceCitations } from './SourceCitations';
 import { ActionPendingCard } from './ActionPendingCard';
 import { ActionErrorCard } from './ActionErrorCard';
 import { ListenButton } from './ListenButton';
+import { ChatMessageContent } from './ChatMessageContent';
 
 export function MessageBubble({
   message,
@@ -33,10 +34,11 @@ export function MessageBubble({
         className={mergeClassNames(
           'ac-chat__bubble',
           isUser ? 'ac-chat__bubble--user' : 'ac-chat__bubble--assistant',
+          message.isErrorNotice && 'ac-chat__bubble--error-notice',
           isUser ? ui.classNames?.userBubble : ui.classNames?.assistantBubble,
         )}
       >
-        {showIntentBadge && message.intent ? (
+        {showIntentBadge && message.intent && !message.isErrorNotice ? (
           <span className="ac-chat__intent">{t(`intent.${message.intent}`)}</span>
         ) : null}
 
@@ -46,8 +48,18 @@ export function MessageBubble({
           (message.action.validationIssues?.length ?? 0) > 0
         ) ? (
           <>
-            <div className="ac-chat__bubble-text">{message.content}</div>
-            {!isUser && message.content ? (
+            <div
+              className={mergeClassNames(
+                'ac-chat__bubble-text',
+                !isUser && 'ac-chat__bubble-text--markdown',
+              )}
+            >
+              <ChatMessageContent
+                content={message.content}
+                markdown={!isUser}
+              />
+            </div>
+            {!isUser && message.content && !message.isErrorNotice ? (
               <div className="ac-chat__bubble-footer">
                 <ListenButton text={message.content} />
               </div>

@@ -11,6 +11,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import type { SdkThemeMode, SdkVoiceInputMode } from '../types/sdk-config';
@@ -71,7 +72,10 @@ export class SdkUiTextOverridesDto {
 }
 
 export class SdkLauncherConfigDto {
-  @IsOptional() @IsUrl() iconUrl?: string;
+  @IsOptional()
+  @ValidateIf((_, value) => value !== '' && value != null)
+  @IsUrl()
+  iconUrl?: string;
   @IsOptional() @IsString() @MaxLength(120) ariaLabel?: string;
 }
 

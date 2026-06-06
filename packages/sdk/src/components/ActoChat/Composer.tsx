@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAutoResizeTextarea } from '../../hooks/use-auto-resize-textarea';
 import { useUiText } from '../../hooks/use-ui-text';
@@ -24,9 +24,27 @@ export function Composer({
   const placeholder = useUiText('placeholder');
   const sendLabel = useUiText('send');
   const [value, setValue] = useState('');
+  const [isMultiline, setIsMultiline] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useAutoResizeTextarea(inputRef, value, minRows, maxRows);
+
+  useLayoutEffect(() => {
+    const element = inputRef.current;
+    if (!element) return;
+
+    const styles = getComputedStyle(element);
+    const fontSize = parseFloat(styles.fontSize) || 16;
+    const lineHeightRaw = styles.lineHeight;
+    const lineHeight = lineHeightRaw.endsWith('px')
+      ? parseFloat(lineHeightRaw)
+      : fontSize * (parseFloat(lineHeightRaw) || 1.5);
+    const paddingY =
+      parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+    const singleRowHeight = lineHeight * minRows + paddingY;
+
+    setIsMultiline(element.offsetHeight > singleRowHeight + 1);
+  }, [value, minRows, maxRows]);
 
   const trimmed = useMemo(() => value.trim(), [value]);
   const disabled = isSending || trimmed.length === 0;
@@ -43,52 +61,48 @@ export function Composer({
     <div
       className={mergeClassNames('ac-chat__composer', ui.classNames?.composer)}
     >
-      <div className="ac-chat__composer-row">
-        <ActionPicker
-          onInsertPrompt={setValue}
-          disabled={isSending}
+      <div
+        className={mergeClassNames(
+          'ac-chat__composer-inner',
+          isMultiline && 'ac-chat__composer-inner--multiline',
+          ui.classNames?.composerField,
+        )}
+      >
+        <ActionPicker onInsertPrompt={setValue} disabled={isSending} />
+        <textarea
+          ref={inputRef}
+          className="ac-chat__input ac-scrollbar"
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => setValue(e.target.value)}
+          rows={1}
+          aria-label={placeholder}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter') return;
+            if (e.shiftKey) return;
+            e.preventDefault();
+            void submit();
+          }}
         />
-        <div
-          className={mergeClassNames(
-            'ac-chat__composer-inner',
-            ui.classNames?.composerField,
-          )}
-        >
-          <textarea
-            ref={inputRef}
-            className="ac-chat__input ac-scrollbar"
+        <div className="ac-chat__composer-actions">
+          <VoiceInputButton
             value={value}
-            placeholder={placeholder}
-            onChange={(e) => setValue(e.target.value)}
-            rows={1}
-            aria-label={placeholder}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return;
-              if (e.shiftKey) return;
-              e.preventDefault();
-              void submit();
-            }}
+            onValueChange={setValue}
+            disabled={isSending}
           />
-          <div className="ac-chat__composer-actions">
-            <VoiceInputButton
-              value={value}
-              onValueChange={setValue}
-              disabled={isSending}
-            />
-            <button
-              type="button"
-              className={mergeClassNames(
-                'ac-chat__send',
-                ui.classNames?.sendButton,
-              )}
-              onClick={() => void submit()}
-              disabled={disabled}
-              aria-label={sendLabel}
-              title={isSending ? t('chat.sending') : sendLabel}
-            >
-              {isSending ? <IconSpinner /> : <IconSend />}
-            </button>
-          </div>
+          <button
+            type="button"
+            className={mergeClassNames(
+              'ac-chat__send',
+              ui.classNames?.sendButton,
+            )}
+            onClick={() => void submit()}
+            disabled={disabled}
+            aria-label={sendLabel}
+            title={isSending ? t('chat.sending') : sendLabel}
+          >
+            {isSending ? <IconSpinner /> : <IconSend />}
+          </button>
         </div>
       </div>
     </div>

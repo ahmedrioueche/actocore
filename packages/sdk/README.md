@@ -73,7 +73,7 @@ export function App() {
 - `ui.text` — override header, empty state, placeholder, etc. without forking components.
 - `ui.launcher.iconUrl` — custom launcher image; default is built-in chat bubble SVG.
 - `i18n.translations` — full locale overrides (alternative to `ui.text`).
-- `voice.input` / `voice.output` — microphone dictation and read-aloud on assistant messages.
+- `voice.input` / `voice.output` — microphone dictation and read-aloud on assistant messages (default **on**; set `false` to hide).
 - `voice.inputMode` — `browser` (Web Speech API), `server` (POST audio to Core STT), or `auto` (default).
 - `voice.autoSendOnFinalize` — send when dictation completes (default `false`; user taps Send).
 - `loadRemoteConfig` — fetch `GET /v1/sdk/runtime` and merge `sdk` settings (dashboard) under local props.
@@ -158,7 +158,7 @@ Server transcription requires `VOICE_STT_PROVIDER=openai` and `OPENAI_API_KEY` o
 </ActocoreProvider>
 ```
 
-Priority for launcher icon: `launcherIcon` prop → `ui.launcher.iconUrl` → default SVG.
+Priority for launcher/header icon: `launcherIcon` prop → `ui.launcher.iconUrl` → default SVG (same image in the floating launcher and chat header).
 
 ## i18n rule
 

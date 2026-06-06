@@ -14,6 +14,7 @@ import {
 } from '@/lib/auth-session';
 import { queryClient } from '@/lib/query-client';
 import Modals from '@/modals/Modals';
+import Toaster from '@/components/ui/Toaster';
 import LoadingPage from '@/pages/system/LoadingPage';
 import { prefetchOnboardingState } from '@/routes/guards';
 import { router } from '@/routes/router';
@@ -57,6 +58,7 @@ export function AppProviders() {
             <ErrorBoundary>
               <StudioRouter />
               <Modals />
+              <Toaster />
             </ErrorBoundary>
           </AuthProvider>
         </QueryClientProvider>

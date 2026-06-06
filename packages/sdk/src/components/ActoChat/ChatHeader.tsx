@@ -1,12 +1,19 @@
 import { useUiText } from '../../hooks/use-ui-text';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
-import { DefaultLauncherIcon } from './DefaultLauncherIcon';
+import { LauncherIcon } from './LauncherIcon';
+import type { ReactNode } from 'react';
 
-export function ChatHeader() {
+export function ChatHeader({
+  launcherIcon,
+}: {
+  /** Same override as `ActoChatWidget` launcherIcon — wins over `ui.launcher.iconUrl`. */
+  launcherIcon?: ReactNode;
+}) {
   const ui = useActocoreUiConfig();
   const title = useUiText('headerTitle');
   const subtitle = useUiText('headerSubtitle');
+  const customImage = Boolean(launcherIcon || ui.launcher?.iconUrl);
 
   return (
     <header
@@ -15,11 +22,12 @@ export function ChatHeader() {
       <div
         className={mergeClassNames(
           'ac-chat__header-icon',
+          customImage && 'ac-chat__header-icon--image',
           ui.classNames?.headerIcon,
         )}
         aria-hidden
       >
-        <DefaultLauncherIcon />
+        <LauncherIcon customIcon={launcherIcon} size="header" />
       </div>
       <div className="ac-chat__header-text">
         <h2 className="ac-chat__header-title">{title}</h2>

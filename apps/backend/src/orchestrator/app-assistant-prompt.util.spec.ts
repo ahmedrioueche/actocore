@@ -16,6 +16,7 @@ describe('buildAppAssistantSystemPrompt', () => {
     expect(prompt).toContain('Do NOT answer off-topic');
     expect(prompt).toContain('delete_user');
     expect(prompt).toContain('Never pretend');
+    expect(prompt).toContain('**Gym Management**');
   });
 
   it('appends custom project instructions', () => {

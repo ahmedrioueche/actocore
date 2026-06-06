@@ -11,6 +11,10 @@ import {
   KnowledgeChunk,
   KnowledgeChunkDocument,
 } from './schemas/knowledge-chunk.schema';
+import {
+  normalizeKnowledgeText,
+  truncateKnowledgeExcerpt,
+} from './utils/normalize-knowledge-text';
 import { cosineSimilarity } from './utils/vector-math';
 
 export interface RagRetrievalResult {
@@ -19,7 +23,10 @@ export interface RagRetrievalResult {
 }
 
 const DEFAULT_TOP_K = 4;
-const MIN_SCORE = 0.05;
+const MAX_CITATIONS = 2;
+const MIN_SCORE = 0.12;
+const MIN_RELATIVE_TO_TOP = 0.55;
+const EXCERPT_MAX_CHARS = 360;
 
 @Injectable()
 export class RagRetrievalService {
@@ -54,18 +61,29 @@ export class RagRetrievalService {
       .sort((a, b) => b.score - a.score)
       .slice(0, topK);
 
-    const citations: QaSourceCitation[] = ranked.map(({ chunk, score }) => ({
-      sourceId: chunk.sourceId.toString(),
-      sourceTitle: chunk.sourceTitle,
-      chunkIndex: chunk.chunkIndex,
-      excerpt: truncate(chunk.content, 240),
-      score: Number(score.toFixed(4)),
-    }));
+    if (ranked.length === 0) {
+      return { contextBlock: '', citations: [] };
+    }
+
+    const topScore = ranked[0].score;
+    const citationCandidates = ranked.filter(
+      ({ score }) => score >= topScore * MIN_RELATIVE_TO_TOP,
+    );
+
+    const citations = dedupeCitationsBySource(
+      citationCandidates.map(({ chunk, score }) => ({
+        sourceId: chunk.sourceId.toString(),
+        sourceTitle: chunk.sourceTitle,
+        chunkIndex: chunk.chunkIndex,
+        excerpt: truncateKnowledgeExcerpt(chunk.content, EXCERPT_MAX_CHARS),
+        score: Number(score.toFixed(4)),
+      })),
+    ).slice(0, MAX_CITATIONS);
 
     const contextBlock = ranked
       .map(
         ({ chunk }, i) =>
-          `[${i + 1}] ${chunk.sourceTitle} (chunk ${chunk.chunkIndex})\n${chunk.content}`,
+          `[${i + 1}] ${chunk.sourceTitle} (chunk ${chunk.chunkIndex})\n${normalizeKnowledgeText(chunk.content)}`,
       )
       .join('\n\n');
 
@@ -73,9 +91,17 @@ export class RagRetrievalService {
   }
 }
 
-function truncate(text: string, max: number): string {
-  if (text.length <= max) {
-    return text;
+function dedupeCitationsBySource(
+  citations: QaSourceCitation[],
+): QaSourceCitation[] {
+  const bySource = new Map<string, QaSourceCitation>();
+
+  for (const citation of citations) {
+    const existing = bySource.get(citation.sourceId);
+    if (!existing || citation.score > existing.score) {
+      bySource.set(citation.sourceId, citation);
+    }
   }
-  return `${text.slice(0, max - 1)}…`;
+
+  return [...bySource.values()].sort((a, b) => b.score - a.score);
 }

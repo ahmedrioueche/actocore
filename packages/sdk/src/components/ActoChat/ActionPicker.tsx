@@ -12,6 +12,7 @@ import {
   formatActionShortcutLabel,
   getActionPromptStarter,
 } from '../../utils/action-prompt-starters';
+import { IconChevronRight, IconPlus, IconX } from '../icons/ChatIcons';
 
 export function ActionPicker({
   onInsertPrompt,
@@ -64,7 +65,7 @@ export function ActionPicker({
   };
 
   return (
-    <div ref={rootRef} className="ac-action-picker">
+    <div ref={rootRef} className="ac-action-picker ac-action-picker--composer">
       <button
         type="button"
         className={mergeClassNames(
@@ -78,7 +79,7 @@ export function ActionPicker({
         aria-label={t('action.pickerOpen')}
         title={t('action.pickerOpen')}
       >
-        <span aria-hidden>⚡</span>
+        <IconPlus className="ac-action-picker__toggle-icon" />
       </button>
 
       {open ? (
@@ -87,10 +88,22 @@ export function ActionPicker({
           role="dialog"
           aria-label={t('action.pickerTitle')}
         >
-          <div className="ac-action-picker__panel-title">
-            {t('action.pickerTitle')}
+          <div className="ac-action-picker__panel-header">
+            <div className="ac-action-picker__panel-heading">
+              <p className="ac-action-picker__panel-title">
+                {t('action.pickerTitle')}
+              </p>
+              <p className="ac-action-picker__desc">{t('action.pickerHint')}</p>
+            </div>
+            <button
+              type="button"
+              className="ac-action-picker__close"
+              onClick={() => setOpen(false)}
+              aria-label={t('chat.close')}
+            >
+              <IconX />
+            </button>
           </div>
-          <p className="ac-action-picker__desc">{t('action.pickerHint')}</p>
           <ul className="ac-action-picker__list">
             {shortcuts.map((item) => (
               <li key={item.name}>
@@ -99,12 +112,17 @@ export function ActionPicker({
                   className="ac-action-picker__item"
                   onClick={() => pick(item.starter)}
                 >
-                  <span className="ac-action-picker__item-name">{item.label}</span>
-                  {item.description ? (
-                    <span className="ac-action-picker__item-desc">
-                      {item.description}
+                  <span className="ac-action-picker__item-body">
+                    <span className="ac-action-picker__item-name">
+                      {item.label}
                     </span>
-                  ) : null}
+                    {item.description ? (
+                      <span className="ac-action-picker__item-desc">
+                        {item.description}
+                      </span>
+                    ) : null}
+                  </span>
+                  <IconChevronRight className="ac-action-picker__item-chevron" />
                 </button>
               </li>
             ))}
