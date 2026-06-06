@@ -92,9 +92,16 @@ export class StudioBillingController {
 
   @Get('payments')
   @RequireStudioPermission(StudioPermission.BILLING_READ)
-  async listPayments(@StudioCtx() ctx: StudioRequestContext) {
+  async listPayments(
+    @StudioCtx() ctx: StudioRequestContext,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
     return apiSuccess(
-      await this.subscriptions.listPaymentHistory(ctx.accountId),
+      await this.subscriptions.listPaymentHistoryPaginated(ctx.accountId, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
     );
   }
 

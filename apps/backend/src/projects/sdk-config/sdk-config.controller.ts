@@ -51,6 +51,7 @@ export class SdkConfigController {
   async listAudit(
     @StudioCtx('optional') ctx: StudioRequestContext | null,
     @Param('projectId') projectId: string,
+    @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
     await assertStudioProjectRoute(
@@ -59,12 +60,11 @@ export class SdkConfigController {
       this.studioAccess,
       this.projects,
     );
-    const parsed = limit ? parseInt(limit, 10) : 50;
     return apiSuccess(
-      await this.sdkConfig.listAudit(
-        projectId,
-        Number.isFinite(parsed) ? parsed : 50,
-      ),
+      await this.sdkConfig.listAuditPaginated(projectId, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
     );
   }
 

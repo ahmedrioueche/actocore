@@ -7,9 +7,11 @@ import { queryKeys } from '@/lib/query-keys';
 
 export function useProjectsList(query: ListProjectsQuery = { archived: false }) {
   ensureApiConfigured();
+  const effectiveQuery: ListProjectsQuery = { limit: 100, ...query };
   return useQuery({
-    queryKey: queryKeys.projects.list(query),
-    queryFn: async () => parseApiResponse(await projectsApi.list(query)),
+    queryKey: queryKeys.projects.list(effectiveQuery),
+    queryFn: async () =>
+      parseApiResponse(await projectsApi.list(effectiveQuery)).items,
   });
 }
 

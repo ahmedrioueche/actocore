@@ -66,7 +66,7 @@ describe('Actions (e2e)', () => {
       .get(`/v1/web/projects/${projectId}/actions`)
       .expect(200)
       .expect((res) => {
-        expect(res.body.data).toHaveLength(1);
+        expect(res.body.data.items).toHaveLength(1);
       });
 
     await request(server)

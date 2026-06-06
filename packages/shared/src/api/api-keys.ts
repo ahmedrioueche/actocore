@@ -2,16 +2,26 @@ import { apiPath } from '../config/api-version';
 import { CreateApiKeyDto, UpdateApiKeyDto } from '../dtos/api-key.dto';
 import type { ApiResponse } from '../types/api-response';
 import type { ApiKeyIssuedData, ApiKeyMetadata } from '../types/api-key';
+import type { Paginated, PaginationQuery } from '../types/pagination';
 import { BaseApi } from './helper';
 
 export class ApiKeysApi extends BaseApi {
   listForProject(
     projectId: string,
-    options?: { includeRevoked?: boolean },
-  ): Promise<ApiResponse<ApiKeyMetadata[]>> {
-    const params = options?.includeRevoked ? { includeRevoked: 'true' } : undefined;
+    options?: { includeRevoked?: boolean } & PaginationQuery,
+  ): Promise<ApiResponse<Paginated<ApiKeyMetadata>>> {
+    const params: Record<string, string> = {};
+    if (options?.includeRevoked) {
+      params.includeRevoked = 'true';
+    }
+    if (options?.page != null) {
+      params.page = String(options.page);
+    }
+    if (options?.limit != null) {
+      params.limit = String(options.limit);
+    }
     return this.request(() =>
-      this.client.get<ApiResponse<ApiKeyMetadata[]>>(
+      this.client.get<ApiResponse<Paginated<ApiKeyMetadata>>>(
         apiPath(`web/projects/${projectId}/api-keys`),
         { params },
       ),

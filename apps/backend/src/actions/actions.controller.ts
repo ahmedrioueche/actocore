@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -54,6 +55,8 @@ export class ActionsController {
   async list(
     @StudioCtx('optional') ctx: StudioRequestContext | null,
     @Param('projectId') projectId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     await assertStudioProjectRoute(
       ctx,
@@ -61,7 +64,12 @@ export class ActionsController {
       this.studioAccess,
       this.projects,
     );
-    return apiSuccess(await this.actions.list(projectId));
+    return apiSuccess(
+      await this.actions.listPaginated(projectId, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
+    );
   }
 
   @Get(':actionId')

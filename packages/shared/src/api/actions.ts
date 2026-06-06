@@ -2,6 +2,7 @@ import { apiPath } from '../config/api-version';
 import { CreateActionDto, UpdateActionDto } from '../dtos/action.dto';
 import type { ApiResponse } from '../types/api-response';
 import type { ActionData } from '../types/action';
+import type { Paginated, PaginationQuery } from '../types/pagination';
 import { BaseApi } from './helper';
 
 export class ActionsApi extends BaseApi {
@@ -17,10 +18,21 @@ export class ActionsApi extends BaseApi {
     );
   }
 
-  list(projectId: string): Promise<ApiResponse<ActionData[]>> {
+  list(
+    projectId: string,
+    query: PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<ActionData>>> {
+    const params = new URLSearchParams();
+    if (query.page != null) {
+      params.set('page', String(query.page));
+    }
+    if (query.limit != null) {
+      params.set('limit', String(query.limit));
+    }
+    const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<ActionData[]>>(
-        apiPath(`web/projects/${projectId}/actions`),
+      this.client.get<ApiResponse<Paginated<ActionData>>>(
+        apiPath(`web/projects/${projectId}/actions${qs ? `?${qs}` : ''}`),
       ),
     );
   }

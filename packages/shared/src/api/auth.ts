@@ -25,6 +25,7 @@ import type {
   StudioSessionData,
   StudioSignupResultData,
 } from '../types/studio';
+import type { Paginated, PaginationQuery } from '../types/pagination';
 import { TokenManager } from './token';
 import { BaseApi } from './helper';
 
@@ -189,19 +190,38 @@ export class StudioAuthApi extends BaseApi {
     });
   }
 
-  listMembers(): Promise<ApiResponse<StudioMemberData[]>> {
+  listMembers(
+    query: PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<StudioMemberData>>> {
+    const params = new URLSearchParams();
+    if (query.page != null) {
+      params.set('page', String(query.page));
+    }
+    if (query.limit != null) {
+      params.set('limit', String(query.limit));
+    }
+    const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<StudioMemberData[]>>(
-        apiPath('web/auth/members'),
+      this.client.get<ApiResponse<Paginated<StudioMemberData>>>(
+        apiPath(`web/auth/members${qs ? `?${qs}` : ''}`),
       ),
     );
   }
 
-  listTeamAudit(limit?: number): Promise<ApiResponse<StudioTeamAuditEntryData[]>> {
-    const query = limit != null ? `?limit=${limit}` : '';
+  listTeamAudit(
+    query: PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<StudioTeamAuditEntryData>>> {
+    const params = new URLSearchParams();
+    if (query.page != null) {
+      params.set('page', String(query.page));
+    }
+    if (query.limit != null) {
+      params.set('limit', String(query.limit));
+    }
+    const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<StudioTeamAuditEntryData[]>>(
-        apiPath(`web/auth/members/audit${query}`),
+      this.client.get<ApiResponse<Paginated<StudioTeamAuditEntryData>>>(
+        apiPath(`web/auth/members/audit${qs ? `?${qs}` : ''}`),
       ),
     );
   }

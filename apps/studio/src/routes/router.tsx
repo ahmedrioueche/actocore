@@ -16,7 +16,9 @@ import AuthCallbackPage from '@/pages/auth/AuthCallbackPage';
 import BillingPage from '@/pages/billing/BillingPage';
 import OnboardingPage from '@/pages/onboarding/OnboardingPage';
 import ProjectOverviewPage from '@/pages/projects/ProjectOverviewPage';
+import ProjectActionsPage from '@/pages/projects/ProjectActionsPage';
 import ProjectApiKeysPage from '@/pages/projects/ProjectApiKeysPage';
+import ProjectKnowledgePage from '@/pages/projects/ProjectKnowledgePage';
 import ProjectSectionPage from '@/pages/projects/ProjectSectionPage';
 import ProjectsPage from '@/pages/projects/ProjectsPage';
 import SettingsPage from '@/pages/settings/SettingsPage';
@@ -121,14 +123,14 @@ const projectKnowledgeRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: '/projects/$projectId/knowledge',
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
-  component: () => <ProjectSectionPage section="knowledge" />,
+  component: ProjectKnowledgePage,
 });
 
 const projectActionsRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: '/projects/$projectId/actions',
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
-  component: () => <ProjectSectionPage section="actions" />,
+  component: ProjectActionsPage,
 });
 
 const projectSdkConfigRoute = createRoute({

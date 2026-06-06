@@ -2,11 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   CreateSessionDto,
+  Paginated,
+  PaginationQuery,
   SessionData,
   SessionMessageData,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
+import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { ChatMessage, ChatMessageDocument } from './schemas/chat-message.schema';
 import { ChatSession, ChatSessionDocument } from './schemas/chat-session.schema';
 
@@ -64,6 +67,36 @@ export class SessionsService {
       .exec();
 
     return docs.map((doc) => this.toSessionData(doc));
+  }
+
+  /** Paginated variant used by the Studio sessions list route. */
+  async listForProjectPaginated(
+    projectId: string,
+    options: { externalUserId?: string } & PaginationQuery = {},
+  ): Promise<Paginated<SessionData>> {
+    const { page, limit, skip } = normalizePagination(options);
+    const filter: Record<string, unknown> = {};
+    const externalUserId = options.externalUserId?.trim();
+    if (externalUserId) {
+      filter.externalUserId = externalUserId;
+    }
+
+    const scoped = withProjectId(projectId, filter);
+    const [docs, total] = await Promise.all([
+      this.sessionModel
+        .find(scoped)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.sessionModel.countDocuments(scoped).exec(),
+    ]);
+
+    return paginate(
+      docs.map((doc) => this.toSessionData(doc)),
+      total,
+      { page, limit },
+    );
   }
 
   async listMessages(

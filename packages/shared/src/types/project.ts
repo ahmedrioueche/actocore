@@ -1,3 +1,5 @@
+import type { PaginationQuery } from './pagination';
+
 /** Project configuration loaded at runtime (not sent on every SDK request body). */
 export interface ProjectSettings {
   systemPrompt?: string;
@@ -16,16 +18,14 @@ export interface ProjectData {
   updatedAt: string;
 }
 
-export interface ListProjectsQuery {
-  limit?: number;
+export interface ListProjectsQuery extends PaginationQuery {
   /** When true, only archived; when false, only active; omit = active only */
   archived?: boolean;
   /** Case-insensitive substring match on project name */
   search?: string;
 }
 
-export interface ListProjectSessionsQuery {
-  limit?: number;
+export interface ListProjectSessionsQuery extends PaginationQuery {
   /** Filter by SDK external user id */
   externalUserId?: string;
 }

@@ -9,9 +9,15 @@ import type {
   ApiKeyIssuedData,
   ApiKeyMetadata,
   CreateApiKeyDto,
+  Paginated,
+  PaginationQuery,
   UpdateApiKeyDto,
 } from '@ahmedrioueche/actocore-shared';
 import { Model } from 'mongoose';
+import {
+  normalizePagination,
+  paginate,
+} from '../common/pagination/pagination.util';
 import { ApiKeyException } from './exceptions/api-key.exception';
 import { ApiKey, ApiKeyDocument } from './schemas/api-key.schema';
 import {
@@ -63,6 +69,41 @@ export class ApiKeysService {
       .exec();
 
     return docs.map((doc) => this.toMetadata(doc));
+  }
+
+  /** Paginated variant used by the Studio api-keys list route. */
+  async listForProjectPaginated(
+    ctx: StudioRequestContext | null,
+    projectId: string,
+    options: { includeRevoked?: boolean } & PaginationQuery = {},
+  ): Promise<Paginated<ApiKeyMetadata>> {
+    if (ctx) {
+      this.studioAccess.assertProjectAccess(ctx, projectId);
+      await this.projects.assertExistsForAccount(ctx, projectId);
+    } else {
+      await this.projects.assertExists(projectId);
+    }
+
+    const { page, limit, skip } = normalizePagination(options);
+    const filter = options.includeRevoked
+      ? { projectId }
+      : { projectId, revokedAt: { $exists: false } };
+
+    const [docs, total] = await Promise.all([
+      this.apiKeyModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.apiKeyModel.countDocuments(filter).exec(),
+    ]);
+
+    return paginate(
+      docs.map((doc) => this.toMetadata(doc)),
+      total,
+      { page, limit },
+    );
   }
 
   async rotateAllForProject(

@@ -84,6 +84,8 @@ export class KnowledgeController {
   async list(
     @StudioCtx('optional') ctx: StudioRequestContext | null,
     @Param('projectId') projectId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     await assertStudioProjectRoute(
       ctx,
@@ -91,7 +93,12 @@ export class KnowledgeController {
       this.studioAccess,
       this.projects,
     );
-    return apiSuccess(await this.knowledge.list(projectId));
+    return apiSuccess(
+      await this.knowledge.listPaginated(projectId, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
+    );
   }
 
   @Get(':sourceId')

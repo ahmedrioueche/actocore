@@ -2,6 +2,7 @@ import { apiPath } from '../config/api-version';
 import { CreateKnowledgeSourceDto } from '../dtos/knowledge.dto';
 import type { ApiResponse } from '../types/api-response';
 import type { KnowledgeSourceData } from '../types/knowledge';
+import type { Paginated, PaginationQuery } from '../types/pagination';
 import { BaseApi } from './helper';
 
 export class KnowledgeApi extends BaseApi {
@@ -17,10 +18,21 @@ export class KnowledgeApi extends BaseApi {
     );
   }
 
-  list(projectId: string): Promise<ApiResponse<KnowledgeSourceData[]>> {
+  list(
+    projectId: string,
+    query: PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<KnowledgeSourceData>>> {
+    const params = new URLSearchParams();
+    if (query.page != null) {
+      params.set('page', String(query.page));
+    }
+    if (query.limit != null) {
+      params.set('limit', String(query.limit));
+    }
+    const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<KnowledgeSourceData[]>>(
-        apiPath(`web/projects/${projectId}/knowledge`),
+      this.client.get<ApiResponse<Paginated<KnowledgeSourceData>>>(
+        apiPath(`web/projects/${projectId}/knowledge${qs ? `?${qs}` : ''}`),
       ),
     );
   }

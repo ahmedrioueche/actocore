@@ -1,23 +1,26 @@
 import { apiPath } from '../config/api-version';
 import type { ApiResponse } from '../types/api-response';
+import type { Paginated, PaginationQuery } from '../types/pagination';
 import type { PlatformAccountListItemData } from '../types/studio';
 import { BaseApi } from './helper';
 
 export class StudioPlatformApi extends BaseApi {
   listAccounts(
-    search?: string,
-    limit?: number,
-  ): Promise<ApiResponse<PlatformAccountListItemData[]>> {
+    options: { search?: string } & PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<PlatformAccountListItemData>>> {
     const params = new URLSearchParams();
-    if (search?.trim()) {
-      params.set('search', search.trim());
+    if (options.search?.trim()) {
+      params.set('search', options.search.trim());
     }
-    if (limit != null) {
-      params.set('limit', String(limit));
+    if (options.page != null) {
+      params.set('page', String(options.page));
+    }
+    if (options.limit != null) {
+      params.set('limit', String(options.limit));
     }
     const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<PlatformAccountListItemData[]>>(
+      this.client.get<ApiResponse<Paginated<PlatformAccountListItemData>>>(
         apiPath(`web/platform/accounts${qs ? `?${qs}` : ''}`),
       ),
     );

@@ -1,41 +1,45 @@
-import type { ApiKeyMetadata } from '@ahmedrioueche/actocore-shared';
 import { Pencil } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
+import { useUpdateApiKey } from '@/hooks/use-api-keys';
+import { useModalStore, type EditApiKeyModalProps } from '@/stores/modal';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
-interface EditApiKeyModalProps {
-  isOpen: boolean;
-  apiKey: ApiKeyMetadata | null;
-  loading?: boolean;
-  onClose: () => void;
-  onSave: (keyId: string, name: string) => Promise<void>;
-}
-
-export function EditApiKeyModal({
-  isOpen,
-  apiKey,
-  loading,
-  onClose,
-  onSave,
-}: EditApiKeyModalProps) {
+export default function EditApiKeyModal() {
   const { t } = useTranslation();
+  const currentModal = useModalStore((state) => state.currentModal);
+  const modalProps = useModalStore((state) => state.modalProps);
+  const closeModal = useModalStore((state) => state.closeModal);
+
+  const isOpen = currentModal === 'editApiKey';
+  const props = modalProps as EditApiKeyModalProps | null;
+  const projectId = props?.projectId;
+  const keyId = props?.keyId;
+
+  const updateKey = useUpdateApiKey(projectId ?? null);
+
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen && apiKey) {
-      setName(apiKey.name ?? '');
+    if (isOpen) {
+      setName(props?.currentName ?? '');
       setError(null);
     }
-  }, [isOpen, apiKey]);
+    // Only re-seed when the modal opens or targets a different key.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, keyId]);
+
+  if (!isOpen) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apiKey) {
+    if (!keyId) {
       return;
     }
 
@@ -47,8 +51,8 @@ export function EditApiKeyModal({
 
     setError(null);
     try {
-      await onSave(apiKey.id, trimmedName);
-      onClose();
+      await updateKey.mutateAsync({ keyId, name: trimmedName });
+      closeModal();
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
       setError(
@@ -63,7 +67,7 @@ export function EditApiKeyModal({
   return (
     <BaseModal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={closeModal}
       title={t('apiKeys.edit.title')}
       subtitle={t('apiKeys.edit.subtitle')}
       icon={Pencil}
@@ -72,11 +76,11 @@ export function EditApiKeyModal({
         label: t('apiKeys.edit.submit'),
         type: 'submit',
         form: 'edit-api-key-form',
-        loading,
+        loading: updateKey.isPending,
       }}
       secondaryButton={{
         label: t('common.cancel'),
-        onClick: onClose,
+        onClick: closeModal,
         variant: 'ghost',
       }}
       showSecondaryButton

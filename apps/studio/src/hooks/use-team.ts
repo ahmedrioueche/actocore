@@ -9,6 +9,7 @@ export function useTeamMembers() {
   ensureApiConfigured();
   return useQuery({
     queryKey: queryKeys.team.members(),
-    queryFn: async () => parseApiResponse(await studioAuthApi.listMembers()),
+    queryFn: async () =>
+      parseApiResponse(await studioAuthApi.listMembers({ limit: 100 })).items,
   });
 }

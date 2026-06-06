@@ -21,7 +21,19 @@ import type {
   StudioUpgradePreviewData,
 } from '../types/billing';
 import type { AccountQuotaStatusData } from '../types/usage';
+import type { Paginated, PaginationQuery } from '../types/pagination';
 import { BaseApi } from './helper';
+
+function paginationParams(query: PaginationQuery): Record<string, string> {
+  const params: Record<string, string> = {};
+  if (query.page != null) {
+    params.page = String(query.page);
+  }
+  if (query.limit != null) {
+    params.limit = String(query.limit);
+  }
+  return params;
+}
 
 /** Tenant billing (user admin) — `/v1/web/billing/*` */
 export class StudioBillingApi extends BaseApi {
@@ -47,10 +59,13 @@ export class StudioBillingApi extends BaseApi {
     );
   }
 
-  listPaymentHistory(): Promise<ApiResponse<StudioBillingHistoryEntry[]>> {
+  listPaymentHistory(
+    query: PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<StudioBillingHistoryEntry>>> {
     return this.request(() =>
-      this.client.get<ApiResponse<StudioBillingHistoryEntry[]>>(
+      this.client.get<ApiResponse<Paginated<StudioBillingHistoryEntry>>>(
         apiPath('web/billing/payments'),
+        { params: paginationParams(query) },
       ),
     );
   }
@@ -169,11 +184,20 @@ export class StudioBillingApi extends BaseApi {
 
 /** Super-admin plan catalog — `/v1/web/admin/plans/*` */
 export class StudioPlansAdminApi extends BaseApi {
-  list(includeInactive?: boolean): Promise<ApiResponse<StudioPlan[]>> {
+  list(
+    includeInactive?: boolean,
+    query: PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<StudioPlan>>> {
     return this.request(() =>
-      this.client.get<ApiResponse<StudioPlan[]>>(apiPath('web/admin/plans'), {
-        params: includeInactive ? { includeInactive: 'true' } : undefined,
-      }),
+      this.client.get<ApiResponse<Paginated<StudioPlan>>>(
+        apiPath('web/admin/plans'),
+        {
+          params: {
+            ...paginationParams(query),
+            ...(includeInactive ? { includeInactive: 'true' } : {}),
+          },
+        },
+      ),
     );
   }
 

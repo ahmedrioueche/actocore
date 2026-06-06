@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   PayloadTooLargeException,
+  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,11 +12,14 @@ import type {
   KnowledgeSourceData,
   KnowledgeSourceStatus,
   KnowledgeSourceType,
+  Paginated,
+  PaginationQuery,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { basename } from 'node:path';
 import type { KnowledgeResolvedConfig } from '../config/knowledge.config';
 import { withProjectId } from '../common/tenant/tenant-scope';
+import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { ProjectsService } from '../projects/projects.service';
 import { KnowledgeIngestService } from './knowledge-ingest.service';
 import { KnowledgeStorageService } from './knowledge-storage.service';
@@ -27,7 +31,12 @@ import {
   KnowledgeSource,
   KnowledgeSourceDocument,
 } from './schemas/knowledge-source.schema';
-import { resolveKnowledgeMimeType } from './utils/knowledge-mime.util';
+import {
+  assertSafeKnowledgeContent,
+  MaliciousKnowledgeContentError,
+  resolveKnowledgeMimeType,
+  UnsupportedKnowledgeFileError,
+} from './utils/knowledge-mime.util';
 
 @Injectable()
 export class KnowledgeService {
@@ -81,7 +90,27 @@ export class KnowledgeService {
     }
 
     const originalFilename = file.originalname?.trim() || 'upload.bin';
-    const mimeType = resolveKnowledgeMimeType(file.mimetype, originalFilename);
+
+    let mimeType: string;
+    try {
+      mimeType = resolveKnowledgeMimeType(file.mimetype, originalFilename);
+    } catch (err) {
+      if (err instanceof UnsupportedKnowledgeFileError) {
+        throw new UnsupportedMediaTypeException(err.message);
+      }
+      throw err;
+    }
+
+    // Defense in depth: ensure bytes match the declared type (anti-spoofing).
+    try {
+      assertSafeKnowledgeContent(file.buffer, mimeType);
+    } catch (err) {
+      if (err instanceof MaliciousKnowledgeContentError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
+
     const docTitle = title?.trim() || basename(originalFilename).replace(/\.[^.]+$/, '') || 'Document';
 
     const doc = await this.sourceModel.create({
@@ -122,6 +151,33 @@ export class KnowledgeService {
       .exec();
 
     return docs.map((doc) => this.toData(doc));
+  }
+
+  /** Paginated variant used by the Studio knowledge list route. */
+  async listPaginated(
+    projectId: string,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<KnowledgeSourceData>> {
+    await this.projects.assertExists(projectId);
+
+    const { page, limit, skip } = normalizePagination(query);
+    const scoped = withProjectId(projectId);
+
+    const [docs, total] = await Promise.all([
+      this.sourceModel
+        .find(scoped)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.sourceModel.countDocuments(scoped).exec(),
+    ]);
+
+    return paginate(
+      docs.map((doc) => this.toData(doc)),
+      total,
+      { page, limit },
+    );
   }
 
   async findById(

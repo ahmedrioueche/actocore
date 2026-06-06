@@ -53,12 +53,9 @@ const Pagination: React.FC<PaginationProps> = ({
     >
       <p className="text-sm text-text-secondary">
         {t("common.pagination.showing", {
-          start: startIndex + 1,
-          end: endIndex,
+          from: startIndex + 1,
+          to: endIndex,
           total: totalRecords,
-          defaultValue: `Showing ${
-            startIndex + 1
-          }-${endIndex} of ${totalRecords}`,
         })}
       </p>
 

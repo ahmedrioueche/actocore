@@ -46,16 +46,17 @@ export class ProjectsController {
   @RequireStudioPermission(StudioPermission.PROJECT_READ)
   async list(
     @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('archived') archived?: string,
     @Query('search') search?: string,
   ) {
-    const parsed = limit ? parseInt(limit, 10) : 50;
     const archivedFilter =
       archived === 'true' ? true : archived === 'false' ? false : undefined;
     return apiSuccess(
-      await this.projects.list(ctx, {
-        limit: Number.isFinite(parsed) ? parsed : 50,
+      await this.projects.listPaginated(ctx, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
         archived: archivedFilter,
         search: search?.trim() || undefined,
       }),
@@ -101,6 +102,7 @@ export class ProjectsController {
   async listSessions(
     @StudioCtx('optional') ctx: StudioRequestContext | null,
     @Param('projectId') projectId: string,
+    @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('externalUserId') externalUserId?: string,
   ) {
@@ -110,10 +112,10 @@ export class ProjectsController {
     } else {
       await this.projects.assertExists(projectId);
     }
-    const parsed = limit ? parseInt(limit, 10) : 50;
     return apiSuccess(
-      await this.sessions.listForProject(projectId, {
-        limit: Number.isFinite(parsed) ? parsed : 50,
+      await this.sessions.listForProjectPaginated(projectId, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
         externalUserId: externalUserId?.trim() || undefined,
       }),
     );
@@ -139,17 +141,19 @@ export class ProjectsController {
   async listApiKeys(
     @StudioCtx('optional') ctx: StudioRequestContext | null,
     @Param('projectId') projectId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
     @Query('includeRevoked') includeRevoked?: string,
   ) {
     if (ctx) {
       this.studioAccess.assertProjectAccess(ctx, projectId);
     }
     return apiSuccess(
-      await this.apiKeys.listForProject(
-        ctx,
-        projectId,
-        includeRevoked === 'true',
-      ),
+      await this.apiKeys.listForProjectPaginated(ctx, projectId, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+        includeRevoked: includeRevoked === 'true',
+      }),
     );
   }
 

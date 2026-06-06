@@ -193,23 +193,32 @@ export class StudioAuthController {
   @RequireStudioPermission(StudioPermission.TEAM_WRITE)
   async listTeamAudit(
     @StudioCtx() ctx: StudioRequestContext,
+    @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
     StudioMembersService.assertTeamWrite(ctx);
-    const parsed = limit ? parseInt(limit, 10) : 50;
     return apiSuccess(
-      await this.members.listAudit(
-        ctx,
-        Number.isFinite(parsed) ? parsed : 50,
-      ),
+      await this.members.listAuditPaginated(ctx, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
     );
   }
 
   @Get('members')
   @RequireStudioPermission(StudioPermission.TEAM_WRITE)
-  async listMembers(@StudioCtx() ctx: StudioRequestContext) {
+  async listMembers(
+    @StudioCtx() ctx: StudioRequestContext,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
     StudioMembersService.assertTeamWrite(ctx);
-    return apiSuccess(await this.members.list(ctx));
+    return apiSuccess(
+      await this.members.listPaginated(ctx, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
+    );
   }
 
   @Post('members')

@@ -5,6 +5,7 @@ import type {
   SdkConfigAuditEntryData,
   SdkProjectConfigData,
 } from '../types/sdk-config';
+import type { Paginated, PaginationQuery } from '../types/pagination';
 import { BaseApi } from './helper';
 
 export class SdkConfigApi extends BaseApi {
@@ -30,12 +31,21 @@ export class SdkConfigApi extends BaseApi {
 
   listAudit(
     projectId: string,
-    limit?: number,
-  ): Promise<ApiResponse<SdkConfigAuditEntryData[]>> {
-    const query = limit != null ? `?limit=${limit}` : '';
+    query: PaginationQuery = {},
+  ): Promise<ApiResponse<Paginated<SdkConfigAuditEntryData>>> {
+    const params = new URLSearchParams();
+    if (query.page != null) {
+      params.set('page', String(query.page));
+    }
+    if (query.limit != null) {
+      params.set('limit', String(query.limit));
+    }
+    const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<SdkConfigAuditEntryData[]>>(
-        apiPath(`web/projects/${projectId}/sdk-config/audit${query}`),
+      this.client.get<ApiResponse<Paginated<SdkConfigAuditEntryData>>>(
+        apiPath(
+          `web/projects/${projectId}/sdk-config/audit${qs ? `?${qs}` : ''}`,
+        ),
       ),
     );
   }

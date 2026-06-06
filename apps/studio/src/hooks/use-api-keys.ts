@@ -1,21 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   apiKeysApi,
   type ApiKeyIssuedData,
   type ApiKeyMetadata,
+  type PaginationQuery,
 } from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
 
-export function useProjectApiKeys(projectId: string | null) {
+export function useProjectApiKeys(
+  projectId: string | null,
+  query: PaginationQuery = {},
+) {
   ensureApiConfigured();
   return useQuery({
-    queryKey: queryKeys.apiKeys.list(projectId ?? ''),
+    queryKey: queryKeys.apiKeys.list(projectId ?? '', query),
     queryFn: async () =>
-      parseApiResponse(await apiKeysApi.listForProject(projectId!)),
+      parseApiResponse(await apiKeysApi.listForProject(projectId!, query)),
     enabled: Boolean(projectId),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -34,7 +44,7 @@ export function useCreateApiKey(projectId: string | null) {
     onSuccess: () => {
       if (projectId) {
         void queryClient.invalidateQueries({
-          queryKey: queryKeys.apiKeys.list(projectId),
+          queryKey: queryKeys.apiKeys.lists(projectId),
         });
       }
     },
@@ -59,7 +69,7 @@ export function useUpdateApiKey(projectId: string | null) {
     onSuccess: () => {
       if (projectId) {
         void queryClient.invalidateQueries({
-          queryKey: queryKeys.apiKeys.list(projectId),
+          queryKey: queryKeys.apiKeys.lists(projectId),
         });
       }
     },
@@ -76,7 +86,7 @@ export function useRevokeApiKey(projectId: string | null) {
     onSuccess: () => {
       if (projectId) {
         void queryClient.invalidateQueries({
-          queryKey: queryKeys.apiKeys.list(projectId),
+          queryKey: queryKeys.apiKeys.lists(projectId),
         });
       }
     },

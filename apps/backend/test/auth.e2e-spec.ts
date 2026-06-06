@@ -114,7 +114,9 @@ describe('Authentication (e2e)', () => {
       .get(`/v1/web/projects/${projectId}/api-keys`)
       .expect(200)
       .expect((res) => {
-        const key = res.body.data.find((item: { id: string }) => item.id === keyId);
+        const key = res.body.data.items.find(
+          (item: { id: string }) => item.id === keyId,
+        );
         expect(key?.name).toBe('after-rename');
       });
   });

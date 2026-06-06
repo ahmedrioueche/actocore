@@ -106,9 +106,10 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(list.body.data).toHaveLength(1);
-    expect(list.body.data[0].prefix).toBe(key.body.data.prefix);
-    expect(list.body.data[0].key).toBeUndefined();
+    expect(list.body.data.items).toHaveLength(1);
+    expect(list.body.data.total).toBe(1);
+    expect(list.body.data.items[0].prefix).toBe(key.body.data.prefix);
+    expect(list.body.data.items[0].key).toBeUndefined();
 
     await request(server)
       .patch('/v1/web/account')
@@ -166,7 +167,7 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(afterRotate.body.data).toHaveLength(0);
+    expect(afterRotate.body.data.items).toHaveLength(0);
 
     await request(server)
       .delete(`/v1/web/projects/${projectId}`)
@@ -221,8 +222,8 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(projects.body.data).toHaveLength(1);
-    expect(projects.body.data[0].name).toBe('My project');
+    expect(projects.body.data.items).toHaveLength(1);
+    expect(projects.body.data.items[0].name).toBe('My project');
 
     await request(server)
       .get(`/v1/web/projects/${projectId}/usage/quota`)
@@ -249,8 +250,8 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(sessions.body.data).toHaveLength(1);
-    expect(sessions.body.data[0].externalUserId).toBe('user-42');
+    expect(sessions.body.data.items).toHaveLength(1);
+    expect(sessions.body.data.items[0].externalUserId).toBe('user-42');
   });
 
   it('team audit log records seat lifecycle', async () => {
@@ -280,8 +281,8 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(audit.body.data[0].action).toBe('seat.created');
-    expect(audit.body.data[0].targetUserId).toBe(userId);
+    expect(audit.body.data.items[0].action).toBe('seat.created');
+    expect(audit.body.data.items[0].targetUserId).toBe(userId);
 
     await request(server)
       .delete(`/v1/web/auth/members/${userId}`)
@@ -293,7 +294,7 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(afterRemove.body.data[0].action).toBe('seat.removed');
+    expect(afterRemove.body.data.items[0].action).toBe('seat.removed');
   });
 
   it('archives project and filters list by archived and search', async () => {
@@ -329,7 +330,7 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    const activeIds = active.body.data.map((p: { id: string }) => p.id);
+    const activeIds = active.body.data.items.map((p: { id: string }) => p.id);
     expect(activeIds).toContain(beta.body.data.id);
     expect(activeIds).not.toContain(alphaId);
 
@@ -338,16 +339,16 @@ describe('Studio workspace settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(archivedOnly.body.data).toHaveLength(1);
-    expect(archivedOnly.body.data[0].name).toBe('Alpha App');
+    expect(archivedOnly.body.data.items).toHaveLength(1);
+    expect(archivedOnly.body.data.items[0].name).toBe('Alpha App');
 
     const search = await request(server)
       .get('/v1/web/projects?archived=false&search=beta')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(search.body.data).toHaveLength(1);
-    expect(search.body.data[0].name).toBe('Beta App');
+    expect(search.body.data.items).toHaveLength(1);
+    expect(search.body.data.items[0].name).toBe('Beta App');
   });
 
   it('editor cannot PATCH account or delete project', async () => {

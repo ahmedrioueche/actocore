@@ -1,8 +1,8 @@
+import { useModalStore } from "@/stores/modal";
+import { cn } from "@/utils/helper";
 import { AlertTriangle, CheckCircle, Info, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useModalStore } from "@/stores/modal";
-import { cn } from "@/utils/helper";
 import InputField from "./ui/InputField";
 
 export default function ConfirmModal() {
@@ -58,7 +58,8 @@ export default function ConfirmModal() {
     HeaderIcon = Info;
     headerGradient = "from-primary/25 to-secondary/25";
     iconColor = "text-primary";
-    buttonGradient = "from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover";
+    buttonGradient =
+      "from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover";
   }
 
   return (
@@ -69,7 +70,7 @@ export default function ConfirmModal() {
       <div
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "bg-surface rounded-2xl shadow-2xl w-full border-2 border-border/50 overflow-hidden animate-in zoom-in-95 duration-200",
+          "bg-surface rounded-2xl shadow-2xl w-full border-2 border-border overflow-hidden animate-in zoom-in-95 duration-200",
           confirmModalProps?.secondaryAction ? "max-w-2xl" : "max-w-md",
         )}
       >
@@ -120,7 +121,7 @@ export default function ConfirmModal() {
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 p-6 pt-2">
           <button
             onClick={handleCancel}
-            className="px-6 py-2.5 rounded-xl font-medium text-text-secondary bg-surface-secondary/50 hover:bg-surface-secondary border border-border/50 hover:border-border hover:text-text-primary transition-all hover:scale-[1.02] w-full sm:w-auto"
+            className="px-6 py-2.5 rounded-xl font-medium text-text-secondary bg-surface-secondary/50 hover:bg-surface-secondary border border-border hover:border-border hover:text-text-primary transition-all hover:scale-[1.02] w-full sm:w-auto"
           >
             {t("common.cancel")}
           </button>
@@ -138,7 +139,7 @@ export default function ConfirmModal() {
                     ? "text-white bg-success hover:bg-success-hover shadow-lg shadow-success/20"
                     : confirmModalProps.secondaryAction.variant === "primary"
                       ? "text-white bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
-                      : "text-text-secondary bg-surface-secondary/50 hover:bg-surface-secondary border border-border/50",
+                      : "text-text-secondary bg-surface-secondary/50 hover:bg-surface-secondary border border-border",
               )}
             >
               {confirmModalProps.secondaryAction.label}

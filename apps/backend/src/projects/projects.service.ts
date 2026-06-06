@@ -9,6 +9,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import type {
   CreateProjectDto,
   ListProjectsQuery,
+  Paginated,
+  PaginationQuery,
   ProjectData,
   ProjectSettings,
   UpdateProjectDto,
@@ -18,6 +20,7 @@ import { ErrorCode, StudioRole } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { ProjectDeleteService } from './project-delete.service';
 import { withProjectId } from '../common/tenant/tenant-scope';
+import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { StudioEntitlementsService } from '../studio-billing/studio-entitlements.service';
 import { StudioAccessService } from '../studio/studio-access.service';
 import type { StudioRequestContext } from '../studio/studio-context';
@@ -83,6 +86,45 @@ export class ProjectsService {
     query: ListProjectsQuery = {},
   ): Promise<ProjectData[]> {
     const limit = query.limit ?? 50;
+    const filter = this.buildListFilter(ctx, query);
+
+    const docs = await this.projectModel
+      .find(filter)
+      .sort({ updatedAt: -1 })
+      .limit(Math.min(Math.max(limit, 1), 200))
+      .exec();
+    return docs.map((doc) => this.toData(doc));
+  }
+
+  /** Paginated variant used by the Studio list route. */
+  async listPaginated(
+    ctx: StudioRequestContext | null,
+    query: ListProjectsQuery & PaginationQuery = {},
+  ): Promise<Paginated<ProjectData>> {
+    const { page, limit, skip } = normalizePagination(query);
+    const filter = this.buildListFilter(ctx, query);
+
+    const [docs, total] = await Promise.all([
+      this.projectModel
+        .find(filter)
+        .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.projectModel.countDocuments(filter).exec(),
+    ]);
+
+    return paginate(
+      docs.map((doc) => this.toData(doc)),
+      total,
+      { page, limit },
+    );
+  }
+
+  private buildListFilter(
+    ctx: StudioRequestContext | null,
+    query: ListProjectsQuery,
+  ): Record<string, unknown> {
     const filter: Record<string, unknown> = ctx
       ? {
           ...this.studioAccess.accountFilter(ctx),
@@ -92,8 +134,6 @@ export class ProjectsService {
 
     if (query.archived === true) {
       filter.archived = true;
-    } else if (query.archived === false) {
-      filter.archived = { $ne: true };
     } else {
       filter.archived = { $ne: true };
     }
@@ -103,12 +143,7 @@ export class ProjectsService {
       filter.name = { $regex: this.escapeRegex(search), $options: 'i' };
     }
 
-    const docs = await this.projectModel
-      .find(filter)
-      .sort({ updatedAt: -1 })
-      .limit(Math.min(Math.max(limit, 1), 200))
-      .exec();
-    return docs.map((doc) => this.toData(doc));
+    return filter;
   }
 
   async findById(

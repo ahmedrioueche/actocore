@@ -3,6 +3,9 @@ import {
   ErrorCode,
   type AppPaymentProvider,
   type AppSubscriptionBillingCycle,
+  type Paginated,
+  type PaginationQuery,
+  type StudioBillingHistoryEntry,
   type StudioCustomerPortalData,
   type StudioPlan,
   type StudioSubscription,
@@ -19,7 +22,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
+import {
+  normalizePagination,
+  paginate,
+} from '../common/pagination/pagination.util';
 import { Project, ProjectDocument } from '../projects/schemas/project.schema';
 import {
   StudioMembership,
@@ -662,14 +669,47 @@ export class StudioSubscriptionService {
     return this.toSubscription(sub, this.plans.toPlan(currentPlan));
   }
 
-  async listPaymentHistory(accountId: string) {
+  async listPaymentHistory(
+    accountId: string,
+  ): Promise<StudioBillingHistoryEntry[]> {
     const rows = await this.historyModel
       .find({ accountId: new Types.ObjectId(accountId) })
       .sort({ createdAt: -1 })
       .limit(100)
       .exec();
 
-    return rows.map((row) => ({
+    return rows.map((row) => this.toHistoryEntry(row));
+  }
+
+  /** Paginated variant used by the Studio billing history route. */
+  async listPaymentHistoryPaginated(
+    accountId: string,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<StudioBillingHistoryEntry>> {
+    const { page, limit, skip } = normalizePagination(query);
+    const filter = { accountId: new Types.ObjectId(accountId) };
+
+    const [rows, total] = await Promise.all([
+      this.historyModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.historyModel.countDocuments(filter).exec(),
+    ]);
+
+    return paginate(
+      rows.map((row) => this.toHistoryEntry(row)),
+      total,
+      { page, limit },
+    );
+  }
+
+  private toHistoryEntry(
+    row: HydratedDocument<StudioSubscriptionHistoryModel>,
+  ): StudioBillingHistoryEntry {
+    return {
       id: row._id.toString(),
       accountId: row.accountId.toString(),
       subscriptionId: row.subscriptionId.toString(),
@@ -680,7 +720,7 @@ export class StudioSubscriptionService {
       currency: row.currency,
       details: row.details,
       createdAt: (row.createdAt ?? new Date()).toISOString(),
-    }));
+    };
   }
 
   async cancelSubscription(

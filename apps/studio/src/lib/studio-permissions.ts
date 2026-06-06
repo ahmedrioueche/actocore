@@ -2,9 +2,9 @@ import {
   hasStudioPermission,
   StudioPermission,
   type StudioAuthMeData,
-} from '@ahmedrioueche/actocore-shared';
+} from "@ahmedrioueche/actocore-shared";
 
-import type { StudioNavLink } from '@/constants/navigation';
+import type { StudioNavLink } from "@/constants/navigation";
 
 export function canAccessNavItem(
   session: StudioAuthMeData | undefined,
@@ -30,4 +30,22 @@ export function canWriteApiKeys(
   session: StudioAuthMeData | undefined,
 ): boolean {
   return canAccessNavItem(session, StudioPermission.API_KEYS_WRITE);
+}
+
+export function canWriteKnowledge(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return canAccessNavItem(session, StudioPermission.KNOWLEDGE_WRITE);
+}
+
+export function canDeleteKnowledge(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return canAccessNavItem(session, StudioPermission.KNOWLEDGE_DELETE);
+}
+
+export function canWriteActions(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return canAccessNavItem(session, StudioPermission.ACTIONS_WRITE);
 }

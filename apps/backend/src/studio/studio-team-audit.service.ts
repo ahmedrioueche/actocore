@@ -1,8 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { StudioTeamAuditEntryData } from '@ahmedrioueche/actocore-shared';
+import type {
+  Paginated,
+  PaginationQuery,
+  StudioTeamAuditEntryData,
+} from '@ahmedrioueche/actocore-shared';
 import { Model } from 'mongoose';
 import type { StudioRequestContext } from './studio-context';
+import {
+  normalizePagination,
+  paginate,
+} from '../common/pagination/pagination.util';
 import {
   StudioTeamAudit,
   StudioTeamAuditAction,
@@ -41,7 +49,36 @@ export class StudioTeamAuditService {
       .limit(Math.min(Math.max(limit, 1), 200))
       .exec();
 
-    return docs.map((doc) => ({
+    return docs.map((doc) => this.toData(doc));
+  }
+
+  /** Paginated variant used by the Studio team audit route. */
+  async listPaginated(
+    accountId: string,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<StudioTeamAuditEntryData>> {
+    const { page, limit, skip } = normalizePagination(query);
+    const filter = { accountId };
+
+    const [docs, total] = await Promise.all([
+      this.auditModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.auditModel.countDocuments(filter).exec(),
+    ]);
+
+    return paginate(
+      docs.map((doc) => this.toData(doc)),
+      total,
+      { page, limit },
+    );
+  }
+
+  private toData(doc: StudioTeamAuditDocument): StudioTeamAuditEntryData {
+    return {
       id: doc._id.toString(),
       accountId: doc.accountId,
       action: doc.action,
@@ -49,6 +86,6 @@ export class StudioTeamAuditService {
       actorUserId: doc.actorUserId,
       meta: doc.meta,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
-    }));
+    };
   }
 }

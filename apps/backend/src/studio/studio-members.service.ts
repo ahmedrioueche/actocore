@@ -11,7 +11,10 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   CreateStudioMemberDto,
+  Paginated,
+  PaginationQuery,
   StudioMemberData,
+  StudioTeamAuditEntryData,
   UpdateStudioMemberDto,
 } from '@ahmedrioueche/actocore-shared';
 import {
@@ -21,6 +24,10 @@ import {
   StudioRole,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
+import {
+  normalizePagination,
+  paginate,
+} from '../common/pagination/pagination.util';
 import type { StudioAuthConfig } from '../config/studio-auth.config';
 import { StudioAccessService } from './studio-access.service';
 import type { StudioRequestContext } from './studio-context';
@@ -64,6 +71,14 @@ export class StudioMembersService {
     return this.teamAudit.list(ctx.accountId, limit);
   }
 
+  /** Paginated variant used by the Studio team audit route. */
+  async listAuditPaginated(
+    ctx: StudioRequestContext,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<StudioTeamAuditEntryData>> {
+    return this.teamAudit.listPaginated(ctx.accountId, query);
+  }
+
   async list(ctx: StudioRequestContext): Promise<StudioMemberData[]> {
     const memberships = await this.membershipModel
       .find({ accountId: ctx.accountId })
@@ -81,6 +96,38 @@ export class StudioMembersService {
       const user = userById.get(m.userId.toString());
       return this.toMemberData(m, user);
     });
+  }
+
+  /** Paginated variant used by the Studio members list route. */
+  async listPaginated(
+    ctx: StudioRequestContext,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<StudioMemberData>> {
+    const { page, limit, skip } = normalizePagination(query);
+    const filter = { accountId: ctx.accountId };
+
+    const [memberships, total] = await Promise.all([
+      this.membershipModel
+        .find(filter)
+        .sort({ createdAt: 1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.membershipModel.countDocuments(filter).exec(),
+    ]);
+
+    const users = await this.userModel
+      .find({ _id: { $in: memberships.map((m) => m.userId) } })
+      .exec();
+    const userById = new Map(users.map((u) => [u._id.toString(), u]));
+
+    return paginate(
+      memberships.map((m) =>
+        this.toMemberData(m, userById.get(m.userId.toString())),
+      ),
+      total,
+      { page, limit },
+    );
   }
 
   async createEditor(

@@ -5,22 +5,22 @@ import { useTranslation } from 'react-i18next';
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { getRandomApiKeyName } from '@/constants/api-keys';
+import { useCreateApiKey } from '@/hooks/use-api-keys';
+import { useModalStore, type CreateApiKeyModalProps } from '@/stores/modal';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
-interface CreateApiKeyModalProps {
-  isOpen: boolean;
-  loading?: boolean;
-  onClose: () => void;
-  onCreate: (name?: string) => Promise<void>;
-}
-
-export function CreateApiKeyModal({
-  isOpen,
-  loading,
-  onClose,
-  onCreate,
-}: CreateApiKeyModalProps) {
+export default function CreateApiKeyModal() {
   const { t } = useTranslation();
+  const currentModal = useModalStore((state) => state.currentModal);
+  const modalProps = useModalStore((state) => state.modalProps);
+  const openModal = useModalStore((state) => state.openModal);
+  const closeModal = useModalStore((state) => state.closeModal);
+
+  const isOpen = currentModal === 'createApiKey';
+  const projectId = (modalProps as CreateApiKeyModalProps | null)?.projectId;
+
+  const createKey = useCreateApiKey(projectId ?? null);
+
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +31,10 @@ export function CreateApiKeyModal({
     }
   }, [isOpen]);
 
+  if (!isOpen) {
+    return null;
+  }
+
   const handleSuggest = () => {
     setName((current) => getRandomApiKeyName(current.trim()));
   };
@@ -39,8 +43,8 @@ export function CreateApiKeyModal({
     e.preventDefault();
     setError(null);
     try {
-      await onCreate(name.trim() || undefined);
-      onClose();
+      const issued = await createKey.mutateAsync(name.trim() || undefined);
+      openModal('issuedApiKey', { apiKey: issued.key });
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
       setError(
@@ -55,7 +59,7 @@ export function CreateApiKeyModal({
   return (
     <BaseModal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={closeModal}
       title={t('apiKeys.create.title')}
       subtitle={t('apiKeys.create.subtitle')}
       icon={KeyRound}
@@ -64,11 +68,11 @@ export function CreateApiKeyModal({
         label: t('apiKeys.create.submit'),
         type: 'submit',
         form: 'create-api-key-form',
-        loading,
+        loading: createKey.isPending,
       }}
       secondaryButton={{
         label: t('common.cancel'),
-        onClick: onClose,
+        onClick: closeModal,
         variant: 'ghost',
       }}
       showSecondaryButton

@@ -1,7 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { SdkConfigAuditEntryData } from '@ahmedrioueche/actocore-shared';
+import type {
+  Paginated,
+  PaginationQuery,
+  SdkConfigAuditEntryData,
+} from '@ahmedrioueche/actocore-shared';
 import { Model } from 'mongoose';
+import {
+  normalizePagination,
+  paginate,
+} from '../../common/pagination/pagination.util';
 import {
   SdkConfigAudit,
   SdkConfigAuditDocument,
@@ -52,13 +60,42 @@ export class SdkConfigAuditLogger {
       .limit(Math.min(Math.max(limit, 1), 200))
       .exec();
 
-    return docs.map((doc) => ({
+    return docs.map((doc) => this.toData(doc));
+  }
+
+  /** Paginated variant used by the Studio sdk-config audit route. */
+  async listForProjectPaginated(
+    projectId: string,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<SdkConfigAuditEntryData>> {
+    const { page, limit, skip } = normalizePagination(query);
+    const filter = { projectId };
+
+    const [docs, total] = await Promise.all([
+      this.auditModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.auditModel.countDocuments(filter).exec(),
+    ]);
+
+    return paginate(
+      docs.map((doc) => this.toData(doc)),
+      total,
+      { page, limit },
+    );
+  }
+
+  private toData(doc: SdkConfigAuditDocument): SdkConfigAuditEntryData {
+    return {
       id: doc._id.toString(),
       projectId: doc.projectId,
       sdkConfigVersion: doc.sdkConfigVersion,
       changedSections: doc.changedSections ?? [],
       actor: doc.actor,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
-    }));
+    };
   }
 }

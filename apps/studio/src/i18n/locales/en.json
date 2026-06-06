@@ -7,6 +7,7 @@
     "confirm": "Confirm",
     "close": "Close",
     "edit": "Edit",
+    "remove": "Remove",
     "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Try again",
@@ -260,6 +261,88 @@
       "name": "Key",
       "created": "Created",
       "lastUsed": "Last used"
+    }
+  },
+  "knowledge": {
+    "types": {
+      "document": "Document",
+      "url": "URL",
+      "text": "Text"
+    },
+    "status": {
+      "ready": "Ready",
+      "pending": "Processing",
+      "error": "Failed"
+    },
+    "columns": {
+      "source": "Source",
+      "status": "Status",
+      "size": "Size",
+      "created": "Added"
+    },
+    "upload": {
+      "button": "Add source",
+      "title": "Upload a document",
+      "subtitle": "Add a file so your assistant can answer from its content.",
+      "dropzone": "Drag and drop a file, or click to browse",
+      "hint": "{{types}} up to {{size}}",
+      "titleLabel": "Title (optional)",
+      "titlePlaceholder": "Defaults to the file name",
+      "submit": "Upload",
+      "errors": {
+        "required": "Please choose a file to upload.",
+        "type": "Unsupported file type. Allowed: PDF, plain text, markdown.",
+        "size": "File is too large. Maximum size is 10 MB.",
+        "empty": "This file is empty."
+      }
+    },
+    "delete": {
+      "title": "Delete source?",
+      "text": "“{{name}}” and its indexed content will be removed. This cannot be undone.",
+      "confirm": "Delete source"
+    }
+  },
+  "projectActions": {
+    "columns": {
+      "name": "Action",
+      "status": "Status",
+      "updated": "Updated"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "enable": "Enable action",
+      "disable": "Disable action"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. create_invoice",
+      "nameHint": "Lowercase letters, numbers, hyphens, and underscores. Cannot be changed later.",
+      "description": "Description",
+      "descriptionPlaceholder": "What this action does (helps the assistant decide when to call it)",
+      "inputSchema": "Input schema (JSON)",
+      "inputSchemaHint": "JSON Schema describing the arguments the assistant must provide.",
+      "enabled": "Enabled"
+    },
+    "create": {
+      "button": "Create action",
+      "title": "Create action",
+      "subtitle": "Define a tool your assistant can call from chat and voice.",
+      "submit": "Create action"
+    },
+    "edit": {
+      "title": "Edit action",
+      "subtitle": "Update this action's behavior.",
+      "submit": "Save changes"
+    },
+    "delete": {
+      "title": "Delete action?",
+      "text": "“{{name}}” will be removed and the assistant can no longer call it. This cannot be undone.",
+      "confirm": "Delete action"
+    },
+    "errors": {
+      "invalidName": "Name must be a lowercase slug (letters, numbers, hyphens, underscores).",
+      "invalidSchema": "Input schema must be a valid JSON object."
     }
   },
   "nav": {

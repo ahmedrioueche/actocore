@@ -18,13 +18,14 @@ export class StudioPlatformController {
   @Get('accounts')
   async listAccounts(
     @Query('search') search?: string,
+    @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const parsed = limit ? parseInt(limit, 10) : 50;
     return apiSuccess(
-      await this.platform.listAccounts({
+      await this.platform.listAccountsPaginated({
         search: search?.trim() || undefined,
-        limit: Number.isFinite(parsed) ? parsed : 50,
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
       }),
     );
   }

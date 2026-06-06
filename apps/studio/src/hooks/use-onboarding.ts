@@ -117,7 +117,7 @@ export function useOnboardingProjects(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.projects.list({ archived: false }),
     queryFn: async () =>
-      parseApiResponse(await projectsApi.list({ archived: false })),
+      parseApiResponse(await projectsApi.list({ archived: false })).items,
     enabled,
   });
 }

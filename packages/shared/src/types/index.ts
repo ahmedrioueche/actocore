@@ -2,6 +2,7 @@
  * Domain and response types — plain TypeScript interfaces (no runtime validation).
  */
 export * from './api-response';
+export * from './pagination';
 export * from './action';
 export * from './api-key';
 export * from './chat';

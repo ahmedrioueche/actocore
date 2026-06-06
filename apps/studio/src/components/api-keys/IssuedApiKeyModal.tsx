@@ -3,19 +3,17 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import BaseModal from '@/components/ui/BaseModal';
+import { useModalStore, type IssuedApiKeyModalProps } from '@/stores/modal';
 
-interface IssuedApiKeyModalProps {
-  isOpen: boolean;
-  apiKey: string;
-  onClose: () => void;
-}
-
-export function IssuedApiKeyModal({
-  isOpen,
-  apiKey,
-  onClose,
-}: IssuedApiKeyModalProps) {
+export default function IssuedApiKeyModal() {
   const { t } = useTranslation();
+  const currentModal = useModalStore((state) => state.currentModal);
+  const modalProps = useModalStore((state) => state.modalProps);
+  const closeModal = useModalStore((state) => state.closeModal);
+
+  const isOpen = currentModal === 'issuedApiKey';
+  const apiKey = (modalProps as IssuedApiKeyModalProps | null)?.apiKey ?? '';
+
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -29,8 +27,12 @@ export function IssuedApiKeyModal({
 
   const handleClose = () => {
     setCopied(false);
-    onClose();
+    closeModal();
   };
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <BaseModal
@@ -62,7 +64,9 @@ export function IssuedApiKeyModal({
             onClick={() => void handleCopy()}
             className="flex shrink-0 items-center justify-center rounded-xl border border-border px-3 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
             title={copied ? t('apiKeys.issued.copied') : t('apiKeys.issued.copy')}
-            aria-label={copied ? t('apiKeys.issued.copied') : t('apiKeys.issued.copy')}
+            aria-label={
+              copied ? t('apiKeys.issued.copied') : t('apiKeys.issued.copy')
+            }
           >
             {copied ? (
               <Check className="h-5 w-5 text-success" />

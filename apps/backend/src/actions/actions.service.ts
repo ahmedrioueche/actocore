@@ -8,10 +8,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import type {
   ActionData,
   CreateActionDto,
+  Paginated,
+  PaginationQuery,
   UpdateActionDto,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
+import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { ProjectsService } from '../projects/projects.service';
 import { ActionSchemaValidator } from './action-schema.validator';
 import {
@@ -74,6 +77,33 @@ export class ActionsService {
       .exec();
 
     return docs.map((doc) => this.toData(doc));
+  }
+
+  /** Paginated variant used by the Studio actions list route. */
+  async listPaginated(
+    projectId: string,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<ActionData>> {
+    await this.projects.assertExists(projectId);
+
+    const { page, limit, skip } = normalizePagination(query);
+    const scoped = withProjectId(projectId);
+
+    const [docs, total] = await Promise.all([
+      this.actionModel
+        .find(scoped)
+        .sort({ name: 1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.actionModel.countDocuments(scoped).exec(),
+    ]);
+
+    return paginate(
+      docs.map((doc) => this.toData(doc)),
+      total,
+      { page, limit },
+    );
   }
 
   async listEnabled(projectId: string): Promise<ActionData[]> {

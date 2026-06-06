@@ -2,6 +2,8 @@ import {
   DEFAULT_CURRENCY,
   type AppPlanLevel,
   type CreateStudioPlanDto,
+  type Paginated,
+  type PaginationQuery,
   type StudioPlan,
   type UpdateStudioPlanDto,
 } from '@ahmedrioueche/actocore-shared';
@@ -12,6 +14,10 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import {
+  normalizePagination,
+  paginate,
+} from '../common/pagination/pagination.util';
 import { StudioPlanModel } from './schemas/billing.schema';
 
 @Injectable()
@@ -36,6 +42,31 @@ export class StudioPlansService {
     const filter = includeInactive ? {} : { isActive: { $ne: false } };
     const docs = await this.planModel.find(filter).sort({ order: 1, level: 1 }).exec();
     return docs.map((d) => this.toPlan(d));
+  }
+
+  /** Paginated variant used by the Studio admin plans list route. */
+  async listPaginated(
+    includeInactive = false,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<StudioPlan>> {
+    const { page, limit, skip } = normalizePagination(query);
+    const filter = includeInactive ? {} : { isActive: { $ne: false } };
+
+    const [docs, total] = await Promise.all([
+      this.planModel
+        .find(filter)
+        .sort({ order: 1, level: 1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.planModel.countDocuments(filter).exec(),
+    ]);
+
+    return paginate(
+      docs.map((d) => this.toPlan(d)),
+      total,
+      { page, limit },
+    );
   }
 
   async listPublic(): Promise<StudioPlan[]> {

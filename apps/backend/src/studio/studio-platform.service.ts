@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { PlatformAccountListItemData } from '@ahmedrioueche/actocore-shared';
+import type {
+  Paginated,
+  PaginationQuery,
+  PlatformAccountListItemData,
+} from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
+import {
+  normalizePagination,
+  paginate,
+} from '../common/pagination/pagination.util';
 import {
   StudioSubscriptionModel,
 } from '../studio-billing/schemas/billing.schema';
@@ -21,11 +29,7 @@ export class StudioPlatformService {
     limit?: number;
   }): Promise<PlatformAccountListItemData[]> {
     const limit = Math.min(Math.max(options.limit ?? 50, 1), 200);
-    const filter: Record<string, unknown> = {};
-    const search = options.search?.trim();
-    if (search) {
-      filter.name = { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
-    }
+    const filter = this.buildAccountFilter(options.search);
 
     const accounts = await this.accountModel
       .find(filter)
@@ -33,6 +37,44 @@ export class StudioPlatformService {
       .limit(limit)
       .exec();
 
+    return this.enrichAccounts(accounts);
+  }
+
+  /** Paginated variant used by the Studio platform accounts route. */
+  async listAccountsPaginated(
+    options: { search?: string } & PaginationQuery = {},
+  ): Promise<Paginated<PlatformAccountListItemData>> {
+    const { page, limit, skip } = normalizePagination(options);
+    const filter = this.buildAccountFilter(options.search);
+
+    const [accounts, total] = await Promise.all([
+      this.accountModel
+        .find(filter)
+        .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.accountModel.countDocuments(filter).exec(),
+    ]);
+
+    return paginate(await this.enrichAccounts(accounts), total, { page, limit });
+  }
+
+  private buildAccountFilter(search?: string): Record<string, unknown> {
+    const filter: Record<string, unknown> = {};
+    const trimmed = search?.trim();
+    if (trimmed) {
+      filter.name = {
+        $regex: trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+        $options: 'i',
+      };
+    }
+    return filter;
+  }
+
+  private async enrichAccounts(
+    accounts: StudioAccountDocument[],
+  ): Promise<PlatformAccountListItemData[]> {
     const accountIds = accounts.map((a) => a._id);
     const subs = await this.subscriptionModel
       .find({

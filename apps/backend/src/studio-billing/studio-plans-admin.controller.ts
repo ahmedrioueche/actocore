@@ -28,9 +28,16 @@ export class StudioPlansAdminController {
   constructor(private readonly plans: StudioPlansService) {}
 
   @Get()
-  async list(@Query('includeInactive') includeInactive?: string) {
+  async list(
+    @Query('includeInactive') includeInactive?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
     return apiSuccess(
-      await this.plans.list(includeInactive === 'true'),
+      await this.plans.listPaginated(includeInactive === 'true', {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
     );
   }
 

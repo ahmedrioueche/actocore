@@ -1,6 +1,6 @@
 {
   "name": "@ahmedrioueche/actocore-shared",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "ActoCore API types, DTOs, and HTTP clients for backend, SDK, and Studio",
   "license": "UNLICENSED",
   "publishConfig": {

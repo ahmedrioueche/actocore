@@ -5,6 +5,7 @@ import {
   UpdateProjectSettingsDto,
 } from '../dtos/project.dto';
 import type { ApiResponse } from '../types/api-response';
+import type { Paginated } from '../types/pagination';
 import type {
   ListProjectSessionsQuery,
   ListProjectsQuery,
@@ -16,8 +17,13 @@ import type { StudioMessageData } from '../types/studio';
 import { BaseApi } from './helper';
 
 export class ProjectsApi extends BaseApi {
-  list(query: ListProjectsQuery = {}): Promise<ApiResponse<ProjectData[]>> {
+  list(
+    query: ListProjectsQuery = {},
+  ): Promise<ApiResponse<Paginated<ProjectData>>> {
     const params = new URLSearchParams();
+    if (query.page != null) {
+      params.set('page', String(query.page));
+    }
     if (query.limit != null) {
       params.set('limit', String(query.limit));
     }
@@ -31,7 +37,7 @@ export class ProjectsApi extends BaseApi {
     }
     const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<ProjectData[]>>(
+      this.client.get<ApiResponse<Paginated<ProjectData>>>(
         apiPath(`web/projects${qs ? `?${qs}` : ''}`),
       ),
     );
@@ -94,8 +100,11 @@ export class ProjectsApi extends BaseApi {
   listSessions(
     projectId: string,
     query: ListProjectSessionsQuery = {},
-  ): Promise<ApiResponse<SessionData[]>> {
+  ): Promise<ApiResponse<Paginated<SessionData>>> {
     const params = new URLSearchParams();
+    if (query.page != null) {
+      params.set('page', String(query.page));
+    }
     if (query.limit != null) {
       params.set('limit', String(query.limit));
     }
@@ -104,7 +113,7 @@ export class ProjectsApi extends BaseApi {
     }
     const qs = params.toString();
     return this.request(() =>
-      this.client.get<ApiResponse<SessionData[]>>(
+      this.client.get<ApiResponse<Paginated<SessionData>>>(
         apiPath(`web/projects/${projectId}/sessions${qs ? `?${qs}` : ''}`),
       ),
     );

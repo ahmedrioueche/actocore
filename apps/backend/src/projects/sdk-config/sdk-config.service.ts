@@ -6,6 +6,9 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   ActionData,
+  Paginated,
+  PaginationQuery,
+  SdkConfigAuditEntryData,
   SdkProjectConfigData,
   UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
@@ -63,6 +66,13 @@ export class SdkConfigService {
 
   listAudit(projectId: string, limit?: number) {
     return this.audit.listForProject(projectId, limit);
+  }
+
+  listAuditPaginated(
+    projectId: string,
+    query: PaginationQuery = {},
+  ): Promise<Paginated<SdkConfigAuditEntryData>> {
+    return this.audit.listForProjectPaginated(projectId, query);
   }
 
   /** Filters enabled actions when dashboard allowlist is configured. */
