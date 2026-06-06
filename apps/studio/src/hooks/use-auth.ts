@@ -3,6 +3,7 @@ import {
   studioAuthApi,
   TokenManager,
   type StudioLoginDto,
+  type StudioMessageData,
   type StudioSignupDto,
 } from '@ahmedrioueche/actocore-shared';
 
@@ -57,7 +58,7 @@ export function useResendVerification() {
     mutationFn: async (email: string) => {
       ensureApiConfigured();
       const res = await studioAuthApi.resendVerification({ email });
-      return parseApiResponse(res);
+      return parseApiResponse<StudioMessageData>(res);
     },
   });
 }

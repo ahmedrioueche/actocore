@@ -3,6 +3,7 @@ import {
   accountApi,
   onboardingApi,
   projectsApi,
+  type StudioOnboardingStateData,
   type StudioOnboardingStep,
   type UpdateStudioAccountDto,
   type UpdateStudioOnboardingDto,
@@ -16,7 +17,10 @@ export function useOnboardingState() {
   ensureApiConfigured();
   return useQuery({
     queryKey: queryKeys.onboarding.state(),
-    queryFn: async () => parseApiResponse(await onboardingApi.getState()),
+    queryFn: async () =>
+      parseApiResponse<StudioOnboardingStateData>(
+        await onboardingApi.getState(),
+      ),
     retry: false,
   });
 }
@@ -26,7 +30,7 @@ export function useCompleteOnboardingStep() {
   return useMutation({
     mutationFn: async (step: StudioOnboardingStep) => {
       ensureApiConfigured();
-      return parseApiResponse(
+      return parseApiResponse<StudioOnboardingStateData>(
         await onboardingApi.update({ completeStep: step }),
       );
     },
@@ -41,7 +45,9 @@ export function useSkipOnboarding() {
   return useMutation({
     mutationFn: async () => {
       ensureApiConfigured();
-      return parseApiResponse(await onboardingApi.update({ skip: true }));
+      return parseApiResponse<StudioOnboardingStateData>(
+        await onboardingApi.update({ skip: true }),
+      );
     },
     onSuccess: (data) => {
       queryClient.setQueryData(queryKeys.onboarding.state(), data);
@@ -54,7 +60,9 @@ export function useFinishOnboarding() {
   return useMutation({
     mutationFn: async (body: UpdateStudioOnboardingDto = { complete: true }) => {
       ensureApiConfigured();
-      return parseApiResponse(await onboardingApi.update(body));
+      return parseApiResponse<StudioOnboardingStateData>(
+        await onboardingApi.update(body),
+      );
     },
     onSuccess: (data) => {
       queryClient.setQueryData(queryKeys.onboarding.state(), data);

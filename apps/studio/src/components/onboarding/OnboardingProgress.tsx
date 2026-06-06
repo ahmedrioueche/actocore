@@ -19,7 +19,7 @@ export function OnboardingProgress({ currentStep }: OnboardingProgressProps) {
   return (
     <nav aria-label={t('onboarding.progressLabel')} className="w-full">
       <ol className="flex items-center gap-2">
-        {STUDIO_ONBOARDING_STEPS.map((step, index) => {
+        {STUDIO_ONBOARDING_STEPS.map((step, index: number) => {
           const done = index < activeIndex;
           const active = index === activeIndex;
           return (
