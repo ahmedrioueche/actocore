@@ -28,7 +28,10 @@ describe('ChatOrchestratorService', () => {
 
   const llmMock = { complete: jest.fn() };
   const classifierMock = { classify: jest.fn().mockResolvedValue('direct') };
-  const actionsMock = { listEnabled: jest.fn().mockResolvedValue([]) };
+  const actionsMock = {
+    listEnabled: jest.fn().mockResolvedValue([]),
+    sectionNameMap: jest.fn().mockResolvedValue(new Map<string, string>()),
+  };
   const selectorMock = { select: jest.fn() };
   const runnerMock = {
     formatNoActionsMessage: jest

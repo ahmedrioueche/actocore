@@ -5,6 +5,11 @@ import type { ActionData } from '../types/action';
 import type { Paginated, PaginationQuery } from '../types/pagination';
 import { BaseApi } from './helper';
 
+export interface ListActionsQuery extends PaginationQuery {
+  /** Filter by section id, or the `uncategorized` sentinel for actions with no section. */
+  sectionId?: string;
+}
+
 export class ActionsApi extends BaseApi {
   create(
     projectId: string,
@@ -20,7 +25,7 @@ export class ActionsApi extends BaseApi {
 
   list(
     projectId: string,
-    query: PaginationQuery = {},
+    query: ListActionsQuery = {},
   ): Promise<ApiResponse<Paginated<ActionData>>> {
     const params = new URLSearchParams();
     if (query.page != null) {
@@ -28,6 +33,9 @@ export class ActionsApi extends BaseApi {
     }
     if (query.limit != null) {
       params.set('limit', String(query.limit));
+    }
+    if (query.sectionId != null) {
+      params.set('sectionId', query.sectionId);
     }
     const qs = params.toString();
     return this.request(() =>

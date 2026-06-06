@@ -2,13 +2,21 @@ import { Pencil } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  ActionSchemaEditor,
+  isSchemaEditorAdvancedLocked,
+  schemaEditorValueFromInputSchema,
+  type ActionSchemaEditorValue,
+} from '@/components/actions/ActionSchemaEditor';
+import { useSectionOptions } from '@/components/actions/use-section-options';
 import BaseModal from '@/components/ui/BaseModal';
+import CustomSelect from '@/components/ui/CustomSelect';
 import InputField from '@/components/ui/InputField';
 import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
-import { formatInputSchema, parseInputSchema } from '@/constants/actions';
 import { useAction, useUpdateAction } from '@/hooks/use-actions';
 import { useModalStore, type EditActionModalProps } from '@/stores/modal';
+import { resolveInputSchema } from '@/utils/action-schema-builder';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditActionModal() {
@@ -25,10 +33,15 @@ export default function EditActionModal() {
   const actionQuery = useAction(isOpen ? projectId : null, isOpen ? actionId : null);
   const action = actionQuery.data;
   const updateAction = useUpdateAction(projectId);
+  const sectionOptions = useSectionOptions(isOpen ? projectId : null);
 
   const [description, setDescription] = useState('');
-  const [schemaText, setSchemaText] = useState('');
+  const [schemaEditor, setSchemaEditor] = useState<ActionSchemaEditorValue>(
+    schemaEditorValueFromInputSchema({ type: 'object', properties: {} }),
+  );
+  const [advancedLocked, setAdvancedLocked] = useState(false);
   const [enabled, setEnabled] = useState(true);
+  const [sectionId, setSectionId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const seededRef = useRef(false);
 
@@ -41,8 +54,10 @@ export default function EditActionModal() {
   useEffect(() => {
     if (isOpen && action && !seededRef.current) {
       setDescription(action.description ?? '');
-      setSchemaText(formatInputSchema(action.inputSchema));
+      setSchemaEditor(schemaEditorValueFromInputSchema(action.inputSchema));
+      setAdvancedLocked(isSchemaEditorAdvancedLocked(action.inputSchema));
       setEnabled(action.enabled);
+      setSectionId(action.sectionId ?? '');
       setError(null);
       seededRef.current = true;
     }
@@ -58,9 +73,18 @@ export default function EditActionModal() {
       return;
     }
 
-    const schema = parseInputSchema(schemaText);
-    if (!schema.ok || !schema.value) {
-      setError(t('projectActions.errors.invalidSchema'));
+    const resolved = resolveInputSchema({
+      advancedMode: schemaEditor.advancedMode,
+      schemaText: schemaEditor.schemaText,
+      fields: schemaEditor.fields,
+    });
+
+    if (!resolved.ok) {
+      setError(
+        resolved.error === 'invalidSchema'
+          ? t('projectActions.errors.invalidSchema')
+          : t(`projectActions.parameters.errors.${resolved.error}`),
+      );
       return;
     }
 
@@ -70,8 +94,9 @@ export default function EditActionModal() {
         actionId,
         body: {
           description: description.trim() || undefined,
-          inputSchema: schema.value,
+          inputSchema: resolved.value,
           enabled,
+          sectionId: sectionId || null,
         },
       });
       closeModal();
@@ -120,28 +145,30 @@ export default function EditActionModal() {
           disabled
         />
 
-        <InputField
+        <TextArea
           label={t('projectActions.fields.description')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t('projectActions.fields.descriptionPlaceholder')}
+          rows={3}
           disabled={actionQuery.isLoading}
         />
 
-        <div>
-          <TextArea
-            label={t('projectActions.fields.inputSchema')}
-            value={schemaText}
-            onChange={(e) => setSchemaText(e.target.value)}
-            rows={8}
-            spellCheck={false}
-            className="font-mono text-xs"
-            disabled={actionQuery.isLoading}
-          />
-          <p className="mt-1.5 text-xs text-text-secondary">
-            {t('projectActions.fields.inputSchemaHint')}
-          </p>
-        </div>
+        <CustomSelect
+          title={t('projectActions.fields.section')}
+          options={sectionOptions}
+          selectedOption={sectionId}
+          onChange={setSectionId}
+          disabled={actionQuery.isLoading}
+          showIcon={false}
+        />
+
+        <ActionSchemaEditor
+          value={schemaEditor}
+          onChange={setSchemaEditor}
+          disabled={actionQuery.isLoading}
+          advancedLocked={advancedLocked}
+        />
 
         <ToggleSwitch
           checked={enabled}

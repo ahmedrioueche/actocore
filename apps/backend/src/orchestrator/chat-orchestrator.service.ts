@@ -202,7 +202,12 @@ export class ChatOrchestratorService {
       return { content: this.actionRunner.formatNoActionsMessage() };
     }
 
-    const selection = await this.actionSelector.select(userMessage, enabled);
+    const sectionNames = await this.actions.sectionNameMap(projectId);
+    const selection = await this.actionSelector.select(
+      userMessage,
+      enabled,
+      sectionNames,
+    );
 
     if (!selection) {
       return { content: this.actionRunner.formatNoMatchMessage(enabled) };

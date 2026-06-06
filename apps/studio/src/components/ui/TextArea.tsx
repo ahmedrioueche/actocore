@@ -26,7 +26,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const textareaClasses = `${baseClasses} ${disabledClasses} ${errorClasses} ${className}`;
 
     return (
-      <div className="space-y-2" style={{ width }}>
+      <div className="space-y-2 " style={{ width }}>
         {label && (
           <label className="block text-sm font-medium text-text-primary">
             {label}

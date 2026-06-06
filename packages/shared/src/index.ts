@@ -20,6 +20,7 @@ export * from './api/runtime';
 export * from './api/api-keys';
 export * from './api/projects';
 export * from './api/actions';
+export * from './api/action-sections';
 export * from './api/sdk-actions';
 export * from './api/knowledge';
 export * from './api/usage';

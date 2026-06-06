@@ -29,6 +29,8 @@ export interface SdkThemeConfig {
 
 export interface SdkSecurityConfig {
   allowedActionNames?: string[];
+  /** Allow every action belonging to these section ids (union with allowedActionNames). */
+  allowedSectionIds?: string[];
   enforceActionAllowlist?: boolean;
 }
 

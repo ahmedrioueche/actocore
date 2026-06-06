@@ -1,7 +1,7 @@
 import type { ActionData } from '@ahmedrioueche/actocore-shared';
 import type { PaginationState } from '@tanstack/react-table';
 import { Pencil, Trash2, Zap } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components/states';
@@ -20,9 +20,11 @@ import type { ColumnDef } from '@/types/table';
 
 interface ActionsTableProps {
   projectId: string;
+  /** Section filter; `uncategorized` sentinel or a section id, or undefined for all. */
+  sectionId?: string;
 }
 
-export function ActionsTable({ projectId }: ActionsTableProps) {
+export function ActionsTable({ projectId, sectionId }: ActionsTableProps) {
   const { t, i18n } = useTranslation();
   const { session } = useAuth();
   const openConfirm = useModalStore((state) => state.openConfirm);
@@ -33,9 +35,14 @@ export function ActionsTable({ projectId }: ActionsTableProps) {
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, [sectionId]);
+
   const actionsQuery = useProjectActions(projectId, {
     page: pagination.pageIndex + 1,
     limit: pagination.pageSize,
+    sectionId,
   });
   const updateAction = useUpdateAction(projectId);
   const deleteAction = useDeleteAction(projectId);

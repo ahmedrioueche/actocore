@@ -12,15 +12,22 @@ import type {
   PaginationQuery,
   UpdateActionDto,
 } from '@ahmedrioueche/actocore-shared';
+import { UNCATEGORIZED_SECTION_ID } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { ProjectsService } from '../projects/projects.service';
+import { ActionSectionsService } from './action-sections.service';
 import { ActionSchemaValidator } from './action-schema.validator';
 import {
   ProjectAction,
   ProjectActionDocument,
 } from './schemas/project-action.schema';
+
+export interface ListActionsFilter extends PaginationQuery {
+  /** Section id, or the `uncategorized` sentinel for actions with no section. */
+  sectionId?: string;
+}
 
 const DEFAULT_INPUT_SCHEMA = {
   type: 'object',
@@ -34,6 +41,7 @@ export class ActionsService {
     @InjectModel(ProjectAction.name)
     private readonly actionModel: Model<ProjectActionDocument>,
     private readonly projects: ProjectsService,
+    private readonly sections: ActionSectionsService,
     private readonly schemaValidator: ActionSchemaValidator,
   ) {}
 
@@ -49,6 +57,10 @@ export class ActionsService {
       );
     }
 
+    if (body.sectionId) {
+      await this.sections.require(projectId, body.sectionId);
+    }
+
     try {
       const doc = await this.actionModel.create({
         projectId,
@@ -56,6 +68,7 @@ export class ActionsService {
         description: body.description,
         inputSchema,
         enabled: body.enabled ?? true,
+        sectionId: body.sectionId ?? null,
       });
       return this.toData(doc);
     } catch (error) {
@@ -82,12 +95,12 @@ export class ActionsService {
   /** Paginated variant used by the Studio actions list route. */
   async listPaginated(
     projectId: string,
-    query: PaginationQuery = {},
+    query: ListActionsFilter = {},
   ): Promise<Paginated<ActionData>> {
     await this.projects.assertExists(projectId);
 
     const { page, limit, skip } = normalizePagination(query);
-    const scoped = withProjectId(projectId);
+    const scoped = this.buildSectionFilter(projectId, query.sectionId);
 
     const [docs, total] = await Promise.all([
       this.actionModel
@@ -107,8 +120,35 @@ export class ActionsService {
   }
 
   async listEnabled(projectId: string): Promise<ActionData[]> {
-    const all = await this.list(projectId);
-    return all.filter((action) => action.enabled);
+    const [all, disabledSectionIds] = await Promise.all([
+      this.list(projectId),
+      this.sections.listDisabledIds(projectId),
+    ]);
+    const disabled = new Set(disabledSectionIds);
+    return all.filter(
+      (action) =>
+        action.enabled && !(action.sectionId && disabled.has(action.sectionId)),
+    );
+  }
+
+  private buildSectionFilter(
+    projectId: string,
+    sectionId?: string,
+  ): Record<string, unknown> {
+    if (!sectionId) {
+      return withProjectId(projectId);
+    }
+    if (sectionId === UNCATEGORIZED_SECTION_ID) {
+      return withProjectId(projectId, {
+        $or: [{ sectionId: null }, { sectionId: { $exists: false } }],
+      });
+    }
+    return withProjectId(projectId, { sectionId });
+  }
+
+  /** Section id -> name map for runtime selection grouping hints. */
+  sectionNameMap(projectId: string): Promise<Map<string, string>> {
+    return this.sections.nameMap(projectId);
   }
 
   async findById(projectId: string, actionId: string): Promise<ActionData> {
@@ -139,6 +179,14 @@ export class ActionsService {
     }
     if (body.enabled !== undefined) {
       $set.enabled = body.enabled;
+    }
+    if (body.sectionId !== undefined) {
+      if (body.sectionId) {
+        await this.sections.require(projectId, body.sectionId);
+        $set.sectionId = body.sectionId;
+      } else {
+        $set.sectionId = null;
+      }
     }
 
     const doc = await this.actionModel
@@ -200,6 +248,7 @@ export class ActionsService {
       description: doc.description,
       inputSchema: doc.inputSchema,
       enabled: doc.enabled,
+      sectionId: doc.sectionId ?? undefined,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: (doc.updatedAt ?? new Date()).toISOString(),
     };

@@ -20,6 +20,18 @@ const CreateActionModal = lazy(
 const EditActionModal = lazy(
   () => import('@/components/actions/EditActionModal'),
 );
+const CreateSectionModal = lazy(
+  () => import('@/components/actions/CreateSectionModal'),
+);
+const EditSectionModal = lazy(
+  () => import('@/components/actions/EditSectionModal'),
+);
+const ActionCreatedModal = lazy(
+  () => import('@/components/actions/ActionCreatedModal'),
+);
+const ActionsSdkCodeModal = lazy(
+  () => import('@/components/actions/ActionsSdkCodeModal'),
+);
 
 export default function Modals() {
   return (
@@ -32,6 +44,10 @@ export default function Modals() {
         <IssuedApiKeyModal />
         <CreateActionModal />
         <EditActionModal />
+        <CreateSectionModal />
+        <EditSectionModal />
+        <ActionCreatedModal />
+        <ActionsSdkCodeModal />
       </Suspense>
     </>
   );

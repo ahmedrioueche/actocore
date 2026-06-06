@@ -49,6 +49,12 @@ export class SdkSecurityConfigDto {
   allowedActionNames?: string[];
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
+  allowedSectionIds?: string[];
+
+  @IsOptional()
   @IsBoolean()
   enforceActionAllowlist?: boolean;
 }

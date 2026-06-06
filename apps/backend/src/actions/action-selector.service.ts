@@ -18,6 +18,7 @@ export class ActionSelectorService {
   async select(
     userMessage: string,
     actions: ActionData[],
+    sectionNames?: Map<string, string>,
   ): Promise<ActionSelection | null> {
     if (actions.length === 0) {
       return null;
@@ -28,7 +29,7 @@ export class ActionSelectorService {
       return heuristic;
     }
 
-    return this.selectWithLlm(userMessage, actions);
+    return this.selectWithLlm(userMessage, actions, sectionNames);
   }
 
   private selectHeuristic(
@@ -55,13 +56,9 @@ export class ActionSelectorService {
   private async selectWithLlm(
     userMessage: string,
     actions: ActionData[],
+    sectionNames?: Map<string, string>,
   ): Promise<ActionSelection | null> {
-    const catalog = actions
-      .map(
-        (a) =>
-          `- ${a.name}: ${a.description ?? 'No description'}\n  schema: ${JSON.stringify(a.inputSchema)}`,
-      )
-      .join('\n');
+    const catalog = this.buildCatalog(actions, sectionNames);
 
     const completion = await this.llm.complete([
       {
@@ -96,6 +93,37 @@ export class ActionSelectorService {
     } catch {
       return null;
     }
+  }
+
+  /** Renders the action catalog, grouped by section name when section info is available. */
+  private buildCatalog(
+    actions: ActionData[],
+    sectionNames?: Map<string, string>,
+  ): string {
+    const describe = (a: ActionData) =>
+      `- ${a.name}: ${a.description ?? 'No description'}\n  schema: ${JSON.stringify(a.inputSchema)}`;
+
+    if (!sectionNames || sectionNames.size === 0) {
+      return actions.map(describe).join('\n');
+    }
+
+    const UNCATEGORIZED = 'Uncategorized';
+    const groups = new Map<string, ActionData[]>();
+    for (const action of actions) {
+      const label =
+        (action.sectionId && sectionNames.get(action.sectionId)) ||
+        UNCATEGORIZED;
+      const bucket = groups.get(label) ?? [];
+      bucket.push(action);
+      groups.set(label, bucket);
+    }
+
+    return Array.from(groups.entries())
+      .map(
+        ([section, items]) =>
+          `## ${section}\n${items.map(describe).join('\n')}`,
+      )
+      .join('\n\n');
   }
 
   private extractJsonInput(

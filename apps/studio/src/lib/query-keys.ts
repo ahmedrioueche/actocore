@@ -1,4 +1,5 @@
 import type {
+  ListActionsQuery,
   ListProjectsQuery,
   PaginationQuery,
 } from "@ahmedrioueche/actocore-shared";
@@ -39,9 +40,12 @@ export const queryKeys = {
   },
   actions: {
     lists: (projectId: string) => ["actions", "list", projectId] as const,
-    list: (projectId: string, params: PaginationQuery = {}) =>
+    list: (projectId: string, params: ListActionsQuery = {}) =>
       ["actions", "list", projectId, params] as const,
     detail: (projectId: string, actionId: string) =>
       ["actions", "detail", projectId, actionId] as const,
+  },
+  actionSections: {
+    list: (projectId: string) => ["actionSections", "list", projectId] as const,
   },
 } as const;

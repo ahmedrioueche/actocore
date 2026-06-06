@@ -322,13 +322,27 @@
       "descriptionPlaceholder": "What this action does (helps the assistant decide when to call it)",
       "inputSchema": "Input schema (JSON)",
       "inputSchemaHint": "JSON Schema describing the arguments the assistant must provide.",
-      "enabled": "Enabled"
+      "enabled": "Enabled",
+      "section": "Section"
     },
     "create": {
       "button": "Create action",
       "title": "Create action",
       "subtitle": "Define a tool your assistant can call from chat and voice.",
-      "submit": "Create action"
+      "submit": "Create action",
+      "step1Title": "Action basics",
+      "step2Title": "Input parameters",
+      "stepCounter": "Step {{current}} of {{total}}",
+      "progressLabel": "Create action progress",
+      "next": "Next",
+      "back": "Back",
+      "suggestName": "Suggest name from description",
+      "howItWorks": {
+        "title": "How actions work",
+        "studio": "You define the action and its parameters here in Studio.",
+        "ai": "The assistant picks the action and fills in parameters from chat.",
+        "sdk": "Your app runs the handler in the SDK — wire it to your API."
+      }
     },
     "edit": {
       "title": "Edit action",
@@ -343,6 +357,116 @@
     "errors": {
       "invalidName": "Name must be a lowercase slug (letters, numbers, hyphens, underscores).",
       "invalidSchema": "Input schema must be a valid JSON object."
+    },
+    "advancedMode": "Advanced JSON schema",
+    "advancedModeHint": "Edit the raw JSON Schema sent to the assistant. Switch off to use the visual builder when the schema is compatible.",
+    "advancedModeLockedHint": "This schema uses advanced shapes. Edit it as JSON or simplify it to use the visual builder.",
+    "templates": {
+      "title": "Start from a template",
+      "no_params": {
+        "label": "No parameters",
+        "description": "For navigation, refresh, or other actions that need no input."
+      },
+      "single_email": {
+        "label": "Email address",
+        "description": "One required email field."
+      },
+      "single_id": {
+        "label": "Record ID",
+        "description": "One required id field — for get or delete actions."
+      },
+      "search_query": {
+        "label": "Search query",
+        "description": "One required search string."
+      },
+      "create_record": {
+        "label": "Create record",
+        "description": "One required title field — add more parameters below if needed."
+      },
+      "update_record": {
+        "label": "Update record",
+        "description": "Record name plus a data payload — e.g. update a gym by name with new field values."
+      },
+      "custom": {
+        "label": "Custom",
+        "description": "Build your own parameter list."
+      }
+    },
+    "parameters": {
+      "empty": "No parameters yet. Add fields or pick a template above.",
+      "fieldLabel": "Parameter {{index}}",
+      "name": "Parameter name",
+      "namePlaceholder": "e.g. email",
+      "type": "Type",
+      "description": "Description",
+      "descriptionPlaceholder": "Helps the assistant know what to collect",
+      "required": "Required",
+      "addField": "Add parameter",
+      "removeField": "Remove parameter",
+      "types": {
+        "string": "Text",
+        "number": "Number",
+        "boolean": "Yes / No"
+      },
+      "errors": {
+        "invalidName": "Parameter names must be lowercase slugs (letters, numbers, underscores).",
+        "duplicateName": "Parameter names must be unique."
+      }
+    },
+    "created": {
+      "title": "Action created",
+      "subtitle": "Wire up \"{{name}}\" in your app",
+      "handlerHint": "Register a handler with the same name in your SDK. The assistant validates input; your code runs the action.",
+      "copySnippet": "Copy SDK snippet",
+      "copied": "Copied",
+      "done": "Done"
+    },
+    "generateCode": {
+      "button": "Generate SDK code",
+      "title": "SDK integration code",
+      "subtitle": "Drop this component into your React app and fill in the TODO handlers.",
+      "hint": "Includes imports, ActocoreProvider, security allowlist, and typed handlers for every enabled action. Set VITE_ACTOCORE_API_KEY and VITE_ACTOCORE_API_URL in your environment.",
+      "empty": "Enable at least one action to generate integration code.",
+      "loading": "Loading actions…",
+      "copySnippet": "Copy code",
+      "copied": "Copied",
+      "done": "Done",
+      "truncatedHint": "Only the first {{count}} of {{total}} actions are included. Add any remaining handlers manually."
+    },
+    "sections": {
+      "title": "Sections",
+      "all": "All actions",
+      "uncategorized": "Uncategorized",
+      "enable": "Enable section",
+      "disable": "Disable section",
+      "fields": {
+        "name": "Name",
+        "namePlaceholder": "e.g. Billing",
+        "description": "Description",
+        "descriptionPlaceholder": "What kind of actions live here",
+        "color": "Color",
+        "enabled": "Enabled",
+        "enabledHint": "When disabled, the assistant cannot call any action in this section."
+      },
+      "create": {
+        "button": "New section",
+        "title": "Create section",
+        "subtitle": "Group related actions so they are easier to manage.",
+        "submit": "Create section"
+      },
+      "edit": {
+        "title": "Edit section",
+        "subtitle": "Update this section.",
+        "submit": "Save changes"
+      },
+      "delete": {
+        "title": "Delete section?",
+        "text": "“{{name}}” will be removed. Its actions are kept and moved to Uncategorized.",
+        "confirm": "Delete section"
+      },
+      "errors": {
+        "nameRequired": "Please enter a section name."
+      }
     }
   },
   "nav": {

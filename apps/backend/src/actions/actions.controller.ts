@@ -57,6 +57,7 @@ export class ActionsController {
     @Param('projectId') projectId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('sectionId') sectionId?: string,
   ) {
     await assertStudioProjectRoute(
       ctx,
@@ -68,6 +69,7 @@ export class ActionsController {
       await this.actions.listPaginated(projectId, {
         page: page ? parseInt(page, 10) : undefined,
         limit: limit ? parseInt(limit, 10) : undefined,
+        sectionId: sectionId?.trim() || undefined,
       }),
     );
   }

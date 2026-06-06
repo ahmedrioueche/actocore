@@ -125,14 +125,21 @@ function pickSecurity(raw: unknown): SdkProjectConfigData['security'] | undefine
   const allowedActionNames = Array.isArray(o.allowedActionNames)
     ? o.allowedActionNames.filter((n): n is string => typeof n === 'string')
     : undefined;
+  const allowedSectionIds = Array.isArray(o.allowedSectionIds)
+    ? o.allowedSectionIds.filter((n): n is string => typeof n === 'string')
+    : undefined;
   const enforceActionAllowlist =
     typeof o.enforceActionAllowlist === 'boolean'
       ? o.enforceActionAllowlist
       : undefined;
-  if (!allowedActionNames?.length && enforceActionAllowlist === undefined) {
+  if (
+    !allowedActionNames?.length &&
+    !allowedSectionIds?.length &&
+    enforceActionAllowlist === undefined
+  ) {
     return undefined;
   }
-  return { allowedActionNames, enforceActionAllowlist };
+  return { allowedActionNames, allowedSectionIds, enforceActionAllowlist };
 }
 
 function pickUi(raw: unknown): SdkProjectConfigData['ui'] | undefined {

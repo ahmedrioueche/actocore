@@ -19,6 +19,9 @@ export class ProjectAction {
   @Prop({ default: true })
   enabled!: boolean;
 
+  @Prop({ type: String, default: null, index: true })
+  sectionId?: string | null;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -27,3 +30,4 @@ export type ProjectActionDocument = HydratedDocument<ProjectAction>;
 export const ProjectActionSchema = SchemaFactory.createForClass(ProjectAction);
 
 ProjectActionSchema.index({ projectId: 1, name: 1 }, { unique: true });
+ProjectActionSchema.index({ projectId: 1, sectionId: 1 });

@@ -75,20 +75,26 @@ export class SdkConfigService {
     return this.audit.listForProjectPaginated(projectId, query);
   }
 
-  /** Filters enabled actions when dashboard allowlist is configured. */
+  /** Filters enabled actions when a dashboard allowlist (names or sections) is configured. */
   filterEnabledActions(
     projectId: string,
     enabled: ActionData[],
     sdkConfig?: SdkProjectConfigData,
   ): ActionData[] {
     const config = sdkConfig ?? emptySdkProjectConfig();
-    const allowlist = config.security?.allowedActionNames;
-    if (!allowlist?.length) {
+    const allowedNames = config.security?.allowedActionNames;
+    const allowedSections = config.security?.allowedSectionIds;
+    if (!allowedNames?.length && !allowedSections?.length) {
       return enabled;
     }
 
-    const allowed = new Set(allowlist);
-    return enabled.filter((action) => allowed.has(action.name));
+    const names = new Set(allowedNames ?? []);
+    const sections = new Set(allowedSections ?? []);
+    return enabled.filter(
+      (action) =>
+        names.has(action.name) ||
+        (action.sectionId != null && sections.has(action.sectionId)),
+    );
   }
 
   private changedSections(patch: UpdateSdkProjectConfigDto): string[] {

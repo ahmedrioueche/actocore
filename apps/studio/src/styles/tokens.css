@@ -95,6 +95,12 @@
   --ac-content-max-width: 72rem;
   --ac-content-padding-x: 1rem;
   --ac-content-padding-y: 1rem;
+
+  /* Scrollbars */
+  --ac-scrollbar-width: 7px;
+  --ac-scrollbar-radius: 5px;
+  --ac-scrollbar-track: var(--ac-color-surface);
+  --ac-scrollbar-thumb: var(--ac-color-primary);
 }
 
 @media (min-width: 768px) {
@@ -167,4 +173,7 @@
     rgb(129 140 248 / 0) 70%
   );
   --ac-auth-code-surface: rgb(9 9 15 / 0.72);
+
+  --ac-scrollbar-track: var(--ac-color-bg);
+  --ac-scrollbar-thumb: var(--ac-color-primary);
 }

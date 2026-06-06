@@ -8,7 +8,7 @@ import {
   actionsApi,
   type ActionData,
   type CreateActionDto,
-  type PaginationQuery,
+  type ListActionsQuery,
   type UpdateActionDto,
 } from '@ahmedrioueche/actocore-shared';
 
@@ -18,7 +18,7 @@ import { queryKeys } from '@/lib/query-keys';
 
 export function useProjectActions(
   projectId: string | null,
-  query: PaginationQuery = {},
+  query: ListActionsQuery = {},
 ) {
   ensureApiConfigured();
   return useQuery({

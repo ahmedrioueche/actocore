@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import type { ActionParameterType } from '@/utils/action-schema-builder';
+
 export interface ConfirmSecondaryAction {
   label: string;
   onClick: () => void | Promise<void>;
@@ -37,11 +39,31 @@ export interface IssuedApiKeyModalProps {
 
 export interface CreateActionModalProps {
   projectId: string;
+  /** Preselect this section in the create form. */
+  defaultSectionId?: string;
 }
 
 export interface EditActionModalProps {
   projectId: string;
   actionId: string;
+}
+
+export interface CreateSectionModalProps {
+  projectId: string;
+}
+
+export interface EditSectionModalProps {
+  projectId: string;
+  sectionId: string;
+}
+
+export interface ActionCreatedModalProps {
+  actionName: string;
+  parameters: { name: string; type: ActionParameterType }[];
+}
+
+export interface ActionsSdkCodeModalProps {
+  projectId: string;
 }
 
 /**
@@ -55,6 +77,10 @@ export interface ModalPropsMap {
   issuedApiKey: IssuedApiKeyModalProps;
   createAction: CreateActionModalProps;
   editAction: EditActionModalProps;
+  createSection: CreateSectionModalProps;
+  editSection: EditSectionModalProps;
+  actionCreated: ActionCreatedModalProps;
+  actionsSdkCode: ActionsSdkCodeModalProps;
 }
 
 export type ModalId = 'confirm' | keyof ModalPropsMap | null;
