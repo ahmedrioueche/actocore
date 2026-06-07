@@ -13,7 +13,7 @@ import { resolveVoiceConfig } from './voice.config';
 import { resolveKnowledgeConfig } from './knowledge.config';
 import { resolveQuotaLimits } from './quota.config';
 import { isRedisEnabled, resolveRedisUrl } from './redis.config';
-import { resolvePaddleConfig } from './paddle.config';
+import { resolvePayPalConfig } from './paypal.config';
 
 export default () => {
   const uri = resolveMongoUri();
@@ -40,6 +40,6 @@ export default () => {
     voice: resolveVoiceConfig(),
     knowledge: resolveKnowledgeConfig(),
     quota: resolveQuotaLimits(),
-    paddle: resolvePaddleConfig(),
+    paypal: resolvePayPalConfig(),
   };
 };

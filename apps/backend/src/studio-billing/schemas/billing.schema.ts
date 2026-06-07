@@ -53,10 +53,10 @@ export class StudioPlanModel extends Document {
   pricing!: Record<string, { monthly?: number; yearly?: number }>;
 
   @Prop()
-  paddleProductId?: string;
+  paypalProductId?: string;
 
   @Prop({ type: Object })
-  paddlePriceIds?: { monthly?: string; yearly?: string };
+  paypalPlanIds?: { monthly?: string; yearly?: string };
 
   @Prop({ type: StudioPlanLimitsSchema, required: true })
   limits!: StudioPlanLimitsSchema;
@@ -74,8 +74,8 @@ export class StudioPlanModel extends Document {
 export const StudioPlanSchema = SchemaFactory.createForClass(StudioPlanModel);
 StudioPlanSchema.index({ level: 1, isActive: 1 });
 
-@Schema({ collection: 'studio_paddle_webhook_events', timestamps: false })
-export class StudioPaddleWebhookEventModel extends Document {
+@Schema({ collection: 'studio_paypal_webhook_events', timestamps: false })
+export class StudioPayPalWebhookEventModel extends Document {
   @Prop({ required: true, unique: true })
   eventId!: string;
 
@@ -86,8 +86,8 @@ export class StudioPaddleWebhookEventModel extends Document {
   processedAt!: Date;
 }
 
-export const StudioPaddleWebhookEventSchema = SchemaFactory.createForClass(
-  StudioPaddleWebhookEventModel,
+export const StudioPayPalWebhookEventSchema = SchemaFactory.createForClass(
+  StudioPayPalWebhookEventModel,
 );
 
 @Schema({ _id: false })
@@ -165,10 +165,10 @@ export class StudioSubscriptionModel extends Document {
   provider!: AppPaymentProvider;
 
   @Prop({ unique: true, sparse: true })
-  paddleSubscriptionId?: string;
+  paypalSubscriptionId?: string;
 
   @Prop()
-  paddleCustomerId?: string;
+  paypalPayerId?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

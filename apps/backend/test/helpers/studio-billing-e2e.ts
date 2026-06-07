@@ -13,7 +13,14 @@ export async function seedStudioPlansForE2e(app: INestApplication): Promise<void
   await planModel.updateOne(
     { planId: 'starter' },
     {
-      $set: { ...starterPlan, updatedAt: new Date() },
+      $set: {
+        ...starterPlan,
+        paypalPlanIds: {
+          monthly: 'P-TEST-STARTER-MONTHLY',
+          yearly: 'P-TEST-STARTER-YEARLY',
+        },
+        updatedAt: new Date(),
+      },
       $setOnInsert: { createdAt: new Date() },
     },
     { upsert: true },

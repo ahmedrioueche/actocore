@@ -91,7 +91,7 @@ export class StudioPlatformService {
       name: doc.name,
       billingEmail: doc.billingEmail,
       planId: planByAccount.get(doc._id.toString()),
-      paddleCustomerId: doc.paddleCustomerId,
+      paypalPayerId: doc.paypalPayerId,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: (doc.updatedAt ?? new Date()).toISOString(),
     }));
@@ -116,7 +116,7 @@ export class StudioPlatformService {
       name: doc.name,
       billingEmail: doc.billingEmail,
       planId: sub?.planId,
-      paddleCustomerId: doc.paddleCustomerId,
+      paypalPayerId: doc.paypalPayerId,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: (doc.updatedAt ?? new Date()).toISOString(),
     };

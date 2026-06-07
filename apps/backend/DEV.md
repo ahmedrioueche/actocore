@@ -85,11 +85,13 @@ STUDIO_AUTH_DISABLED=true
 
 Or call `POST /v1/web/auth/signup` then use `accessToken` on web routes (playground will get login helper later).
 
-**Billing (Paddle):** seed plan catalog (Free + Starter + Pro), then set Paddle price IDs on paid plans (env vars on seed or super-admin PATCH):
+**Billing (PayPal):** create PayPal catalog + plans, then seed the Mongo plan catalog:
 
 ```powershell
 cd apps/backend
-# optional: $env:PADDLE_PRODUCT_STARTER="pro_..."; $env:PADDLE_PRICE_STARTER_MONTHLY="pri_..."
+# requires PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET
+npm run seed:paypal-catalog
+# copy printed PAYPAL_PLAN_* vars into .env, then:
 npm run seed:plans
 ```
 

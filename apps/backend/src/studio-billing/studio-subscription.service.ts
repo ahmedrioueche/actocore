@@ -6,11 +6,11 @@ import {
   type Paginated,
   type PaginationQuery,
   type StudioBillingHistoryEntry,
-  type StudioCustomerPortalData,
   type StudioPlan,
   type StudioSubscription,
   type StudioTrialEligibility,
   type StudioUpgradePreviewData,
+  type StudioUpgradeResult,
   type SupportedCurrency,
 } from '@ahmedrioueche/actocore-shared';
 import {
@@ -42,8 +42,12 @@ import {
   StudioSubscriptionHistoryModel,
   StudioSubscriptionModel,
 } from './schemas/billing.schema';
-import { StudioPaddleService, type PaddleSubscriptionData } from './studio-paddle.service';
+import {
+  StudioPayPalService,
+  type PayPalSubscriptionData,
+} from './studio-paypal.service';
 import { StudioPlansService } from './studio-plans.service';
+import { decodePayPalCustomId } from './utils/paypal-custom-id.util';
 import { isDowngrade, isUpgrade } from './utils/plan-level.util';
 import { isMongoDuplicateKeyError } from './utils/mongo-duplicate.util';
 import { calculateSubscriptionDates } from './utils/subscription-dates.util';
@@ -74,8 +78,8 @@ export class StudioSubscriptionService {
     private readonly projectModel: Model<ProjectDocument>,
     private readonly plans: StudioPlansService,
     private readonly usage: UsageService,
-    @Inject(forwardRef(() => StudioPaddleService))
-    private readonly paddle: StudioPaddleService,
+    @Inject(forwardRef(() => StudioPayPalService))
+    private readonly paypal: StudioPayPalService,
   ) {}
 
   async getAccountSubscription(accountId: string): Promise<StudioSubscription | null> {
@@ -210,8 +214,8 @@ export class StudioSubscriptionService {
     planId: string,
     billingCycle: AppSubscriptionBillingCycle = 'monthly',
     currency: SupportedCurrency = DEFAULT_CURRENCY,
-    paddleSubscriptionId?: string,
-    paddleCustomerId?: string,
+    paypalSubscriptionId?: string,
+    paypalPayerId?: string,
     options?: SubscribeOptions,
   ): Promise<StudioSubscription> {
     const account = await this.accountModel.findById(accountId).exec();
@@ -224,9 +228,9 @@ export class StudioSubscriptionService {
       throw new BadRequestException('Plan is not active');
     }
 
-    if (paddleSubscriptionId) {
+    if (paypalSubscriptionId) {
       const existing = await this.subscriptionModel
-        .findOne({ paddleSubscriptionId })
+        .findOne({ paypalSubscriptionId })
         .exec();
       if (existing) {
         existing.planId = planId;
@@ -298,17 +302,17 @@ export class StudioSubscriptionService {
         lastPaymentDate: now,
         autoRenew: true,
         billingCycle,
-        provider: options?.provider ?? (paddleSubscriptionId ? 'paddle' : 'internal'),
-        paddleSubscriptionId,
-        paddleCustomerId,
+        provider: options?.provider ?? (paypalSubscriptionId ? 'paypal' : 'internal'),
+        paypalSubscriptionId,
+        paypalPayerId,
         endDate: startTrial ? periodEnd : endDate,
         nextPaymentDate: startTrial ? periodEnd : nextPaymentDate,
         createdAt: now,
       });
     } catch (error) {
-      if (paddleSubscriptionId && isMongoDuplicateKeyError(error)) {
+      if (paypalSubscriptionId && isMongoDuplicateKeyError(error)) {
         const existing = await this.subscriptionModel
-          .findOne({ paddleSubscriptionId })
+          .findOne({ paypalSubscriptionId })
           .exec();
         if (existing) {
           return this.toSubscription(existing, this.plans.toPlan(plan));
@@ -317,8 +321,8 @@ export class StudioSubscriptionService {
       throw error;
     }
 
-    if (paddleCustomerId) {
-      account.paddleCustomerId = paddleCustomerId;
+    if (paypalPayerId) {
+      account.paypalPayerId = paypalPayerId;
       await account.save();
     }
 
@@ -329,17 +333,49 @@ export class StudioSubscriptionService {
     return this.toSubscription(sub, this.plans.toPlan(plan));
   }
 
-  async handlePaddleTransactionCompleted(data: {
+  async activateFromPayPalWebhook(
+    paypalData: PayPalSubscriptionData,
+    customId?: string,
+  ): Promise<void> {
+    const custom = decodePayPalCustomId(customId);
+    const accountId = custom?.accountId;
+    const planId = custom?.planId;
+    if (!accountId || !planId) {
+      this.logger.error(
+        `PayPal webhook missing accountId/planId for sub ${paypalData.paypalSubscriptionId}`,
+      );
+      return;
+    }
+
+    let doc = await this.subscriptionModel
+      .findOne({ paypalSubscriptionId: paypalData.paypalSubscriptionId })
+      .exec();
+
+    if (!doc) {
+      await this.subscribe(
+        accountId,
+        planId,
+        (custom.billingCycle as AppSubscriptionBillingCycle) ?? 'monthly',
+        DEFAULT_CURRENCY,
+        paypalData.paypalSubscriptionId,
+        paypalData.payerId,
+        { provider: 'paypal', paymentCollected: true },
+      );
+      doc = await this.subscriptionModel
+        .findOne({ paypalSubscriptionId: paypalData.paypalSubscriptionId })
+        .exec();
+    }
+
+    if (doc) {
+      await this.syncFromPayPalData(paypalData);
+    }
+  }
+
+  async handlePayPalPaymentCompleted(data: {
+    paypalSubscriptionId: string;
     transactionId: string;
-    paddleSubscriptionId: string;
-    customData?: {
-      accountId?: string;
-      planId?: string;
-      billingCycle?: AppSubscriptionBillingCycle;
-    };
-    paddleCustomerId?: string;
-    currency?: string;
     amountPaid?: number;
+    currency?: string;
   }): Promise<void> {
     if (data.transactionId) {
       const paymentSeen = await this.historyModel
@@ -347,57 +383,31 @@ export class StudioSubscriptionService {
         .exec();
       if (paymentSeen) {
         this.logger.debug(
-          `Skipping duplicate Paddle transaction ${data.transactionId}`,
+          `Skipping duplicate PayPal transaction ${data.transactionId}`,
         );
         return;
       }
     }
 
-    const accountId = data.customData?.accountId;
-    const planId = data.customData?.planId;
-    if (!accountId || !planId) {
-      this.logger.error(
-        `Webhook missing accountId/planId for txn ${data.transactionId}`,
-      );
-      return;
-    }
-
-    let doc = await this.subscriptionModel
-      .findOne({ paddleSubscriptionId: data.paddleSubscriptionId })
+    const doc = await this.subscriptionModel
+      .findOne({ paypalSubscriptionId: data.paypalSubscriptionId })
       .exec();
-
     if (!doc) {
-      await this.subscribe(
-        accountId,
-        planId,
-        data.customData?.billingCycle ?? 'monthly',
-        (data.currency as SupportedCurrency) || DEFAULT_CURRENCY,
-        data.paddleSubscriptionId,
-        data.paddleCustomerId,
-        {
-          provider: 'paddle',
-          paymentCollected: (data.amountPaid ?? 0) > 0,
-        },
-      );
-      doc = await this.subscriptionModel
-        .findOne({ paddleSubscriptionId: data.paddleSubscriptionId })
-        .exec();
-    }
-
-    if (!doc) {
-      this.logger.error(
-        `Failed to resolve subscription after txn ${data.transactionId}`,
+      this.logger.warn(
+        `No local sub for PayPal payment on ${data.paypalSubscriptionId}`,
       );
       return;
     }
 
-    if (data.amountPaid != null && data.amountPaid > 0 && data.transactionId) {
-      if (doc.status === 'trialing') {
-        this.markTrialConverted(doc);
-        doc.status = 'active';
-        await doc.save();
-      }
-      await this.recordHistory(doc, 'renewed', 'Trial converted to paid', {
+    if (doc.status === 'trialing') {
+      this.markTrialConverted(doc);
+      doc.status = 'active';
+    }
+
+    if (data.amountPaid != null && data.amountPaid > 0) {
+      doc.lastPaymentDate = new Date();
+      await doc.save();
+      await this.recordHistory(doc, 'renewed', 'Subscription payment received', {
         amountPaid: data.amountPaid,
         currency: (data.currency as SupportedCurrency) || DEFAULT_CURRENCY,
         providerTransactionId: data.transactionId,
@@ -405,48 +415,49 @@ export class StudioSubscriptionService {
     }
   }
 
-  async syncFromPaddleData(paddleData: PaddleSubscriptionData): Promise<void> {
+  async syncFromPayPalData(paypalData: PayPalSubscriptionData): Promise<void> {
     const sub = await this.subscriptionModel
-      .findOne({ paddleSubscriptionId: paddleData.paddleSubscriptionId })
+      .findOne({ paypalSubscriptionId: paypalData.paypalSubscriptionId })
       .exec();
     if (!sub) {
-      this.logger.warn(`No local sub for paddle ${paddleData.paddleSubscriptionId}`);
+      this.logger.warn(
+        `No local sub for PayPal ${paypalData.paypalSubscriptionId}`,
+      );
       return;
     }
 
-    if (paddleData.status === 'active' || paddleData.status === 'trialing') {
+    const normalizedStatus = paypalData.status.toUpperCase();
+    if (normalizedStatus === 'ACTIVE') {
       const wasTrialing = sub.status === 'trialing';
-      sub.status = paddleData.status === 'trialing' ? 'trialing' : 'active';
-      if (sub.status === 'trialing' && !sub.trial) {
-        const trialEnd = paddleData.currentPeriodEnd ?? sub.currentPeriodEnd;
-        sub.trial = {
-          startDate: paddleData.currentPeriodStart ?? sub.currentPeriodStart,
-          endDate: trialEnd,
-          hasUsedTrial: true,
-        };
-      }
-      if (wasTrialing && sub.status === 'active') {
+      sub.status = 'active';
+      if (wasTrialing) {
         this.markTrialConverted(sub);
       }
-    } else if (paddleData.status === 'canceled') {
+    } else if (normalizedStatus === 'APPROVAL_PENDING') {
+      // Keep existing status until activation
+    } else if (normalizedStatus === 'CANCELLED' || normalizedStatus === 'EXPIRED') {
       sub.status = 'cancelled';
+      sub.autoRenew = false;
+    } else if (normalizedStatus === 'SUSPENDED') {
+      sub.autoRenew = false;
     }
 
-    if (paddleData.currentPeriodStart) {
-      sub.currentPeriodStart = paddleData.currentPeriodStart;
+    if (paypalData.currentPeriodStart) {
+      sub.currentPeriodStart = paypalData.currentPeriodStart;
     }
-    if (paddleData.currentPeriodEnd) {
-      sub.currentPeriodEnd = paddleData.currentPeriodEnd;
+    if (paypalData.currentPeriodEnd) {
+      sub.currentPeriodEnd = paypalData.currentPeriodEnd;
       if (sub.status === 'active') {
-        sub.endDate = paddleData.currentPeriodEnd;
+        sub.endDate = paypalData.currentPeriodEnd;
       }
     }
-    if (paddleData.nextPaymentDate) {
-      sub.nextPaymentDate = paddleData.nextPaymentDate;
+    if (paypalData.nextPaymentDate) {
+      sub.nextPaymentDate = paypalData.nextPaymentDate;
     }
 
-    sub.cancelAtPeriodEnd = paddleData.cancelAtPeriodEnd ?? false;
-    sub.autoRenew = !sub.cancelAtPeriodEnd;
+    if (paypalData.payerId) {
+      sub.paypalPayerId = paypalData.payerId;
+    }
 
     if (
       sub.pendingPlanId &&
@@ -460,12 +471,12 @@ export class StudioSubscriptionService {
       sub.pendingPlanId = undefined;
       sub.pendingBillingCycle = undefined;
       sub.pendingChangeEffectiveDate = undefined;
-    } else if (paddleData.priceId) {
-      const plan = await this.plans.findByPaddlePriceId(paddleData.priceId);
+    } else if (paypalData.planId) {
+      const plan = await this.plans.findByPayPalPlanId(paypalData.planId);
       if (plan && !sub.pendingPlanId) {
         sub.planId = plan.planId;
-        if (paddleData.billingCycle) {
-          sub.billingCycle = paddleData.billingCycle;
+        if (paypalData.billingCycle) {
+          sub.billingCycle = paypalData.billingCycle;
         }
       }
     }
@@ -491,26 +502,25 @@ export class StudioSubscriptionService {
       );
     }
 
-    const priceId = this.paddle.getPaddlePriceId(targetPlan, billingCycle);
-    if (!priceId || !sub.paddleSubscriptionId) {
-      throw new BadRequestException(
-        'Paid upgrade preview requires an active Paddle subscription',
-      );
-    }
+    const pricing = targetPlan.pricing.USD ?? targetPlan.pricing.EUR;
+    const amount =
+      billingCycle === 'yearly' ? pricing?.yearly : pricing?.monthly;
 
-    const preview = await this.paddle.previewSubscriptionUpgrade(
-      sub.paddleSubscriptionId,
-      priceId,
-    );
-
-    return this.mapUpgradePreview(targetPlanId, billingCycle, preview);
+    return {
+      targetPlanId,
+      billingCycle,
+      effectiveDate: sub.nextPaymentDate?.toISOString() ?? sub.currentPeriodEnd.toISOString(),
+      currencyCode: targetPlan.pricing.USD ? 'USD' : 'EUR',
+      nextBillingTotal: amount != null ? String(amount) : undefined,
+      targetPlanName: targetPlan.name,
+    };
   }
 
   async applyUpgrade(
     accountId: string,
     targetPlanId: string,
     billingCycle: AppSubscriptionBillingCycle = 'monthly',
-  ): Promise<StudioSubscription> {
+  ): Promise<StudioUpgradeResult> {
     const sub = await this.requireActivePaidSubscription(accountId);
     const currentPlan = await this.plans.getByPlanId(sub.planId);
     const targetPlan = await this.plans.getByPlanId(targetPlanId);
@@ -524,64 +534,37 @@ export class StudioSubscriptionService {
       );
     }
 
-    const priceId = this.paddle.getPaddlePriceId(targetPlan, billingCycle);
-    if (!priceId || !sub.paddleSubscriptionId) {
+    if (!sub.paypalSubscriptionId) {
       throw new BadRequestException(
-        'Immediate upgrade requires an active Paddle subscription. Use checkout instead.',
+        'Immediate upgrade requires an active PayPal subscription. Use checkout instead.',
       );
     }
 
-    const paddleData = await this.paddle.upgradeSubscriptionImmediately(
-      sub.paddleSubscriptionId,
-      priceId,
+    const { approvalUrl } = await this.paypal.reviseSubscription(
+      sub.paypalSubscriptionId,
+      targetPlanId,
+      billingCycle,
     );
 
-    await this.syncFromPaddleData(paddleData);
+    sub.pendingPlanId = targetPlanId;
+    sub.pendingBillingCycle = billingCycle;
+    sub.pendingChangeEffectiveDate = sub.nextPaymentDate ?? sub.currentPeriodEnd;
+    await sub.save();
+
+    await this.recordHistory(
+      sub,
+      'upgraded',
+      `Upgrade to ${targetPlan.name} (${billingCycle}) scheduled for next billing cycle`,
+    );
 
     const refreshed = await this.subscriptionModel.findById(sub._id).exec();
     if (!refreshed) {
       throw new NotFoundException('Subscription not found after upgrade');
     }
 
-    refreshed.planId = targetPlanId;
-    refreshed.billingCycle = billingCycle;
-    refreshed.pendingPlanId = undefined;
-    refreshed.pendingBillingCycle = undefined;
-    refreshed.pendingChangeEffectiveDate = undefined;
-    await refreshed.save();
-
-    await this.recordHistory(
-      refreshed,
-      'upgraded',
-      `Upgraded to ${targetPlan.name} (${billingCycle})`,
-    );
-
-    return this.toSubscription(refreshed, this.plans.toPlan(targetPlan));
-  }
-
-  async createCustomerPortal(accountId: string): Promise<StudioCustomerPortalData> {
-    const account = await this.accountModel.findById(accountId).exec();
-    if (!account?.paddleCustomerId) {
-      throw new BadRequestException(
-        'No billing customer on file. Complete checkout first.',
-      );
-    }
-
-    const sub = await this.subscriptionModel
-      .findOne({
-        accountId: new Types.ObjectId(accountId),
-        status: { $in: ['active', 'trialing'] },
-      })
-      .exec();
-
-    const session = await this.paddle.createCustomerPortalSession(
-      account.paddleCustomerId,
-      sub?.paddleSubscriptionId ? [sub.paddleSubscriptionId] : undefined,
-    );
-
     return {
-      portalUrl: session.portalUrl,
-      subscriptionPortalUrl: session.subscriptionPortalUrl,
+      subscription: this.toSubscription(refreshed, this.plans.toPlan(targetPlan)),
+      approvalUrl,
     };
   }
 
@@ -609,20 +592,16 @@ export class StudioSubscriptionService {
       );
     }
 
-    const priceId = this.paddle.getPaddlePriceId(targetPlan, billingCycle);
-    if (!priceId) {
-      throw new BadRequestException('Paddle price not configured for target plan');
-    }
-
     sub.pendingPlanId = targetPlanId;
     sub.pendingBillingCycle = billingCycle;
-    sub.pendingChangeEffectiveDate = sub.currentPeriodEnd;
+    sub.pendingChangeEffectiveDate = sub.nextPaymentDate ?? sub.currentPeriodEnd;
     await sub.save();
 
-    if (sub.paddleSubscriptionId) {
-      await this.paddle.schedulePlanChangeAtPeriodEnd(
-        sub.paddleSubscriptionId,
-        priceId,
+    if (sub.paypalSubscriptionId) {
+      await this.paypal.reviseSubscription(
+        sub.paypalSubscriptionId,
+        targetPlanId,
+        billingCycle,
       );
     }
 
@@ -648,20 +627,17 @@ export class StudioSubscriptionService {
     }
 
     const currentPlan = await this.plans.getByPlanId(sub.planId);
-    const priceId = this.paddle.getPaddlePriceId(
-      currentPlan,
-      sub.billingCycle ?? 'monthly',
-    );
 
     sub.pendingPlanId = undefined;
     sub.pendingBillingCycle = undefined;
     sub.pendingChangeEffectiveDate = undefined;
     await sub.save();
 
-    if (sub.paddleSubscriptionId && priceId) {
-      await this.paddle.clearScheduledPlanChange(
-        sub.paddleSubscriptionId,
-        priceId,
+    if (sub.paypalSubscriptionId) {
+      await this.paypal.reviseSubscription(
+        sub.paypalSubscriptionId,
+        sub.planId,
+        sub.billingCycle ?? 'monthly',
       );
     }
 
@@ -669,19 +645,6 @@ export class StudioSubscriptionService {
     return this.toSubscription(sub, this.plans.toPlan(currentPlan));
   }
 
-  async listPaymentHistory(
-    accountId: string,
-  ): Promise<StudioBillingHistoryEntry[]> {
-    const rows = await this.historyModel
-      .find({ accountId: new Types.ObjectId(accountId) })
-      .sort({ createdAt: -1 })
-      .limit(100)
-      .exec();
-
-    return rows.map((row) => this.toHistoryEntry(row));
-  }
-
-  /** Paginated variant used by the Studio billing history route. */
   async listPaymentHistoryPaginated(
     accountId: string,
     query: PaginationQuery = {},
@@ -706,23 +669,6 @@ export class StudioSubscriptionService {
     );
   }
 
-  private toHistoryEntry(
-    row: HydratedDocument<StudioSubscriptionHistoryModel>,
-  ): StudioBillingHistoryEntry {
-    return {
-      id: row._id.toString(),
-      accountId: row.accountId.toString(),
-      subscriptionId: row.subscriptionId.toString(),
-      planId: row.planId,
-      action: row.action,
-      status: row.status,
-      amountPaid: row.amountPaid,
-      currency: row.currency,
-      details: row.details,
-      createdAt: (row.createdAt ?? new Date()).toISOString(),
-    };
-  }
-
   async cancelSubscription(
     accountId: string,
     reason?: string,
@@ -738,27 +684,16 @@ export class StudioSubscriptionService {
       throw new NotFoundException('No active subscription found');
     }
 
-    if (sub.provider === 'paddle' && sub.paddleSubscriptionId) {
-      const paddleData = await this.paddle.cancelSubscription(
-        sub.paddleSubscriptionId,
-      );
-      await this.syncFromPaddleData(paddleData);
-    } else {
-      sub.cancelAtPeriodEnd = true;
-      sub.autoRenew = false;
-      sub.cancelledAt = new Date().toISOString();
-      sub.cancellationReason = reason;
-      sub.endDate = sub.currentPeriodEnd;
-      await sub.save();
-    }
+    sub.cancelAtPeriodEnd = true;
+    sub.autoRenew = false;
+    sub.cancelledAt = new Date().toISOString();
+    sub.cancellationReason = reason;
+    sub.endDate = sub.currentPeriodEnd;
+    await sub.save();
 
     const updated = await this.subscriptionModel.findById(sub._id).exec();
     if (!updated) {
       throw new NotFoundException('Subscription not found after cancel');
-    }
-    if (updated.cancellationReason !== reason && reason) {
-      updated.cancellationReason = reason;
-      await updated.save();
     }
 
     await this.recordHistory(updated, 'cancelled', reason);
@@ -778,22 +713,82 @@ export class StudioSubscriptionService {
       .sort({ createdAt: -1 })
       .exec();
 
-    if (!sub?.paddleSubscriptionId) {
-      throw new BadRequestException('No Paddle subscription to reactivate');
+    if (!sub) {
+      throw new BadRequestException('No subscription to reactivate');
     }
 
-    const paddleData = await this.paddle.reactivateSubscription(
-      sub.paddleSubscriptionId,
-    );
-    await this.syncFromPaddleData(paddleData);
+    sub.cancelAtPeriodEnd = false;
+    sub.autoRenew = true;
+    sub.cancelledAt = undefined;
+    sub.cancellationReason = undefined;
+    sub.endDate = sub.currentPeriodEnd;
+    await sub.save();
 
     const updated = await this.subscriptionModel.findById(sub._id).exec();
-    await this.recordHistory(updated!, 'reactivated', 'Reactivated via Paddle');
+    await this.recordHistory(updated!, 'reactivated', 'Reactivated subscription');
     const plan = await this.planModel.findOne({ planId: updated!.planId }).exec();
     return this.toSubscription(
       updated!,
       plan ? this.plans.toPlan(plan) : null,
     );
+  }
+
+  async processDeferredPayPalCancels(): Promise<number> {
+    const now = new Date();
+    const subs = await this.subscriptionModel
+      .find({
+        provider: 'paypal',
+        cancelAtPeriodEnd: true,
+        status: { $in: ['active', 'trialing'] },
+        currentPeriodEnd: { $lte: now },
+        paypalSubscriptionId: { $exists: true, $ne: null },
+      })
+      .exec();
+
+    let cancelled = 0;
+    for (const sub of subs) {
+      try {
+        await this.paypal.cancelSubscription(
+          sub.paypalSubscriptionId!,
+          sub.cancellationReason,
+        );
+        sub.status = 'cancelled';
+        sub.autoRenew = false;
+        await sub.save();
+        cancelled += 1;
+      } catch (error) {
+        this.logger.error(
+          `Failed deferred PayPal cancel for ${sub.paypalSubscriptionId}`,
+          error,
+        );
+      }
+    }
+    return cancelled;
+  }
+
+  async reconcilePayPalSubscriptions(): Promise<number> {
+    const subs = await this.subscriptionModel
+      .find({
+        provider: 'paypal',
+        paypalSubscriptionId: { $exists: true, $ne: null },
+        status: { $in: ['active', 'trialing'] },
+      })
+      .exec();
+
+    let synced = 0;
+    for (const sub of subs) {
+      try {
+        const data = await this.paypal.fetchSubscription(sub.paypalSubscriptionId!);
+        await this.syncFromPayPalData(data);
+        synced += 1;
+      } catch (error) {
+        this.logger.error(
+          `Failed to reconcile PayPal sub ${sub.paypalSubscriptionId}`,
+          error,
+        );
+      }
+    }
+    return synced;
   }
 
   private async hasUsedTrial(accountId: string): Promise<boolean> {
@@ -888,6 +883,23 @@ export class StudioSubscriptionService {
     }
   }
 
+  private toHistoryEntry(
+    row: HydratedDocument<StudioSubscriptionHistoryModel>,
+  ): StudioBillingHistoryEntry {
+    return {
+      id: row._id.toString(),
+      accountId: row.accountId.toString(),
+      subscriptionId: row.subscriptionId.toString(),
+      planId: row.planId,
+      action: row.action,
+      status: row.status,
+      amountPaid: row.amountPaid,
+      currency: row.currency,
+      details: row.details,
+      createdAt: (row.createdAt ?? new Date()).toISOString(),
+    };
+  }
+
   private toSubscription(
     doc: StudioSubscriptionModel,
     plan: StudioPlan | null,
@@ -921,8 +933,8 @@ export class StudioSubscriptionService {
       pendingBillingCycle: doc.pendingBillingCycle,
       pendingChangeEffectiveDate: doc.pendingChangeEffectiveDate?.toISOString(),
       provider: doc.provider,
-      paddleSubscriptionId: doc.paddleSubscriptionId,
-      paddleCustomerId: doc.paddleCustomerId,
+      paypalSubscriptionId: doc.paypalSubscriptionId,
+      paypalPayerId: doc.paypalPayerId,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: doc.updatedAt?.toISOString(),
     };
@@ -940,42 +952,11 @@ export class StudioSubscriptionService {
     if (!sub) {
       throw new NotFoundException('No active subscription found');
     }
-    if (sub.provider !== 'paddle' || !sub.paddleSubscriptionId) {
+    if (sub.provider !== 'paypal' || !sub.paypalSubscriptionId) {
       throw new BadRequestException(
-        'Plan changes via Paddle require an active paid Paddle subscription',
+        'Plan changes via PayPal require an active paid PayPal subscription',
       );
     }
     return sub;
-  }
-
-  private mapUpgradePreview(
-    targetPlanId: string,
-    billingCycle: AppSubscriptionBillingCycle,
-    paddlePreview: Record<string, unknown>,
-  ): StudioUpgradePreviewData {
-    const immediate = paddlePreview.immediate_transaction as
-      | {
-          details?: {
-            totals?: { total?: string; currency_code?: string };
-            adjusted_totals?: { total?: string };
-          };
-        }
-      | null
-      | undefined;
-    const next = paddlePreview.next_transaction as
-      | { details?: { totals?: { total?: string } } }
-      | null
-      | undefined;
-
-    const totals = immediate?.details?.totals;
-    return {
-      targetPlanId,
-      billingCycle,
-      prorationBillingMode: 'prorated_immediately',
-      currencyCode: totals?.currency_code,
-      immediateTotal:
-        totals?.total ?? immediate?.details?.adjusted_totals?.total,
-      nextBillingTotal: next?.details?.totals?.total,
-    };
   }
 }

@@ -132,12 +132,12 @@ export class StudioPlansService implements OnApplicationBootstrap {
     return { message: 'Plan deleted', planId };
   }
 
-  async findByPaddlePriceId(priceId: string): Promise<StudioPlanModel | null> {
+  async findByPayPalPlanId(planId: string): Promise<StudioPlanModel | null> {
     return this.planModel
       .findOne({
         $or: [
-          { 'paddlePriceIds.monthly': priceId },
-          { 'paddlePriceIds.yearly': priceId },
+          { 'paypalPlanIds.monthly': planId },
+          { 'paypalPlanIds.yearly': planId },
         ],
       })
       .exec();
@@ -171,8 +171,8 @@ export class StudioPlansService implements OnApplicationBootstrap {
       description: doc.description,
       isActive: doc.isActive,
       pricing: doc.pricing as StudioPlan['pricing'],
-      paddleProductId: doc.paddleProductId,
-      paddlePriceIds: doc.paddlePriceIds,
+      paypalProductId: doc.paypalProductId,
+      paypalPlanIds: doc.paypalPlanIds,
       trialDays: doc.trialDays,
       limits: doc.limits ?? {},
       features: doc.features ?? [],

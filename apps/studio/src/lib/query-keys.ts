@@ -25,6 +25,7 @@ export const queryKeys = {
     quota: () => ["billing", "quota"] as const,
     payments: (params: PaginationQuery = {}) =>
       ["billing", "payments", params] as const,
+    paypalManageUrl: () => ["billing", "paypal-manage-url"] as const,
   },
   subscription: {
     summary: () => ["subscription", "summary"] as const,

@@ -10,15 +10,16 @@ import type {
 } from '../dtos/billing.dto';
 import type { ApiResponse } from '../types/api-response';
 import type {
-  PaddleCheckoutData,
-  PaddleTransactionStatusData,
-  StudioCustomerPortalData,
+  PayPalCheckoutData,
+  PayPalSubscriptionStatusData,
+  StudioPayPalManageUrlData,
   StudioPlan,
   StudioBillingHistoryEntry,
   StudioSubscription,
   StudioSubscriptionSummary,
   StudioTrialEligibility,
   StudioUpgradePreviewData,
+  StudioUpgradeResult,
 } from '../types/billing';
 import type { AccountQuotaStatusData } from '../types/usage';
 import type { Paginated, PaginationQuery } from '../types/pagination';
@@ -94,21 +95,29 @@ export class StudioBillingApi extends BaseApi {
 
   createCheckout(
     body: CreateSubscriptionCheckoutDto,
-  ): Promise<ApiResponse<PaddleCheckoutData>> {
+  ): Promise<ApiResponse<PayPalCheckoutData>> {
     return this.request(() =>
-      this.client.post<ApiResponse<PaddleCheckoutData>>(
-        apiPath('web/billing/paddle/checkout'),
+      this.client.post<ApiResponse<PayPalCheckoutData>>(
+        apiPath('web/billing/paypal/checkout'),
         body,
       ),
     );
   }
 
-  getTransactionStatus(
-    transactionId: string,
-  ): Promise<ApiResponse<PaddleTransactionStatusData>> {
+  getSubscriptionStatus(
+    subscriptionId: string,
+  ): Promise<ApiResponse<PayPalSubscriptionStatusData>> {
     return this.request(() =>
-      this.client.get<ApiResponse<PaddleTransactionStatusData>>(
-        apiPath(`web/billing/paddle/transaction/${transactionId}`),
+      this.client.get<ApiResponse<PayPalSubscriptionStatusData>>(
+        apiPath(`web/billing/paypal/subscription/${subscriptionId}`),
+      ),
+    );
+  }
+
+  getPayPalManageUrl(): Promise<ApiResponse<StudioPayPalManageUrlData>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<StudioPayPalManageUrlData>>(
+        apiPath('web/billing/paypal/manage-url'),
       ),
     );
   }
@@ -164,19 +173,11 @@ export class StudioBillingApi extends BaseApi {
 
   applyUpgrade(
     body: UpgradeSubscriptionDto,
-  ): Promise<ApiResponse<StudioSubscription>> {
+  ): Promise<ApiResponse<StudioUpgradeResult>> {
     return this.request(() =>
-      this.client.post<ApiResponse<StudioSubscription>>(
+      this.client.post<ApiResponse<StudioUpgradeResult>>(
         apiPath('web/billing/subscription/upgrade'),
         body,
-      ),
-    );
-  }
-
-  createCustomerPortal(): Promise<ApiResponse<StudioCustomerPortalData>> {
-    return this.request(() =>
-      this.client.post<ApiResponse<StudioCustomerPortalData>>(
-        apiPath('web/billing/paddle/customer-portal'),
       ),
     );
   }

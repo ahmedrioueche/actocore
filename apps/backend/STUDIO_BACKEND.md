@@ -52,7 +52,7 @@ SDK embed       →  project API key (unchanged)
 | API keys | issue/revoke; `GET .../api-keys`; `POST .../api-keys/rotate-all` |
 | Team audit | `GET /web/auth/members/audit` |
 | SDK config audit | `GET /web/projects/:id/sdk-config/audit` |
-| Billing v2 | `POST .../subscription/upgrade/preview`, `POST .../upgrade`, `POST .../paddle/customer-portal` |
+| Billing v2 | `POST .../subscription/upgrade/preview`, `POST .../upgrade`, `GET .../paypal/manage-url` |
 | Platform | `GET /web/platform/accounts` (super_admin) |
 | Usage (ops) | `GET /web/admin/usage/projects/:id/breakdown` |
 | API keys, actions, knowledge, sdk-config, usage | Same paths + permission metadata |

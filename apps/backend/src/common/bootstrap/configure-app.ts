@@ -23,9 +23,9 @@ export function configureApp(app: INestApplication): void {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.disable('x-powered-by');
 
-  const paddleWebhookPath = `${webPrefix}/billing/paddle/webhook`;
+  const paypalWebhookPath = `${webPrefix}/billing/paypal/webhook`;
   app.use(
-    paddleWebhookPath,
+    paypalWebhookPath,
     json({
       limit: http.bodyLimitWeb,
       verify: (req: Request & { rawBody?: Buffer }, _res, buf) => {

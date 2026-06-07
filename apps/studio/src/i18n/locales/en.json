@@ -707,11 +707,11 @@
     },
     "upgrade": {
       "title": "Upgrade plan",
-      "confirm": "Upgrade to {{plan}} now? Your card will be charged a prorated amount.",
+      "confirm": "Upgrade to {{plan}}? The new price takes effect on your next billing cycle.",
       "submit": "Upgrade now",
-      "immediate": "Due today: {{amount}}",
       "next": "Next billing: {{amount}}",
-      "success": "Plan upgraded."
+      "effective": "Effective: {{date}}",
+      "success": "Plan upgrade scheduled."
     },
     "downgrade": {
       "title": "Schedule downgrade",

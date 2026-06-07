@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   billingApi,
   type PaginationQuery,
@@ -25,11 +25,10 @@ export function usePaymentHistory(query: PaginationQuery = { page: 1, limit: 20 
   });
 }
 
-export function useOpenCustomerPortal() {
-  return useMutation({
-    mutationFn: async () => {
-      ensureApiConfigured();
-      return parseApiResponse(await billingApi.createCustomerPortal());
-    },
+export function usePayPalManageUrl() {
+  ensureApiConfigured();
+  return useQuery({
+    queryKey: queryKeys.billing.paypalManageUrl(),
+    queryFn: async () => parseApiResponse(await billingApi.getPayPalManageUrl()),
   });
 }

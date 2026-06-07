@@ -20,7 +20,7 @@ import {
   useCancelPendingChange,
   useCancelSubscription,
   usePlans,
-  usePollCheckoutTransaction,
+  usePollPayPalSubscription,
   usePreviewUpgrade,
   useReactivateSubscription,
   useScheduleDowngrade,
@@ -38,7 +38,7 @@ export default function SubscriptionPage() {
   const { session } = useAuth();
   const openConfirm = useModalStore((state) => state.openConfirm);
   const search = useSearch({ strict: false }) as {
-    transactionId?: string;
+    subscriptionId?: string;
   };
   const checkoutHandled = useRef<string | null>(null);
 
@@ -57,27 +57,27 @@ export default function SubscriptionPage() {
   const applyUpgrade = useApplyUpgrade();
   const scheduleDowngrade = useScheduleDowngrade();
   const cancelPendingChange = useCancelPendingChange();
-  const pollCheckout = usePollCheckoutTransaction();
+  const pollSubscription = usePollPayPalSubscription();
 
   const subscription = summaryQuery.data?.subscription;
   const isError = summaryQuery.isError || plansQuery.isError;
   const isLoading = summaryQuery.isLoading || plansQuery.isLoading;
-  const isCheckoutProcessing = pollCheckout.isPending;
+  const isCheckoutProcessing = pollSubscription.isPending;
 
   useEffect(() => {
-    const transactionId = search.transactionId;
-    if (!transactionId || checkoutHandled.current === transactionId) {
+    const subscriptionId = search.subscriptionId;
+    if (!subscriptionId || checkoutHandled.current === subscriptionId) {
       return;
     }
-    checkoutHandled.current = transactionId;
+    checkoutHandled.current = subscriptionId;
 
-    pollCheckout
-      .mutateAsync(transactionId)
+    pollSubscription
+      .mutateAsync(subscriptionId)
       .then(() => {
         toast.success(t('subscription.checkout.success'));
         void navigate({
           to: '/subscription',
-          search: { transactionId: undefined },
+          search: { subscriptionId: undefined },
           replace: true,
         });
       })
@@ -85,11 +85,11 @@ export default function SubscriptionPage() {
         toast.error(t('subscription.checkout.failed'));
         void navigate({
           to: '/subscription',
-          search: { transactionId: undefined },
+          search: { subscriptionId: undefined },
           replace: true,
         });
       });
-  }, [search.transactionId, t, navigate, pollCheckout]);
+  }, [search.subscriptionId, t, navigate, pollSubscription]);
 
   const handleSubscribe = async (plan: StudioPlan) => {
     setPendingPlanId(plan.planId);
@@ -97,7 +97,7 @@ export default function SubscriptionPage() {
       const result = await subscribeOrTrial.mutateAsync({
         planId: plan.planId,
         billingCycle,
-        hasPaidSubscription: Boolean(subscription?.paddleSubscriptionId),
+        hasPaidSubscription: Boolean(subscription?.paypalSubscriptionId),
       });
 
       if (result.kind === 'trial') {
@@ -105,7 +105,7 @@ export default function SubscriptionPage() {
         return;
       }
 
-      window.location.href = result.checkout.checkout_url;
+      window.location.href = result.checkout.approval_url;
     } catch (err: unknown) {
       toast.error(getUnknownApiErrorMessage(t, err));
     } finally {
@@ -123,14 +123,14 @@ export default function SubscriptionPage() {
           billingCycle,
         });
         const lines = [
-          preview.immediateTotal
-            ? t('subscription.upgrade.immediate', {
-                amount: preview.immediateTotal,
-              })
-            : null,
           preview.nextBillingTotal
             ? t('subscription.upgrade.next', {
                 amount: preview.nextBillingTotal,
+              })
+            : null,
+          preview.effectiveDate
+            ? t('subscription.upgrade.effective', {
+                date: new Date(preview.effectiveDate).toLocaleDateString(),
               })
             : null,
         ].filter(Boolean);
@@ -150,10 +150,14 @@ export default function SubscriptionPage() {
           void (async () => {
             setPendingPlanId(plan.planId);
             try {
-              await applyUpgrade.mutateAsync({
+              const result = await applyUpgrade.mutateAsync({
                 planId: plan.planId,
                 billingCycle,
               });
+              if (result.approvalUrl) {
+                window.location.href = result.approvalUrl;
+                return;
+              }
               toast.success(t('subscription.upgrade.success'));
             } catch (err: unknown) {
               toast.error(getUnknownApiErrorMessage(t, err));

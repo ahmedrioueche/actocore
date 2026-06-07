@@ -9,14 +9,14 @@ import {
   StudioSubscriptionHistoryModel,
   StudioSubscriptionModel,
 } from './schemas/billing.schema';
-import { StudioPaddleService } from './studio-paddle.service';
+import { StudioPayPalService } from './studio-paypal.service';
 import { StudioPlansService } from './studio-plans.service';
 import { StudioSubscriptionService } from './studio-subscription.service';
 import { UsageService } from '../usage/usage.service';
 
 const accountId = new Types.ObjectId().toString();
-const paddleSubId = 'sub_paddle_test_001';
-const txnId = 'txn_paddle_test_001';
+const paypalSubId = 'I-PAYPAL-TEST-001';
+const txnId = 'TXN-PAYPAL-TEST-001';
 
 const starterPlan = {
   planId: 'starter',
@@ -33,12 +33,12 @@ describe('StudioSubscriptionService idempotency', () => {
   const history: Array<Record<string, unknown>> = [];
 
   const subscriptionModel = {
-    findOne: jest.fn((query: { paddleSubscriptionId?: string; accountId?: unknown }) => ({
+    findOne: jest.fn((query: { paypalSubscriptionId?: string; accountId?: unknown }) => ({
       exec: async () => {
-        if (query.paddleSubscriptionId) {
+        if (query.paypalSubscriptionId) {
           return (
             subscriptions.find(
-              (s) => s.paddleSubscriptionId === query.paddleSubscriptionId,
+              (s) => s.paypalSubscriptionId === query.paypalSubscriptionId,
             ) ?? null
           );
         }
@@ -48,7 +48,7 @@ describe('StudioSubscriptionService idempotency', () => {
     create: jest.fn(async (doc: Record<string, unknown>) => {
       if (
         subscriptions.some(
-          (s) => s.paddleSubscriptionId === doc.paddleSubscriptionId,
+          (s) => s.paypalSubscriptionId === doc.paypalSubscriptionId,
         )
       ) {
         const err = new Error('duplicate sub') as Error & { code: number };
@@ -117,7 +117,7 @@ describe('StudioSubscriptionService idempotency', () => {
       createdAt: new Date().toISOString(),
       limits: starterPlan.limits,
     })),
-    findByPaddlePriceId: jest.fn(),
+    findByPayPalPlanId: jest.fn(),
   };
 
   let service: StudioSubscriptionService;
@@ -152,31 +152,37 @@ describe('StudioSubscriptionService idempotency', () => {
             countChatRequestsThisMonthForAccount: jest.fn().mockResolvedValue(0),
           },
         },
-        { provide: StudioPaddleService, useValue: {} },
+        { provide: StudioPayPalService, useValue: {} },
       ],
     }).compile();
 
     service = module.get(StudioSubscriptionService);
   });
 
-  const txnPayload = {
+  const paymentPayload = {
     transactionId: txnId,
-    paddleSubscriptionId: paddleSubId,
-    customData: {
-      accountId,
-      planId: 'starter',
-      billingCycle: 'monthly' as const,
-    },
-    paddleCustomerId: 'ctm_123',
+    paypalSubscriptionId: paypalSubId,
     currency: 'USD',
     amountPaid: 29,
   };
 
-  it('handlePaddleTransactionCompleted is idempotent for duplicate txn', async () => {
-    await service.handlePaddleTransactionCompleted(txnPayload);
-    await service.handlePaddleTransactionCompleted(txnPayload);
+  it('handlePayPalPaymentCompleted is idempotent for duplicate txn', async () => {
+    subscriptions.push({
+      _id: new Types.ObjectId(),
+      accountId: new Types.ObjectId(accountId),
+      planId: 'starter',
+      paypalSubscriptionId: paypalSubId,
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: new Date(),
+      status: 'active',
+      save: jest.fn(async function (this: Record<string, unknown>) {
+        return this;
+      }),
+    });
 
-    expect(subscriptions).toHaveLength(1);
+    await service.handlePayPalPaymentCompleted(paymentPayload);
+    await service.handlePayPalPaymentCompleted(paymentPayload);
+
     const payments = history.filter((h) => h.providerTransactionId);
     expect(payments).toHaveLength(1);
     expect(payments[0].providerTransactionId).toBe(txnId);
@@ -187,30 +193,31 @@ describe('StudioSubscriptionService idempotency', () => {
       _id: new Types.ObjectId(),
       accountId: new Types.ObjectId(accountId),
       planId: 'starter',
-      paddleSubscriptionId: paddleSubId,
+      paypalSubscriptionId: paypalSubId,
       currentPeriodStart: new Date(),
       currentPeriodEnd: new Date(),
       status: 'active',
+      save: jest.fn(async function (this: Record<string, unknown>) {
+        return this;
+      }),
     });
 
-    await service.handlePaddleTransactionCompleted({
-      ...txnPayload,
+    await service.handlePayPalPaymentCompleted({
+      ...paymentPayload,
       transactionId: 'txn_second',
     });
 
-    expect(subscriptions).toHaveLength(1);
     const payments = history.filter((h) => h.providerTransactionId);
     expect(payments).toHaveLength(1);
     expect(payments[0].providerTransactionId).toBe('txn_second');
   });
 
   it('marks trial converted when payment is collected during trialing', async () => {
-    const subOid = new Types.ObjectId();
     subscriptions.push({
-      _id: subOid,
+      _id: new Types.ObjectId(),
       accountId: new Types.ObjectId(accountId),
       planId: 'starter',
-      paddleSubscriptionId: paddleSubId,
+      paypalSubscriptionId: paypalSubId,
       currentPeriodStart: new Date(),
       currentPeriodEnd: new Date(Date.now() + 14 * 86_400_000),
       status: 'trialing',
@@ -224,12 +231,12 @@ describe('StudioSubscriptionService idempotency', () => {
       }),
     });
 
-    await service.handlePaddleTransactionCompleted({
-      ...txnPayload,
+    await service.handlePayPalPaymentCompleted({
+      ...paymentPayload,
       amountPaid: 29,
     });
 
-    const sub = subscriptions.find((s) => s.paddleSubscriptionId === paddleSubId);
+    const sub = subscriptions.find((s) => s.paypalSubscriptionId === paypalSubId);
     expect(sub?.status).toBe('active');
     expect(
       (sub?.trial as { convertedToPaid?: boolean } | undefined)?.convertedToPaid,

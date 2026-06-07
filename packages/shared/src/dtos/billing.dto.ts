@@ -35,11 +35,11 @@ export class CreateStudioPlanDto {
 
   @IsOptional()
   @IsString()
-  paddleProductId?: string;
+  paypalProductId?: string;
 
   @IsOptional()
   @IsObject()
-  paddlePriceIds?: { monthly?: string; yearly?: string };
+  paypalPlanIds?: { monthly?: string; yearly?: string };
 
   @IsOptional()
   @IsNumber()
@@ -86,11 +86,11 @@ export class UpdateStudioPlanDto {
 
   @IsOptional()
   @IsString()
-  paddleProductId?: string;
+  paypalProductId?: string;
 
   @IsOptional()
   @IsObject()
-  paddlePriceIds?: { monthly?: string; yearly?: string };
+  paypalPlanIds?: { monthly?: string; yearly?: string };
 
   @IsOptional()
   @IsNumber()

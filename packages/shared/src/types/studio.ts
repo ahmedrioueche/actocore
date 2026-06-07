@@ -100,7 +100,7 @@ export interface PlatformAccountListItemData {
   name: string;
   billingEmail?: string;
   planId?: string;
-  paddleCustomerId?: string;
+  paypalPayerId?: string;
   createdAt: string;
   updatedAt: string;
 }

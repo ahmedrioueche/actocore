@@ -11,8 +11,8 @@ import {
   StudioMembershipSchema,
 } from '../studio/schemas/studio-membership.schema';
 import {
-  StudioPaddleWebhookEventModel,
-  StudioPaddleWebhookEventSchema,
+  StudioPayPalWebhookEventModel,
+  StudioPayPalWebhookEventSchema,
   StudioPlanModel,
   StudioPlanSchema,
   StudioSubscriptionHistoryModel,
@@ -20,14 +20,15 @@ import {
   StudioSubscriptionModel,
   StudioSubscriptionSchema,
 } from './schemas/billing.schema';
-import { StudioPaddleWebhookDedupService } from './studio-paddle-webhook-dedup.service';
+import { StudioPayPalWebhookDedupService } from './studio-paypal-webhook-dedup.service';
 import { StudioBillingController } from './studio-billing.controller';
 import { StudioPlansAdminController } from './studio-plans-admin.controller';
-import { StudioPaddleWebhookController } from './studio-paddle-webhook.controller';
+import { StudioPayPalWebhookController } from './studio-paypal-webhook.controller';
 import { StudioPlansService } from './studio-plans.service';
 import { StudioSubscriptionService } from './studio-subscription.service';
-import { StudioPaddleService } from './studio-paddle.service';
+import { StudioPayPalService } from './studio-paypal.service';
 import { StudioEntitlementsService } from './studio-entitlements.service';
+import { StudioBillingReconcileService } from './studio-billing-reconcile.service';
 
 @Module({
   imports: [
@@ -43,8 +44,8 @@ import { StudioEntitlementsService } from './studio-entitlements.service';
         schema: StudioSubscriptionHistorySchema,
       },
       {
-        name: StudioPaddleWebhookEventModel.name,
-        schema: StudioPaddleWebhookEventSchema,
+        name: StudioPayPalWebhookEventModel.name,
+        schema: StudioPayPalWebhookEventSchema,
       },
       { name: StudioAccount.name, schema: StudioAccountSchema },
       { name: StudioMembership.name, schema: StudioMembershipSchema },
@@ -54,14 +55,15 @@ import { StudioEntitlementsService } from './studio-entitlements.service';
   controllers: [
     StudioBillingController,
     StudioPlansAdminController,
-    StudioPaddleWebhookController,
+    StudioPayPalWebhookController,
   ],
   providers: [
     StudioPlansService,
     StudioSubscriptionService,
-    StudioPaddleService,
-    StudioPaddleWebhookDedupService,
+    StudioPayPalService,
+    StudioPayPalWebhookDedupService,
     StudioEntitlementsService,
+    StudioBillingReconcileService,
   ],
   exports: [
     StudioPlansService,

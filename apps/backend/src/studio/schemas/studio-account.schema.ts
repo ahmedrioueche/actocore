@@ -85,7 +85,7 @@ export class StudioAccount {
   onboarding!: StudioOnboardingSchema;
 
   @Prop()
-  paddleCustomerId?: string;
+  paypalPayerId?: string;
 
   @Prop({ type: QuotaAlertStateSchema })
   quotaAlerts?: QuotaAlertStateSchema;

@@ -12,19 +12,17 @@ import Button from '@/components/ui/Button';
 import Error from '@/components/ui/Error';
 import {
   useBillingQuota,
-  useOpenCustomerPortal,
+  usePayPalManageUrl,
   usePaymentHistory,
 } from '@/hooks/use-billing';
 import { useSubscriptionSummary } from '@/hooks/use-subscription';
-import { toast } from '@/stores/toast';
-import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function BillingPage() {
   const { t } = useTranslation();
   const summaryQuery = useSubscriptionSummary();
   const quotaQuery = useBillingQuota();
   const historyQuery = usePaymentHistory({ page: 1, limit: 20 });
-  const openPortal = useOpenCustomerPortal();
+  const manageUrlQuery = usePayPalManageUrl();
 
   const isLoading = summaryQuery.isLoading || quotaQuery.isLoading;
   const isError = summaryQuery.isError || quotaQuery.isError;
@@ -32,16 +30,6 @@ export default function BillingPage() {
   const summary = summaryQuery.data;
   const usage = summary?.usage;
   const limits = summary?.limits ?? {};
-
-  const handleOpenPortal = async () => {
-    try {
-      const portal = await openPortal.mutateAsync();
-      window.location.href =
-        portal.subscriptionPortalUrl ?? portal.portalUrl;
-    } catch (err: unknown) {
-      toast.error(getUnknownApiErrorMessage(t, err));
-    }
-  };
 
   return (
     <>
@@ -52,19 +40,22 @@ export default function BillingPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               to="/subscription"
-              search={{ transactionId: undefined }}
+              search={{ subscriptionId: undefined }}
               className="text-sm font-medium text-primary underline-offset-2 hover:underline"
             >
               {t('billing.manageSubscription')}
             </Link>
-            <Button
-              variant="outline"
-              icon={<ExternalLink className="h-4 w-4" />}
-              loading={openPortal.isPending}
-              onClick={() => void handleOpenPortal()}
-            >
-              {t('billing.manageBilling')}
-            </Button>
+            {manageUrlQuery.data?.manageUrl ? (
+              <Button
+                variant="outline"
+                icon={<ExternalLink className="h-4 w-4" />}
+                onClick={() => {
+                  window.open(manageUrlQuery.data!.manageUrl, '_blank', 'noopener');
+                }}
+              >
+                {t('billing.manageBilling')}
+              </Button>
+            ) : null}
           </div>
         }
       />

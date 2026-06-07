@@ -8,7 +8,7 @@ import {
   type AppSubscriptionBillingCycle,
   type CancelSubscriptionDto,
   type CreateSubscriptionCheckoutDto,
-  type PaddleCheckoutData,
+  type PayPalCheckoutData,
   type ScheduleDowngradeDto,
   type StartFreeTrialDto,
   type StudioSubscription,
@@ -76,7 +76,7 @@ export function useSubscribeOrTrial() {
       body: CreateSubscriptionCheckoutDto & { hasPaidSubscription: boolean },
     ): Promise<
       | { kind: 'trial'; subscription: StudioSubscription }
-      | { kind: 'checkout'; checkout: PaddleCheckoutData }
+      | { kind: 'checkout'; checkout: PayPalCheckoutData }
     > => {
       ensureApiConfigured();
       if (!body.hasPaidSubscription) {
@@ -180,26 +180,26 @@ export function useCancelPendingChange() {
   });
 }
 
-export function usePollCheckoutTransaction() {
+export function usePollPayPalSubscription() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (transactionId: string) => {
+    mutationFn: async (subscriptionId: string) => {
       ensureApiConfigured();
       const maxAttempts = 30;
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
         const result = parseApiResponse(
-          await billingApi.getTransactionStatus(transactionId),
+          await billingApi.getSubscriptionStatus(subscriptionId),
         );
-        const normalized = result.status.toLowerCase();
-        if (
-          normalized === 'completed' ||
-          normalized === 'paid' ||
-          normalized === 'billed'
-        ) {
+        const normalized = result.status.toUpperCase();
+        if (normalized === 'ACTIVE') {
           invalidateSubscriptionQueries(queryClient);
           return result;
         }
-        if (normalized === 'canceled' || normalized === 'failed') {
+        if (
+          normalized === 'CANCELLED' ||
+          normalized === 'EXPIRED' ||
+          normalized === 'SUSPENDED'
+        ) {
           throw new Error(result.status);
         }
         await new Promise((resolve) => {

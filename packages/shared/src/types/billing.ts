@@ -1,6 +1,6 @@
 import type { AuditInfo, PaymentMethod, SupportedCurrency } from './billing-common';
 
-export const APP_PAYMENT_PROVIDERS = ['paddle', 'internal'] as const;
+export const APP_PAYMENT_PROVIDERS = ['paypal', 'internal'] as const;
 export const APP_SUBSCRIPTION_BILLING_CYCLES = ['monthly', 'yearly'] as const;
 export const APP_PLAN_LEVELS = ['free', 'starter', 'pro', 'premium'] as const;
 
@@ -55,8 +55,8 @@ export interface StudioPlan extends AuditInfo {
   description?: string;
   isActive?: boolean;
   pricing: AppPlanPricing;
-  paddleProductId?: string;
-  paddlePriceIds?: {
+  paypalProductId?: string;
+  paypalPlanIds?: {
     monthly?: string;
     yearly?: string;
   };
@@ -94,8 +94,8 @@ export interface StudioSubscription extends AuditInfo {
   pendingBillingCycle?: AppSubscriptionBillingCycle;
   pendingChangeEffectiveDate?: string;
   provider: AppPaymentProvider;
-  paddleSubscriptionId?: string;
-  paddleCustomerId?: string;
+  paypalSubscriptionId?: string;
+  paypalPayerId?: string;
 }
 
 export interface StudioTrialEligibility {
@@ -124,32 +124,35 @@ export interface StudioSubscriptionSummary {
   trial?: StudioTrialStatus;
 }
 
-export interface PaddleCheckoutData {
-  checkout_url: string;
-  transaction_id: string;
+export interface PayPalCheckoutData {
+  approval_url: string;
+  subscription_id: string;
   trialEligible?: boolean;
   trialDays?: number;
 }
 
-export interface PaddleTransactionStatusData {
+export interface PayPalSubscriptionStatusData {
   id: string;
   status: string;
-  subscription_id?: string;
+  plan_id?: string;
 }
 
 export interface StudioUpgradePreviewData {
   targetPlanId: string;
   billingCycle: AppSubscriptionBillingCycle;
-  prorationBillingMode: string;
+  effectiveDate?: string;
   currencyCode?: string;
-  /** Formatted money string from Paddle (e.g. "12.34") when available */
-  immediateTotal?: string;
   nextBillingTotal?: string;
+  targetPlanName?: string;
 }
 
-export interface StudioCustomerPortalData {
-  portalUrl: string;
-  subscriptionPortalUrl?: string;
+export interface StudioUpgradeResult {
+  subscription: StudioSubscription;
+  approvalUrl?: string;
+}
+
+export interface StudioPayPalManageUrlData {
+  manageUrl: string;
 }
 
 export interface StudioBillingHistoryEntry {

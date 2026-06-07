@@ -95,15 +95,16 @@ Plans are stored in MongoDB (`studio_plans`) and managed by **super admin** (`ro
 | `GET` | `/web/billing/plans` | Public | Active plans for pricing UI |
 | `GET` | `/web/billing/subscription` | Admin + `billing.read` | Current subscription + limits + usage |
 | `GET` | `/web/billing/payments` | Admin + `billing.read` | Payment / subscription history |
-| `POST` | `/web/billing/paddle/checkout` | Admin + `billing.write` | `{ planId, billingCycle? }` → Paddle checkout URL |
-| `GET` | `/web/billing/paddle/transaction/:id` | Admin + `billing.write` | Transaction status |
+| `POST` | `/web/billing/paypal/checkout` | Admin + `billing.write` | `{ planId, billingCycle? }` → PayPal approval URL |
+| `GET` | `/web/billing/paypal/subscription/:id` | Admin + `billing.write` | PayPal subscription status |
+| `GET` | `/web/billing/paypal/manage-url` | Admin + `billing.read` | PayPal account subscriptions URL |
 | `POST` | `/web/billing/subscription/cancel` | Admin + `billing.write` | `{ reason? }` |
-| `POST` | `/web/billing/subscription/reactivate` | Admin + `billing.write` | Remove scheduled Paddle cancel |
+| `POST` | `/web/billing/subscription/reactivate` | Admin + `billing.write` | Undo scheduled cancellation |
 | `POST` | `/web/billing/subscription/downgrade` | Admin + `billing.write` | Schedule lower plan at period end |
 | `POST` | `/web/billing/subscription/cancel-pending-change` | Admin + `billing.write` | Undo scheduled downgrade |
-| `POST` | `/web/billing/paddle/webhook` | Paddle signature | Webhook (raw body required) |
+| `POST` | `/web/billing/paypal/webhook` | PayPal signature | Webhook |
 
-**Super-admin plan catalog** (`/v1/web/admin/plans`): CRUD — requires JWT with `super_admin` role. Plans include `features[]` (marketing bullets), `pricing`, `limits`, and Paddle IDs. Tenants read active plans via `GET /web/billing/plans`; edits apply without redeploy.
+**Super-admin plan catalog** (`/v1/web/admin/plans`): CRUD — requires JWT with `super_admin` role. Plans include `features[]` (marketing bullets), `pricing`, `limits`, and PayPal plan IDs. Tenants read active plans via `GET /web/billing/plans`; edits apply without redeploy.
 
 Example — update Starter features:
 
@@ -119,11 +120,11 @@ POST /v1/web/admin/plans
 { "planId": "business", "level": "premium", "name": "Business", ... }
 ```
 
-Env: `PADDLE_API_KEY`, `PADDLE_URL` (e.g. `https://sandbox-api.paddle.com`), `PADDLE_WEBHOOK_SECRET`.
+Env: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID`, `PAYPAL_API_BASE_URL`, `PAYPAL_RETURN_URL`, `PAYPAL_CANCEL_URL`, and `PAYPAL_PLAN_*` IDs from `npm run seed:paypal-catalog`.
 
 Shared client: `billingApi`, `plansAdminApi` from `@ahmedrioueche/actocore-shared`.
 
-Seed default catalog (Free, Starter, Pro; deactivates legacy Premium): `npm run seed:plans` from `apps/backend`. Set `PADDLE_PRODUCT_*` and `PADDLE_PRICE_*` for Starter and Pro before seeding paid checkout.
+Seed default catalog (Free, Starter, Pro; deactivates legacy Premium): `npm run seed:plans` from `apps/backend`. Run `npm run seed:paypal-catalog` first to create PayPal billing plans.
 
 ---
 

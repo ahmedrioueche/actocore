@@ -1,7 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as crypto from 'crypto';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Types } from 'mongoose';
 import request from 'supertest';
@@ -9,14 +8,15 @@ import { App } from 'supertest/types';
 import { configureApp } from '../src/common/bootstrap/configure-app';
 import { AppModule } from '../src/app.module';
 import {
-  StudioPaddleWebhookEventModel,
+  StudioPayPalWebhookEventModel,
   StudioSubscriptionHistoryModel,
   StudioSubscriptionModel,
 } from '../src/studio-billing/schemas/billing.schema';
 import { StudioSubscriptionService } from '../src/studio-billing/studio-subscription.service';
+import { encodePayPalCustomId } from '../src/studio-billing/utils/paypal-custom-id.util';
 import { seedStudioPlansForE2e } from './helpers/studio-billing-e2e';
 
-describe('Studio billing Paddle idempotency (e2e)', () => {
+describe('Studio billing PayPal idempotency (e2e)', () => {
   let app: INestApplication<App>;
   let mongod: MongoMemoryServer;
 
@@ -27,10 +27,10 @@ describe('Studio billing Paddle idempotency (e2e)', () => {
     process.env.STUDIO_JWT_SECRET = 'e2e-studio-jwt-secret';
     process.env.STUDIO_JWT_REFRESH_SECRET = 'e2e-studio-refresh-secret';
     process.env.STUDIO_PASSWORD_PEPPER = 'e2e-studio-password-pepper';
-    process.env.PADDLE_WEBHOOK_SECRET = 'test-webhook-secret';
     process.env.QUOTA_ENFORCE = 'false';
     process.env.LLM_PROVIDER = 'stub';
     delete process.env.REDIS_URL;
+    delete process.env.PAYPAL_WEBHOOK_ID;
 
     mongod = await MongoMemoryServer.create();
     process.env.MONGODB_URI = mongod.getUri();
@@ -55,47 +55,38 @@ describe('Studio billing Paddle idempotency (e2e)', () => {
     await app?.close();
   });
 
-  function signWebhook(body: string, secret: string): string {
-    const ts = Math.floor(Date.now() / 1000);
-    const h1 = crypto.createHmac('sha256', secret).update(`${ts}:${body}`).digest('hex');
-    return `ts=${ts};h1=${h1}`;
-  }
-
-  function postPaddleWebhook(body: string) {
-    const signature = signWebhook(body, process.env.PADDLE_WEBHOOK_SECRET!);
+  function postPayPalWebhook(payload: Record<string, unknown>) {
     return request(app.getHttpServer())
-      .post('/v1/web/billing/paddle/webhook')
+      .post('/v1/web/billing/paypal/webhook')
       .set('Content-Type', 'application/json')
-      .set('paddle-signature', signature)
-      .send(body);
+      .send(payload);
   }
 
-  it('ignores duplicate Paddle event_id on webhook retry', async () => {
-    const eventId = `evt_${Date.now()}`;
+  it('ignores duplicate PayPal event id on webhook retry', async () => {
+    const eventId = `WH-${Date.now()}`;
     const payload = {
-      event_id: eventId,
-      event_type: 'subscription.updated',
-      data: {
-        id: 'sub_e2e_dup_only',
-        status: 'active',
-        items: [{ price: { id: 'pri_test', billing_cycle: { interval: 'month' } } }],
+      id: eventId,
+      event_type: 'BILLING.SUBSCRIPTION.UPDATED',
+      resource: {
+        id: 'I-E2E-DUP-ONLY',
+        status: 'ACTIVE',
+        plan_id: 'P-TEST-STARTER-MONTHLY',
       },
     };
-    const body = JSON.stringify(payload);
 
-    await postPaddleWebhook(body).expect(200);
-    await postPaddleWebhook(body).expect(200);
+    await postPayPalWebhook(payload).expect(200);
+    await postPayPalWebhook(payload).expect(200);
 
-    const webhookModel = app.get(getModelToken(StudioPaddleWebhookEventModel.name));
+    const webhookModel = app.get(getModelToken(StudioPayPalWebhookEventModel.name));
     const eventCount = await webhookModel.countDocuments({ eventId }).exec();
     expect(eventCount).toBe(1);
   });
 
-  it('creates one subscription and one payment row for duplicate transaction.completed', async () => {
+  it('creates one subscription for duplicate PAYMENT.SALE.COMPLETED', async () => {
     const server = app.getHttpServer();
     const email = `billing-${Date.now()}@test.local`;
-    const paddleSubId = `sub_e2e_${Date.now()}`;
-    const txnId = `txn_e2e_${Date.now()}`;
+    const paypalSubId = `I-E2E-${Date.now()}`;
+    const txnId = `TXN-E2E-${Date.now()}`;
 
     await request(server)
       .post('/v1/web/auth/signup')
@@ -113,30 +104,44 @@ describe('Studio billing Paddle idempotency (e2e)', () => {
     ) as { aid: string };
     const accountId = jwtPayload.aid;
 
-    const eventId = `evt_txn_${Date.now()}`;
-    const payload = {
-      event_id: eventId,
-      event_type: 'transaction.completed',
-      data: {
+    await postPayPalWebhook({
+      id: `WH-ACTIVATE-${Date.now()}`,
+      event_type: 'BILLING.SUBSCRIPTION.ACTIVATED',
+      resource: {
+        id: paypalSubId,
+        status: 'ACTIVE',
+        plan_id: 'P-TEST-STARTER-MONTHLY',
+        custom_id: encodePayPalCustomId({
+          accountId,
+          planId: 'starter',
+          billingCycle: 'monthly',
+        }),
+        billing_info: {
+          next_billing_time: new Date(Date.now() + 86_400_000 * 30).toISOString(),
+        },
+      },
+    }).expect(200);
+
+    const paymentPayload = {
+      id: `WH-PAY-${Date.now()}`,
+      event_type: 'PAYMENT.SALE.COMPLETED',
+      resource: {
         id: txnId,
-        subscription_id: paddleSubId,
-        customer_id: 'ctm_e2e',
-        currency_code: 'USD',
-        custom_data: { accountId, planId: 'starter', billingCycle: 'monthly' },
-        details: { totals: { total: '2900' } },
+        billing_agreement_id: paypalSubId,
+        amount: { total: '29.00', currency: 'USD' },
       },
     };
-    const body = JSON.stringify(payload);
 
-    await postPaddleWebhook(body).expect(200);
-
-    const eventId2 = `evt_txn_retry_${Date.now()}`;
-    const retryPayload = { ...JSON.parse(body), event_id: eventId2 };
-    const retryBody = JSON.stringify(retryPayload);
-    await postPaddleWebhook(retryBody).expect(200);
+    await postPayPalWebhook(paymentPayload).expect(200);
+    await postPayPalWebhook({
+      ...paymentPayload,
+      id: `WH-PAY-RETRY-${Date.now()}`,
+    }).expect(200);
 
     const subModel = app.get(getModelToken(StudioSubscriptionModel.name));
-    const subs = await subModel.countDocuments({ paddleSubscriptionId: paddleSubId }).exec();
+    const subs = await subModel
+      .countDocuments({ paypalSubscriptionId: paypalSubId })
+      .exec();
     expect(subs).toBe(1);
 
     const historyModel = app.get(getModelToken(StudioSubscriptionHistoryModel.name));
@@ -158,26 +163,25 @@ describe('Studio billing Paddle idempotency (e2e)', () => {
       currentPeriodStart: new Date(),
       currentPeriodEnd: new Date(Date.now() + 86_400_000),
       status: 'active',
-      provider: 'paddle',
-      paddleSubscriptionId: 'sub_pay_dup',
+      provider: 'paypal',
+      paypalSubscriptionId: 'I-PAY-DUP',
       billingCycle: 'monthly',
       autoRenew: true,
     });
 
     const subscriptionService = app.get(StudioSubscriptionService);
     const payload = {
-      transactionId: 'txn_pay_dup_1',
-      paddleSubscriptionId: 'sub_pay_dup',
-      customData: { accountId: accountOid.toString(), planId: 'starter' },
+      paypalSubscriptionId: 'I-PAY-DUP',
+      transactionId: 'TXN-PAY-DUP-1',
       amountPaid: 29,
       currency: 'USD',
     };
 
-    await subscriptionService.handlePaddleTransactionCompleted(payload);
-    await subscriptionService.handlePaddleTransactionCompleted(payload);
+    await subscriptionService.handlePayPalPaymentCompleted(payload);
+    await subscriptionService.handlePayPalPaymentCompleted(payload);
 
     const count = await historyModel
-      .countDocuments({ providerTransactionId: 'txn_pay_dup_1' })
+      .countDocuments({ providerTransactionId: 'TXN-PAY-DUP-1' })
       .exec();
     expect(count).toBe(1);
   });

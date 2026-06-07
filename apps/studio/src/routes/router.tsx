@@ -166,10 +166,12 @@ const subscriptionRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: '/subscription',
   validateSearch: (search: Record<string, unknown>) => ({
-    transactionId:
-      typeof search.transactionId === 'string'
-        ? search.transactionId
-        : undefined,
+    subscriptionId:
+      typeof search.subscriptionId === 'string'
+        ? search.subscriptionId
+        : typeof search.subscription_id === 'string'
+          ? search.subscription_id
+          : undefined,
   }),
   component: SubscriptionPage,
 });

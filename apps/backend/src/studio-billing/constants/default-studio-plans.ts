@@ -5,6 +5,9 @@ export type DefaultStudioPlanSeed = CreateStudioPlanDto;
 
 export const DEPRECATED_PLAN_IDS = ['premium'] as const;
 
+export const PAYPAL_CATALOG_PRODUCT_ID =
+  process.env.PAYPAL_PRODUCT_ID || '';
+
 export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
   {
     planId: 'free',
@@ -32,10 +35,10 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     isActive: true,
     trialDays: 14,
     pricing: { USD: { monthly: 29, yearly: 290 } },
-    paddleProductId: process.env.PADDLE_PRODUCT_STARTER || '',
-    paddlePriceIds: {
-      monthly: process.env.PADDLE_PRICE_STARTER_MONTHLY || '',
-      yearly: process.env.PADDLE_PRICE_STARTER_YEARLY || '',
+    paypalProductId: PAYPAL_CATALOG_PRODUCT_ID,
+    paypalPlanIds: {
+      monthly: process.env.PAYPAL_PLAN_STARTER_MONTHLY || '',
+      yearly: process.env.PAYPAL_PLAN_STARTER_YEARLY || '',
     },
     limits: { maxProjects: 3, maxTeamSeats: 5, monthlyChatQuota: 10_000 },
     features: [
@@ -56,10 +59,10 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     isActive: true,
     trialDays: 14,
     pricing: { USD: { monthly: 79, yearly: 790 } },
-    paddleProductId: process.env.PADDLE_PRODUCT_PRO || '',
-    paddlePriceIds: {
-      monthly: process.env.PADDLE_PRICE_PRO_MONTHLY || '',
-      yearly: process.env.PADDLE_PRICE_PRO_YEARLY || '',
+    paypalProductId: PAYPAL_CATALOG_PRODUCT_ID,
+    paypalPlanIds: {
+      monthly: process.env.PAYPAL_PLAN_PRO_MONTHLY || '',
+      yearly: process.env.PAYPAL_PLAN_PRO_YEARLY || '',
     },
     limits: { maxProjects: 10, maxTeamSeats: 20, monthlyChatQuota: 100_000 },
     features: [

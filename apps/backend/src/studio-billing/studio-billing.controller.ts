@@ -23,11 +23,8 @@ import { StudioCtx } from '../studio/decorators/studio-context.decorator';
 import { StudioAuthGuard } from '../studio/guards/studio-auth.guard';
 import { StudioPermissionsGuard } from '../studio/guards/studio-permissions.guard';
 import type { StudioRequestContext } from '../studio/studio-context';
-import { StudioAccount, StudioAccountDocument } from '../studio/schemas/studio-account.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { QuotaService } from '../billing/quota.service';
-import { StudioPaddleService } from './studio-paddle.service';
+import { StudioPayPalService } from './studio-paypal.service';
 import { StudioPlansService } from './studio-plans.service';
 import { StudioSubscriptionService } from './studio-subscription.service';
 
@@ -37,10 +34,8 @@ export class StudioBillingController {
   constructor(
     private readonly plans: StudioPlansService,
     private readonly subscriptions: StudioSubscriptionService,
-    private readonly paddle: StudioPaddleService,
+    private readonly paypal: StudioPayPalService,
     private readonly quota: QuotaService,
-    @InjectModel(StudioAccount.name)
-    private readonly accountModel: Model<StudioAccountDocument>,
   ) {}
 
   @Get('quota')
@@ -105,26 +100,32 @@ export class StudioBillingController {
     );
   }
 
-  @Post('paddle/checkout')
+  @Post('paypal/checkout')
   @RequireStudioPermission(StudioPermission.BILLING_WRITE)
   async createCheckout(
     @StudioCtx() ctx: StudioRequestContext,
     @Body() body: CreateSubscriptionCheckoutDto,
   ) {
-    const account = await this.accountModel.findById(ctx.accountId).exec();
-    const result = await this.paddle.createSubscriptionCheckout(
+    const result = await this.paypal.createSubscriptionCheckout(
       ctx.accountId,
       body.planId,
       body.billingCycle ?? 'monthly',
-      account?.paddleCustomerId,
     );
     return apiSuccess(result);
   }
 
-  @Get('paddle/transaction/:transactionId')
+  @Get('paypal/subscription/:subscriptionId')
   @RequireStudioPermission(StudioPermission.BILLING_WRITE)
-  async getTransaction(@Param('transactionId') transactionId: string) {
-    return apiSuccess(await this.paddle.getTransactionStatus(transactionId));
+  async getSubscriptionStatus(
+    @Param('subscriptionId') subscriptionId: string,
+  ) {
+    return apiSuccess(await this.paypal.getSubscriptionStatus(subscriptionId));
+  }
+
+  @Get('paypal/manage-url')
+  @RequireStudioPermission(StudioPermission.BILLING_READ)
+  async getManageUrl() {
+    return apiSuccess({ manageUrl: this.paypal.getManageUrl() });
   }
 
   @Post('subscription/cancel')
@@ -174,12 +175,6 @@ export class StudioBillingController {
         body.billingCycle ?? 'monthly',
       ),
     );
-  }
-
-  @Post('paddle/customer-portal')
-  @RequireStudioPermission(StudioPermission.BILLING_READ)
-  async customerPortal(@StudioCtx() ctx: StudioRequestContext) {
-    return apiSuccess(await this.subscriptions.createCustomerPortal(ctx.accountId));
   }
 
   @Post('subscription/downgrade')

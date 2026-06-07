@@ -115,7 +115,7 @@ export function SubscriptionStatusCard({
             title={t("subscription.cancelScheduled.title")}
           >
             <p>{t("subscription.cancelScheduled.body")}</p>
-            {canWrite && subscription.paddleSubscriptionId ? (
+            {canWrite && subscription.paypalSubscriptionId ? (
               <Button
                 variant="outline"
                 size="sm"

@@ -17,7 +17,7 @@ function resolvePlanAction(
   plan: StudioPlan,
   currentLevel: AppPlanLevel,
   currentPlanId: string | undefined,
-  hasPaidPaddleSub: boolean,
+  hasPaidPayPalSub: boolean,
 ): PlanActionKind {
   if (plan.planId === currentPlanId) {
     return "current";
@@ -25,7 +25,7 @@ function resolvePlanAction(
   if (plan.level === "free") {
     return "unavailable";
   }
-  if (hasPaidPaddleSub) {
+  if (hasPaidPayPalSub) {
     if (isUpgrade(currentLevel, plan.level)) {
       return "upgrade";
     }
@@ -61,7 +61,7 @@ export function PlanPicker({
   const { t } = useTranslation();
   const currentLevel: AppPlanLevel = subscription?.plan?.level ?? "free";
   const currentPlanId = subscription?.planId;
-  const hasPaidPaddleSub = Boolean(subscription?.paddleSubscriptionId);
+  const hasPaidPayPalSub = Boolean(subscription?.paypalSubscriptionId);
   const paidPlans = (plans ?? []).filter((plan) => plan.level !== "free");
 
   return (
@@ -112,7 +112,7 @@ export function PlanPicker({
               plan,
               currentLevel as AppPlanLevel,
               currentPlanId,
-              hasPaidPaddleSub,
+              hasPaidPayPalSub,
             );
 
             return (
