@@ -1,24 +1,21 @@
 import type { INestApplication } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
+import { DEFAULT_STUDIO_PLANS } from '../../src/studio-billing/constants/default-studio-plans';
 import { StudioPlanModel } from '../../src/studio-billing/schemas/billing.schema';
-
-const starterPlan = {
-  planId: 'starter',
-  level: 'starter',
-  order: 1,
-  name: 'Starter',
-  description: 'E2E',
-  isActive: true,
-  trialDays: 14,
-  pricing: { USD: { monthly: 29, yearly: 290 } },
-  limits: { maxProjects: 3, maxTeamSeats: 5, monthlyChatQuota: 10_000 },
-};
 
 export async function seedStudioPlansForE2e(app: INestApplication): Promise<void> {
   const planModel = app.get(getModelToken(StudioPlanModel.name));
+  const starterPlan = DEFAULT_STUDIO_PLANS.find((plan) => plan.planId === 'starter');
+  if (!starterPlan) {
+    throw new Error('Starter plan missing from default catalog');
+  }
+
   await planModel.updateOne(
     { planId: 'starter' },
-    { $set: { ...starterPlan, updatedAt: new Date() }, $setOnInsert: { createdAt: new Date() } },
+    {
+      $set: { ...starterPlan, updatedAt: new Date() },
+      $setOnInsert: { createdAt: new Date() },
+    },
     { upsert: true },
   );
 }

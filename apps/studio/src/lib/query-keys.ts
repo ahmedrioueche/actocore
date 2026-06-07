@@ -22,8 +22,15 @@ export const queryKeys = {
     settings: () => ["account", "settings"] as const,
   },
   billing: {
-    subscription: () => ["billing", "subscription"] as const,
     quota: () => ["billing", "quota"] as const,
+    payments: (params: PaginationQuery = {}) =>
+      ["billing", "payments", params] as const,
+  },
+  subscription: {
+    summary: () => ["subscription", "summary"] as const,
+    plans: () => ["subscription", "plans"] as const,
+    trialEligibility: (planId: string) =>
+      ["subscription", "trial", planId] as const,
   },
   onboarding: {
     state: () => ["onboarding", "state"] as const,

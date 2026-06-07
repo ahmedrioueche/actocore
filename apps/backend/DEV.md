@@ -85,15 +85,15 @@ STUDIO_AUTH_DISABLED=true
 
 Or call `POST /v1/web/auth/signup` then use `accessToken` on web routes (playground will get login helper later).
 
-**Billing (Paddle):** seed plan catalog, then set Paddle price IDs on paid plans (super-admin API or env on seed):
+**Billing (Paddle):** seed plan catalog (Free + Starter + Pro), then set Paddle price IDs on paid plans (env vars on seed or super-admin PATCH):
 
 ```powershell
 cd apps/backend
+# optional: $env:PADDLE_PRODUCT_STARTER="pro_..."; $env:PADDLE_PRICE_STARTER_MONTHLY="pri_..."
 npm run seed:plans
-# optional: PADDLE_PRICE_STARTER_MONTHLY=pri_... npm run seed:plans
 ```
 
-Configure `PADDLE_API_KEY`, `PADDLE_URL`, `PADDLE_WEBHOOK_SECRET` in `.env`. Super admin (`role: super_admin` on a membership) manages plans at `GET/POST /v1/web/admin/plans`.
+Catalog source: `src/studio-billing/constants/default-studio-plans.ts`. Super admin edits live plans (features, prices, limits) via `GET/POST/PATCH /v1/web/admin/plans` — no Studio admin UI yet.
 
 Create a project + SDK key without the playground:
 

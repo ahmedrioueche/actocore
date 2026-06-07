@@ -55,3 +55,15 @@ export function canWriteSdkConfig(
 ): boolean {
   return canAccessNavItem(session, StudioPermission.SDK_CONFIG_WRITE);
 }
+
+export function canWriteProjects(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return canAccessNavItem(session, StudioPermission.PROJECT_WRITE);
+}
+
+export function canWriteBilling(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return canAccessNavItem(session, StudioPermission.BILLING_WRITE);
+}

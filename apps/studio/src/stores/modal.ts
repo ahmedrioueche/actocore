@@ -66,6 +66,8 @@ export interface ActionsSdkCodeModalProps {
   projectId: string;
 }
 
+export type CreateProjectModalProps = Record<string, never>;
+
 /**
  * Registry of feature modals (besides `confirm`) and the props each requires.
  * Props are passed through the store — never directly to the modal component.
@@ -81,6 +83,7 @@ export interface ModalPropsMap {
   editSection: EditSectionModalProps;
   actionCreated: ActionCreatedModalProps;
   actionsSdkCode: ActionsSdkCodeModalProps;
+  createProject: CreateProjectModalProps;
 }
 
 export type ModalId = 'confirm' | keyof ModalPropsMap | null;

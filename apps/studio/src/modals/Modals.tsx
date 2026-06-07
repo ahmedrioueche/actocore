@@ -32,6 +32,9 @@ const ActionCreatedModal = lazy(
 const ActionsSdkCodeModal = lazy(
   () => import('@/components/actions/ActionsSdkCodeModal'),
 );
+const CreateProjectModal = lazy(
+  () => import('@/components/projects/CreateProjectModal'),
+);
 
 export default function Modals() {
   return (
@@ -48,6 +51,7 @@ export default function Modals() {
         <EditSectionModal />
         <ActionCreatedModal />
         <ActionsSdkCodeModal />
+        <CreateProjectModal />
       </Suspense>
     </>
   );

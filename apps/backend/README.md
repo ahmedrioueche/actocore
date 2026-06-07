@@ -103,13 +103,27 @@ Plans are stored in MongoDB (`studio_plans`) and managed by **super admin** (`ro
 | `POST` | `/web/billing/subscription/cancel-pending-change` | Admin + `billing.write` | Undo scheduled downgrade |
 | `POST` | `/web/billing/paddle/webhook` | Paddle signature | Webhook (raw body required) |
 
-**Super-admin plan catalog** (`/v1/web/admin/plans`): CRUD — requires JWT with `super_admin` role.
+**Super-admin plan catalog** (`/v1/web/admin/plans`): CRUD — requires JWT with `super_admin` role. Plans include `features[]` (marketing bullets), `pricing`, `limits`, and Paddle IDs. Tenants read active plans via `GET /web/billing/plans`; edits apply without redeploy.
+
+Example — update Starter features:
+
+```bash
+PATCH /v1/web/admin/plans/:mongoId
+{ "features": ["Everything in Free", "Up to 3 projects", "..."] }
+```
+
+Example — add a new paid tier (reuse `premium` level for rank above Pro):
+
+```bash
+POST /v1/web/admin/plans
+{ "planId": "business", "level": "premium", "name": "Business", ... }
+```
 
 Env: `PADDLE_API_KEY`, `PADDLE_URL` (e.g. `https://sandbox-api.paddle.com`), `PADDLE_WEBHOOK_SECRET`.
 
 Shared client: `billingApi`, `plansAdminApi` from `@ahmedrioueche/actocore-shared`.
 
-Seed default plans: `npm run seed:plans` (set `PADDLE_PRICE_*` env vars for paid tiers).
+Seed default catalog (Free, Starter, Pro; deactivates legacy Premium): `npm run seed:plans` from `apps/backend`. Set `PADDLE_PRODUCT_*` and `PADDLE_PRICE_*` for Starter and Pro before seeding paid checkout.
 
 ---
 

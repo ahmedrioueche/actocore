@@ -33,9 +33,9 @@ const statusConfig: Record<
   },
   trialing: {
     label: "Trial",
-    bg: "bg-primary/10",
+    bg: "bg-primary-muted",
     text: "text-primary",
-    border: "border-primary/20",
+    border: "border-transparent",
   },
   cancelled: {
     label: "Cancelled",

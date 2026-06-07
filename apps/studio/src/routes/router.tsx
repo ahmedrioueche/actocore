@@ -14,8 +14,9 @@ import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 import AuthCallbackPage from '@/pages/auth/AuthCallbackPage';
 import BillingPage from '@/pages/billing/BillingPage';
+import SubscriptionPage from '@/pages/subscription/SubscriptionPage';
 import OnboardingPage from '@/pages/onboarding/OnboardingPage';
-import ProjectOverviewPage from '@/pages/projects/ProjectOverviewPage';
+import ProjectDocsPage from '@/pages/projects/ProjectDocsPage';
 import ProjectActionsPage from '@/pages/projects/ProjectActionsPage';
 import ProjectApiKeysPage from '@/pages/projects/ProjectApiKeysPage';
 import ProjectKnowledgePage from '@/pages/projects/ProjectKnowledgePage';
@@ -113,11 +114,11 @@ const projectsRoute = createRoute({
   component: ProjectsPage,
 });
 
-const projectOverviewRoute = createRoute({
+const projectDocsRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: '/projects/$projectId',
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
-  component: ProjectOverviewPage,
+  component: ProjectDocsPage,
 });
 
 const projectKnowledgeRoute = createRoute({
@@ -161,6 +162,18 @@ const teamRoute = createRoute({
   component: TeamPage,
 });
 
+const subscriptionRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/subscription',
+  validateSearch: (search: Record<string, unknown>) => ({
+    transactionId:
+      typeof search.transactionId === 'string'
+        ? search.transactionId
+        : undefined,
+  }),
+  component: SubscriptionPage,
+});
+
 const billingRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: '/billing',
@@ -184,13 +197,14 @@ const routeTree = rootRoute.addChildren([
   onboardingRoute,
   studioLayoutRoute.addChildren([
     projectsRoute,
-    projectOverviewRoute,
+    projectDocsRoute,
     projectKnowledgeRoute,
     projectActionsRoute,
     projectSdkConfigRoute,
     projectApiKeysRoute,
     projectUsageRoute,
     teamRoute,
+    subscriptionRoute,
     billingRoute,
     settingsRoute,
   ]),

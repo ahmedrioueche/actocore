@@ -10,7 +10,9 @@ import {
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -18,14 +20,31 @@ import {
   normalizePagination,
   paginate,
 } from '../common/pagination/pagination.util';
+import { getAppEnvironment } from '../config/mongodb.config';
 import { StudioPlanModel } from './schemas/billing.schema';
+import { seedDefaultStudioPlans } from './studio-plans-seed.util';
 
 @Injectable()
-export class StudioPlansService {
+export class StudioPlansService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(StudioPlansService.name);
+
   constructor(
     @InjectModel(StudioPlanModel.name)
     private readonly planModel: Model<StudioPlanModel>,
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    if (getAppEnvironment() !== 'development') {
+      return;
+    }
+
+    try {
+      await seedDefaultStudioPlans(this.planModel);
+      this.logger.log('Ensured default studio plans (development bootstrap)');
+    } catch (err) {
+      this.logger.error('Failed to seed default studio plans', err);
+    }
+  }
 
   async create(dto: CreateStudioPlanDto): Promise<StudioPlan> {
     this.validatePaidPricing(dto.level, dto.pricing);
@@ -156,6 +175,7 @@ export class StudioPlansService {
       paddlePriceIds: doc.paddlePriceIds,
       trialDays: doc.trialDays,
       limits: doc.limits ?? {},
+      features: doc.features ?? [],
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: doc.updatedAt?.toISOString(),
     };

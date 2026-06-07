@@ -188,10 +188,17 @@
     "listSubtitle_other": "{{count}} projects in your workspace",
     "created": "Created {{date}}",
     "emptyTitle": "No projects yet",
-    "emptyDescription": "Create a project to manage API keys, knowledge, and SDK settings for an app."
+    "emptyDescription": "Create a project to manage API keys, knowledge, and SDK settings for an app.",
+    "create": {
+      "button": "Create project",
+      "title": "Create project",
+      "subtitle": "Each project has its own API keys, knowledge, and SDK configuration.",
+      "submit": "Create project",
+      "nameRequired": "Project name is required.",
+      "namePlaceholder": "e.g. My SaaS app"
+    }
   },
   "projectPages": {
-    "overviewSubtitle": "Project overview and identifiers.",
     "sectionSubtitle": "In {{project}}",
     "fields": {
       "name": "Name",
@@ -224,6 +231,36 @@
         "emptyTitle": "No usage data yet",
         "emptyDescription": "Usage metrics for this project will appear here once traffic starts."
       }
+    }
+  },
+  "projectDocs": {
+    "subtitle": "Integration guide for {{project}}",
+    "subtitleFallback": "Embed ActoCore in your application.",
+    "copyCode": "Copy code",
+    "copied": "Copied",
+    "viewActionCode": "Action handlers",
+    "gettingStarted": {
+      "title": "Getting started",
+      "body": "Each project is a separate ActoCore environment. Create an API key, add knowledge, define actions, then drop the SDK into your app. Dashboard SDK settings apply automatically when loadRemoteConfig is enabled."
+    },
+    "quickStart": {
+      "title": "Quick start",
+      "description": "Install the SDK, set your API URL and key, then mount the chat widget in your React app.",
+      "installLabel": "Install",
+      "envLabel": "Environment",
+      "componentLabel": "React component",
+      "componentWithActions": "React component (with your enabled actions)",
+      "actionsHint_one": "Snippet includes {{count}} enabled action from this project.",
+      "actionsHint_other": "Snippet includes {{count}} enabled actions from this project.",
+      "noActionsHint": "Define actions in"
+    },
+    "setup": {
+      "title": "Project setup",
+      "description": "Complete these steps to get a working assistant in your app.",
+      "apiKeys": "Create an API key for SDK and server requests. Keep it secret — use env vars in production.",
+      "knowledge": "Upload documents and URLs so the assistant can answer from your product content.",
+      "actions": "Define tools the assistant can run in chat. Wire handlers in your app with matching names.",
+      "sdkConfig": "Customize theme, copy, locale, and security defaults loaded by the embedded SDK."
     }
   },
   "apiKeys": {
@@ -573,6 +610,7 @@
     "projects": "Projects",
     "allProjects": "All projects",
     "team": "Team",
+    "subscription": "Subscription",
     "billing": "Billing",
     "settings": "Settings",
     "workspace": "Workspace",
@@ -585,7 +623,7 @@
       "label": "Project",
       "section": "Project",
       "loadingName": "Loading…",
-      "overview": "Overview",
+      "docs": "Docs",
       "knowledge": "Knowledge",
       "actions": "Actions",
       "sdkConfig": "SDK config",
@@ -613,16 +651,107 @@
   },
   "billing": {
     "title": "Billing",
-    "subtitle": "Plan, usage, and subscription details for your workspace.",
-    "currentPlan": "Current plan",
-    "freePlan": "Free",
+    "subtitle": "Workspace usage and payment history.",
     "usageTitle": "Usage",
     "projects": "Projects",
     "teamSeats": "Team seats",
     "monthlyChat": "Monthly chat requests",
     "usageValue": "{{used}} / {{limit}}",
     "usageUnlimited": "{{used}} used",
-    "trialEnds": "Trial ends {{date}}"
+    "manageSubscription": "Manage subscription",
+    "manageBilling": "Manage billing",
+    "history": {
+      "title": "Payment history",
+      "subtitle": "Subscription events recorded for your workspace.",
+      "empty": "No billing events yet",
+      "emptyDescription": "Payments and subscription changes will appear here.",
+      "columns": {
+        "date": "Date",
+        "action": "Event",
+        "details": "Details",
+        "amount": "Amount"
+      }
+    }
+  },
+  "subscription": {
+    "title": "Subscription",
+    "subtitle": "View your plan and change your subscription.",
+    "viewBilling": "View billing",
+    "freePlan": "Free",
+    "currentPlan": "Current plan",
+    "trialEnds": "Trial ends {{date}}",
+    "renewsOn": "Renews on {{date}}",
+    "accessUntil": "Access until {{date}}",
+    "cancelButton": "Cancel subscription",
+    "reactivate": "Reactivate subscription",
+    "reactivateSuccess": "Subscription reactivated.",
+    "cancelPendingChange": "Keep current plan",
+    "billingCycle": {
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "cancelScheduled": {
+      "title": "Cancellation scheduled",
+      "body": "Your subscription stays active until the end of the current billing period."
+    },
+    "pendingChange": {
+      "title": "Plan change scheduled",
+      "body": "Your plan will change to {{plan}} on {{date}}.",
+      "cancelled": "Scheduled plan change cancelled."
+    },
+    "cancel": {
+      "title": "Cancel subscription",
+      "confirm": "Your workspace keeps full access until {{date}}. After that, limits revert to the free tier.",
+      "submit": "Cancel at period end",
+      "success": "Subscription cancellation scheduled."
+    },
+    "upgrade": {
+      "title": "Upgrade plan",
+      "confirm": "Upgrade to {{plan}} now? Your card will be charged a prorated amount.",
+      "submit": "Upgrade now",
+      "immediate": "Due today: {{amount}}",
+      "next": "Next billing: {{amount}}",
+      "success": "Plan upgraded."
+    },
+    "downgrade": {
+      "title": "Schedule downgrade",
+      "confirm": "Downgrade to {{plan}} at the end of your current billing period?",
+      "submit": "Schedule downgrade",
+      "success": "Downgrade scheduled."
+    },
+    "trial": {
+      "started": "Free trial started."
+    },
+    "checkout": {
+      "processing": "Confirming your payment…",
+      "success": "Subscription updated successfully.",
+      "failed": "We could not confirm your payment. Try again or contact support."
+    },
+    "plans": {
+      "title": "Available plans",
+      "subtitle": "Choose the plan that fits your workspace.",
+      "cycleLabel": "Billing cycle",
+      "current": "Current",
+      "currentHint": "Your active plan",
+      "contactUs": "Contact us",
+      "per": {
+        "monthly": "mo",
+        "yearly": "yr"
+      },
+      "limits": {
+        "projects_one": "{{count}} project",
+        "projects_other": "{{count}} projects",
+        "seats_one": "{{count}} team seat",
+        "seats_other": "{{count}} team seats",
+        "chat": "{{count}} chat requests / month"
+      },
+      "actions": {
+        "subscribe": "Subscribe",
+        "trial": "Start free trial",
+        "upgrade": "Upgrade",
+        "downgrade": "Downgrade"
+      }
+    }
   },
   "settings": {
     "title": "Settings",

@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { useTranslation } from 'react-i18next';
 import { renderHook } from '@testing-library/react';
 
-import { getApiErrorMessage, getMessage } from '@/utils/statusMessage';
+import {
+  getApiErrorMessage,
+  getMessage,
+  getUnknownApiErrorMessage,
+} from '@/utils/statusMessage';
 
 describe('statusMessage', () => {
   it('maps known error codes via i18n', () => {
@@ -25,6 +29,16 @@ describe('statusMessage', () => {
       'Server said no',
     );
     expect(getApiErrorMessage(t, {})).toBe(
+      'Something went wrong. Please try again.',
+    );
+  });
+
+  it('maps unknown thrown values for billing flows', () => {
+    const { result } = renderHook(() => useTranslation());
+    const t = result.current.t;
+
+    expect(getUnknownApiErrorMessage(t, new Error('boom'))).toBe('boom');
+    expect(getUnknownApiErrorMessage(t, null)).toBe(
       'Something went wrong. Please try again.',
     );
   });

@@ -64,6 +64,9 @@ export class StudioPlanModel extends Document {
   @Prop({ default: 14 })
   trialDays?: number;
 
+  @Prop({ type: [String], default: [] })
+  features?: string[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }

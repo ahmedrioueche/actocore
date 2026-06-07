@@ -37,3 +37,17 @@ export function getApiErrorMessage(
 ): string {
   return getMessage(t, response.errorCode, response.message);
 }
+
+export function getUnknownApiErrorMessage(t: TFunction, err: unknown): string {
+  if (err instanceof Error) {
+    return getApiErrorMessage(t, {
+      errorCode: (err as Error & { errorCode?: string }).errorCode,
+      message: err.message,
+    });
+  }
+  if (err && typeof err === 'object') {
+    const payload = err as { errorCode?: string; message?: string };
+    return getApiErrorMessage(t, payload);
+  }
+  return t('errors.generic');
+}

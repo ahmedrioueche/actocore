@@ -1,15 +1,22 @@
-import { FolderKanban } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { AsyncContent } from '@/components/states';
+import Button from '@/components/ui/Button';
+import { useAuth } from '@/context/AuthContext';
 import { useProjectsList } from '@/hooks/use-projects';
+import { canWriteProjects } from '@/lib/studio-permissions';
+import { useModalStore } from '@/stores/modal';
 
 export default function ProjectsPage() {
   const { t } = useTranslation();
+  const { session } = useAuth();
+  const openModal = useModalStore((state) => state.openModal);
   const projectsQuery = useProjectsList();
   const projects = projectsQuery.data ?? [];
+  const canWrite = canWriteProjects(session);
 
   return (
     <>
@@ -19,6 +26,16 @@ export default function ProjectsPage() {
           projectsQuery.isLoading
             ? undefined
             : t('projects.listSubtitle', { count: projects.length })
+        }
+        actions={
+          canWrite ? (
+            <Button
+              icon={<Plus className="h-4 w-4" />}
+              onClick={() => openModal('createProject', {})}
+            >
+              {t('projects.create.button')}
+            </Button>
+          ) : undefined
         }
       />
 

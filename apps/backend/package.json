@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed:plans": "node scripts/seed-studio-plans.mjs"
+    "seed:plans": "ts-node -r dotenv/config -r tsconfig-paths/register scripts/seed-studio-plans.ts"
   },
   "dependencies": {
     "@ahmedrioueche/actocore-shared": "0.0.29",

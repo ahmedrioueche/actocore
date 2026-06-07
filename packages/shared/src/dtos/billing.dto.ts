@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsIn,
   IsNumber,
@@ -59,6 +60,11 @@ export class CreateStudioPlanDto {
     maxTeamSeats?: number;
     monthlyChatQuota?: number;
   };
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  features?: string[];
 }
 
 export class UpdateStudioPlanDto {
@@ -105,6 +111,11 @@ export class UpdateStudioPlanDto {
     maxTeamSeats?: number;
     monthlyChatQuota?: number;
   };
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  features?: string[];
 }
 
 export class StartFreeTrialDto {

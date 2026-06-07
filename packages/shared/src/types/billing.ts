@@ -62,6 +62,8 @@ export interface StudioPlan extends AuditInfo {
   };
   trialDays?: number;
   limits: StudioPlanLimits;
+  /** Marketing bullets shown on the subscription page (editable via super-admin API). */
+  features?: string[];
 }
 
 export interface StudioSubscription extends AuditInfo {

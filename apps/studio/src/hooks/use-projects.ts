@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { projectsApi, type ListProjectsQuery } from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
@@ -21,5 +21,22 @@ export function useProject(projectId: string | null) {
     queryKey: queryKeys.projects.detail(projectId ?? ''),
     queryFn: async () => parseApiResponse(await projectsApi.get(projectId!)),
     enabled: Boolean(projectId),
+  });
+}
+
+export function useCreateProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (name: string) => {
+      ensureApiConfigured();
+      return parseApiResponse(
+        await projectsApi.create({ name: name.trim() }),
+      );
+    },
+    onSuccess: (project) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
+      queryClient.setQueryData(queryKeys.projects.detail(project.id), project);
+    },
   });
 }

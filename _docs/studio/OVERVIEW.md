@@ -15,6 +15,8 @@ Studio lets account owners and their team:
 - Define **actions**, upload **knowledge**, and edit **SDK config** (locale, theme, UI flags, allowlist)
 - View **usage** and **sessions** (where permitted)
 - Manage **billing** and **team seats**
+- View workspace **usage** and change **subscription** plans (checkout, upgrade, cancel)
+- **Plans** (Free, Starter, Pro) are seeded to Mongo and editable by super admin via `/v1/web/admin/plans` (`features`, pricing, limits)
 - Configure **account** settings and preferences
 
 Product context: [`_docs/PROJECT.md`](../PROJECT.md) § Studio.
@@ -51,7 +53,7 @@ Default editor permissions, API key policy, and route guards are documented in [
 |------|--------|
 | `/v1/web/*` backend | Shipped (auth, RBAC, projects, keys, knowledge, sdk-config, usage, billing) |
 | `packages/shared` api + types | Shipped for web routes (global types only) |
-| `apps/studio` UI | Scaffolded — TanStack Router/Query/Table; local types in `src/types/` |
+| `apps/studio` UI | In progress — projects, actions, SDK config, **subscription + billing** pages; TanStack Router/Query/Table |
 
 ---
 
