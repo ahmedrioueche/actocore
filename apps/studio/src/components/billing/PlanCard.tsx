@@ -7,13 +7,14 @@ import { useTranslation } from "react-i18next";
 
 import Button from "@/components/ui/Button";
 import { cn } from "@/utils/helper";
+import type { FreeTrialBadgeState } from "@/utils/free-trial-badge";
+import { buildPlanBullets } from "@/utils/plan-bullets";
 
 export type PlanActionKind =
   | "current"
   | "subscribe"
   | "trial"
   | "upgrade"
-  | "downgrade"
   | "unavailable";
 
 function formatPrice(
@@ -39,6 +40,7 @@ interface PlanCardProps {
   plan: StudioPlan;
   billingCycle: AppSubscriptionBillingCycle;
   action: PlanActionKind;
+  freeTrialBadge?: FreeTrialBadgeState;
   canWrite: boolean;
   isPending: boolean;
   onSelect: () => void;
@@ -48,6 +50,7 @@ export function PlanCard({
   plan,
   billingCycle,
   action,
+  freeTrialBadge,
   canWrite,
   isPending,
   onSelect,
@@ -55,6 +58,7 @@ export function PlanCard({
   const { t } = useTranslation();
   const isCurrent = action === "current";
   const price = formatPrice(plan, billingCycle);
+  const bullets = buildPlanBullets(plan, t);
 
   return (
     <article
@@ -76,12 +80,24 @@ export function PlanCard({
             </p>
           ) : null}
         </div>
-        {isCurrent ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-primary bg-surface px-2 py-0.5 text-xs font-semibold text-primary">
-            <Check className="h-3.5 w-3.5" aria-hidden />
-            {t("subscription.plans.current")}
-          </span>
-        ) : null}
+        <div className="flex flex-col items-end gap-1.5">
+          {freeTrialBadge === "days" ? (
+            <span className="inline-flex rounded-full border border-primary bg-primary-muted px-2 py-0.5 text-xs font-semibold text-primary">
+              {t("subscription.plans.trialBadge", { days: plan.trialDays })}
+            </span>
+          ) : null}
+          {freeTrialBadge === "expired" ? (
+            <span className="inline-flex rounded-full border border-border bg-surface-secondary px-2 py-0.5 text-xs font-semibold text-text-secondary">
+              {t("subscription.plans.trialExpired")}
+            </span>
+          ) : null}
+          {isCurrent ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary bg-surface px-2 py-0.5 text-xs font-semibold text-primary">
+              <Check className="h-3.5 w-3.5" aria-hidden />
+              {t("subscription.plans.current")}
+            </span>
+          ) : null}
+        </div>
       </div>
 
       <p className="mt-4 text-3xl font-bold text-text-primary">
@@ -94,37 +110,16 @@ export function PlanCard({
       </p>
 
       <ul className="mt-4 space-y-2 text-sm text-text-secondary">
-        {plan.features && plan.features.length > 0
-          ? plan.features.map((feature) => <li key={feature}>{feature}</li>)
-          : null}
-        {!plan.features?.length && plan.limits.maxProjects != null ? (
-          <li>
-            {t("subscription.plans.limits.projects", {
-              count: plan.limits.maxProjects,
-            })}
-          </li>
-        ) : null}
-        {!plan.features?.length && plan.limits.maxTeamSeats != null ? (
-          <li>
-            {t("subscription.plans.limits.seats", {
-              count: plan.limits.maxTeamSeats,
-            })}
-          </li>
-        ) : null}
-        {!plan.features?.length && plan.limits.monthlyChatQuota != null ? (
-          <li>
-            {t("subscription.plans.limits.chat", {
-              count: plan.limits.monthlyChatQuota,
-            })}
-          </li>
-        ) : null}
+        {bullets.map((bullet) => (
+          <li key={bullet}>{bullet}</li>
+        ))}
       </ul>
 
       <div className="mt-auto pt-5">
         {canWrite && action !== "current" && action !== "unavailable" ? (
           <Button
             fullWidth
-            variant={action === "downgrade" ? "outline" : "filled"}
+            variant="filled"
             loading={isPending}
             onClick={onSelect}
           >

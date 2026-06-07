@@ -12,7 +12,6 @@ import {
   apiSuccess,
   CancelSubscriptionDto,
   CreateSubscriptionCheckoutDto,
-  ScheduleDowngradeDto,
   StartFreeTrialDto,
   StudioPermission,
   UpgradeSubscriptionDto,
@@ -147,21 +146,6 @@ export class StudioBillingController {
     );
   }
 
-  @Post('subscription/upgrade/preview')
-  @RequireStudioPermission(StudioPermission.BILLING_WRITE)
-  async previewUpgrade(
-    @StudioCtx() ctx: StudioRequestContext,
-    @Body() body: UpgradeSubscriptionDto,
-  ) {
-    return apiSuccess(
-      await this.subscriptions.previewUpgrade(
-        ctx.accountId,
-        body.planId,
-        body.billingCycle ?? 'monthly',
-      ),
-    );
-  }
-
   @Post('subscription/upgrade')
   @RequireStudioPermission(StudioPermission.BILLING_WRITE)
   async applyUpgrade(
@@ -170,21 +154,6 @@ export class StudioBillingController {
   ) {
     return apiSuccess(
       await this.subscriptions.applyUpgrade(
-        ctx.accountId,
-        body.planId,
-        body.billingCycle ?? 'monthly',
-      ),
-    );
-  }
-
-  @Post('subscription/downgrade')
-  @RequireStudioPermission(StudioPermission.BILLING_WRITE)
-  async scheduleDowngrade(
-    @StudioCtx() ctx: StudioRequestContext,
-    @Body() body: ScheduleDowngradeDto,
-  ) {
-    return apiSuccess(
-      await this.subscriptions.scheduleDowngrade(
         ctx.accountId,
         body.planId,
         body.billingCycle ?? 'monthly',

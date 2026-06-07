@@ -5,24 +5,32 @@ import { StudioPlanModel } from '../../src/studio-billing/schemas/billing.schema
 
 export async function seedStudioPlansForE2e(app: INestApplication): Promise<void> {
   const planModel = app.get(getModelToken(StudioPlanModel.name));
-  const starterPlan = DEFAULT_STUDIO_PLANS.find((plan) => plan.planId === 'starter');
-  if (!starterPlan) {
-    throw new Error('Starter plan missing from default catalog');
-  }
 
-  await planModel.updateOne(
-    { planId: 'starter' },
-    {
-      $set: {
-        ...starterPlan,
-        paypalPlanIds: {
-          monthly: 'P-TEST-STARTER-MONTHLY',
-          yearly: 'P-TEST-STARTER-YEARLY',
+  for (const plan of DEFAULT_STUDIO_PLANS) {
+    const paypalPlanIds =
+      plan.planId === 'starter'
+        ? {
+            monthly: 'P-TEST-STARTER-MONTHLY',
+            yearly: 'P-TEST-STARTER-YEARLY',
+          }
+        : plan.planId === 'pro'
+          ? {
+              monthly: 'P-TEST-PRO-MONTHLY',
+              yearly: 'P-TEST-PRO-YEARLY',
+            }
+          : plan.paypalPlanIds;
+
+    await planModel.updateOne(
+      { planId: plan.planId },
+      {
+        $set: {
+          ...plan,
+          paypalPlanIds,
+          updatedAt: new Date(),
         },
-        updatedAt: new Date(),
+        $setOnInsert: { createdAt: new Date() },
       },
-      $setOnInsert: { createdAt: new Date() },
-    },
-    { upsert: true },
-  );
+      { upsert: true },
+    );
+  }
 }

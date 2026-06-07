@@ -129,19 +129,12 @@ export class StudioPayPalService {
   ): Promise<{
     approval_url: string;
     subscription_id: string;
-    trialEligible?: boolean;
-    trialDays?: number;
   }> {
     this.ensureConfigured();
     const plan = await this.plans.getByPlanId(planId);
     if (plan.level === 'free') {
       throw new BadRequestException('Cannot checkout the free plan');
     }
-
-    const trialEligibility = await this.subscriptions.getTrialEligibility(
-      accountId,
-      planId,
-    );
 
     const paypalPlanId = this.getPayPalPlanId(plan, billingCycle);
     if (!paypalPlanId) {
@@ -179,8 +172,6 @@ export class StudioPayPalService {
     return {
       approval_url: approvalUrl,
       subscription_id: data.id,
-      trialEligible: trialEligibility.eligible,
-      trialDays: trialEligibility.trialDays,
     };
   }
 

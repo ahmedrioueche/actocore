@@ -1,12 +1,14 @@
-import type { AppPlanLevel, CreateStudioPlanDto } from '@ahmedrioueche/actocore-shared';
+import type {
+  AppPlanLevel,
+  CreateStudioPlanDto,
+} from '@ahmedrioueche/actocore-shared';
 
 /** Seed/admin defaults — upserted by `npm run seed:plans`. */
 export type DefaultStudioPlanSeed = CreateStudioPlanDto;
 
 export const DEPRECATED_PLAN_IDS = ['premium'] as const;
 
-export const PAYPAL_CATALOG_PRODUCT_ID =
-  process.env.PAYPAL_PRODUCT_ID || '';
+export const PAYPAL_CATALOG_PRODUCT_ID = process.env.PAYPAL_PRODUCT_ID || '';
 
 export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
   {
@@ -16,15 +18,10 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     name: 'Free',
     description: 'Try ActoCore Studio',
     isActive: true,
-    trialDays: 0,
+    trialDays: 14,
     pricing: { USD: { monthly: 0, yearly: 0 } },
     limits: { maxProjects: 1, maxTeamSeats: 1, monthlyChatQuota: 500 },
-    features: [
-      '1 project',
-      '500 chat requests per month',
-      'Knowledge base and actions',
-      'SDK embed with dashboard config',
-    ],
+    features: ['Knowledge base and actions', 'SDK embed with dashboard config'],
   },
   {
     planId: 'starter',
@@ -33,7 +30,7 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     name: 'Starter',
     description: 'For small teams shipping their first assistant',
     isActive: true,
-    trialDays: 14,
+    trialDays: 0,
     pricing: { USD: { monthly: 29, yearly: 290 } },
     paypalProductId: PAYPAL_CATALOG_PRODUCT_ID,
     paypalPlanIds: {
@@ -41,14 +38,7 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
       yearly: process.env.PAYPAL_PLAN_STARTER_YEARLY || '',
     },
     limits: { maxProjects: 3, maxTeamSeats: 5, monthlyChatQuota: 10_000 },
-    features: [
-      'Everything in Free',
-      'Up to 3 projects',
-      '5 team seats',
-      '10,000 chat requests per month',
-      '14-day free trial',
-      'Email support',
-    ],
+    features: ['Everything in Free', 'Email support'],
   },
   {
     planId: 'pro',
@@ -57,7 +47,7 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     name: 'Pro',
     description: 'For growing products with higher volume',
     isActive: true,
-    trialDays: 14,
+    trialDays: 0,
     pricing: { USD: { monthly: 79, yearly: 790 } },
     paypalProductId: PAYPAL_CATALOG_PRODUCT_ID,
     paypalPlanIds: {
@@ -65,14 +55,7 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
       yearly: process.env.PAYPAL_PLAN_PRO_YEARLY || '',
     },
     limits: { maxProjects: 10, maxTeamSeats: 20, monthlyChatQuota: 100_000 },
-    features: [
-      'Everything in Starter',
-      'Up to 10 projects',
-      '20 team seats',
-      '100,000 chat requests per month',
-      '14-day free trial',
-      'Priority support',
-    ],
+    features: ['Everything in Starter', 'Priority support'],
   },
 ];
 

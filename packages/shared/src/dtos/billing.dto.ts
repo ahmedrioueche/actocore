@@ -144,16 +144,6 @@ export class CancelSubscriptionDto {
   reason?: string;
 }
 
-export class ScheduleDowngradeDto {
-  @IsString()
-  @MinLength(1)
-  planId!: string;
-
-  @IsOptional()
-  @IsIn(APP_SUBSCRIPTION_BILLING_CYCLES)
-  billingCycle?: (typeof APP_SUBSCRIPTION_BILLING_CYCLES)[number];
-}
-
 export class UpgradeSubscriptionDto {
   @IsString()
   @MinLength(1)

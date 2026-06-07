@@ -137,15 +137,6 @@ export interface PayPalSubscriptionStatusData {
   plan_id?: string;
 }
 
-export interface StudioUpgradePreviewData {
-  targetPlanId: string;
-  billingCycle: AppSubscriptionBillingCycle;
-  effectiveDate?: string;
-  currencyCode?: string;
-  nextBillingTotal?: string;
-  targetPlanName?: string;
-}
-
 export interface StudioUpgradeResult {
   subscription: StudioSubscription;
   approvalUrl?: string;

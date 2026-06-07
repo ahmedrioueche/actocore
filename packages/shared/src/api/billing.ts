@@ -3,7 +3,6 @@ import type {
   CancelSubscriptionDto,
   CreateStudioPlanDto,
   CreateSubscriptionCheckoutDto,
-  ScheduleDowngradeDto,
   StartFreeTrialDto,
   UpdateStudioPlanDto,
   UpgradeSubscriptionDto,
@@ -18,7 +17,6 @@ import type {
   StudioSubscription,
   StudioSubscriptionSummary,
   StudioTrialEligibility,
-  StudioUpgradePreviewData,
   StudioUpgradeResult,
 } from '../types/billing';
 import type { AccountQuotaStatusData } from '../types/usage';
@@ -141,32 +139,10 @@ export class StudioBillingApi extends BaseApi {
     );
   }
 
-  scheduleDowngrade(
-    body: ScheduleDowngradeDto,
-  ): Promise<ApiResponse<StudioSubscription>> {
-    return this.request(() =>
-      this.client.post<ApiResponse<StudioSubscription>>(
-        apiPath('web/billing/subscription/downgrade'),
-        body,
-      ),
-    );
-  }
-
   cancelPendingChange(): Promise<ApiResponse<StudioSubscription>> {
     return this.request(() =>
       this.client.post<ApiResponse<StudioSubscription>>(
         apiPath('web/billing/subscription/cancel-pending-change'),
-      ),
-    );
-  }
-
-  previewUpgrade(
-    body: UpgradeSubscriptionDto,
-  ): Promise<ApiResponse<StudioUpgradePreviewData>> {
-    return this.request(() =>
-      this.client.post<ApiResponse<StudioUpgradePreviewData>>(
-        apiPath('web/billing/subscription/upgrade/preview'),
-        body,
       ),
     );
   }

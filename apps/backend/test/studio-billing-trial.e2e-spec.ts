@@ -62,40 +62,33 @@ describe('Studio billing free trial (e2e)', () => {
     return login.body.data.accessToken as string;
   }
 
-  it('starts internal free trial and blocks a second trial', async () => {
+  it('auto-starts free-plan trial on signup and blocks paid-plan trial', async () => {
     const token = await loginAdmin();
     const server = app.getHttpServer();
-
-    const eligibility = await request(server)
-      .get('/v1/web/billing/trial/eligibility')
-      .query({ planId: 'starter' })
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
-
-    expect(eligibility.body.data.eligible).toBe(true);
-    expect(eligibility.body.data.trialDays).toBeGreaterThan(0);
-
-    const started = await request(server)
-      .post('/v1/web/billing/trial/start')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ planId: 'starter', billingCycle: 'monthly' })
-      .expect(201);
-
-    expect(started.body.data.status).toBe('trialing');
-    expect(started.body.data.trial?.hasUsedTrial).toBe(true);
 
     const summary = await request(server)
       .get('/v1/web/billing/subscription')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
+    expect(summary.body.data.subscription?.status).toBe('trialing');
+    expect(summary.body.data.subscription?.planId).toBe('free');
     expect(summary.body.data.trial?.isTrialing).toBe(true);
-    expect(summary.body.data.limits.maxProjects).toBe(3);
+    expect(summary.body.data.limits.maxProjects).toBe(1);
+
+    const starterEligibility = await request(server)
+      .get('/v1/web/billing/trial/eligibility')
+      .query({ planId: 'starter' })
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(starterEligibility.body.data.eligible).toBe(false);
+    expect(starterEligibility.body.data.reason).toBe('PAID_PLAN');
 
     await request(server)
       .post('/v1/web/billing/trial/start')
       .set('Authorization', `Bearer ${token}`)
-      .send({ planId: 'starter' })
+      .send({ planId: 'free', billingCycle: 'monthly' })
       .expect(400)
       .expect((res) => {
         expect(res.body.errorCode).toBe(ErrorCode.TRIAL_NOT_ELIGIBLE);

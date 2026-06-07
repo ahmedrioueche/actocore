@@ -43,6 +43,10 @@ export const ErrorCode = {
   CHECKOUT_CREATION_FAILED: 'CHECKOUT_CREATION_FAILED',
   BILLING_NOT_CONFIGURED: 'BILLING_NOT_CONFIGURED',
   TRIAL_NOT_ELIGIBLE: 'TRIAL_NOT_ELIGIBLE',
+  /** Studio workspace project cap reached — see `details.limit`. */
+  PROJECT_LIMIT_REACHED: 'PROJECT_LIMIT_REACHED',
+  /** Studio workspace team seat cap reached — see `details.limit`. */
+  SEAT_LIMIT_REACHED: 'SEAT_LIMIT_REACHED',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

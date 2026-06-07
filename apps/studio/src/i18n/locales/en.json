@@ -60,7 +60,19 @@
     "unauthorized": "You need to sign in to continue.",
     "forbidden": "You do not have permission to do that.",
     "internal": "A server error occurred. Please try again later.",
-    "tooManyRequests": "Too many attempts. Please wait and try again."
+    "tooManyRequests": "Too many attempts. Please wait and try again.",
+    "projectLimitReached": "You've reached your project limit ({{limit}}). Upgrade your plan to add more.",
+    "seatLimitReached": "You've reached your team seat limit ({{limit}}). Upgrade your plan to invite more members.",
+    "chatQuotaExceeded": "Monthly chat limit reached ({{limit}}). Upgrade your plan for more requests."
+  },
+  "planLimits": {
+    "projectReachedTitle": "Project limit reached",
+    "projectReached": "Your plan allows up to {{limit}} projects. Upgrade to create more.",
+    "seatReachedTitle": "Team seat limit reached",
+    "seatReached": "Your plan allows up to {{limit}} team seats. Upgrade to invite more members.",
+    "chatReachedTitle": "Monthly chat limit reached",
+    "chatReached": "You've used all {{limit}} monthly chat requests on your plan.",
+    "upgradeLink": "Upgrade plan"
   },
   "auth": {
     "securityBadge": "Enterprise Grade Security",
@@ -661,15 +673,29 @@
     "manageSubscription": "Manage subscription",
     "manageBilling": "Manage billing",
     "history": {
-      "title": "Payment history",
-      "subtitle": "Subscription events recorded for your workspace.",
+      "title": "Billing activity",
+      "subtitle": "Subscription changes and payments for your workspace.",
       "empty": "No billing events yet",
-      "emptyDescription": "Payments and subscription changes will appear here.",
+      "emptyDescription": "Trials, payments, and subscription changes will appear here.",
+      "trialDays_one": "{{count}} day",
+      "trialDays_other": "{{count}} days",
       "columns": {
         "date": "Date",
         "action": "Event",
         "details": "Details",
         "amount": "Amount"
+      },
+      "actions": {
+        "trial_started": "Trial started",
+        "trial_ended": "Trial ended",
+        "subscribed": "Subscribed",
+        "created": "Subscription created",
+        "renewed": "Payment received",
+        "upgraded": "Upgrade scheduled",
+        "cancelled": "Cancelled",
+        "reactivated": "Reactivated",
+        "pending_change_cancelled": "Upgrade cancelled",
+        "expired": "Trial ended"
       }
     }
   },
@@ -685,7 +711,7 @@
     "cancelButton": "Cancel subscription",
     "reactivate": "Reactivate subscription",
     "reactivateSuccess": "Subscription reactivated.",
-    "cancelPendingChange": "Keep current plan",
+    "cancelPendingUpgrade": "Keep current plan",
     "billingCycle": {
       "monthly": "Monthly",
       "yearly": "Yearly"
@@ -694,10 +720,10 @@
       "title": "Cancellation scheduled",
       "body": "Your subscription stays active until the end of the current billing period."
     },
-    "pendingChange": {
-      "title": "Plan change scheduled",
-      "body": "Your plan will change to {{plan}} on {{date}}.",
-      "cancelled": "Scheduled plan change cancelled."
+    "pendingUpgrade": {
+      "title": "Upgrade scheduled",
+      "body": "Your plan will upgrade to {{plan}} on {{date}}.",
+      "cancelled": "Scheduled upgrade cancelled."
     },
     "cancel": {
       "title": "Cancel subscription",
@@ -709,15 +735,7 @@
       "title": "Upgrade plan",
       "confirm": "Upgrade to {{plan}}? The new price takes effect on your next billing cycle.",
       "submit": "Upgrade now",
-      "next": "Next billing: {{amount}}",
-      "effective": "Effective: {{date}}",
       "success": "Plan upgrade scheduled."
-    },
-    "downgrade": {
-      "title": "Schedule downgrade",
-      "confirm": "Downgrade to {{plan}} at the end of your current billing period?",
-      "submit": "Schedule downgrade",
-      "success": "Downgrade scheduled."
     },
     "trial": {
       "started": "Free trial started."
@@ -733,6 +751,8 @@
       "cycleLabel": "Billing cycle",
       "current": "Current",
       "currentHint": "Your active plan",
+      "trialBadge": "{{days}} days",
+      "trialExpired": "Expired",
       "contactUs": "Contact us",
       "per": {
         "monthly": "mo",
@@ -748,8 +768,7 @@
       "actions": {
         "subscribe": "Subscribe",
         "trial": "Start free trial",
-        "upgrade": "Upgrade",
-        "downgrade": "Downgrade"
+        "upgrade": "Upgrade"
       }
     }
   },

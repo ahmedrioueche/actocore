@@ -52,7 +52,7 @@ export class StudioPlansService implements OnApplicationBootstrap {
       ...dto,
       version: 1,
       isActive: dto.isActive ?? true,
-      trialDays: dto.trialDays ?? 14,
+      trialDays: dto.trialDays ?? 0,
     });
     return this.toPlan(doc);
   }

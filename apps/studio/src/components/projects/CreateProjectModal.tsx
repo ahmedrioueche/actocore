@@ -7,7 +7,7 @@ import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { useCreateProject } from '@/hooks/use-projects';
 import { useModalStore } from '@/stores/modal';
-import { getApiErrorMessage } from '@/utils/statusMessage';
+import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateProjectModal() {
   const { t } = useTranslation();
@@ -50,13 +50,7 @@ export default function CreateProjectModal() {
         params: { projectId: project.id },
       });
     } catch (err) {
-      const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
-        getApiErrorMessage(t, {
-          errorCode: code,
-          message: err instanceof Error ? err.message : undefined,
-        }),
-      );
+      setError(getUnknownApiErrorMessage(t, err));
     }
   };
 

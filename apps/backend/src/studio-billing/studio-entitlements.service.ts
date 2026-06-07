@@ -29,8 +29,12 @@ export class StudioEntitlementsService {
     }
     if (summary.usage && summary.usage.projectsUsed >= max) {
       throw new ForbiddenException({
-        errorCode: ErrorCode.TOO_MANY_REQUESTS,
+        errorCode: ErrorCode.PROJECT_LIMIT_REACHED,
         message: `Project limit reached (${max}). Upgrade your plan.`,
+        details: {
+          limit: max,
+          used: summary.usage.projectsUsed,
+        },
       });
     }
   }
@@ -43,8 +47,12 @@ export class StudioEntitlementsService {
     }
     if (summary.usage && summary.usage.teamSeatsUsed >= max) {
       throw new ForbiddenException({
-        errorCode: ErrorCode.TOO_MANY_REQUESTS,
+        errorCode: ErrorCode.SEAT_LIMIT_REACHED,
         message: `Team seat limit reached (${max}). Upgrade your plan.`,
+        details: {
+          limit: max,
+          used: summary.usage.teamSeatsUsed,
+        },
       });
     }
   }

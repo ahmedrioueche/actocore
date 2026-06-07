@@ -33,6 +33,28 @@ describe('statusMessage', () => {
     );
   });
 
+  it('maps plan limit errors with details', () => {
+    const { result } = renderHook(() => useTranslation());
+    const t = result.current.t;
+
+    expect(
+      getApiErrorMessage(t, {
+        errorCode: 'PROJECT_LIMIT_REACHED',
+        details: { limit: 2, used: 2 },
+      }),
+    ).toBe(
+      "You've reached your project limit (2). Upgrade your plan to add more.",
+    );
+    expect(
+      getApiErrorMessage(t, {
+        errorCode: 'SEAT_LIMIT_REACHED',
+        details: { limit: 5 },
+      }),
+    ).toBe(
+      "You've reached your team seat limit (5). Upgrade your plan to invite more members.",
+    );
+  });
+
   it('maps unknown thrown values for billing flows', () => {
     const { result } = renderHook(() => useTranslation());
     const t = result.current.t;

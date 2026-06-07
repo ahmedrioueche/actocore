@@ -3,13 +3,15 @@ import type {
   AppSubscriptionBillingCycle,
   StudioPlan,
   StudioSubscription,
+  StudioTrialStatus,
 } from "@ahmedrioueche/actocore-shared";
 import { useTranslation } from "react-i18next";
 
 import { PlanCard, type PlanActionKind } from "@/components/billing/PlanCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/utils/helper";
-import { isDowngrade, isUpgrade } from "@/utils/plan-level";
+import { resolveFreeTrialBadge } from "@/utils/free-trial-badge";
+import { isUpgrade } from "@/utils/plan-level";
 
 export type { PlanActionKind };
 
@@ -23,16 +25,13 @@ function resolvePlanAction(
     return "current";
   }
   if (plan.level === "free") {
-    return "unavailable";
+    return hasPaidPayPalSub ? "unavailable" : "current";
   }
   if (hasPaidPayPalSub) {
     if (isUpgrade(currentLevel, plan.level)) {
       return "upgrade";
     }
-    if (isDowngrade(currentLevel, plan.level)) {
-      return "downgrade";
-    }
-    return "subscribe";
+    return "unavailable";
   }
   return "subscribe";
 }
@@ -40,6 +39,7 @@ function resolvePlanAction(
 interface PlanPickerProps {
   plans: StudioPlan[] | undefined;
   subscription: StudioSubscription | null | undefined;
+  trial?: StudioTrialStatus;
   billingCycle: AppSubscriptionBillingCycle;
   onBillingCycleChange: (cycle: AppSubscriptionBillingCycle) => void;
   isLoading: boolean;
@@ -51,6 +51,7 @@ interface PlanPickerProps {
 export function PlanPicker({
   plans,
   subscription,
+  trial,
   billingCycle,
   onBillingCycleChange,
   isLoading,
@@ -62,7 +63,9 @@ export function PlanPicker({
   const currentLevel: AppPlanLevel = subscription?.plan?.level ?? "free";
   const currentPlanId = subscription?.planId;
   const hasPaidPayPalSub = Boolean(subscription?.paypalSubscriptionId);
-  const paidPlans = (plans ?? []).filter((plan) => plan.level !== "free");
+  const visiblePlans = [...(plans ?? [])].sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0),
+  );
 
   return (
     <section className="space-y-4">
@@ -76,27 +79,29 @@ export function PlanPicker({
           </p>
         </div>
 
-        <div
-          className="inline-flex rounded-xl border border-border bg-surface p-1"
-          role="group"
-          aria-label={t("subscription.plans.cycleLabel")}
-        >
-          {(["monthly", "yearly"] as const).map((cycle) => (
-            <button
-              key={cycle}
-              type="button"
-              onClick={() => onBillingCycleChange(cycle)}
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                billingCycle === cycle
-                  ? "bg-brand-gradient text-primary-contrast shadow-sm"
-                  : "text-text-secondary hover:text-text-primary",
-              )}
-            >
-              {t(`subscription.billingCycle.${cycle}`)}
-            </button>
-          ))}
-        </div>
+        {!hasPaidPayPalSub ? (
+          <div
+            className="inline-flex rounded-xl border border-border bg-surface p-1"
+            role="group"
+            aria-label={t("subscription.plans.cycleLabel")}
+          >
+            {(["monthly", "yearly"] as const).map((cycle) => (
+              <button
+                key={cycle}
+                type="button"
+                onClick={() => onBillingCycleChange(cycle)}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                  billingCycle === cycle
+                    ? "bg-brand-gradient text-primary-contrast shadow-sm"
+                    : "text-text-secondary hover:text-text-primary",
+                )}
+              >
+                {t(`subscription.billingCycle.${cycle}`)}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {isLoading ? (
@@ -107,7 +112,7 @@ export function PlanPicker({
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-3">
-          {paidPlans.map((plan) => {
+          {visiblePlans.map((plan) => {
             const action = resolvePlanAction(
               plan,
               currentLevel as AppPlanLevel,
@@ -121,6 +126,11 @@ export function PlanPicker({
                 plan={plan}
                 billingCycle={billingCycle}
                 action={action}
+                freeTrialBadge={resolveFreeTrialBadge(
+                  plan,
+                  trial,
+                  hasPaidPayPalSub,
+                )}
                 canWrite={canWrite}
                 isPending={pendingPlanId === plan.planId}
                 onSelect={() => onSelectPlan(plan, action)}

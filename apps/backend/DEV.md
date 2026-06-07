@@ -97,6 +97,10 @@ npm run seed:plans
 
 Catalog source: `src/studio-billing/constants/default-studio-plans.ts`. Super admin edits live plans (features, prices, limits) via `GET/POST/PATCH /v1/web/admin/plans` — no Studio admin UI yet.
 
+**Subscription lifecycle (simplified):** new accounts get a **14-day free-plan trial** automatically on signup (limits from the `free` row in `studio_plans`). Paid plans use PayPal checkout only (no paid-plan trial). Existing paid users can **upgrade** in-app; **downgrades** and **billing-cycle changes** go through PayPal's manage portal. Cancel keeps access until period end; reactivate undoes a scheduled cancel.
+
+**Plan limits:** `maxProjects`, `maxTeamSeats`, and `monthlyChatQuota` are enforced from the active plan document (or free-plan fallback). Super-admin edits via `PATCH /v1/web/admin/plans/:id` take effect immediately — restart dev bootstrap or run `npm run seed:plans` after changing seed defaults.
+
 Create a project + SDK key without the playground:
 
 ```powershell

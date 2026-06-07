@@ -1,12 +1,15 @@
 import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { PlanLimitTip } from '@/components/billing/PlanLimitTip';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { AsyncContent } from '@/components/states';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useProjectsList } from '@/hooks/use-projects';
+import { useSubscriptionSummary } from '@/hooks/use-subscription';
+import { isAtPlanLimit } from '@/lib/plan-limits';
 import { canWriteProjects } from '@/lib/studio-permissions';
 import { useModalStore } from '@/stores/modal';
 
@@ -15,8 +18,12 @@ export default function ProjectsPage() {
   const { session } = useAuth();
   const openModal = useModalStore((state) => state.openModal);
   const projectsQuery = useProjectsList();
+  const summaryQuery = useSubscriptionSummary();
   const projects = projectsQuery.data ?? [];
   const canWrite = canWriteProjects(session);
+  const projectLimit = summaryQuery.data?.limits.maxProjects;
+  const projectsUsed = summaryQuery.data?.usage?.projectsUsed ?? projects.length;
+  const atProjectLimit = isAtPlanLimit(projectsUsed, projectLimit);
 
   return (
     <>
@@ -31,6 +38,7 @@ export default function ProjectsPage() {
           canWrite ? (
             <Button
               icon={<Plus className="h-4 w-4" />}
+              disabled={atProjectLimit}
               onClick={() => openModal('createProject', {})}
             >
               {t('projects.create.button')}
@@ -38,6 +46,10 @@ export default function ProjectsPage() {
           ) : undefined
         }
       />
+
+      {atProjectLimit && projectLimit != null ? (
+        <PlanLimitTip kind="project" limit={projectLimit} className="mb-6" />
+      ) : null}
 
       <AsyncContent
         isLoading={projectsQuery.isLoading}

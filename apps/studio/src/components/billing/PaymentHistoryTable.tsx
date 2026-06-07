@@ -3,6 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 import NoData from '@/components/ui/NoData';
 import { Table, type TableColumn } from '@/components/ui/Table';
+import {
+  formatBillingHistoryAction,
+  formatBillingHistoryDetails,
+} from '@/utils/billing-history';
 
 interface PaymentHistoryTableProps {
   items: StudioBillingHistoryEntry[];
@@ -33,7 +37,9 @@ export function PaymentHistoryTable({
       key: 'action',
       header: t('billing.history.columns.action'),
       render: (entry) => (
-        <span className="font-medium text-text-primary">{entry.action}</span>
+        <span className="font-medium text-text-primary">
+          {formatBillingHistoryAction(t, entry)}
+        </span>
       ),
       renderSkeleton: () => (
         <div className="h-4 w-20 animate-pulse rounded bg-surface-hover" />
@@ -42,9 +48,12 @@ export function PaymentHistoryTable({
     {
       key: 'details',
       header: t('billing.history.columns.details'),
-      render: (entry) => (
-        <span className="text-text-secondary">{entry.details ?? '—'}</span>
-      ),
+      render: (entry) => {
+        const details = formatBillingHistoryDetails(t, entry);
+        return (
+          <span className="text-text-secondary">{details ?? '—'}</span>
+        );
+      },
       renderSkeleton: () => (
         <div className="h-4 w-40 animate-pulse rounded bg-surface-hover" />
       ),

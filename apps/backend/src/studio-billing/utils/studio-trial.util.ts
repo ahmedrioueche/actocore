@@ -1,7 +1,7 @@
 import type { AppPlanLevel } from '@ahmedrioueche/actocore-shared';
 
 export type TrialIneligibilityReason =
-  | 'FREE_PLAN'
+  | 'PAID_PLAN'
   | 'NO_TRIAL_ON_PLAN'
   | 'ALREADY_USED'
   | 'ALREADY_SUBSCRIBED'
@@ -26,11 +26,11 @@ export function evaluateTrialEligibility(input: {
       message: 'This plan is not available',
     };
   }
-  if (input.planLevel === 'free') {
+  if (input.planLevel !== 'free') {
     return {
       eligible: false,
-      reason: 'FREE_PLAN',
-      message: 'Free plan does not include a trial',
+      reason: 'PAID_PLAN',
+      message: 'Free trial is only available on the free plan',
     };
   }
   if (input.planTrialDays <= 0) {

@@ -1,4 +1,7 @@
-import type { ApiResponse } from '@ahmedrioueche/actocore-shared';
+import type {
+  ApiResponse,
+  PlanLimitErrorDetails,
+} from '@ahmedrioueche/actocore-shared';
 
 import {
   handleUnauthorized,
@@ -12,7 +15,14 @@ export function parseApiResponse<T>(response: ApiResponse<T>): T {
       void handleUnauthorized();
     }
     const err = new Error(response.message ?? response.errorCode ?? 'API_ERROR');
-    (err as Error & { errorCode?: string }).errorCode = response.errorCode;
+    const apiErr = err as Error & {
+      errorCode?: string;
+      details?: PlanLimitErrorDetails;
+    };
+    apiErr.errorCode = response.errorCode;
+    if (response.details) {
+      apiErr.details = response.details;
+    }
     throw err;
   }
   if (response.data === undefined) {

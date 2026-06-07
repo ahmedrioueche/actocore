@@ -61,7 +61,7 @@ export class StudioPlanModel extends Document {
   @Prop({ type: StudioPlanLimitsSchema, required: true })
   limits!: StudioPlanLimitsSchema;
 
-  @Prop({ default: 14 })
+  @Prop({ default: 0 })
   trialDays?: number;
 
   @Prop({ type: [String], default: [] })

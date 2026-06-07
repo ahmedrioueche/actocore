@@ -8,10 +8,7 @@ import {
   type AppSubscriptionBillingCycle,
   type CancelSubscriptionDto,
   type CreateSubscriptionCheckoutDto,
-  type PayPalCheckoutData,
-  type ScheduleDowngradeDto,
   type StartFreeTrialDto,
-  type StudioSubscription,
   type UpgradeSubscriptionDto,
 } from '@ahmedrioueche/actocore-shared';
 
@@ -70,38 +67,15 @@ export function useStartTrial() {
 }
 
 export function useSubscribeOrTrial() {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (
-      body: CreateSubscriptionCheckoutDto & { hasPaidSubscription: boolean },
-    ): Promise<
-      | { kind: 'trial'; subscription: StudioSubscription }
-      | { kind: 'checkout'; checkout: PayPalCheckoutData }
-    > => {
+    mutationFn: async (body: CreateSubscriptionCheckoutDto) => {
       ensureApiConfigured();
-      if (!body.hasPaidSubscription) {
-        const eligibility = parseApiResponse(
-          await billingApi.getTrialEligibility(body.planId),
-        );
-        if (eligibility.eligible) {
-          const subscription = parseApiResponse(
-            await billingApi.startFreeTrial({
-              planId: body.planId,
-              billingCycle: body.billingCycle,
-            }),
-          );
-          invalidateSubscriptionQueries(queryClient);
-          return { kind: 'trial', subscription };
-        }
-      }
-
-      const checkout = parseApiResponse(
+      return parseApiResponse(
         await billingApi.createCheckout({
           planId: body.planId,
           billingCycle: body.billingCycle,
         }),
       );
-      return { kind: 'checkout', checkout };
     },
   });
 }
@@ -132,34 +106,12 @@ export function useReactivateSubscription() {
   });
 }
 
-export function usePreviewUpgrade() {
-  return useMutation({
-    mutationFn: async (body: UpgradeSubscriptionDto) => {
-      ensureApiConfigured();
-      return parseApiResponse(await billingApi.previewUpgrade(body));
-    },
-  });
-}
-
 export function useApplyUpgrade() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (body: UpgradeSubscriptionDto) => {
       ensureApiConfigured();
       return parseApiResponse(await billingApi.applyUpgrade(body));
-    },
-    onSuccess: () => {
-      invalidateSubscriptionQueries(queryClient);
-    },
-  });
-}
-
-export function useScheduleDowngrade() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (body: ScheduleDowngradeDto) => {
-      ensureApiConfigured();
-      return parseApiResponse(await billingApi.scheduleDowngrade(body));
     },
     onSuccess: () => {
       invalidateSubscriptionQueries(queryClient);

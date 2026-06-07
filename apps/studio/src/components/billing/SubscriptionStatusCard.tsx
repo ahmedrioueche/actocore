@@ -132,9 +132,9 @@ export function SubscriptionStatusCard({
 
       {!isLoading && subscription?.pendingPlanId ? (
         <div className="mt-6">
-          <Tip variant="info" title={t("subscription.pendingChange.title")}>
+          <Tip variant="info" title={t("subscription.pendingUpgrade.title")}>
             <p>
-              {t("subscription.pendingChange.body", {
+              {t("subscription.pendingUpgrade.body", {
                 plan: subscription.pendingPlanId,
                 date: pendingDate,
               })}
@@ -147,7 +147,7 @@ export function SubscriptionStatusCard({
                 loading={isCancelChangePending}
                 onClick={onCancelPendingChange}
               >
-                {t("subscription.cancelPendingChange")}
+                {t("subscription.cancelPendingUpgrade")}
               </Button>
             ) : null}
           </Tip>

@@ -38,6 +38,7 @@ import { randomBytes } from 'crypto';
 import type { StudioAuthConfig } from '../config/studio-auth.config';
 import { StudioAuthException } from './exceptions/studio-auth.exception';
 import { ProjectsService } from '../projects/projects.service';
+import { StudioSubscriptionService } from '../studio-billing/studio-subscription.service';
 import { StudioAccountDeleteService } from './studio-account-delete.service';
 import { getAppEnvironment } from '../config/mongodb.config';
 import { StudioEmailService } from './studio-email.service';
@@ -81,6 +82,8 @@ export class StudioAuthService {
     private readonly accountDelete: StudioAccountDeleteService,
     @Inject(forwardRef(() => ProjectsService))
     private readonly projects: ProjectsService,
+    @Inject(forwardRef(() => StudioSubscriptionService))
+    private readonly subscriptions: StudioSubscriptionService,
   ) {}
 
   private static readonly DELETE_OTP_TTL_MS = 15 * 60 * 1000;
@@ -132,6 +135,8 @@ export class StudioAuthService {
       user,
       membership,
     );
+
+    await this.maybeStartFreeTrial(account._id.toString());
 
     if (process.env.STUDIO_AUTO_VERIFY_EMAIL === 'true') {
       user.emailVerified = true;
@@ -754,7 +759,20 @@ export class StudioAuthService {
       projectIds: [],
     });
 
+    await this.maybeStartFreeTrial(account._id.toString());
+
     return this.buildSessionForUser(user);
+  }
+
+  private async maybeStartFreeTrial(accountId: string): Promise<void> {
+    try {
+      await this.subscriptions.startFreeTrial(accountId, 'free');
+    } catch (error) {
+      this.logger.debug(
+        `Skipped auto free trial for account ${accountId}`,
+        error,
+      );
+    }
   }
 
   issueGoogleOAuthCode(session: StudioSessionData): string {

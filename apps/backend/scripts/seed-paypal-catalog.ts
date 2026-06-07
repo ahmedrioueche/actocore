@@ -152,7 +152,6 @@ async function main(): Promise<void> {
     'ActoCore Starter Monthly',
     '29',
     'MONTH',
-    14,
   );
   const starterYearly = await createPlan(
     token,
@@ -160,7 +159,6 @@ async function main(): Promise<void> {
     'ActoCore Starter Yearly',
     '290',
     'YEAR',
-    14,
   );
   const proMonthly = await createPlan(
     token,
@@ -168,7 +166,6 @@ async function main(): Promise<void> {
     'ActoCore Pro Monthly',
     '79',
     'MONTH',
-    14,
   );
   const proYearly = await createPlan(
     token,
@@ -176,7 +173,6 @@ async function main(): Promise<void> {
     'ActoCore Pro Yearly',
     '790',
     'YEAR',
-    14,
   );
 
   console.log('\nAdd these to your .env:\n');

@@ -14,13 +14,6 @@ export function comparePlanLevel(
   return LEVEL_RANK[target] - LEVEL_RANK[current];
 }
 
-export function isDowngrade(
-  current: AppPlanLevel,
-  target: AppPlanLevel,
-): boolean {
-  return comparePlanLevel(current, target) < 0;
-}
-
 export function isUpgrade(
   current: AppPlanLevel,
   target: AppPlanLevel,

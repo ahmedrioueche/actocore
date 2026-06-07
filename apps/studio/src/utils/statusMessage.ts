@@ -1,4 +1,8 @@
-import { ErrorCode, type ErrorCode as ErrorCodeType } from '@ahmedrioueche/actocore-shared';
+import {
+  ErrorCode,
+  type ErrorCode as ErrorCodeType,
+  type PlanLimitErrorDetails,
+} from '@ahmedrioueche/actocore-shared';
 import type { TFunction } from 'i18next';
 
 const ERROR_I18N_KEYS: Partial<Record<ErrorCodeType, string>> = {
@@ -16,16 +20,45 @@ const ERROR_I18N_KEYS: Partial<Record<ErrorCodeType, string>> = {
   [ErrorCode.FORBIDDEN]: 'errors.forbidden',
   [ErrorCode.INTERNAL_ERROR]: 'errors.internal',
   [ErrorCode.TOO_MANY_REQUESTS]: 'errors.tooManyRequests',
+  [ErrorCode.PROJECT_LIMIT_REACHED]: 'errors.projectLimitReached',
+  [ErrorCode.SEAT_LIMIT_REACHED]: 'errors.seatLimitReached',
+  [ErrorCode.QUOTA_EXCEEDED]: 'errors.chatQuotaExceeded',
 };
+
+function resolveLimit(
+  details?: PlanLimitErrorDetails,
+  fallbackMessage?: string,
+): number | undefined {
+  if (details?.limit != null) {
+    return details.limit;
+  }
+  if (!fallbackMessage) {
+    return undefined;
+  }
+  const match = fallbackMessage.match(/\((\d+)\)/);
+  return match ? Number(match[1]) : undefined;
+}
 
 export function getMessage(
   t: TFunction,
   errorCode?: string,
   fallbackMessage?: string,
+  details?: PlanLimitErrorDetails,
 ): string {
   if (errorCode) {
     const key = ERROR_I18N_KEYS[errorCode as ErrorCodeType];
-    if (key) return t(key);
+    if (key) {
+      const limit = resolveLimit(details, fallbackMessage);
+      if (
+        limit != null &&
+        (errorCode === ErrorCode.PROJECT_LIMIT_REACHED ||
+          errorCode === ErrorCode.SEAT_LIMIT_REACHED ||
+          errorCode === ErrorCode.QUOTA_EXCEEDED)
+      ) {
+        return t(key, { limit });
+      }
+      return t(key);
+    }
   }
   if (fallbackMessage) return fallbackMessage;
   return t('errors.generic');
@@ -33,20 +66,38 @@ export function getMessage(
 
 export function getApiErrorMessage(
   t: TFunction,
-  response: { errorCode?: string; message?: string },
+  response: {
+    errorCode?: string;
+    message?: string;
+    details?: PlanLimitErrorDetails;
+  },
 ): string {
-  return getMessage(t, response.errorCode, response.message);
+  return getMessage(
+    t,
+    response.errorCode,
+    response.message,
+    response.details,
+  );
 }
 
 export function getUnknownApiErrorMessage(t: TFunction, err: unknown): string {
   if (err instanceof Error) {
+    const apiErr = err as Error & {
+      errorCode?: string;
+      details?: PlanLimitErrorDetails;
+    };
     return getApiErrorMessage(t, {
-      errorCode: (err as Error & { errorCode?: string }).errorCode,
-      message: err.message,
+      errorCode: apiErr.errorCode,
+      message: apiErr.message,
+      details: apiErr.details,
     });
   }
   if (err && typeof err === 'object') {
-    const payload = err as { errorCode?: string; message?: string };
+    const payload = err as {
+      errorCode?: string;
+      message?: string;
+      details?: PlanLimitErrorDetails;
+    };
     return getApiErrorMessage(t, payload);
   }
   return t('errors.generic');

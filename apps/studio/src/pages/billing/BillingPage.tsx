@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { PlanLimitTip } from '@/components/billing/PlanLimitTip';
 import {
   UsageMeter,
   UsageMeterSkeleton,
@@ -16,6 +17,7 @@ import {
   usePaymentHistory,
 } from '@/hooks/use-billing';
 import { useSubscriptionSummary } from '@/hooks/use-subscription';
+import { isAtPlanLimit } from '@/lib/plan-limits';
 
 export default function BillingPage() {
   const { t } = useTranslation();
@@ -30,6 +32,13 @@ export default function BillingPage() {
   const summary = summaryQuery.data;
   const usage = summary?.usage;
   const limits = summary?.limits ?? {};
+  const monthlyChatUsed =
+    quotaQuery.data?.monthlyChatUsed ?? usage?.monthlyChatUsed ?? 0;
+  const monthlyChatLimit =
+    quotaQuery.data?.monthlyChatLimit ?? limits.monthlyChatQuota ?? null;
+  const atProjectLimit = isAtPlanLimit(usage?.projectsUsed, limits.maxProjects);
+  const atSeatLimit = isAtPlanLimit(usage?.teamSeatsUsed, limits.maxTeamSeats);
+  const atChatLimit = isAtPlanLimit(monthlyChatUsed, monthlyChatLimit);
 
   return (
     <>
@@ -70,6 +79,21 @@ export default function BillingPage() {
         />
       ) : (
         <div className="space-y-8">
+          {!isLoading &&
+          (atProjectLimit || atSeatLimit || atChatLimit) ? (
+            <div className="space-y-3">
+              {atProjectLimit && limits.maxProjects != null ? (
+                <PlanLimitTip kind="project" limit={limits.maxProjects} />
+              ) : null}
+              {atSeatLimit && limits.maxTeamSeats != null ? (
+                <PlanLimitTip kind="seat" limit={limits.maxTeamSeats} />
+              ) : null}
+              {atChatLimit && monthlyChatLimit != null ? (
+                <PlanLimitTip kind="chat" limit={monthlyChatLimit} />
+              ) : null}
+            </div>
+          ) : null}
+
           <section className="space-y-5 rounded-2xl bg-surface p-6 shadow-sm md:p-8">
             <h3 className="text-lg font-semibold text-text-primary">
               {t('billing.usageTitle')}
@@ -95,16 +119,8 @@ export default function BillingPage() {
                 />
                 <UsageMeter
                   label={t('billing.monthlyChat')}
-                  used={
-                    quotaQuery.data?.monthlyChatUsed ??
-                    usage?.monthlyChatUsed ??
-                    0
-                  }
-                  limit={
-                    quotaQuery.data?.monthlyChatLimit ??
-                    limits.monthlyChatQuota ??
-                    null
-                  }
+                  used={monthlyChatUsed}
+                  limit={monthlyChatLimit}
                 />
               </>
             )}

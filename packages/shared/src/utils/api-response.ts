@@ -1,4 +1,4 @@
-import type { ApiResponse } from '../types/api-response';
+import type { ApiResponse, PlanLimitErrorDetails } from '../types/api-response';
 import type { ErrorCode } from '../types/error';
 
 export function apiSuccess<T>(data: T, message?: string): ApiResponse<T> {
@@ -8,8 +8,14 @@ export function apiSuccess<T>(data: T, message?: string): ApiResponse<T> {
 export function apiError(
   errorCode: ErrorCode,
   message?: string,
+  details?: PlanLimitErrorDetails,
 ): ApiResponse<never> {
-  return message
-    ? { success: false, errorCode, message }
-    : { success: false, errorCode };
+  const body: ApiResponse<never> = { success: false, errorCode };
+  if (message) {
+    body.message = message;
+  }
+  if (details) {
+    body.details = details;
+  }
+  return body;
 }

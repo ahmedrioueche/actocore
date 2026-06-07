@@ -6,7 +6,11 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { apiError, ErrorCode } from '@ahmedrioueche/actocore-shared';
+import {
+  apiError,
+  ErrorCode,
+  type PlanLimitErrorDetails,
+} from '@ahmedrioueche/actocore-shared';
 import type { Response } from 'express';
 
 @Catch()
@@ -43,7 +47,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         this.logger.warn(`HTTP ${status} ${errorCode}: ${message}`);
       }
 
-      response.status(status).json(apiError(errorCode, message));
+      const details = this.extractDetails(body);
+
+      response.status(status).json(apiError(errorCode, message, details));
       return;
     }
 
@@ -70,6 +76,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
       errorCode === ErrorCode.GATEWAY_TIMEOUT ||
       errorCode === ErrorCode.TOO_MANY_REQUESTS
     );
+  }
+
+  private extractDetails(body: unknown): PlanLimitErrorDetails | undefined {
+    if (
+      typeof body !== 'object' ||
+      body === null ||
+      !('details' in body) ||
+      typeof body.details !== 'object' ||
+      body.details === null
+    ) {
+      return undefined;
+    }
+    const raw = body.details as Record<string, unknown>;
+    if (typeof raw.limit !== 'number') {
+      return undefined;
+    }
+    const details: PlanLimitErrorDetails = { limit: raw.limit };
+    if (typeof raw.used === 'number') {
+      details.used = raw.used;
+    }
+    return details;
   }
 
   private formatMessage(message: unknown): string {

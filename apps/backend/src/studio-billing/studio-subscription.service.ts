@@ -9,7 +9,6 @@ import {
   type StudioPlan,
   type StudioSubscription,
   type StudioTrialEligibility,
-  type StudioUpgradePreviewData,
   type StudioUpgradeResult,
   type SupportedCurrency,
 } from '@ahmedrioueche/actocore-shared';
@@ -48,7 +47,7 @@ import {
 } from './studio-paypal.service';
 import { StudioPlansService } from './studio-plans.service';
 import { decodePayPalCustomId } from './utils/paypal-custom-id.util';
-import { isDowngrade, isUpgrade } from './utils/plan-level.util';
+import { isUpgrade } from './utils/plan-level.util';
 import { isMongoDuplicateKeyError } from './utils/mongo-duplicate.util';
 import { calculateSubscriptionDates } from './utils/subscription-dates.util';
 import { evaluateTrialEligibility } from './utils/studio-trial.util';
@@ -203,7 +202,7 @@ export class StudioSubscriptionService {
       sub.autoRenew = false;
       sub.cancelAtPeriodEnd = false;
       await sub.save();
-      await this.recordHistory(sub, 'expired', 'Free trial ended');
+      await this.recordHistory(sub, 'trial_ended');
       expired += 1;
     }
     return expired;
@@ -262,7 +261,7 @@ export class StudioSubscriptionService {
       !options?.paymentCollected &&
       trialDays > 0 &&
       !priorTrial &&
-      plan.level !== 'free';
+      plan.level === 'free';
 
     let status: 'active' | 'trialing' = 'active';
     let trial: {
@@ -326,10 +325,11 @@ export class StudioSubscriptionService {
       await account.save();
     }
 
-    const historyDetail = startTrial
-      ? `Started ${trialDays}-day free trial on ${plan.name}`
-      : `Subscribed to ${plan.name}`;
-    await this.recordHistory(sub, 'created', historyDetail);
+    if (startTrial) {
+      await this.recordHistory(sub, 'trial_started', String(trialDays));
+    } else {
+      await this.recordHistory(sub, 'subscribed', plan.name);
+    }
     return this.toSubscription(sub, this.plans.toPlan(plan));
   }
 
@@ -484,38 +484,6 @@ export class StudioSubscriptionService {
     await sub.save();
   }
 
-  async previewUpgrade(
-    accountId: string,
-    targetPlanId: string,
-    billingCycle: AppSubscriptionBillingCycle = 'monthly',
-  ): Promise<StudioUpgradePreviewData> {
-    const sub = await this.requireActivePaidSubscription(accountId);
-    const currentPlan = await this.plans.getByPlanId(sub.planId);
-    const targetPlan = await this.plans.getByPlanId(targetPlanId);
-
-    if (targetPlan.level === 'free') {
-      throw new BadRequestException('Use cancel or downgrade for the free plan');
-    }
-    if (!isUpgrade(currentPlan.level, targetPlan.level)) {
-      throw new BadRequestException(
-        'Target plan is not a higher tier. Use downgrade for lower tiers.',
-      );
-    }
-
-    const pricing = targetPlan.pricing.USD ?? targetPlan.pricing.EUR;
-    const amount =
-      billingCycle === 'yearly' ? pricing?.yearly : pricing?.monthly;
-
-    return {
-      targetPlanId,
-      billingCycle,
-      effectiveDate: sub.nextPaymentDate?.toISOString() ?? sub.currentPeriodEnd.toISOString(),
-      currencyCode: targetPlan.pricing.USD ? 'USD' : 'EUR',
-      nextBillingTotal: amount != null ? String(amount) : undefined,
-      targetPlanName: targetPlan.name,
-    };
-  }
-
   async applyUpgrade(
     accountId: string,
     targetPlanId: string,
@@ -526,11 +494,13 @@ export class StudioSubscriptionService {
     const targetPlan = await this.plans.getByPlanId(targetPlanId);
 
     if (targetPlan.level === 'free') {
-      throw new BadRequestException('Use cancel or downgrade for the free plan');
+      throw new BadRequestException(
+        'Cancel your subscription or manage billing in PayPal for the free plan',
+      );
     }
     if (!isUpgrade(currentPlan.level, targetPlan.level)) {
       throw new BadRequestException(
-        'Target plan is not a higher tier. Use downgrade for lower tiers.',
+        'Target plan is not a higher tier. Cancel your subscription or manage billing in PayPal to switch plans.',
       );
     }
 
@@ -568,53 +538,6 @@ export class StudioSubscriptionService {
     };
   }
 
-  async scheduleDowngrade(
-    accountId: string,
-    targetPlanId: string,
-    billingCycle: AppSubscriptionBillingCycle = 'monthly',
-  ): Promise<StudioSubscription> {
-    const sub = await this.subscriptionModel
-      .findOne({
-        accountId: new Types.ObjectId(accountId),
-        status: { $in: ['active', 'trialing'] },
-      })
-      .exec();
-    if (!sub) {
-      throw new NotFoundException('No active subscription found');
-    }
-
-    const currentPlan = await this.plans.getByPlanId(sub.planId);
-    const targetPlan = await this.plans.getByPlanId(targetPlanId);
-
-    if (!isDowngrade(currentPlan.level, targetPlan.level)) {
-      throw new BadRequestException(
-        'Target plan is not a lower tier. Use checkout to upgrade.',
-      );
-    }
-
-    sub.pendingPlanId = targetPlanId;
-    sub.pendingBillingCycle = billingCycle;
-    sub.pendingChangeEffectiveDate = sub.nextPaymentDate ?? sub.currentPeriodEnd;
-    await sub.save();
-
-    if (sub.paypalSubscriptionId) {
-      await this.paypal.reviseSubscription(
-        sub.paypalSubscriptionId,
-        targetPlanId,
-        billingCycle,
-      );
-    }
-
-    await this.recordHistory(
-      sub,
-      'downgrade_scheduled',
-      `Scheduled downgrade to ${targetPlan.name} at period end`,
-    );
-
-    const plan = this.plans.toPlan(targetPlan);
-    return this.toSubscription(sub, plan);
-  }
-
   async cancelPendingChange(accountId: string): Promise<StudioSubscription> {
     const sub = await this.subscriptionModel
       .findOne({
@@ -623,7 +546,7 @@ export class StudioSubscriptionService {
       })
       .exec();
     if (!sub?.pendingPlanId) {
-      throw new BadRequestException('No pending plan change');
+      throw new BadRequestException('No pending upgrade');
     }
 
     const currentPlan = await this.plans.getByPlanId(sub.planId);
@@ -641,7 +564,7 @@ export class StudioSubscriptionService {
       );
     }
 
-    await this.recordHistory(sub, 'pending_change_cancelled', 'Cancelled pending change');
+    await this.recordHistory(sub, 'pending_change_cancelled', 'Cancelled pending upgrade');
     return this.toSubscription(sub, this.plans.toPlan(currentPlan));
   }
 
