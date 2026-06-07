@@ -23,6 +23,10 @@ const ERROR_I18N_KEYS: Partial<Record<ErrorCodeType, string>> = {
   [ErrorCode.PROJECT_LIMIT_REACHED]: 'errors.projectLimitReached',
   [ErrorCode.SEAT_LIMIT_REACHED]: 'errors.seatLimitReached',
   [ErrorCode.QUOTA_EXCEEDED]: 'errors.chatQuotaExceeded',
+  [ErrorCode.TEAM_MEMBER_NOT_FOUND]: 'errors.teamMemberNotFound',
+  [ErrorCode.CANNOT_REMOVE_SELF]: 'errors.cannotRemoveSelf',
+  [ErrorCode.CANNOT_REMOVE_ADMIN]: 'errors.cannotRemoveAdmin',
+  [ErrorCode.INSUFFICIENT_PERMISSIONS]: 'errors.insufficientPermissions',
 };
 
 function resolveLimit(

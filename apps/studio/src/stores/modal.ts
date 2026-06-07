@@ -68,6 +68,17 @@ export interface ActionsSdkCodeModalProps {
 
 export type CreateProjectModalProps = Record<string, never>;
 
+export interface InviteMemberModalProps {
+  /** Opened without props — form state is local to the modal. */
+}
+
+export interface EditMemberModalProps {
+  userId: string;
+  username?: string;
+  displayName?: string;
+  projectIds: string[];
+}
+
 /**
  * Registry of feature modals (besides `confirm`) and the props each requires.
  * Props are passed through the store — never directly to the modal component.
@@ -84,6 +95,8 @@ export interface ModalPropsMap {
   actionCreated: ActionCreatedModalProps;
   actionsSdkCode: ActionsSdkCodeModalProps;
   createProject: CreateProjectModalProps;
+  inviteMember: InviteMemberModalProps;
+  editMember: EditMemberModalProps;
 }
 
 export type ModalId = 'confirm' | keyof ModalPropsMap | null;

@@ -35,6 +35,12 @@ const ActionsSdkCodeModal = lazy(
 const CreateProjectModal = lazy(
   () => import('@/components/projects/CreateProjectModal'),
 );
+const InviteMemberModal = lazy(
+  () => import('@/components/team/InviteMemberModal'),
+);
+const EditMemberModal = lazy(
+  () => import('@/components/team/EditMemberModal'),
+);
 
 export default function Modals() {
   return (
@@ -52,6 +58,8 @@ export default function Modals() {
         <ActionCreatedModal />
         <ActionsSdkCodeModal />
         <CreateProjectModal />
+        <InviteMemberModal />
+        <EditMemberModal />
       </Suspense>
     </>
   );

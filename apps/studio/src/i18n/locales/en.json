@@ -63,7 +63,11 @@
     "tooManyRequests": "Too many attempts. Please wait and try again.",
     "projectLimitReached": "You've reached your project limit ({{limit}}). Upgrade your plan to add more.",
     "seatLimitReached": "You've reached your team seat limit ({{limit}}). Upgrade your plan to invite more members.",
-    "chatQuotaExceeded": "Monthly chat limit reached ({{limit}}). Upgrade your plan for more requests."
+    "chatQuotaExceeded": "Monthly chat limit reached ({{limit}}). Upgrade your plan for more requests.",
+    "teamMemberNotFound": "Team member not found.",
+    "cannotRemoveSelf": "You cannot remove your own seat.",
+    "cannotRemoveAdmin": "Workspace owners cannot be removed from the team list.",
+    "insufficientPermissions": "You do not have permission to manage the team."
   },
   "planLimits": {
     "projectReachedTitle": "Project limit reached",
@@ -653,8 +657,48 @@
     "subtitle_one": "{{count}} member in your workspace",
     "subtitle_other": "{{count}} members in your workspace",
     "emptyTitle": "No team members yet",
-    "emptyDescription": "Invite editors and admins to collaborate on your workspace.",
+    "emptyDescription": "Add editor seats so teammates can sign in with your workspace ID.",
     "allProjects": "All",
+    "invite": {
+      "button": "Add editor",
+      "title": "Add editor",
+      "subtitle": "Create a workspace seat with username and password login.",
+      "submit": "Add editor",
+      "success": "Editor added.",
+      "usernameRequired": "Username is required.",
+      "passwordRequired": "Password must be at least 8 characters.",
+      "projectsRequired": "Select at least one project.",
+      "workspaceTitle": "Workspace ID",
+      "workspaceHint": "Editors sign in with this workspace ID, their username, and password."
+    },
+    "edit": {
+      "title": "Edit editor",
+      "subtitle": "Update login details and project access.",
+      "submit": "Save changes",
+      "success": "Editor updated."
+    },
+    "remove": {
+      "title": "Remove editor",
+      "confirm": "Remove {{name}} from your workspace? They will lose access immediately.",
+      "submit": "Remove",
+      "success": "Editor removed."
+    },
+    "fields": {
+      "username": "Username",
+      "usernamePlaceholder": "e.g. jane",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Optional",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Leave blank to keep current"
+    },
+    "projects": {
+      "label": "Project access",
+      "hint": "Editors can only access the selected projects.",
+      "noProjects": "Create a project before adding editors.",
+      "createFirst": "Create a project before adding editor seats."
+    },
     "columns": {
       "member": "Member",
       "role": "Role",
