@@ -37,6 +37,8 @@ import {
 import { StudioWebRateLimitInterceptor } from './interceptors/studio-web-rate-limit.interceptor';
 import { StudioPlatformController } from './studio-platform.controller';
 import { StudioPlatformService } from './studio-platform.service';
+import { StudioAdminEmailsService } from './studio-admin-emails.service';
+import { StudioAdminNotificationService } from './studio-admin-notification.service';
 import { StudioQuotaWebhookService } from './studio-quota-webhook.service';
 import { StudioAccountDeleteService } from './studio-account-delete.service';
 import { StudioAccountController } from './studio-account.controller';
@@ -117,6 +119,8 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioTeamAuditService,
     StudioPlatformService,
     StudioQuotaWebhookService,
+    StudioAdminEmailsService,
+    StudioAdminNotificationService,
     StudioAccountDeleteService,
     StudioAccessService,
     StudioAuthGuard,
@@ -134,6 +138,8 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioOnboardingService,
     StudioEmailService,
     StudioQuotaWebhookService,
+    StudioAdminEmailsService,
+    StudioAdminNotificationService,
   ],
 })
 export class StudioModule {}

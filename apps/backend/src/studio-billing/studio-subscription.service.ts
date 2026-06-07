@@ -99,6 +99,16 @@ export class StudioSubscriptionService {
     return this.toSubscription(sub, planDoc ? this.plans.toPlan(planDoc) : null);
   }
 
+  async findAccountIdByPayPalSubscription(
+    paypalSubscriptionId: string,
+  ): Promise<string | null> {
+    const sub = await this.subscriptionModel
+      .findOne({ paypalSubscriptionId })
+      .select('accountId')
+      .exec();
+    return sub?.accountId?.toString() ?? null;
+  }
+
   async getSummary(accountId: string) {
     await this.expireEndedTrials(accountId);
     const subscription = await this.getAccountSubscription(accountId);

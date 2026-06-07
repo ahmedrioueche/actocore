@@ -17,6 +17,7 @@ import type { PayPalWebhookPayload } from './paypal-webhook.types';
 import { StudioPlanModel } from './schemas/billing.schema';
 import { StudioPayPalWebhookDedupService } from './studio-paypal-webhook-dedup.service';
 import { StudioPlansService } from './studio-plans.service';
+import { StudioAdminNotificationService } from '../studio/studio-admin-notification.service';
 import { StudioSubscriptionService } from './studio-subscription.service';
 import {
   decodePayPalCustomId,
@@ -50,6 +51,7 @@ export class StudioPayPalService {
     @Inject(forwardRef(() => StudioSubscriptionService))
     private readonly subscriptions: StudioSubscriptionService,
     private readonly webhookDedup: StudioPayPalWebhookDedupService,
+    private readonly adminNotifications: StudioAdminNotificationService,
   ) {}
 
   private cfg(): PayPalConfig {
@@ -341,10 +343,20 @@ export class StudioPayPalService {
           ...this.mapPayPalSubscriptionData(resource),
           status: 'SUSPENDED',
         });
+        await this.notifyBillingFailure(
+          resource,
+          'Subscription suspended',
+          'PayPal suspended your subscription after a failed payment.',
+        );
         break;
       case 'BILLING.SUBSCRIPTION.PAYMENT.FAILED':
         this.logger.warn(
           `PayPal subscription payment failed: ${String(resource.id ?? '')}`,
+        );
+        await this.notifyBillingFailure(
+          resource,
+          'Payment failed',
+          'PayPal could not charge your subscription.',
         );
         break;
       case 'PAYMENT.SALE.COMPLETED':
@@ -412,6 +424,40 @@ export class StudioPayPalService {
       nextPaymentDate: nextBilling,
       payerId: subscriber?.payer_id,
     };
+  }
+
+  private async notifyBillingFailure(
+    resource: Record<string, unknown>,
+    subject: string,
+    detail: string,
+  ): Promise<void> {
+    const paypalSubscriptionId = String(resource.id ?? '');
+    if (!paypalSubscriptionId) {
+      return;
+    }
+
+    const accountId =
+      await this.subscriptions.findAccountIdByPayPalSubscription(
+        paypalSubscriptionId,
+      );
+    if (!accountId) {
+      this.logger.warn(
+        `PayPal billing alert skipped: no local subscription for ${paypalSubscriptionId}`,
+      );
+      return;
+    }
+
+    await this.adminNotifications.maybeNotifyFailure(
+      accountId,
+      'billing',
+      `Billing alert: ${subject}`,
+      [
+        detail,
+        `PayPal subscription ID: ${paypalSubscriptionId}`,
+        '',
+        'Review billing in ActoCore Studio → Billing.',
+      ].join('\n'),
+    );
   }
 
   getManageUrl(): string {

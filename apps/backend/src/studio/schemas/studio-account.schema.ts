@@ -7,6 +7,15 @@ export class StudioAccountPreferencesSchema {
   quotaAlertEmails!: boolean;
 
   @Prop({ default: true })
+  quotaWarningEmails!: boolean;
+
+  @Prop({ default: true })
+  quotaExhaustedEmails!: boolean;
+
+  @Prop({ default: true })
+  failureAlertEmails!: boolean;
+
+  @Prop({ default: true })
   billingEmails!: boolean;
 
   @Prop({ default: false })
@@ -67,6 +76,9 @@ export class StudioAccount {
     type: StudioAccountPreferencesSchema,
     default: () => ({
       quotaAlertEmails: true,
+      quotaWarningEmails: true,
+      quotaExhaustedEmails: true,
+      failureAlertEmails: true,
       billingEmails: true,
       productEmails: false,
     }),
@@ -89,6 +101,12 @@ export class StudioAccount {
 
   @Prop({ type: QuotaAlertStateSchema })
   quotaAlerts?: QuotaAlertStateSchema;
+
+  @Prop({ type: Object })
+  failureAlertCooldowns?: {
+    llm?: Date;
+    billing?: Date;
+  };
 
   createdAt?: Date;
   updatedAt?: Date;

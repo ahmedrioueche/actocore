@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from '../../auth/auth.module';
 import { BillingModule } from '../../billing/billing.module';
@@ -16,11 +16,13 @@ import { SdkRuntimeController } from './sdk-runtime.controller';
 import { SdkSessionsController } from './sdk-sessions.controller';
 import { SdkVoiceController } from './sdk-voice.controller';
 import { SdkVoiceService } from './sdk-voice.service';
+import { StudioModule } from '../../studio/studio.module';
 
 @Module({
   imports: [
     AuthModule,
     BillingModule,
+    forwardRef(() => StudioModule),
     SessionsModule,
     ActionsModule,
     OrchestratorModule,

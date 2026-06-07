@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   accountApi,
+  type StudioAccountSettingsData,
   type UpdateStudioAccountDto,
+  type UpdateStudioAccountPreferencesDto,
 } from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
@@ -26,6 +28,23 @@ export function useUpdateAccountSettings() {
     onSuccess: (data) => {
       queryClient.setQueryData(queryKeys.account.settings(), data);
       void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+    },
+  });
+}
+
+export function useUpdateAccountPreferences() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: UpdateStudioAccountPreferencesDto) => {
+      ensureApiConfigured();
+      return parseApiResponse(await accountApi.updatePreferences(body));
+    },
+    onSuccess: (preferences) => {
+      queryClient.setQueryData(
+        queryKeys.account.settings(),
+        (current: StudioAccountSettingsData | undefined) =>
+          current ? { ...current, preferences } : current,
+      );
     },
   });
 }

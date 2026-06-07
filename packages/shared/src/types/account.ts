@@ -1,6 +1,13 @@
 /** Tenant workspace settings (Studio account). */
 export interface StudioAccountPreferences {
-  quotaAlertEmails: boolean;
+  /** @deprecated Use quotaWarningEmails + quotaExhaustedEmails. Kept for API compat. */
+  quotaAlertEmails?: boolean;
+  /** Email when monthly chat usage crosses 80% / 90%. */
+  quotaWarningEmails: boolean;
+  /** Email when monthly chat usage reaches 100%. */
+  quotaExhaustedEmails: boolean;
+  /** Email on LLM/provider failures and billing payment failures. */
+  failureAlertEmails: boolean;
   billingEmails: boolean;
   productEmails: boolean;
   quotaWebhookUrl?: string;

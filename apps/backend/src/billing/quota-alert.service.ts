@@ -2,19 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Model } from 'mongoose';
-import { StudioRole } from '@ahmedrioueche/actocore-shared';
 import type { QuotaLimits } from '../config/quota.config';
 import {
   StudioAccount,
   StudioAccountDocument,
 } from '../studio/schemas/studio-account.schema';
-import {
-  StudioMembership,
-  StudioMembershipDocument,
-} from '../studio/schemas/studio-membership.schema';
-import { StudioUser, StudioUserDocument } from '../studio/schemas/studio-user.schema';
+import { StudioAdminEmailsService } from '../studio/studio-admin-emails.service';
 import { StudioEmailService } from '../studio/studio-email.service';
 import { StudioQuotaWebhookService } from '../studio/studio-quota-webhook.service';
+import { normalizeAccountPreferences } from '../studio/utils/account-preferences.util';
 import { StudioEntitlementsService } from '../studio-billing/studio-entitlements.service';
 import { quotaOwnerMessage } from './quota-messages.util';
 
@@ -25,14 +21,11 @@ export class QuotaAlertService {
   constructor(
     private readonly config: ConfigService,
     private readonly email: StudioEmailService,
+    private readonly adminEmails: StudioAdminEmailsService,
     private readonly quotaWebhook: StudioQuotaWebhookService,
     private readonly entitlements: StudioEntitlementsService,
     @InjectModel(StudioAccount.name)
     private readonly accountModel: Model<StudioAccountDocument>,
-    @InjectModel(StudioMembership.name)
-    private readonly membershipModel: Model<StudioMembershipDocument>,
-    @InjectModel(StudioUser.name)
-    private readonly userModel: Model<StudioUserDocument>,
   ) {}
 
   /**
@@ -65,9 +58,7 @@ export class QuotaAlertService {
       return;
     }
 
-    if (account.preferences?.quotaAlertEmails === false) {
-      return;
-    }
+    const prefs = normalizeAccountPreferences(account.preferences);
 
     const monthKey = currentMonthKey();
     const state = account.quotaAlerts;
@@ -84,31 +75,37 @@ export class QuotaAlertService {
 
     if (percent >= thresholds[2] && !alerts.warned100) {
       alerts.warned100 = true;
-      await this.notifyThreshold(
-        account,
-        used,
-        monthlyLimit,
-        100,
-        'Monthly AI chat limit reached',
-      );
+      if (prefs.quotaExhaustedEmails !== false) {
+        await this.notifyThreshold(
+          account,
+          used,
+          monthlyLimit,
+          100,
+          'Monthly AI chat limit reached',
+        );
+      }
     } else if (percent >= thresholds[1] && !alerts.warned90) {
       alerts.warned90 = true;
-      await this.notifyThreshold(
-        account,
-        used,
-        monthlyLimit,
-        90,
-        '90% of monthly AI chat allowance used',
-      );
+      if (prefs.quotaWarningEmails !== false) {
+        await this.notifyThreshold(
+          account,
+          used,
+          monthlyLimit,
+          90,
+          '90% of monthly AI chat allowance used',
+        );
+      }
     } else if (percent >= thresholds[0] && !alerts.warned80) {
       alerts.warned80 = true;
-      await this.notifyThreshold(
-        account,
-        used,
-        monthlyLimit,
-        80,
-        '80% of monthly AI chat allowance used',
-      );
+      if (prefs.quotaWarningEmails !== false) {
+        await this.notifyThreshold(
+          account,
+          used,
+          monthlyLimit,
+          80,
+          '80% of monthly AI chat allowance used',
+        );
+      }
     }
 
     account.quotaAlerts = alerts;
@@ -138,7 +135,7 @@ export class QuotaAlertService {
     percent: number,
     subject: string,
   ): Promise<void> {
-    const emails = await this.adminEmailsForAccount(account._id.toString());
+    const emails = await this.adminEmails.resolveForAccount(account._id.toString());
     if (emails.length === 0) {
       this.logger.warn(`No admin email for quota alert on account ${account._id}`);
       return;
@@ -160,23 +157,6 @@ export class QuotaAlertService {
     }
   }
 
-  private async adminEmailsForAccount(accountId: string): Promise<string[]> {
-    const memberships = await this.membershipModel
-      .find({
-        accountId,
-        role: { $in: [StudioRole.USER_ADMIN, StudioRole.SUPER_ADMIN] },
-      })
-      .exec();
-    if (memberships.length === 0) {
-      return [];
-    }
-    const users = await this.userModel
-      .find({ _id: { $in: memberships.map((m) => m.userId) } })
-      .exec();
-    return users
-      .map((u) => u.email)
-      .filter((e): e is string => typeof e === 'string' && e.length > 0);
-  }
 }
 
 function currentMonthKey(): string {

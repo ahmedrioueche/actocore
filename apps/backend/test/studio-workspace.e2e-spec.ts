@@ -129,10 +129,17 @@ describe('Studio workspace settings (e2e)', () => {
     await request(server)
       .patch('/v1/web/account/preferences')
       .set('Authorization', `Bearer ${token}`)
-      .send({ quotaAlertEmails: false, productEmails: true })
+      .send({
+        quotaWarningEmails: false,
+        quotaExhaustedEmails: true,
+        failureAlertEmails: false,
+        productEmails: true,
+      })
       .expect(200)
       .expect((res) => {
-        expect(res.body.data.quotaAlertEmails).toBe(false);
+        expect(res.body.data.quotaWarningEmails).toBe(false);
+        expect(res.body.data.quotaExhaustedEmails).toBe(true);
+        expect(res.body.data.failureAlertEmails).toBe(false);
         expect(res.body.data.productEmails).toBe(true);
       });
 

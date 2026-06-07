@@ -14,6 +14,9 @@ describe('StudioAccountService', () => {
     name: 'Acme',
     preferences: {
       quotaAlertEmails: true,
+      quotaWarningEmails: true,
+      quotaExhaustedEmails: true,
+      failureAlertEmails: true,
       billingEmails: true,
       productEmails: false,
     },
@@ -54,7 +57,8 @@ describe('StudioAccountService', () => {
   it('returns account settings', async () => {
     const data = await service.getSettings(adminCtx);
     expect(data.name).toBe('Acme');
-    expect(data.preferences.quotaAlertEmails).toBe(true);
+    expect(data.preferences.quotaWarningEmails).toBe(true);
+    expect(data.preferences.failureAlertEmails).toBe(true);
   });
 
   it('blocks editors from updating account', async () => {

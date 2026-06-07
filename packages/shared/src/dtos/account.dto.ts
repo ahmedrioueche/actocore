@@ -30,9 +30,22 @@ export class UpdateStudioAccountDto {
 }
 
 export class UpdateStudioAccountPreferencesDto {
+  /** @deprecated Sets both quotaWarningEmails and quotaExhaustedEmails. */
   @IsOptional()
   @IsBoolean()
   quotaAlertEmails?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  quotaWarningEmails?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  quotaExhaustedEmails?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  failureAlertEmails?: boolean;
 
   @IsOptional()
   @IsBoolean()

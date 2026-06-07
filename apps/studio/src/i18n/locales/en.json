@@ -818,7 +818,14 @@
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Workspace details used across projects and billing.",
+    "subtitle": "Appearance, notifications, and workspace details.",
+    "appearanceTitle": "Appearance",
+    "appearanceSubtitle": "Theme is saved on this device. Default language applies to new SDK sessions.",
+    "workspaceTitle": "Workspace",
+    "workspaceSubtitle": "Organization details used across projects and billing.",
+    "language": "Default language",
+    "languageHint": "Default language for assistant copy and SDK sessions in this workspace.",
+    "languagePlaceholder": "Select a language",
     "name": "Organization name",
     "namePlaceholder": "e.g. Acme Inc.",
     "nameRequired": "Organization name is required.",
@@ -828,8 +835,16 @@
     "timezonePlaceholder": "e.g. Europe/Paris",
     "save": "Save changes",
     "saved": "Settings saved.",
-    "appearanceTitle": "Appearance",
-    "appearanceSubtitle": "Personal preference on this device — saved locally in your browser."
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Email alerts are sent to workspace admin addresses with a verified email.",
+      "failure": "Failure alerts",
+      "failureDescription": "Email when AI provider errors or billing payment failures affect your workspace.",
+      "quotaWarning": "Limit approaching",
+      "quotaWarningDescription": "Email when monthly AI chat usage reaches 80% or 90% of your plan limit.",
+      "quotaExhausted": "Limit reached",
+      "quotaExhaustedDescription": "Email when monthly AI chat usage reaches 100% of your plan limit."
+    }
   },
   "theme": {
     "label": "Theme",

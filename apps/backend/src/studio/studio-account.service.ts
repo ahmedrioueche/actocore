@@ -14,6 +14,7 @@ import {
   StudioAccountDocument,
   StudioAccountPreferencesSchema,
 } from './schemas/studio-account.schema';
+import { normalizeAccountPreferences } from './utils/account-preferences.util';
 
 @Injectable()
 export class StudioAccountService {
@@ -70,6 +71,21 @@ export class StudioAccountService {
     }
     if (body.quotaAlertEmails !== undefined) {
       account.preferences.quotaAlertEmails = body.quotaAlertEmails;
+      account.preferences.quotaWarningEmails = body.quotaAlertEmails;
+      account.preferences.quotaExhaustedEmails = body.quotaAlertEmails;
+    }
+    if (body.quotaWarningEmails !== undefined) {
+      account.preferences.quotaWarningEmails = body.quotaWarningEmails;
+      account.preferences.quotaAlertEmails =
+        body.quotaWarningEmails && account.preferences.quotaExhaustedEmails;
+    }
+    if (body.quotaExhaustedEmails !== undefined) {
+      account.preferences.quotaExhaustedEmails = body.quotaExhaustedEmails;
+      account.preferences.quotaAlertEmails =
+        account.preferences.quotaWarningEmails && body.quotaExhaustedEmails;
+    }
+    if (body.failureAlertEmails !== undefined) {
+      account.preferences.failureAlertEmails = body.failureAlertEmails;
     }
     if (body.billingEmails !== undefined) {
       account.preferences.billingEmails = body.billingEmails;
@@ -143,11 +159,6 @@ export class StudioAccountService {
   private toPreferences(
     prefs?: StudioAccountPreferencesSchema,
   ): StudioAccountPreferences {
-    return {
-      quotaAlertEmails: prefs?.quotaAlertEmails ?? true,
-      billingEmails: prefs?.billingEmails ?? true,
-      productEmails: prefs?.productEmails ?? false,
-      quotaWebhookUrl: prefs?.quotaWebhookUrl,
-    };
+    return normalizeAccountPreferences(prefs);
   }
 }
