@@ -7,8 +7,9 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "npm run build --prefix ../../packages/shared && tsc && vite build",
+    "sync:brand": "node ./scripts/sync-brand-assets.mjs",
+    "dev": "npm run sync:brand && vite",
+    "build": "npm run sync:brand && npm run build --prefix ../../packages/shared && tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"

@@ -67,6 +67,12 @@ export class StudioPlanModel extends Document {
   @Prop({ type: [String], default: [] })
   features?: string[];
 
+  @Prop({ default: false })
+  isRecommended?: boolean;
+
+  @Prop()
+  yearlyDiscountBadge?: string;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

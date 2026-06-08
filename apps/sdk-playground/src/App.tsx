@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { ActoChatWidget, ActocoreProvider } from '@ahmedrioueche/actocore-sdk';
 import '@ahmedrioueche/actocore-sdk/styles.css';
+import { ActocoreIcon } from './ActocoreIcon';
 import { DemoUsersPanel } from './DemoUsersPanel';
 import { INITIAL_DEMO_USERS } from './demo-users';
 import {
@@ -59,7 +60,10 @@ export default function App() {
         fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
       }}
     >
-      <h1 style={{ marginTop: 0 }}>ActoCore SDK Playground</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 0 }}>
+        <ActocoreIcon size={40} />
+        <h1 style={{ margin: 0 }}>ActoCore SDK Playground</h1>
+      </div>
 
       <div
         style={{

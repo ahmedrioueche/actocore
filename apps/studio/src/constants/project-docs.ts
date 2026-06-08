@@ -1,5 +1,5 @@
 export const PROJECT_DOCS_INSTALL_COMMAND =
-  'npm install @ahmedrioueche/actocore-sdk';
+  "npm install @ahmedrioueche/actocore-sdk";
 
 export const PROJECT_DOCS_QUICK_START = `import { ActocoreProvider, ActoChatWidget } from '@ahmedrioueche/actocore-sdk';
 import '@ahmedrioueche/actocore-sdk/styles.css';
@@ -20,5 +20,5 @@ export function App() {
 }`;
 
 export const PROJECT_DOCS_ENV_EXAMPLE = `# .env (Vite example)
-VITE_ACTOCORE_API_URL=https://your-actocore-api.example.com
+VITE_ACTOCORE_API_URL=https://actocore.onrender.com
 VITE_ACTOCORE_API_KEY=ac_...`;

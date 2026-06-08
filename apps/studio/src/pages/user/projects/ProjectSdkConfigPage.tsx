@@ -1,3 +1,4 @@
+import { Save } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from '@tanstack/react-router';
@@ -92,6 +93,7 @@ export default function ProjectSdkConfigPage() {
             <Button
               type="submit"
               form={FORM_ID}
+              icon={<Save className="h-4 w-4" />}
               loading={updateConfig.isPending}
               disabled={!isDirty}
             >

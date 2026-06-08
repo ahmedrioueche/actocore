@@ -35,5 +35,10 @@ export const StudioMembershipSchema =
 StudioMembershipSchema.index({ userId: 1, accountId: 1 }, { unique: true });
 StudioMembershipSchema.index(
   { accountId: 1, loginName: 1 },
-  { unique: true, sparse: true },
+  {
+    unique: true,
+    partialFilterExpression: {
+      loginName: { $exists: true, $type: 'string' },
+    },
+  },
 );

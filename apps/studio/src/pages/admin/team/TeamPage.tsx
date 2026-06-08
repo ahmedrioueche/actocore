@@ -1,3 +1,4 @@
+import { UserPlus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -26,6 +27,7 @@ export default function TeamPage() {
         actions={
           <Button
             type="button"
+            icon={<UserPlus className="h-4 w-4" />}
             onClick={() => openModal('createPlatformManager', {})}
           >
             {t('admin.team.addManager')}

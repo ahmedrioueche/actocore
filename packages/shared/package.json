@@ -30,10 +30,13 @@
     "./constants/knowledge-upload": {
       "types": "./dist/constants/knowledge-upload.d.ts",
       "default": "./dist/constants/knowledge-upload.js"
-    }
+    },
+    "./assets/actocore_icon.svg": "./assets/actocore_icon.svg",
+    "./assets/actocore_logo.svg": "./assets/actocore_logo.svg"
   },
   "files": [
-    "dist"
+    "dist",
+    "assets"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -1,5 +1,5 @@
 import { UNCATEGORIZED_SECTION_ID } from '@ahmedrioueche/actocore-shared';
-import { Code2, Plus } from 'lucide-react';
+import { Code2, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from '@tanstack/react-router';
@@ -64,7 +64,7 @@ export default function ProjectActionsPage() {
               </Button>
               {canWrite ? (
                 <Button
-                  icon={<Plus className="h-4 w-4" />}
+                  icon={<Zap className="h-4 w-4" />}
                   onClick={() =>
                     openModal('createAction', {
                       projectId,

@@ -65,6 +65,14 @@ export class CreateStudioPlanDto {
   @IsArray()
   @IsString({ each: true })
   features?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  isRecommended?: boolean;
+
+  @IsOptional()
+  @IsString()
+  yearlyDiscountBadge?: string;
 }
 
 export class UpdateStudioPlanDto {
@@ -116,6 +124,14 @@ export class UpdateStudioPlanDto {
   @IsArray()
   @IsString({ each: true })
   features?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  isRecommended?: boolean;
+
+  @IsOptional()
+  @IsString()
+  yearlyDiscountBadge?: string;
 }
 
 export class StartFreeTrialDto {

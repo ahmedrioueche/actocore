@@ -10,6 +10,7 @@ export interface PlanFormState {
   planId: string;
   level: AppPlanLevel;
   name: string;
+  description: string;
   monthlyPrice: number;
   yearlyPrice: number;
   maxProjects: number;
@@ -18,6 +19,8 @@ export interface PlanFormState {
   features: string[];
   order: number;
   isActive: boolean;
+  isRecommended: boolean;
+  yearlyDiscountBadge: string;
 }
 
 export function normalizePlanFeatures(features: string[]): string[] {
@@ -41,6 +44,7 @@ export function defaultPlanFormState(): PlanFormState {
     planId: '',
     level: 'starter',
     name: '',
+    description: '',
     monthlyPrice: 0,
     yearlyPrice: 0,
     maxProjects: 1,
@@ -49,6 +53,8 @@ export function defaultPlanFormState(): PlanFormState {
     features: [],
     order: 0,
     isActive: true,
+    isRecommended: false,
+    yearlyDiscountBadge: '',
   };
 }
 
@@ -57,6 +63,7 @@ export function planToFormState(plan: StudioPlan): PlanFormState {
     planId: plan.planId,
     level: plan.level,
     name: plan.name,
+    description: plan.description ?? '',
     monthlyPrice: plan.pricing.USD?.monthly ?? 0,
     yearlyPrice: plan.pricing.USD?.yearly ?? 0,
     maxProjects: plan.limits.maxProjects ?? 1,
@@ -65,6 +72,8 @@ export function planToFormState(plan: StudioPlan): PlanFormState {
     features: [...(plan.features ?? [])],
     order: plan.order ?? 0,
     isActive: plan.isActive ?? true,
+    isRecommended: plan.isRecommended ?? false,
+    yearlyDiscountBadge: plan.yearlyDiscountBadge ?? '',
   };
 }
 
@@ -73,6 +82,7 @@ export function formStateToCreateDto(form: PlanFormState): CreateStudioPlanDto {
     planId: form.planId.trim(),
     level: form.level,
     name: form.name.trim(),
+    description: form.description.trim() || undefined,
     pricing: formStateToPricing(form),
     limits: {
       maxProjects: form.maxProjects,
@@ -81,6 +91,8 @@ export function formStateToCreateDto(form: PlanFormState): CreateStudioPlanDto {
     },
     order: form.order,
     isActive: form.isActive,
+    isRecommended: form.isRecommended,
+    yearlyDiscountBadge: form.yearlyDiscountBadge.trim() || undefined,
     features: normalizePlanFeatures(form.features),
   };
 }
@@ -89,6 +101,7 @@ export function formStateToUpdateDto(form: PlanFormState): UpdateStudioPlanDto {
   return {
     level: form.level,
     name: form.name.trim(),
+    description: form.description.trim() || undefined,
     pricing: formStateToPricing(form),
     limits: {
       maxProjects: form.maxProjects,
@@ -98,6 +111,8 @@ export function formStateToUpdateDto(form: PlanFormState): UpdateStudioPlanDto {
     features: normalizePlanFeatures(form.features),
     order: form.order,
     isActive: form.isActive,
+    isRecommended: form.isRecommended,
+    yearlyDiscountBadge: form.yearlyDiscountBadge.trim() || undefined,
   };
 }
 

@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { UploadCloud } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from '@tanstack/react-router';
 
@@ -32,7 +32,7 @@ export default function ProjectKnowledgePage() {
         actions={
           canWrite && projectId ? (
             <Button
-              icon={<Plus className="h-4 w-4" />}
+              icon={<UploadCloud className="h-4 w-4" />}
               onClick={() => openModal('uploadKnowledge', { projectId })}
             >
               {t('knowledge.upload.button')}

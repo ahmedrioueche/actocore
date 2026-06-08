@@ -2,7 +2,8 @@ import type {
   AppSubscriptionBillingCycle,
   StudioPlan,
 } from '@ahmedrioueche/actocore-shared';
-import { Link, useNavigate, useSearch } from '@tanstack/react-router';
+import { Receipt } from 'lucide-react';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +13,7 @@ import {
 } from '@/components/billing/PlanPicker';
 import { SubscriptionStatusCard } from '@/components/billing/SubscriptionStatusCard';
 import { PageHeader } from '@/components/layout/PageHeader';
+import Button from '@/components/ui/Button';
 import Error from '@/components/ui/Error';
 import Loading from '@/components/ui/Loading';
 import { useAuth } from '@/context/AuthContext';
@@ -210,12 +212,13 @@ export default function SubscriptionPage() {
         title={t('subscription.title')}
         subtitle={t('subscription.subtitle')}
         actions={
-          <Link
-            to="/billing"
-            className="text-sm font-medium text-primary underline-offset-2 hover:underline"
+          <Button
+            variant="outline"
+            icon={<Receipt className="h-4 w-4" />}
+            onClick={() => navigate({ to: '/billing' })}
           >
             {t('subscription.viewBilling')}
-          </Link>
+          </Button>
         }
       />
 

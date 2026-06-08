@@ -1,3 +1,4 @@
+import { Save } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -105,6 +106,7 @@ export default function SettingsPage() {
             <Button
               type="submit"
               form="admin-settings-form"
+              icon={<Save className="h-4 w-4" />}
               loading={isSaving}
               disabled={!isDirty}
             >

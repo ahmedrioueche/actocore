@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { KeyRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from '@tanstack/react-router';
 
@@ -32,7 +32,7 @@ export default function ProjectApiKeysPage() {
         actions={
           canWrite && projectId ? (
             <Button
-              icon={<Plus className="h-4 w-4" />}
+              icon={<KeyRound className="h-4 w-4" />}
               onClick={() => openModal('createApiKey', { projectId })}
             >
               {t('apiKeys.create.button')}

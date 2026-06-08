@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -24,6 +25,7 @@ export default function PlansPage() {
         actions={
           <Button
             type="button"
+            icon={<Plus className="h-4 w-4" />}
             onClick={() => openModal('createPlan', {})}
           >
             {t('admin.plans.create')}

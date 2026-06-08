@@ -64,6 +64,10 @@ export interface StudioPlan extends AuditInfo {
   limits: StudioPlanLimits;
   /** Marketing bullets shown on the subscription page (editable via super-admin API). */
   features?: string[];
+  /** Highlights this tier on the subscription page (e.g. “Recommended”). */
+  isRecommended?: boolean;
+  /** Badge copy when yearly billing is selected (e.g. “2 months free”). */
+  yearlyDiscountBadge?: string;
 }
 
 export interface StudioSubscription extends AuditInfo {

@@ -1,6 +1,5 @@
-import { Sparkles } from 'lucide-react';
-
 import { APP_DATA } from '@/constants/app';
+import { ActocoreIcon } from '@/components/ui/ActocoreIcon';
 import { cn } from '@/utils/helper';
 
 import '@/styles/animatedLogo.css';
@@ -37,14 +36,8 @@ export default function AnimatedLogo({
           onDark ? 'ac-logo-mark--on-dark' : 'ac-logo-mark--default',
         )}
         style={{ animationIterationCount: loop }}
-        aria-hidden
       >
-        <Sparkles
-          className={cn(
-            'text-primary-contrast',
-            compact ? 'h-5 w-5' : 'h-7 w-7 md:h-8 md:w-8',
-          )}
-        />
+        <ActocoreIcon className="h-full w-full rounded-[inherit]" />
       </div>
 
       {!compact ? (

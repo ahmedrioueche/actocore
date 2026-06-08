@@ -39,6 +39,7 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     },
     limits: { maxProjects: 3, maxTeamSeats: 5, monthlyChatQuota: 10_000 },
     features: ['Everything in Free', 'Email support'],
+    yearlyDiscountBadge: '2 months free',
   },
   {
     planId: 'pro',
@@ -47,6 +48,7 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     name: 'Pro',
     description: 'For growing products with higher volume',
     isActive: true,
+    isRecommended: true,
     trialDays: 0,
     pricing: { USD: { monthly: 79, yearly: 790 } },
     paypalProductId: PAYPAL_CATALOG_PRODUCT_ID,
@@ -56,6 +58,7 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     },
     limits: { maxProjects: 10, maxTeamSeats: 20, monthlyChatQuota: 100_000 },
     features: ['Everything in Starter', 'Priority support'],
+    yearlyDiscountBadge: '2 months free',
   },
 ];
 

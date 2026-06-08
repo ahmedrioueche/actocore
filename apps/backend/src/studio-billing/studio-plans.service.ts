@@ -176,6 +176,8 @@ export class StudioPlansService implements OnApplicationBootstrap {
       trialDays: doc.trialDays,
       limits: doc.limits ?? {},
       features: doc.features ?? [],
+      isRecommended: doc.isRecommended ?? false,
+      yearlyDiscountBadge: doc.yearlyDiscountBadge,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: doc.updatedAt?.toISOString(),
     };

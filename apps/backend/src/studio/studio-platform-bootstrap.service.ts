@@ -60,6 +60,7 @@ export class StudioPlatformBootstrapService implements OnModuleInit {
 
   private async runBootstrap(): Promise<void> {
     await this.dropStaleUserIndexes();
+    await this.ensureMembershipLoginNameIndex();
     await this.ensurePlatformWorkspace();
   }
 
@@ -95,6 +96,76 @@ export class StudioPlatformBootstrapService implements OnModuleInit {
     }
   }
 
+  private async ensureMembershipLoginNameIndex(): Promise<void> {
+    const collection = this.membershipModel.collection;
+    const indexes = await collection.indexes();
+    const existing = indexes.find((index) => index.name === 'accountId_1_loginName_1');
+    if (existing?.partialFilterExpression) {
+      return;
+    }
+
+    try {
+      if (existing) {
+        await collection.dropIndex('accountId_1_loginName_1');
+      }
+      await collection.createIndex(
+        { accountId: 1, loginName: 1 },
+        {
+          unique: true,
+          name: 'accountId_1_loginName_1',
+          partialFilterExpression: {
+            loginName: { $exists: true, $type: 'string' },
+          },
+        },
+      );
+      this.logger.log('Ensured partial unique index on studio_memberships loginName');
+    } catch (error) {
+      this.logger.warn(
+        'Could not ensure studio_memberships loginName index',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
+
+  private async repairPlatformMembershipLoginNames(
+    accountId: Types.ObjectId,
+  ): Promise<void> {
+    const brokenMemberships = await this.membershipModel
+      .find({ accountId, loginName: null })
+      .exec();
+    if (brokenMemberships.length === 0) {
+      return;
+    }
+
+    for (const membership of brokenMemberships) {
+      const user = await this.userModel.findById(membership.userId).exec();
+      if (!user) {
+        continue;
+      }
+
+      if (user.isPlatformMaster) {
+        await this.membershipModel
+          .updateOne({ _id: membership._id }, { $unset: { loginName: '' } })
+          .exec();
+        continue;
+      }
+
+      if (user.platformLoginName) {
+        await this.membershipModel
+          .updateOne(
+            { _id: membership._id },
+            { $set: { loginName: user.platformLoginName } },
+          )
+          .exec();
+        continue;
+      }
+
+      await this.membershipModel
+        .updateOne({ _id: membership._id }, { $unset: { loginName: '' } })
+        .exec();
+    }
+  }
+
   private async ensurePlatformWorkspace(): Promise<void> {
     const { accountName, masterEmail } = this.cfg();
     if (!masterEmail) {
@@ -126,20 +197,31 @@ export class StudioPlatformBootstrapService implements OnModuleInit {
       await masterUser.save();
     }
 
-    const membership = await this.membershipModel
+    await this.repairPlatformMembershipLoginNames(account._id);
+
+    const existingMembership = await this.membershipModel
       .findOne({
         userId: masterUser._id,
         accountId: account._id,
       })
       .exec();
-    if (!membership) {
-      await this.membershipModel.create({
-        userId: masterUser._id,
-        accountId: account._id,
-        role: StudioRole.SUPER_ADMIN,
-        permissions: [],
-        projectIds: [],
-      });
+    if (!existingMembership) {
+      await this.membershipModel
+        .findOneAndUpdate(
+          { userId: masterUser._id, accountId: account._id },
+          {
+            $setOnInsert: {
+              userId: masterUser._id,
+              accountId: account._id,
+              role: StudioRole.SUPER_ADMIN,
+              permissions: [],
+              projectIds: [],
+            },
+            $unset: { loginName: '' },
+          },
+          { upsert: true },
+        )
+        .exec();
       this.logger.log('Linked platform master to platform account');
     }
   }

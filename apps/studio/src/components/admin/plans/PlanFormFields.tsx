@@ -6,6 +6,7 @@ import type { PlanFormState } from '@/components/admin/plans/plan-form';
 import { PLAN_LEVEL_OPTIONS } from '@/components/admin/plans/plan-form';
 import CustomSelect from '@/components/ui/CustomSelect';
 import InputField from '@/components/ui/InputField';
+import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 
 interface PlanFormFieldsProps {
@@ -68,11 +69,27 @@ export function PlanFormFields({
             }
             placeholder={t('admin.plans.orderPlaceholder')}
           />
+          <div className="md:col-span-2">
+            <TextArea
+              label={t('admin.plans.description')}
+              value={form.description}
+              onChange={(e) =>
+                onChange({ ...form, description: e.target.value })
+              }
+              placeholder={t('admin.plans.descriptionPlaceholder')}
+              rows={3}
+            />
+          </div>
         </div>
         <ToggleSwitch
           checked={form.isActive}
           onChange={(checked) => onChange({ ...form, isActive: checked })}
           label={t('admin.plans.active')}
+        />
+        <ToggleSwitch
+          checked={form.isRecommended}
+          onChange={(checked) => onChange({ ...form, isRecommended: checked })}
+          label={t('admin.plans.isRecommended')}
         />
       </PlanFormSection>
 
@@ -103,6 +120,20 @@ export function PlanFormFields({
             placeholder={t('admin.plans.yearlyPricePlaceholder')}
             disabled={form.level === 'free'}
           />
+          <div className="md:col-span-2">
+            <InputField
+              label={t('admin.plans.yearlyDiscountBadge')}
+              value={form.yearlyDiscountBadge}
+              onChange={(e) =>
+                onChange({ ...form, yearlyDiscountBadge: e.target.value })
+              }
+              placeholder={t('admin.plans.yearlyDiscountBadgePlaceholder')}
+              disabled={form.level === 'free'}
+            />
+            <p className="mt-1.5 text-xs text-text-secondary">
+              {t('admin.plans.yearlyDiscountBadgeHint')}
+            </p>
+          </div>
         </div>
       </PlanFormSection>
 

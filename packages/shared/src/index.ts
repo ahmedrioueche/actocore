@@ -1,4 +1,5 @@
 export * from './constants/app';
+export * from './constants/brand-assets';
 export * from './constants/knowledge-upload';
 export * from './constants/studio-permissions';
 export * from './constants/platform-permissions';

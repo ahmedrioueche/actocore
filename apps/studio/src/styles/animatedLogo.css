@@ -22,17 +22,12 @@
 .ac-logo-mark--default {
   width: 3.25rem;
   height: 3.25rem;
-  background-image: var(--ac-gradient-brand);
   box-shadow: var(--ac-shadow-brand);
 }
 
 .ac-logo-mark--on-dark {
   width: 3.25rem;
   height: 3.25rem;
-  background: rgb(255 255 255 / 0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgb(255 255 255 / 0.12);
 }
 
 @media (min-width: 768px) {

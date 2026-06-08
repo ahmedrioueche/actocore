@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
-import { Sparkles } from 'lucide-react';
 
 import { APP_DATA } from '@/constants/app';
+import { ActocoreIcon } from '@/components/ui/ActocoreIcon';
 import { cn } from '@/utils/helper';
 
 interface NavLogoProps {
@@ -22,9 +22,7 @@ export function NavLogo({ collapsed, onNavigate, to = '/projects' }: NavLogoProp
       )}
       aria-label={APP_DATA.name}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-gradient shadow-sm">
-        <Sparkles className="h-4 w-4 text-primary-contrast" aria-hidden />
-      </div>
+      <ActocoreIcon className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
 
       {!collapsed ? (
         <div className="min-w-0 truncate leading-tight">

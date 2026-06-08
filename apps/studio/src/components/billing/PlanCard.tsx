@@ -6,8 +6,9 @@ import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import Button from "@/components/ui/Button";
-import { cn } from "@/utils/helper";
 import type { FreeTrialBadgeState } from "@/utils/free-trial-badge";
+import { cn } from "@/utils/helper";
+import { resolveYearlyDiscountBadge } from "@/utils/plan-badges";
 import { buildPlanBullets } from "@/utils/plan-bullets";
 
 export type PlanActionKind =
@@ -57,18 +58,39 @@ export function PlanCard({
 }: PlanCardProps) {
   const { t } = useTranslation();
   const isCurrent = action === "current";
+  const isRecommended = Boolean(plan.isRecommended);
   const price = formatPrice(plan, billingCycle);
   const bullets = buildPlanBullets(plan, t);
+  const yearlyDiscountBadge = resolveYearlyDiscountBadge(plan, billingCycle, t);
 
   return (
     <article
       className={cn(
-        "flex flex-col rounded-2xl border bg-surface p-5 shadow-sm",
+        "relative flex flex-col rounded-2xl border bg-surface p-5 shadow-sm",
+        (isRecommended || yearlyDiscountBadge) && "mt-3",
         isCurrent
           ? "border-2 border-primary bg-primary-muted shadow-brand"
-          : "border-border",
+          : isRecommended
+            ? "border-2 border-primary"
+            : "border-border",
       )}
     >
+      {isRecommended ? (
+        <div className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2">
+          <span className="inline-flex rounded-full bg-brand-gradient px-3 py-1 text-xs font-semibold text-primary-contrast shadow-sm">
+            {t("subscription.plans.recommended")}
+          </span>
+        </div>
+      ) : null}
+
+      {yearlyDiscountBadge ? (
+        <div className="pointer-events-none absolute right-4 top-7 z-10 -translate-y-1/2">
+          <span className="inline-flex rounded-full border border-primary bg-primary-muted px-2.5 py-0.5 text-xs font-semibold text-primary shadow-sm">
+            {yearlyDiscountBadge}
+          </span>
+        </div>
+      ) : null}
+
       <div className="flex items-start justify-between gap-3">
         <div>
           <h4 className="text-lg font-semibold text-text-primary">
@@ -100,14 +122,16 @@ export function PlanCard({
         </div>
       </div>
 
-      <p className="mt-4 text-3xl font-bold text-text-primary">
-        {price ?? t("subscription.plans.contactUs")}
-        {price ? (
-          <span className="ml-1 text-sm font-normal text-text-secondary">
-            /{t(`subscription.plans.per.${billingCycle}`)}
-          </span>
-        ) : null}
-      </p>
+      <div className="mt-4">
+        <p className="text-3xl font-bold text-text-primary">
+          {price ?? t("subscription.plans.contactUs")}
+          {price ? (
+            <span className="ml-1 text-sm font-normal text-text-secondary">
+              /{t(`subscription.plans.per.${billingCycle}`)}
+            </span>
+          ) : null}
+        </p>
+      </div>
 
       <ul className="mt-4 space-y-2 text-sm text-text-secondary">
         {bullets.map((bullet) => (

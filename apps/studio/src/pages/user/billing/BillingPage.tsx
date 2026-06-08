@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+import { CreditCard } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { PaymentHistoryTable } from "@/components/billing/PaymentHistoryTable";
@@ -8,6 +9,7 @@ import {
   UsageMeterSkeleton,
 } from "@/components/billing/UsageMeter";
 import { PageHeader } from "@/components/layout/PageHeader";
+import Button from "@/components/ui/Button";
 import Error from "@/components/ui/Error";
 import {
   useBillingQuota,
@@ -19,6 +21,7 @@ import { isAtPlanLimit } from "@/lib/plan-limits";
 
 export default function BillingPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const summaryQuery = useSubscriptionSummary();
   const quotaQuery = useBillingQuota();
   const historyQuery = usePaymentHistory({ page: 1, limit: 20 });
@@ -44,15 +47,18 @@ export default function BillingPage() {
         title={t("billing.title")}
         subtitle={t("billing.subtitle")}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              to="/subscription"
-              search={{ subscriptionId: undefined }}
-              className="text-sm font-medium text-primary underline-offset-2 hover:underline"
-            >
-              {t("billing.manageSubscription")}
-            </Link>
-          </div>
+          <Button
+            variant="outline"
+            icon={<CreditCard className="h-4 w-4" />}
+            onClick={() =>
+              navigate({
+                to: "/subscription",
+                search: { subscriptionId: undefined },
+              })
+            }
+          >
+            {t("billing.manageSubscription")}
+          </Button>
         }
       />
 
