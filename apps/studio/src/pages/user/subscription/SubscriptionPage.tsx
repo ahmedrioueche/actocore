@@ -3,7 +3,7 @@ import type {
   StudioPlan,
 } from '@ahmedrioueche/actocore-shared';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -56,6 +56,19 @@ export default function SubscriptionPage() {
   const pollSubscription = usePollPayPalSubscription();
 
   const subscription = summaryQuery.data?.subscription;
+  const currentPlan = useMemo(() => {
+    const plans = plansQuery.data ?? [];
+    if (subscription?.plan) {
+      return subscription.plan;
+    }
+    if (subscription?.planId) {
+      const match = plans.find((plan) => plan.planId === subscription.planId);
+      if (match) {
+        return match;
+      }
+    }
+    return plans.find((plan) => plan.level === 'free') ?? null;
+  }, [plansQuery.data, subscription?.plan, subscription?.planId]);
   const isError = summaryQuery.isError || plansQuery.isError;
   const isLoading = summaryQuery.isLoading || plansQuery.isLoading;
   const isCheckoutProcessing = pollSubscription.isPending;
@@ -226,6 +239,7 @@ export default function SubscriptionPage() {
         <div className="space-y-8">
           <SubscriptionStatusCard
             summary={summaryQuery.data}
+            currentPlan={currentPlan}
             isLoading={isLoading}
             canWrite={canWrite}
             onCancel={handleCancel}

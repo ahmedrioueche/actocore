@@ -24,9 +24,6 @@ function resolvePlanAction(
   if (plan.planId === currentPlanId) {
     return "current";
   }
-  if (plan.level === "free") {
-    return hasPaidPayPalSub ? "unavailable" : "current";
-  }
   if (hasPaidPayPalSub) {
     if (isUpgrade(currentLevel, plan.level)) {
       return "upgrade";
@@ -63,9 +60,9 @@ export function PlanPicker({
   const currentLevel: AppPlanLevel = subscription?.plan?.level ?? "free";
   const currentPlanId = subscription?.planId;
   const hasPaidPayPalSub = Boolean(subscription?.paypalSubscriptionId);
-  const visiblePlans = [...(plans ?? [])].sort(
-    (a, b) => (a.order ?? 0) - (b.order ?? 0),
-  );
+  const visiblePlans = [...(plans ?? [])]
+    .filter((plan) => plan.level !== "free")
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
     <section className="space-y-4">
@@ -105,13 +102,20 @@ export function PlanPicker({
       </div>
 
       {isLoading ? (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((key) => (
             <Skeleton key={key} className="h-64 rounded-2xl" />
           ))}
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div
+          className={cn(
+            "grid gap-4",
+            visiblePlans.length >= 3
+              ? "md:grid-cols-2 lg:grid-cols-3"
+              : "md:grid-cols-2",
+          )}
+        >
           {visiblePlans.map((plan) => {
             const action = resolvePlanAction(
               plan,

@@ -5,7 +5,7 @@ import { I18nextProvider } from 'react-i18next';
 import { describe, expect, it, vi } from 'vitest';
 
 import i18n from '@/i18n';
-import LoginPage from '@/pages/auth/LoginPage';
+import LoginPage from '@/pages/user/auth/LoginPage';
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({

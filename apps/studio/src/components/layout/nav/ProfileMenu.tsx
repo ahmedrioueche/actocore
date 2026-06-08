@@ -29,7 +29,7 @@ export function ProfileMenu({ onLogout, logoutPending }: ProfileMenuProps) {
       trigger={
         <button
           type="button"
-          className="flex items-center gap-2 rounded-xl border border-transparent px-2 py-1.5 transition-colors hover:border-border hover:bg-surface-hover"
+          className="flex items-center gap-2 rounded-xl border border-border bg-surface-secondary/50 px-2 py-1.5 transition-colors hover:border-border-hover hover:bg-surface-hover"
           aria-label={t('nav.accountMenu')}
         >
           <UserAvatar

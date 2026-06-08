@@ -43,12 +43,25 @@ function resolveLimit(
   return match ? Number(match[1]) : undefined;
 }
 
+const PREFER_SERVER_MESSAGE_CODES = new Set<ErrorCodeType>([
+  ErrorCode.VALIDATION_ERROR,
+  ErrorCode.USER_ALREADY_EXISTS,
+]);
+
 export function getMessage(
   t: TFunction,
   errorCode?: string,
   fallbackMessage?: string,
   details?: PlanLimitErrorDetails,
 ): string {
+  if (
+    errorCode &&
+    fallbackMessage?.trim() &&
+    PREFER_SERVER_MESSAGE_CODES.has(errorCode as ErrorCodeType)
+  ) {
+    return fallbackMessage;
+  }
+
   if (errorCode) {
     const key = ERROR_I18N_KEYS[errorCode as ErrorCodeType];
     if (key) {

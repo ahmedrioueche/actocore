@@ -1,6 +1,7 @@
 export * from './constants/app';
 export * from './constants/knowledge-upload';
 export * from './constants/studio-permissions';
+export * from './constants/platform-permissions';
 export * from './constants/studio-onboarding';
 export * from './config/api';
 export * from './config/api-version';
@@ -33,3 +34,4 @@ export * from './api/account';
 export * from './api/onboarding';
 export * from './api/billing';
 export * from './api/platform';
+export * from './api/platform-auth';

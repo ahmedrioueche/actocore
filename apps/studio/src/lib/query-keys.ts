@@ -9,6 +9,26 @@ export const queryKeys = {
   auth: {
     me: () => ["auth", "me"] as const,
   },
+  platform: {
+    me: () => ["platform", "me"] as const,
+    accounts: (params: PaginationQuery & { search?: string } = {}) =>
+      ["platform", "accounts", params] as const,
+    plans: (params: PaginationQuery & { includeInactive?: boolean } = {}) =>
+      ["platform", "plans", params] as const,
+    managers: () => ["platform", "managers"] as const,
+    subscriptions: (
+      params: PaginationQuery & { search?: string; status?: string } = {},
+    ) => ["platform", "subscriptions", params] as const,
+    users: (params: PaginationQuery & { search?: string } = {}) =>
+      ["platform", "users", params] as const,
+    projects: (params: PaginationQuery & { search?: string } = {}) =>
+      ["platform", "projects", params] as const,
+    analytics: () => ["platform", "analytics"] as const,
+    usage: (params: { from?: string; to?: string } = {}) =>
+      ["platform", "usage", params] as const,
+    accountSubscription: (accountId: string) =>
+      ["platform", "account-subscription", accountId] as const,
+  },
   projects: {
     all: () => ["projects"] as const,
     list: (params: ListProjectsQuery = {}) =>

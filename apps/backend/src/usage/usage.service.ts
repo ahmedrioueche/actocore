@@ -1,8 +1,10 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   AccountUsageSummaryData,
   ChatIntent,
+  PlatformUsageOverviewData,
   ProjectKnowledgeUsageData,
   ProjectSessionUsageData,
   TokenUsageData,
@@ -10,6 +12,7 @@ import type {
   UsageEventData,
   ProjectUsageBreakdownData,
   UsageEventsPageData,
+  UsageProviderBreakdownRow,
   UsageSummaryData,
   UsageTimeSeriesData,
 } from '@ahmedrioueche/actocore-shared';
@@ -23,7 +26,14 @@ import {
   KnowledgeSource,
   KnowledgeSourceDocument,
 } from '../knowledge/schemas/knowledge-source.schema';
+import type { LlmResolvedConfig } from '../config/llm.config';
+import { Project, ProjectDocument } from '../projects/schemas/project.schema';
 import { ProjectsService } from '../projects/projects.service';
+import {
+  StudioAccount,
+  StudioAccountDocument,
+} from '../studio/schemas/studio-account.schema';
+import { StudioPlatformBootstrapService } from '../studio/studio-platform-bootstrap.service';
 import {
   ChatMessage,
   ChatMessageDocument,
@@ -52,17 +62,26 @@ export interface RecordChatUsageInput {
   projectId: string;
   apiKeyId?: string;
   intent: ChatIntent;
+  llmProvider?: string;
   usage?: TokenUsageData;
   latencyMs?: number;
   success?: boolean;
   errorCode?: string;
 }
 
+const PLATFORM_USAGE_TOP_N = 10;
+
 @Injectable()
 export class UsageService {
   constructor(
+    private readonly configService: ConfigService,
+    private readonly bootstrap: StudioPlatformBootstrapService,
     @InjectModel(UsageEvent.name)
     private readonly usageModel: Model<UsageEventDocument>,
+    @InjectModel(Project.name)
+    private readonly projectModel: Model<ProjectDocument>,
+    @InjectModel(StudioAccount.name)
+    private readonly accountModel: Model<StudioAccountDocument>,
     @InjectModel(KnowledgeSource.name)
     private readonly knowledgeSourceModel: Model<KnowledgeSourceDocument>,
     @InjectModel(KnowledgeChunk.name)
@@ -80,6 +99,7 @@ export class UsageService {
       projectId: input.projectId,
       route: 'sdk/chat',
       intent: input.intent,
+      llmProvider: input.llmProvider,
       llmModel: input.usage?.model,
       promptTokens: input.usage?.promptTokens,
       completionTokens: input.usage?.completionTokens,
@@ -304,6 +324,204 @@ export class UsageService {
       limit,
       total,
       items: rows.map((row) => this.toEventData(row, options.redactApiKeys)),
+    };
+  }
+
+  async getPlatformUsageOverview(
+    fromRaw?: string,
+    toRaw?: string,
+  ): Promise<PlatformUsageOverviewData> {
+    const parsed = parseUsageRangeQuery(fromRaw, toRaw);
+    const { from, to } =
+      parsed.from || parsed.to
+        ? { from: parsed.from ?? new Date(0), to: parsed.to ?? new Date() }
+        : defaultSeriesRange();
+
+    const llm = this.configService.getOrThrow<LlmResolvedConfig>('llm');
+    const platformAccountId = this.bootstrap.getPlatformAccountId();
+    const tenantProjectFilter = platformAccountId
+      ? { accountId: { $ne: platformAccountId } }
+      : {};
+
+    const projects = await this.projectModel
+      .find(tenantProjectFilter)
+      .select({ _id: 1, name: 1, accountId: 1 })
+      .exec();
+
+    const projectIds = projects.map((project) => project._id.toString());
+    const projectById = new Map(
+      projects.map((project) => [
+        project._id.toString(),
+        {
+          name: project.name,
+          accountId: project.accountId,
+        },
+      ]),
+    );
+
+    if (projectIds.length === 0) {
+      return this.emptyPlatformUsageOverview(from, to, llm.provider);
+    }
+
+    const events = await this.usageModel
+      .find({
+        projectId: { $in: projectIds },
+        ...buildCreatedAtFilter({ from, to }),
+      })
+      .select({
+        projectId: 1,
+        llmProvider: 1,
+        llmModel: 1,
+        intent: 1,
+        promptTokens: 1,
+        completionTokens: 1,
+        success: 1,
+        latencyMs: 1,
+        createdAt: 1,
+      })
+      .exec();
+
+    const byProvider: Record<string, UsageProviderBreakdownRow> = {};
+    const byModel: Record<string, number> = {};
+    const byIntent: Record<string, number> = {};
+    const bucketMap = new Map<string, UsageDailyBucket>();
+    const perProject = new Map<
+      string,
+      { requests: number; prompt: number; completion: number }
+    >();
+    const perAccount = new Map<
+      string,
+      { requests: number; prompt: number; completion: number }
+    >();
+
+    let totalPromptTokens = 0;
+    let totalCompletionTokens = 0;
+    let totalErrors = 0;
+    const latencies: number[] = [];
+
+    for (const event of events) {
+      const promptTokens = event.promptTokens ?? 0;
+      const completionTokens = event.completionTokens ?? 0;
+      totalPromptTokens += promptTokens;
+      totalCompletionTokens += completionTokens;
+
+      if (event.success === false) {
+        totalErrors += 1;
+      }
+      if (event.latencyMs != null && event.latencyMs >= 0) {
+        latencies.push(event.latencyMs);
+      }
+
+      const provider = event.llmProvider ?? 'unknown';
+      const providerRow = byProvider[provider] ?? {
+        requests: 0,
+        promptTokens: 0,
+        completionTokens: 0,
+      };
+      providerRow.requests += 1;
+      providerRow.promptTokens += promptTokens;
+      providerRow.completionTokens += completionTokens;
+      byProvider[provider] = providerRow;
+
+      const model = event.llmModel ?? 'unknown';
+      byModel[model] = (byModel[model] ?? 0) + 1;
+
+      const intent = event.intent ?? 'unknown';
+      byIntent[intent] = (byIntent[intent] ?? 0) + 1;
+
+      const date = (event.createdAt ?? new Date()).toISOString().slice(0, 10);
+      const bucket = bucketMap.get(date) ?? {
+        date,
+        requests: 0,
+        promptTokens: 0,
+        completionTokens: 0,
+      };
+      bucket.requests += 1;
+      bucket.promptTokens += promptTokens;
+      bucket.completionTokens += completionTokens;
+      bucketMap.set(date, bucket);
+
+      const projectStats = perProject.get(event.projectId) ?? {
+        requests: 0,
+        prompt: 0,
+        completion: 0,
+      };
+      projectStats.requests += 1;
+      projectStats.prompt += promptTokens;
+      projectStats.completion += completionTokens;
+      perProject.set(event.projectId, projectStats);
+
+      const projectMeta = projectById.get(event.projectId);
+      if (projectMeta) {
+        const accountStats = perAccount.get(projectMeta.accountId) ?? {
+          requests: 0,
+          prompt: 0,
+          completion: 0,
+        };
+        accountStats.requests += 1;
+        accountStats.prompt += promptTokens;
+        accountStats.completion += completionTokens;
+        perAccount.set(projectMeta.accountId, accountStats);
+      }
+    }
+
+    const accountIds = [...perAccount.keys()];
+    const accounts = accountIds.length
+      ? await this.accountModel
+          .find({ _id: { $in: accountIds } })
+          .select({ _id: 1, name: 1 })
+          .exec()
+      : [];
+    const accountNameById = new Map(
+      accounts.map((account) => [account._id.toString(), account.name]),
+    );
+
+    const totalRequests = events.length;
+
+    const topProjects = [...perProject.entries()]
+      .map(([projectId, stats]) => {
+        const meta = projectById.get(projectId);
+        const accountId = meta?.accountId ?? '';
+        return {
+          projectId,
+          projectName: meta?.name ?? projectId,
+          accountId,
+          accountName: accountNameById.get(accountId) ?? accountId,
+          totalRequests: stats.requests,
+          totalPromptTokens: stats.prompt,
+          totalCompletionTokens: stats.completion,
+        };
+      })
+      .sort((a, b) => b.totalRequests - a.totalRequests)
+      .slice(0, PLATFORM_USAGE_TOP_N);
+
+    const topAccounts = [...perAccount.entries()]
+      .map(([accountId, stats]) => ({
+        accountId,
+        accountName: accountNameById.get(accountId) ?? accountId,
+        totalRequests: stats.requests,
+        totalPromptTokens: stats.prompt,
+        totalCompletionTokens: stats.completion,
+      }))
+      .sort((a, b) => b.totalRequests - a.totalRequests)
+      .slice(0, PLATFORM_USAGE_TOP_N);
+
+    return {
+      from: from.toISOString(),
+      to: to.toISOString(),
+      configuredProvider: llm.provider,
+      totalRequests,
+      totalPromptTokens,
+      totalCompletionTokens,
+      totalErrors,
+      errorRate: totalRequests > 0 ? totalErrors / totalRequests : 0,
+      p95LatencyMs: percentile(latencies, 0.95),
+      byProvider,
+      byModel,
+      byIntent,
+      buckets: [...bucketMap.values()].sort((a, b) => a.date.localeCompare(b.date)),
+      topAccounts,
+      topProjects,
     };
   }
 
@@ -588,6 +806,30 @@ export class UsageService {
     };
   }
 
+  private emptyPlatformUsageOverview(
+    from: Date,
+    to: Date,
+    configuredProvider: string,
+  ): PlatformUsageOverviewData {
+    return {
+      from: from.toISOString(),
+      to: to.toISOString(),
+      configuredProvider,
+      totalRequests: 0,
+      totalPromptTokens: 0,
+      totalCompletionTokens: 0,
+      totalErrors: 0,
+      errorRate: 0,
+      p95LatencyMs: null,
+      byProvider: {},
+      byModel: {},
+      byIntent: {},
+      buckets: [],
+      topAccounts: [],
+      topProjects: [],
+    };
+  }
+
   private toEventData(
     doc: UsageEventDocument,
     redactApiKeys?: boolean,
@@ -597,6 +839,7 @@ export class UsageService {
       projectId: doc.projectId,
       route: doc.route,
       intent: doc.intent,
+      provider: doc.llmProvider,
       model: doc.llmModel,
       promptTokens: doc.promptTokens,
       completionTokens: doc.completionTokens,

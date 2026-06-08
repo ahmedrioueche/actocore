@@ -41,6 +41,18 @@ const InviteMemberModal = lazy(
 const EditMemberModal = lazy(
   () => import('@/components/team/EditMemberModal'),
 );
+const CreatePlanModal = lazy(
+  () => import('@/components/admin/plans/CreatePlanModal'),
+);
+const EditPlanModal = lazy(
+  () => import('@/components/admin/plans/EditPlanModal'),
+);
+const CreatePlatformManagerModal = lazy(
+  () => import('@/components/admin/team/CreatePlatformManagerModal'),
+);
+const EditPlatformManagerModal = lazy(
+  () => import('@/components/admin/team/EditPlatformManagerModal'),
+);
 
 export default function Modals() {
   return (
@@ -60,6 +72,10 @@ export default function Modals() {
         <CreateProjectModal />
         <InviteMemberModal />
         <EditMemberModal />
+        <CreatePlanModal />
+        <EditPlanModal />
+        <CreatePlatformManagerModal />
+        <EditPlatformManagerModal />
       </Suspense>
     </>
   );

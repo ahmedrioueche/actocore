@@ -20,3 +20,4 @@ export * from './account';
 export * from './onboarding';
 export * from './billing-common';
 export * from './billing';
+export * from './platform';

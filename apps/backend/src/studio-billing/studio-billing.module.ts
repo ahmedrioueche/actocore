@@ -29,6 +29,7 @@ import { StudioSubscriptionService } from './studio-subscription.service';
 import { StudioPayPalService } from './studio-paypal.service';
 import { StudioEntitlementsService } from './studio-entitlements.service';
 import { StudioBillingReconcileService } from './studio-billing-reconcile.service';
+import { PlatformPermissionGuard } from '../studio/guards/platform-permission.guard';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { StudioBillingReconcileService } from './studio-billing-reconcile.servic
     StudioPayPalWebhookDedupService,
     StudioEntitlementsService,
     StudioBillingReconcileService,
+    PlatformPermissionGuard,
   ],
   exports: [
     StudioPlansService,

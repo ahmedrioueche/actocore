@@ -2,24 +2,31 @@ import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import {
   apiSuccess,
-  StudioRole,
+  PlatformPermission,
   UsageEventsQueryDto,
   UsageExportQueryDto,
   UsageRangeQueryDto,
   UsageSeriesQueryDto,
 } from '@ahmedrioueche/actocore-shared';
-import { RequireStudioRole } from '../studio/decorators/require-studio-role.decorator';
+import { RequirePlatformPermission } from '../studio/decorators/require-platform-permission.decorator';
 import { StudioAuthGuard } from '../studio/guards/studio-auth.guard';
 import { StudioPermissionsGuard } from '../studio/guards/studio-permissions.guard';
-import { StudioRoleGuard } from '../studio/guards/studio-role.guard';
+import { PlatformPermissionGuard } from '../studio/guards/platform-permission.guard';
 import { UsageService } from './usage.service';
 
 /** Platform operator analytics — not exposed to tenant user admins. */
-@UseGuards(StudioAuthGuard, StudioPermissionsGuard, StudioRoleGuard)
-@RequireStudioRole(StudioRole.SUPER_ADMIN)
+@UseGuards(StudioAuthGuard, StudioPermissionsGuard, PlatformPermissionGuard)
+@RequirePlatformPermission(PlatformPermission.ANALYTICS_READ)
 @Controller('web/admin/usage')
 export class UsageAdminController {
   constructor(private readonly usage: UsageService) {}
+
+  @Get('overview')
+  async overview(@Query() query: UsageRangeQueryDto) {
+    return apiSuccess(
+      await this.usage.getPlatformUsageOverview(query.from, query.to),
+    );
+  }
 
   @Get('accounts/:accountId')
   async accountSummary(

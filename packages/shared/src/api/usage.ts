@@ -8,6 +8,7 @@ import type {
 import type { ApiResponse } from '../types/api-response';
 import type {
   AccountUsageSummaryData,
+  PlatformUsageOverviewData,
   ProjectKnowledgeUsageData,
   ProjectSessionUsageData,
   ProjectUsageBreakdownData,
@@ -17,8 +18,19 @@ import type {
 } from '../types/usage';
 import { BaseApi } from './helper';
 
-/** Platform operator only — requires super_admin. */
+/** Platform operator only — requires platform analytics permission. */
 export class PlatformUsageAdminApi extends BaseApi {
+  getOverview(
+    query?: UsageRangeQueryDto,
+  ): Promise<ApiResponse<PlatformUsageOverviewData>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<PlatformUsageOverviewData>>(
+        apiPath('web/admin/usage/overview'),
+        { params: query },
+      ),
+    );
+  }
+
   getAccountSummary(
     accountId: string,
     query?: UsageRangeQueryDto,

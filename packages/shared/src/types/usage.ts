@@ -3,6 +3,7 @@ export interface UsageEventData {
   projectId: string;
   route: string;
   intent?: string;
+  provider?: string;
   model?: string;
   promptTokens?: number;
   completionTokens?: number;
@@ -133,4 +134,46 @@ export interface ProjectSessionUsageData {
   assistantMessages: number;
   chatRequestsInRange: number;
   byIntent: Record<string, number>;
+}
+
+export interface UsageProviderBreakdownRow {
+  requests: number;
+  promptTokens: number;
+  completionTokens: number;
+}
+
+export interface PlatformUsageAccountRow {
+  accountId: string;
+  accountName: string;
+  totalRequests: number;
+  totalPromptTokens: number;
+  totalCompletionTokens: number;
+}
+
+export interface PlatformUsageProjectRow {
+  projectId: string;
+  projectName: string;
+  accountId: string;
+  accountName: string;
+  totalRequests: number;
+  totalPromptTokens: number;
+  totalCompletionTokens: number;
+}
+
+export interface PlatformUsageOverviewData {
+  from: string;
+  to: string;
+  configuredProvider: string;
+  totalRequests: number;
+  totalPromptTokens: number;
+  totalCompletionTokens: number;
+  totalErrors: number;
+  errorRate: number;
+  p95LatencyMs: number | null;
+  byProvider: Record<string, UsageProviderBreakdownRow>;
+  byModel: Record<string, number>;
+  byIntent: Record<string, number>;
+  buckets: UsageDailyBucket[];
+  topAccounts: PlatformUsageAccountRow[];
+  topProjects: PlatformUsageProjectRow[];
 }

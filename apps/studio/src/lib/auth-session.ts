@@ -22,8 +22,15 @@ export async function clearAuthSession(): Promise<void> {
   queryClient.clear();
 }
 
+export function resolveLoginRedirect(pathname = window.location.pathname): string {
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return '/admin/login';
+  }
+  return '/login';
+}
+
 /** Hard reset — clears cache/tokens and reloads on the login page. */
-export async function forceLogout(redirectTo = '/login'): Promise<void> {
+export async function forceLogout(redirectTo?: string): Promise<void> {
   if (logoutInProgress) {
     return;
   }
@@ -32,7 +39,12 @@ export async function forceLogout(redirectTo = '/login'): Promise<void> {
     await clearAuthSession();
   } finally {
     if (typeof window !== 'undefined') {
-      window.location.assign(redirectTo);
+      const target = redirectTo ?? resolveLoginRedirect();
+      if (window.location.pathname === target) {
+        logoutInProgress = false;
+        return;
+      }
+      window.location.assign(target);
     }
   }
 }
@@ -105,7 +117,8 @@ export function isPublicAppPath(pathname: string): boolean {
     pathname === '/signup' ||
     pathname === '/forgot-password' ||
     pathname.startsWith('/auth/') ||
-    pathname === '/onboarding'
+    pathname === '/onboarding' ||
+    pathname === '/admin/login'
   );
 }
 
@@ -113,10 +126,11 @@ export function shouldRedirectToLogin(): boolean {
   if (typeof window === 'undefined') {
     return false;
   }
-  return (
-    !TokenManager.getAccessToken() &&
-    !isPublicAppPath(window.location.pathname)
-  );
+  const pathname = window.location.pathname;
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return false;
+  }
+  return !TokenManager.getAccessToken() && !isPublicAppPath(pathname);
 }
 
 /** Load `/me` into the query cache — call after tokens are stored. */

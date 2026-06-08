@@ -7,13 +7,14 @@ import { cn } from '@/utils/helper';
 interface NavLogoProps {
   collapsed: boolean;
   onNavigate?: () => void;
+  to?: string;
 }
 
 /** Compact static logo for the sidebar — AnimatedLogo is reserved for boot/loading screens. */
-export function NavLogo({ collapsed, onNavigate }: NavLogoProps) {
+export function NavLogo({ collapsed, onNavigate, to = '/projects' }: NavLogoProps) {
   return (
     <Link
-      to="/projects"
+      to={to}
       onClick={onNavigate}
       className={cn(
         'flex min-w-0 items-center overflow-hidden py-3 transition-[padding] duration-300',

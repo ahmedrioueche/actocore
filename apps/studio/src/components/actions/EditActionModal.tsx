@@ -142,6 +142,7 @@ export default function EditActionModal() {
           label={t('projectActions.fields.name')}
           value={action?.name ?? ''}
           onChange={() => undefined}
+          placeholder={t('projectActions.fields.namePlaceholder')}
           disabled
         />
 

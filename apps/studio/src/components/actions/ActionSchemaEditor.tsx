@@ -151,6 +151,7 @@ export function ActionSchemaEditor({
             onChange={(e) =>
               onChange({ ...value, schemaText: e.target.value })
             }
+            placeholder={t('projectActions.fields.inputSchemaPlaceholder')}
             rows={10}
             spellCheck={false}
             className="font-mono text-xs"

@@ -13,6 +13,9 @@ export class UsageEvent {
   intent?: string;
 
   @Prop()
+  llmProvider?: string;
+
+  @Prop()
   llmModel?: string;
 
   @Prop()

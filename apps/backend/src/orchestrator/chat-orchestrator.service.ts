@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type {
   ChatIntent,
   ChatMessageData,
@@ -21,6 +22,7 @@ import {
   INTENT_CLASSIFIER,
   type IntentClassifier,
 } from './intent-classifier.interface';
+import type { LlmResolvedConfig } from '../config/llm.config';
 import { LLM_PROVIDER, type LlmMessage, type LlmProvider } from '../external/llm/llm-provider.interface';
 import { resolveActionFollowUp } from '../actions/action-follow-up.util';
 import { isLikelyActionMessage } from '../actions/natural-language-action.util';
@@ -40,6 +42,7 @@ export class ChatOrchestratorService {
     private readonly aiLogger: AiDecisionLogger,
     private readonly usage: UsageService,
     private readonly sdkConfig: SdkConfigService,
+    private readonly configService: ConfigService,
     @Inject(LLM_PROVIDER) private readonly llm: LlmProvider,
     @Inject(INTENT_CLASSIFIER) private readonly classifier: IntentClassifier,
   ) {}
@@ -129,11 +132,14 @@ export class ChatOrchestratorService {
     }
 
     const actionFailed = branch.action?.status === 'error';
+    const llmProvider =
+      this.configService.getOrThrow<LlmResolvedConfig>('llm').provider;
     void this.usage
       .recordChatUsage({
         projectId,
         apiKeyId: context.apiKeyId,
         intent,
+        llmProvider,
         usage: branch.usage,
         latencyMs: Date.now() - startedAt,
         success: !actionFailed,

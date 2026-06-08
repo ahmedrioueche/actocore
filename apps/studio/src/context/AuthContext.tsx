@@ -10,6 +10,7 @@ import {
 
 import { useAuthMe } from '@/hooks/use-auth';
 import { clearAuthSession } from '@/lib/auth-session';
+import { isAdminPath } from '@/lib/platform-session';
 
 interface AuthContextValue {
   session: StudioAuthMeData | undefined;
@@ -22,8 +23,10 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const onAdminPath =
+    typeof window !== 'undefined' && isAdminPath(window.location.pathname);
   const hasToken = Boolean(TokenManager.getAccessToken());
-  const meQuery = useAuthMe(hasToken);
+  const meQuery = useAuthMe(hasToken && !onAdminPath);
 
   useEffect(() => {
     if (!hasToken || !meQuery.isError) {

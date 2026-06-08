@@ -129,8 +129,10 @@
       "teamToggle": "Sign in as a team member",
       "teamHide": "Sign in with email instead",
       "workspaceId": "Workspace ID",
+      "workspaceIdPlaceholder": "Paste your workspace ID",
       "workspaceIdHelp": "Ask your admin for the workspace ID (account ID) from Settings.",
-      "username": "Username"
+      "username": "Username",
+      "usernamePlaceholder": "e.g. jane"
     },
     "signup": {
       "title": "Create your account",
@@ -375,6 +377,7 @@
       "description": "Description",
       "descriptionPlaceholder": "What this action does (helps the assistant decide when to call it)",
       "inputSchema": "Input schema (JSON)",
+      "inputSchemaPlaceholder": "{\n  \"type\": \"object\",\n  \"properties\": {}\n}",
       "inputSchemaHint": "JSON Schema describing the arguments the assistant must provide.",
       "enabled": "Enabled",
       "section": "Section"
@@ -749,6 +752,7 @@
     "viewBilling": "View billing",
     "freePlan": "Free",
     "currentPlan": "Current plan",
+    "planIncludes": "What's included",
     "trialEnds": "Trial ends {{date}}",
     "renewsOn": "Renews on {{date}}",
     "accessUntil": "Access until {{date}}",
@@ -844,6 +848,327 @@
       "quotaWarningDescription": "Email when monthly AI chat usage reaches 80% or 90% of your plan limit.",
       "quotaExhausted": "Limit reached",
       "quotaExhaustedDescription": "Email when monthly AI chat usage reaches 100% of your plan limit."
+    }
+  },
+  "admin": {
+    "brand": "ActoCore Admin",
+    "platformLabel": "Platform",
+    "signOut": "Sign out",
+    "yes": "Yes",
+    "no": "No",
+    "nav": {
+      "dashboard": "Dashboard",
+      "accounts": "Accounts",
+      "plans": "Plans",
+      "subscriptions": "Subscriptions",
+      "users": "Users",
+      "projects": "Projects",
+      "analytics": "Analytics",
+      "usage": "Usage",
+      "team": "Team",
+      "settings": "Settings"
+    },
+    "login": {
+      "title": "Platform admin",
+      "subtitle": "Sign in as master or manager.",
+      "masterTab": "Master",
+      "managerTab": "Manager",
+      "email": "Master email",
+      "emailPlaceholder": "master@company.com",
+      "username": "Username",
+      "usernamePlaceholder": "e.g. ops-lead",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Welcome, {{name}}.",
+      "accounts": "Workspaces",
+      "activeSubs": "Active subscriptions",
+      "trialingSubs": "Trialing subscriptions",
+      "projects": "Projects",
+      "mrr": "Estimated MRR",
+      "monthlyChat": "Monthly chat requests"
+    },
+    "accounts": {
+      "title": "Accounts",
+      "subtitle": "All tenant workspaces.",
+      "searchPlaceholder": "Search by workspace name",
+      "name": "Workspace",
+      "plan": "Plan",
+      "billingEmail": "Billing email",
+      "created": "Created",
+      "emptyTitle": "No workspaces found",
+      "emptyDescription": "Try a different search or wait for new signups."
+    },
+    "accountDetail": {
+      "title": "Account detail",
+      "noSubscription": "No active subscription",
+      "status": "Status",
+      "provider": "Provider",
+      "payments": "Payment history"
+    },
+    "plans": {
+      "title": "Plans",
+      "subtitle": "Manage subscription plan catalog.",
+      "create": "Create plan",
+      "createTitle": "Create plan",
+      "createSubtitle": "Add a new subscription tier to the catalog.",
+      "editTitle": "Edit plan",
+      "editSubtitle": "Update settings for {{planId}}.",
+      "save": "Save plan",
+      "saveChanges": "Save changes",
+      "detailsTitle": "Plan details",
+      "detailsSubtitle": "Identity, level, and catalog ordering.",
+      "pricingTitle": "Pricing",
+      "pricingSubtitle": "Monthly and yearly amounts in USD.",
+      "featuresTitle": "Features & limits",
+      "featuresSubtitle": "Usage quotas and optional marketing bullets shown on the subscription page.",
+      "marketingFeatures": "Marketing bullets",
+      "marketingFeaturesHint": "Extra highlights listed after the auto-generated limit bullets.",
+      "featurePlaceholder": "e.g. Priority support",
+      "addFeature": "Add bullet",
+      "removeFeature": "Remove bullet",
+      "noMarketingFeatures": "No extra bullets yet. Limit quotas above are still shown automatically.",
+      "planId": "Plan ID",
+      "planIdPlaceholder": "e.g. starter",
+      "name": "Name",
+      "namePlaceholder": "e.g. Starter",
+      "level": "Level",
+      "active": "Active",
+      "monthlyPrice": "Monthly price (USD)",
+      "monthlyPricePlaceholder": "e.g. 29",
+      "yearlyPrice": "Yearly price (USD)",
+      "yearlyPricePlaceholder": "e.g. 290",
+      "monthlyChatQuota": "Monthly chat quota",
+      "monthlyChatQuotaPlaceholder": "e.g. 1000",
+      "maxProjects": "Max projects",
+      "maxProjectsPlaceholder": "e.g. 5",
+      "maxTeamSeats": "Max team seats",
+      "maxTeamSeatsPlaceholder": "e.g. 10",
+      "order": "Display order",
+      "orderPlaceholder": "e.g. 1",
+      "emptyTitle": "No plans yet",
+      "emptyDescription": "Create a plan to offer subscriptions to workspaces.",
+      "errors": {
+        "planIdRequired": "Plan ID is required.",
+        "nameRequired": "Plan name is required."
+      },
+      "delete": {
+        "title": "Delete plan",
+        "text": "Delete \"{{name}}\" ({{planId}})? Existing subscriptions are not removed, but new signups will no longer see this plan.",
+        "confirm": "Delete plan"
+      }
+    },
+    "team": {
+      "title": "Platform team",
+      "subtitle": "Managers with scoped platform permissions.",
+      "addManager": "Add manager",
+      "createTitle": "Add manager",
+      "createSubtitle": "Create a platform manager with username login and scoped permissions.",
+      "editTitle": "Edit manager",
+      "editSubtitle": "Update profile and permissions for @{{username}}.",
+      "save": "Save manager",
+      "saveChanges": "Save changes",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Leave blank to keep current password",
+      "usernameLockedHint": "Username cannot be changed after creation.",
+      "username": "Username",
+      "usernamePlaceholder": "e.g. ops-lead",
+      "usernameHint": "2–32 characters: lowercase letters, numbers, underscore, or hyphen.",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Optional",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "permissions": "Permissions",
+      "permissionsHint": "Choose which platform areas this manager can access.",
+      "role": "Role",
+      "master": "Master",
+      "manager": "Manager",
+      "allPermissions": "All permissions",
+      "emptyTitle": "No managers yet",
+      "emptyDescription": "Add a manager to delegate platform operations.",
+      "permissionLabels": {
+        "accountsRead": "View workspaces",
+        "plansWrite": "Manage plans",
+        "subscriptionsRead": "View subscriptions",
+        "usersRead": "View users",
+        "projectsRead": "View projects",
+        "analyticsRead": "View analytics & usage",
+        "teamWrite": "Manage platform team",
+        "settingsWrite": "Manage admin settings"
+      },
+      "createSuccess": "Manager added.",
+      "updateSuccess": "Manager updated.",
+      "errors": {
+        "usernameRequired": "Username is required.",
+        "usernameFormat": "Username must be 2–32 characters: lowercase letters, numbers, underscore, or hyphen.",
+        "usernameTaken": "Username is already taken.",
+        "passwordRequired": "Password must be at least 8 characters.",
+        "permissionsRequired": "Select at least one permission.",
+        "createFailed": "Could not add manager. Please try again.",
+        "updateFailed": "Could not update manager. Please try again."
+      },
+      "delete": {
+        "title": "Remove manager",
+        "text": "Remove {{name}} from the platform team? They will lose admin access immediately.",
+        "confirm": "Remove manager"
+      }
+    },
+    "settings": {
+      "title": "Admin settings",
+      "subtitle": "Appearance, security, and your platform operator profile.",
+      "appearanceTitle": "Appearance",
+      "appearanceSubtitle": "Theme and language are saved on this device.",
+      "uiLanguageHint": "Interface language for the admin console.",
+      "profileTitle": "Profile",
+      "profileSubtitle": "How you appear across the platform admin.",
+      "securityTitle": "Security",
+      "securitySubtitle": "Update your sign-in password.",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Optional",
+      "email": "Email",
+      "emailPlaceholder": "master@company.com",
+      "username": "Username",
+      "usernamePlaceholder": "e.g. ops-lead",
+      "role": "Role",
+      "rolePlaceholder": "Manager",
+      "save": "Save changes",
+      "saved": "Settings saved.",
+      "currentPassword": "Current password",
+      "currentPasswordPlaceholder": "••••••••",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "currentPasswordRequired": "Current password is required.",
+      "passwordRequired": "New password must be at least 8 characters.",
+      "masterPasswordHint": "Master password is configured via environment variables."
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "subtitle": "Cross-tenant subscription overview.",
+      "searchPlaceholder": "Search by workspace name",
+      "account": "Workspace",
+      "plan": "Plan",
+      "status": "Status",
+      "provider": "Provider",
+      "emptyTitle": "No subscriptions found",
+      "emptyDescription": "Subscriptions will appear here once workspaces subscribe."
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "All Studio users across workspaces.",
+      "searchPlaceholder": "Search users",
+      "identity": "User",
+      "memberships": "Memberships",
+      "created": "Created",
+      "emptyTitle": "No users found",
+      "emptyDescription": "Try a different search term."
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "All projects across workspaces.",
+      "searchPlaceholder": "Search projects",
+      "name": "Project",
+      "account": "Workspace",
+      "archived": "Archived",
+      "emptyTitle": "No projects found",
+      "emptyDescription": "Try a different search term."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Platform-wide usage overview.",
+      "accounts": "Workspaces",
+      "activeSubs": "Active subscriptions",
+      "estimatedMrr": "Estimated MRR",
+      "monthlyChat": "Monthly chat requests",
+      "hints": {
+        "accounts": "Tenant workspaces on the platform",
+        "activeSubs": "Paying or active billing states",
+        "mrr": "Estimated from active plan pricing",
+        "monthlyChat": "Chat requests across all tenants"
+      },
+      "revenue": {
+        "badge": "Revenue",
+        "title": "Estimated monthly recurring revenue",
+        "description": "Based on active subscriptions and catalog plan pricing.",
+        "activeSubs": "Active subs",
+        "arpu": "Avg. per sub"
+      },
+      "subscriptionMix": {
+        "title": "Subscription mix",
+        "description": "Active vs trialing subscriptions across all workspaces.",
+        "active": "Active",
+        "trialing": "Trialing"
+      },
+      "platformScale": {
+        "title": "Platform activity",
+        "description": "Relative scale of projects and chat volume this month.",
+        "projects": "Total projects",
+        "chatVolume": "Monthly chat requests",
+        "ratioHint": "Average of {{ratio}} projects per workspace."
+      }
+    },
+    "usage": {
+      "title": "Usage",
+      "subtitle": "Platform-wide LLM consumption and provider breakdown.",
+      "configuredProvider": "Deployment LLM provider",
+      "p95Latency": "P95 latency: {{value}} ms",
+      "dateRange": {
+        "label": "Date range",
+        "7d": "Last 7 days",
+        "30d": "Last 30 days",
+        "month": "This month"
+      },
+      "providers": {
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "google": "Google",
+        "stub": "Stub",
+        "unknown": "Unknown"
+      },
+      "metrics": {
+        "requests": "Chat requests",
+        "requestsHint": "SDK chat calls in the selected range",
+        "promptTokens": "Prompt tokens",
+        "promptTokensHint": "Input tokens sent to the LLM",
+        "completionTokens": "Completion tokens",
+        "completionTokensHint": "Output tokens returned by the LLM",
+        "errorRate": "Error rate",
+        "errorRateHint": "Share of requests that failed"
+      },
+      "providerMix": {
+        "title": "Provider mix",
+        "description": "Requests grouped by LLM provider recorded on each event.",
+        "empty": "No provider usage in this range yet."
+      },
+      "modelBreakdown": {
+        "title": "Model breakdown",
+        "description": "Top models by request count in the selected range.",
+        "empty": "No model usage in this range yet."
+      },
+      "series": {
+        "title": "Daily activity",
+        "description": "Requests per day across all tenant projects.",
+        "empty": "No daily activity in this range yet."
+      },
+      "topAccounts": {
+        "title": "Top workspaces",
+        "description": "Workspaces with the highest chat volume.",
+        "name": "Workspace",
+        "requests": "Requests",
+        "tokens": "Tokens",
+        "empty": "No workspace usage in this range yet."
+      },
+      "topProjects": {
+        "title": "Top projects",
+        "description": "Projects with the highest chat volume.",
+        "name": "Project",
+        "account": "Workspace",
+        "requests": "Requests",
+        "tokens": "Tokens",
+        "empty": "No project usage in this range yet."
+      }
     }
   },
   "theme": {

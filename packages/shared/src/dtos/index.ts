@@ -14,3 +14,4 @@ export * from './account.dto';
 export * from './onboarding.dto';
 export * from './billing.dto';
 export * from './usage.dto';
+export * from './platform-auth.dto';

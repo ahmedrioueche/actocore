@@ -33,6 +33,21 @@ describe('statusMessage', () => {
     );
   });
 
+  it('prefers API validation detail over generic validation copy', () => {
+    const { result } = renderHook(() => useTranslation());
+    const t = result.current.t;
+
+    expect(
+      getApiErrorMessage(t, {
+        errorCode: 'VALIDATION_ERROR',
+        message:
+          'Username must be 2–32 characters: lowercase letters, numbers, underscore, or hyphen.',
+      }),
+    ).toBe(
+      'Username must be 2–32 characters: lowercase letters, numbers, underscore, or hyphen.',
+    );
+  });
+
   it('maps plan limit errors with details', () => {
     const { result } = renderHook(() => useTranslation());
     const t = result.current.t;

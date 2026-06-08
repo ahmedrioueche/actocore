@@ -8,6 +8,7 @@ import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 import {
   SDK_CONFIG_COMPOSER_DEFAULTS,
+  SDK_CONFIG_UI_TEXT_DEFAULTS,
   SDK_CONFIG_UI_TOGGLE_DEFAULTS,
 } from '@/constants/sdk-config-defaults';
 import type { SdkConfigFormState } from '@/utils/sdk-config-form';
@@ -56,6 +57,9 @@ export function SdkConfigForm({
 
   const defaultToggleHint = (enabled: boolean) =>
     t(enabled ? 'sdkConfig.fields.defaultOn' : 'sdkConfig.fields.defaultOff');
+
+  const defaultCopyPlaceholder = (value: string) =>
+    t('sdkConfig.fields.defaultPlaceholder', { value });
 
   return (
     <div className="space-y-6">
@@ -144,7 +148,9 @@ export function SdkConfigForm({
               })
             }
             disabled={disabled}
-            placeholder={String(SDK_CONFIG_COMPOSER_DEFAULTS.composerMinRows)}
+            placeholder={defaultCopyPlaceholder(
+              String(SDK_CONFIG_COMPOSER_DEFAULTS.composerMinRows),
+            )}
           />
           <InputField
             label={t('sdkConfig.fields.composerMaxRows')}
@@ -161,7 +167,9 @@ export function SdkConfigForm({
               })
             }
             disabled={disabled}
-            placeholder={String(SDK_CONFIG_COMPOSER_DEFAULTS.composerMaxRows)}
+            placeholder={defaultCopyPlaceholder(
+              String(SDK_CONFIG_COMPOSER_DEFAULTS.composerMaxRows),
+            )}
           />
         </div>
         <p className="text-xs text-text-secondary">
@@ -180,24 +188,36 @@ export function SdkConfigForm({
           label={t('sdkConfig.fields.headerTitle')}
           value={value.headerTitle}
           onChange={(e) => patch({ headerTitle: e.target.value })}
+          placeholder={defaultCopyPlaceholder(
+            SDK_CONFIG_UI_TEXT_DEFAULTS.headerTitle,
+          )}
           disabled={disabled}
         />
         <InputField
           label={t('sdkConfig.fields.headerSubtitle')}
           value={value.headerSubtitle}
           onChange={(e) => patch({ headerSubtitle: e.target.value })}
+          placeholder={defaultCopyPlaceholder(
+            SDK_CONFIG_UI_TEXT_DEFAULTS.headerSubtitle,
+          )}
           disabled={disabled}
         />
         <InputField
           label={t('sdkConfig.fields.emptyTitle')}
           value={value.emptyTitle}
           onChange={(e) => patch({ emptyTitle: e.target.value })}
+          placeholder={defaultCopyPlaceholder(
+            SDK_CONFIG_UI_TEXT_DEFAULTS.emptyTitle,
+          )}
           disabled={disabled}
         />
         <TextArea
           label={t('sdkConfig.fields.emptyDescription')}
           value={value.emptyDescription}
           onChange={(e) => patch({ emptyDescription: e.target.value })}
+          placeholder={defaultCopyPlaceholder(
+            SDK_CONFIG_UI_TEXT_DEFAULTS.emptyDescription,
+          )}
           rows={3}
           disabled={disabled}
         />
@@ -205,6 +225,9 @@ export function SdkConfigForm({
           label={t('sdkConfig.fields.actionsHint')}
           value={value.actionsHint}
           onChange={(e) => patch({ actionsHint: e.target.value })}
+          placeholder={defaultCopyPlaceholder(
+            SDK_CONFIG_UI_TEXT_DEFAULTS.actionsHint,
+          )}
           rows={2}
           disabled={disabled}
         />
@@ -212,6 +235,9 @@ export function SdkConfigForm({
           label={t('sdkConfig.fields.placeholder')}
           value={value.placeholder}
           onChange={(e) => patch({ placeholder: e.target.value })}
+          placeholder={defaultCopyPlaceholder(
+            SDK_CONFIG_UI_TEXT_DEFAULTS.placeholder,
+          )}
           disabled={disabled}
         />
         <div className="grid gap-4 sm:grid-cols-2">
@@ -219,12 +245,18 @@ export function SdkConfigForm({
             label={t('sdkConfig.fields.send')}
             value={value.send}
             onChange={(e) => patch({ send: e.target.value })}
+            placeholder={defaultCopyPlaceholder(
+              SDK_CONFIG_UI_TEXT_DEFAULTS.send,
+            )}
             disabled={disabled}
           />
           <InputField
             label={t('sdkConfig.fields.open')}
             value={value.open}
             onChange={(e) => patch({ open: e.target.value })}
+            placeholder={defaultCopyPlaceholder(
+              SDK_CONFIG_UI_TEXT_DEFAULTS.open,
+            )}
             disabled={disabled}
           />
         </div>
@@ -246,6 +278,9 @@ export function SdkConfigForm({
               label={t('sdkConfig.fields.launcherAriaLabel')}
               value={value.launcherAriaLabel}
               onChange={(e) => patch({ launcherAriaLabel: e.target.value })}
+              placeholder={defaultCopyPlaceholder(
+                SDK_CONFIG_UI_TEXT_DEFAULTS.launcherAriaLabel,
+              )}
               disabled={disabled}
             />
           </div>

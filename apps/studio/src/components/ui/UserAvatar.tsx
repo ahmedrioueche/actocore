@@ -29,7 +29,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     xl: "h-24 w-24 text-3xl",
   };
 
-  const baseClasses = `rounded-full object-cover flex-shrink-0 shadow-sm border border-border/50 ${sizeClasses[size]} ${className}`;
+  const baseClasses = `rounded-full object-cover flex-shrink-0 shadow-sm ring-1 ring-border ${sizeClasses[size]} ${className}`;
 
   if (avatar) {
     return (
@@ -38,7 +38,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
         alt={name}
         referrerPolicy="no-referrer"
         crossOrigin="anonymous"
-        className={baseClasses}
+        className={`${baseClasses} border-2 border-surface`}
       />
     );
   }
@@ -47,7 +47,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 
   return (
     <div
-      className={`${baseClasses} bg-gradient-to-br from-primary/80 via-primary to-secondary/80 flex items-center justify-center font-black text-white`}
+      className={`${baseClasses} flex items-center justify-center border-2 border-surface bg-brand-gradient font-bold text-primary-contrast`}
     >
       {initials || "U"}
     </div>

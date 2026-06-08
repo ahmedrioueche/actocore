@@ -106,7 +106,7 @@
 
 @media (min-width: 768px) {
   :root {
-    --ac-content-padding-x: 1rem;
+    --ac-content-padding-x: 0rem;
     --ac-content-padding-y: 1.5rem;
   }
 }

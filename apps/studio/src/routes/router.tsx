@@ -7,25 +7,43 @@ import {
 } from '@tanstack/react-router';
 
 import StudioLayout from '@/components/layout/StudioLayout';
-import LoginPage from '@/pages/auth/LoginPage';
-import SignupPage from '@/pages/auth/SignupPage';
-import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
-import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
-import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
-import AuthCallbackPage from '@/pages/auth/AuthCallbackPage';
-import BillingPage from '@/pages/billing/BillingPage';
-import SubscriptionPage from '@/pages/subscription/SubscriptionPage';
-import OnboardingPage from '@/pages/onboarding/OnboardingPage';
-import ProjectDocsPage from '@/pages/projects/ProjectDocsPage';
-import ProjectActionsPage from '@/pages/projects/ProjectActionsPage';
-import ProjectApiKeysPage from '@/pages/projects/ProjectApiKeysPage';
-import ProjectKnowledgePage from '@/pages/projects/ProjectKnowledgePage';
-import ProjectSdkConfigPage from '@/pages/projects/ProjectSdkConfigPage';
-import ProjectSectionPage from '@/pages/projects/ProjectSectionPage';
-import ProjectsPage from '@/pages/projects/ProjectsPage';
-import SettingsPage from '@/pages/settings/SettingsPage';
-import TeamPage from '@/pages/team/TeamPage';
+import AdminLayout from '@/components/admin/AdminLayout';
+import AdminAccountDetailPage from '@/pages/admin/accounts/AccountDetailPage';
+import AdminAccountsPage from '@/pages/admin/accounts/AccountsPage';
+import AdminAnalyticsPage from '@/pages/admin/analytics/AnalyticsPage';
+import AdminUsagePage from '@/pages/admin/usage/UsagePage';
+import AdminDashboardPage from '@/pages/admin/dashboard/DashboardPage';
+import AdminLoginPage from '@/pages/admin/login/LoginPage';
+import AdminPlansPage from '@/pages/admin/plans/PlansPage';
+import AdminProjectsPage from '@/pages/admin/projects/ProjectsPage';
+import AdminSettingsPage from '@/pages/admin/settings/SettingsPage';
+import AdminSubscriptionsPage from '@/pages/admin/subscriptions/SubscriptionsPage';
+import AdminTeamPage from '@/pages/admin/team/TeamPage';
+import AdminUsersPage from '@/pages/admin/users/UsersPage';
+import AuthCallbackPage from '@/pages/user/auth/AuthCallbackPage';
+import ForgotPasswordPage from '@/pages/user/auth/ForgotPasswordPage';
+import LoginPage from '@/pages/user/auth/LoginPage';
+import ResetPasswordPage from '@/pages/user/auth/ResetPasswordPage';
+import SignupPage from '@/pages/user/auth/SignupPage';
+import VerifyEmailPage from '@/pages/user/auth/VerifyEmailPage';
+import BillingPage from '@/pages/user/billing/BillingPage';
+import OnboardingPage from '@/pages/user/onboarding/OnboardingPage';
+import ProjectActionsPage from '@/pages/user/projects/ProjectActionsPage';
+import ProjectApiKeysPage from '@/pages/user/projects/ProjectApiKeysPage';
+import ProjectDocsPage from '@/pages/user/projects/ProjectDocsPage';
+import ProjectKnowledgePage from '@/pages/user/projects/ProjectKnowledgePage';
+import ProjectSdkConfigPage from '@/pages/user/projects/ProjectSdkConfigPage';
+import ProjectSectionPage from '@/pages/user/projects/ProjectSectionPage';
+import ProjectsPage from '@/pages/user/projects/ProjectsPage';
+import SettingsPage from '@/pages/user/settings/SettingsPage';
+import SubscriptionPage from '@/pages/user/subscription/SubscriptionPage';
+import TeamPage from '@/pages/user/team/TeamPage';
 import NotFoundPage from '@/pages/system/NotFoundPage';
+import {
+  redirectIfPlatformAuthenticated,
+  requirePlatformAnalyticsAccess,
+  requirePlatformSession,
+} from '@/routes/admin-guards';
 import {
   redirectIfAuthenticated,
   requireOnboardingPending,
@@ -188,6 +206,87 @@ const settingsRoute = createRoute({
   component: SettingsPage,
 });
 
+const adminLoginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/login',
+  beforeLoad: redirectIfPlatformAuthenticated,
+  component: AdminLoginPage,
+});
+
+const adminLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: 'admin',
+  beforeLoad: requirePlatformSession,
+  component: AdminLayout,
+});
+
+const adminDashboardRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin',
+  beforeLoad: requirePlatformAnalyticsAccess,
+  component: AdminDashboardPage,
+});
+
+const adminAccountsRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/accounts',
+  component: AdminAccountsPage,
+});
+
+const adminAccountDetailRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/accounts/$accountId',
+  component: AdminAccountDetailPage,
+});
+
+const adminPlansRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/plans',
+  component: AdminPlansPage,
+});
+
+const adminTeamRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/team',
+  component: AdminTeamPage,
+});
+
+const adminSettingsRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/settings',
+  component: AdminSettingsPage,
+});
+
+const adminSubscriptionsRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/subscriptions',
+  component: AdminSubscriptionsPage,
+});
+
+const adminUsersRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/users',
+  component: AdminUsersPage,
+});
+
+const adminProjectsRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/projects',
+  component: AdminProjectsPage,
+});
+
+const adminAnalyticsRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/analytics',
+  component: AdminAnalyticsPage,
+});
+
+const adminUsageRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: '/admin/usage',
+  component: AdminUsagePage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -197,6 +296,20 @@ const routeTree = rootRoute.addChildren([
   resetPasswordRoute,
   authCallbackRoute,
   onboardingRoute,
+  adminLoginRoute,
+  adminLayoutRoute.addChildren([
+    adminDashboardRoute,
+    adminAccountsRoute,
+    adminAccountDetailRoute,
+    adminPlansRoute,
+    adminTeamRoute,
+    adminSettingsRoute,
+    adminSubscriptionsRoute,
+    adminUsersRoute,
+    adminProjectsRoute,
+    adminAnalyticsRoute,
+    adminUsageRoute,
+  ]),
   studioLayoutRoute.addChildren([
     projectsRoute,
     projectDocsRoute,

@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ActionRunnerService } from '../actions/action-runner.service';
 import { ActionSelectorService } from '../actions/action-selector.service';
@@ -54,6 +55,9 @@ describe('ChatOrchestratorService', () => {
       (_projectId: string, actions: unknown[]) => actions,
     ),
   };
+  const configServiceMock = {
+    getOrThrow: jest.fn().mockReturnValue({ provider: 'stub' }),
+  };
 
   let orchestrator: ChatOrchestratorService;
 
@@ -91,6 +95,7 @@ describe('ChatOrchestratorService', () => {
         { provide: LLM_PROVIDER, useValue: llmMock },
         { provide: INTENT_CLASSIFIER, useValue: classifierMock },
         { provide: SdkConfigService, useValue: sdkConfigMock },
+        { provide: ConfigService, useValue: configServiceMock },
       ],
     }).compile();
 
@@ -105,6 +110,7 @@ describe('ChatOrchestratorService', () => {
         projectId: context.projectId,
         intent: 'direct',
         apiKeyId: context.apiKeyId,
+        llmProvider: 'stub',
       }),
     );
     expect(aiLoggerMock.log).toHaveBeenCalled();

@@ -14,6 +14,7 @@ import { resolveKnowledgeConfig } from './knowledge.config';
 import { resolveQuotaLimits } from './quota.config';
 import { isRedisEnabled, resolveRedisUrl } from './redis.config';
 import { resolvePayPalConfig } from './paypal.config';
+import { resolvePlatformAuthConfig } from './platform-auth.config';
 
 export default () => {
   const uri = resolveMongoUri();
@@ -41,5 +42,6 @@ export default () => {
     knowledge: resolveKnowledgeConfig(),
     quota: resolveQuotaLimits(),
     paypal: resolvePayPalConfig(),
+    platformAuth: resolvePlatformAuthConfig(),
   };
 };

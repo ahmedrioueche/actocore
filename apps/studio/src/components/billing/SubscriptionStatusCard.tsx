@@ -1,16 +1,20 @@
 import type {
+  StudioPlan,
   StudioSubscription,
   StudioSubscriptionSummary,
 } from "@ahmedrioueche/actocore-shared";
+import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import Button from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import StatusBadge from "@/components/ui/StatusBadge";
 import Tip from "@/components/ui/Tip";
+import { buildPlanBullets } from "@/utils/plan-bullets";
 
 interface SubscriptionStatusCardProps {
   summary: StudioSubscriptionSummary | undefined;
+  currentPlan?: StudioPlan | null;
   isLoading: boolean;
   canWrite: boolean;
   onCancel: () => void;
@@ -41,6 +45,7 @@ function resolvePlanName(
 
 export function SubscriptionStatusCard({
   summary,
+  currentPlan,
   isLoading,
   canWrite,
   onCancel,
@@ -52,8 +57,11 @@ export function SubscriptionStatusCard({
 }: SubscriptionStatusCardProps) {
   const { t, i18n } = useTranslation();
   const subscription = summary?.subscription;
-  const planName = resolvePlanName(subscription, t("subscription.freePlan"));
+  const planName =
+    currentPlan?.name ??
+    resolvePlanName(subscription, t("subscription.freePlan"));
   const status = subscription?.status ?? "active";
+  const planBullets = currentPlan ? buildPlanBullets(currentPlan, t) : [];
 
   const renewalDate = formatDate(subscription?.currentPeriodEnd, i18n.language);
   const pendingDate = formatDate(
@@ -107,6 +115,35 @@ export function SubscriptionStatusCard({
           <StatusBadge status={status} />
         )}
       </div>
+
+      {isLoading ? (
+        <div className="mt-6 space-y-2 border-t border-border pt-6">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-4 w-full max-w-md" />
+          <Skeleton className="h-4 w-full max-w-sm" />
+          <Skeleton className="h-4 w-full max-w-lg" />
+        </div>
+      ) : planBullets.length > 0 ? (
+        <div className="mt-6 border-t border-border pt-6">
+          <p className="text-sm font-semibold text-text-primary">
+            {t("subscription.planIncludes")}
+          </p>
+          <ul className="mt-3 space-y-2">
+            {planBullets.map((bullet) => (
+              <li
+                key={bullet}
+                className="flex items-start gap-2 text-sm text-text-secondary"
+              >
+                <Check
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                  aria-hidden
+                />
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {!isLoading && subscription?.cancelAtPeriodEnd ? (
         <div className="mt-6">

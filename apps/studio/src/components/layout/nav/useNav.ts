@@ -7,7 +7,12 @@ import { signOut } from '@/lib/auth-session';
 
 const SIDEBAR_PIN_KEY = 'studio.sidebar.pinned';
 
-export function useNav() {
+type UseNavOptions = {
+  onLogout?: () => void;
+  logoutPending?: boolean;
+};
+
+export function useNav(options?: UseNavOptions) {
   const { pathname } = useLocation();
   const logout = useLogout();
   const { isMobile } = useScreen();
@@ -48,13 +53,15 @@ export function useNav() {
     });
   };
 
-  const handleLogout = () => {
-    logout.mutate(undefined, {
-      onError: () => {
-        void signOut('/login');
-      },
+  const handleLogout =
+    options?.onLogout ??
+    (() => {
+      logout.mutate(undefined, {
+        onError: () => {
+          void signOut('/login');
+        },
+      });
     });
-  };
 
   return {
     sidebarOpen,
@@ -68,6 +75,6 @@ export function useNav() {
     activeRoute,
     isCollapsed,
     handleLogout,
-    logoutPending: logout.isPending,
+    logoutPending: options?.logoutPending ?? logout.isPending,
   };
 }

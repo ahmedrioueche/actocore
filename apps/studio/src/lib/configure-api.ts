@@ -1,6 +1,7 @@
 import {
   configureApi,
   getApiClient,
+  platformAuthApi,
   studioAuthApi,
   TokenManager,
 } from '@ahmedrioueche/actocore-shared';
@@ -8,7 +9,9 @@ import {
 import {
   forceLogout,
   isLogoutInProgress,
+  resolveLoginRedirect,
 } from '@/lib/auth-session';
+import { isAdminPath, signOutPlatform } from '@/lib/platform-session';
 
 type Axios401Error = {
   response?: { status?: number };
@@ -31,8 +34,35 @@ function asAxios401Error(error: unknown): Axios401Error | null {
   return null;
 }
 
+function isPlatformApiUrl(url: string): boolean {
+  return url.includes('/web/platform/') || url.includes('/web/admin/');
+}
+
+function isAuthPublicUrl(url: string): boolean {
+  return (
+    url.includes('/web/auth/login') ||
+    url.includes('/web/auth/refresh') ||
+    url.includes('/web/auth/logout') ||
+    url.includes('/web/platform/auth/login') ||
+    url.includes('/web/platform/auth/refresh')
+  );
+}
+
 let configured = false;
 let interceptorAttached = false;
+
+async function handleUnauthorizedForUrl(requestUrl: string): Promise<void> {
+  if (isLogoutInProgress()) {
+    return;
+  }
+
+  if (isPlatformApiUrl(requestUrl) || isAdminPath(window.location.pathname)) {
+    await signOutPlatform();
+    return;
+  }
+
+  await forceLogout(resolveLoginRedirect());
+}
 
 function attachUnauthorizedInterceptor(): void {
   if (interceptorAttached) {
@@ -51,44 +81,37 @@ function attachUnauthorizedInterceptor(): void {
       }
 
       const requestUrl = axiosError.config?.url ?? '';
-      if (
-        requestUrl.includes('/web/auth/refresh') ||
-        requestUrl.includes('/web/auth/logout') ||
-        requestUrl.includes('/web/auth/login')
-      ) {
-        if (!isLogoutInProgress()) {
-          await forceLogout();
-        }
+      if (isAuthPublicUrl(requestUrl)) {
+        await handleUnauthorizedForUrl(requestUrl);
         return Promise.reject(error);
       }
 
       const originalRequest = axiosError.config;
       if (!originalRequest || originalRequest._studioRetried) {
-        if (!isLogoutInProgress()) {
-          await forceLogout();
-        }
+        await handleUnauthorizedForUrl(requestUrl);
         return Promise.reject(error);
       }
 
       originalRequest._studioRetried = true;
 
       if (!TokenManager.getRefreshToken()) {
-        if (!isLogoutInProgress()) {
-          await forceLogout();
-        }
+        await handleUnauthorizedForUrl(requestUrl);
         return Promise.reject(error);
       }
 
-      const refreshed = await studioAuthApi.refresh();
+      const usePlatformRefresh =
+        isPlatformApiUrl(requestUrl) || isAdminPath(window.location.pathname);
+      const refreshed = usePlatformRefresh
+        ? await platformAuthApi.refresh()
+        : await studioAuthApi.refresh();
+
       if (refreshed.success && refreshed.data?.accessToken) {
         originalRequest.headers = originalRequest.headers ?? {};
         originalRequest.headers.Authorization = `Bearer ${refreshed.data.accessToken}`;
         return client.request(originalRequest);
       }
 
-      if (!isLogoutInProgress()) {
-        await forceLogout();
-      }
+      await handleUnauthorizedForUrl(requestUrl);
       return Promise.reject(error);
     },
   );

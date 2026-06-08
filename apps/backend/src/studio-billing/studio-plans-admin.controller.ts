@@ -12,18 +12,18 @@ import {
 import {
   apiSuccess,
   CreateStudioPlanDto,
-  StudioRole,
+  PlatformPermission,
   UpdateStudioPlanDto,
 } from '@ahmedrioueche/actocore-shared';
-import { RequireStudioRole } from '../studio/decorators/require-studio-role.decorator';
+import { RequirePlatformPermission } from '../studio/decorators/require-platform-permission.decorator';
 import { StudioAuthGuard } from '../studio/guards/studio-auth.guard';
 import { StudioPermissionsGuard } from '../studio/guards/studio-permissions.guard';
-import { StudioRoleGuard } from '../studio/guards/studio-role.guard';
+import { PlatformPermissionGuard } from '../studio/guards/platform-permission.guard';
 import { StudioPlansService } from './studio-plans.service';
 
 @Controller('web/admin/plans')
-@UseGuards(StudioAuthGuard, StudioPermissionsGuard, StudioRoleGuard)
-@RequireStudioRole(StudioRole.SUPER_ADMIN)
+@UseGuards(StudioAuthGuard, StudioPermissionsGuard, PlatformPermissionGuard)
+@RequirePlatformPermission(PlatformPermission.PLANS_WRITE)
 export class StudioPlansAdminController {
   constructor(private readonly plans: StudioPlansService) {}
 

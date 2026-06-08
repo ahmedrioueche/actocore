@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 
+import type {
+  PlatformManagerData,
+  StudioPlan,
+} from '@ahmedrioueche/actocore-shared';
+
 import type { ActionParameterType } from '@/utils/action-schema-builder';
 
 export interface ConfirmSecondaryAction {
@@ -79,6 +84,18 @@ export interface EditMemberModalProps {
   projectIds: string[];
 }
 
+export type CreatePlanModalProps = Record<string, never>;
+
+export interface EditPlanModalProps {
+  plan: StudioPlan;
+}
+
+export type CreatePlatformManagerModalProps = Record<string, never>;
+
+export interface EditPlatformManagerModalProps {
+  manager: PlatformManagerData;
+}
+
 /**
  * Registry of feature modals (besides `confirm`) and the props each requires.
  * Props are passed through the store — never directly to the modal component.
@@ -97,6 +114,10 @@ export interface ModalPropsMap {
   createProject: CreateProjectModalProps;
   inviteMember: InviteMemberModalProps;
   editMember: EditMemberModalProps;
+  createPlan: CreatePlanModalProps;
+  editPlan: EditPlanModalProps;
+  createPlatformManager: CreatePlatformManagerModalProps;
+  editPlatformManager: EditPlatformManagerModalProps;
 }
 
 export type ModalId = 'confirm' | keyof ModalPropsMap | null;

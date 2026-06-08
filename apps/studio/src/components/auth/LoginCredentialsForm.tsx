@@ -112,6 +112,7 @@ export function LoginCredentialsForm({
               label={t('auth.login.workspaceId')}
               value={workspaceId}
               onChange={(e) => onWorkspaceIdChange(e.target.value)}
+              placeholder={t('auth.login.workspaceIdPlaceholder')}
               required
               className={authInputClass}
             />
@@ -125,6 +126,7 @@ export function LoginCredentialsForm({
             label={t('auth.login.username')}
             value={username}
             onChange={(e) => onUsernameChange(e.target.value)}
+            placeholder={t('auth.login.usernamePlaceholder')}
             autoComplete="username"
             required
             className={authInputClass}
@@ -135,6 +137,7 @@ export function LoginCredentialsForm({
             label={t('auth.login.password')}
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
+            placeholder={t('auth.login.passwordPlaceholder')}
             autoComplete="current-password"
             required
             className={authInputClass}

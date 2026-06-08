@@ -7,6 +7,13 @@ export class StudioUser {
   @Prop({ unique: true, sparse: true, lowercase: true, trim: true })
   email?: string;
 
+  /** Globally unique login for platform managers. */
+  @Prop({ unique: true, sparse: true, lowercase: true, trim: true })
+  platformLoginName?: string;
+
+  @Prop({ default: false })
+  isPlatformMaster!: boolean;
+
   @Prop()
   passwordHash?: string;
 

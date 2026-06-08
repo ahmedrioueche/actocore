@@ -196,8 +196,10 @@ const CustomSelect = <T extends string>({
               role="option"
               aria-selected={option.value === selectedOption}
               tabIndex={0}
-              className={`px-4 py-2 text-text-primary hover:bg-primary/30 hover:cursor-pointer focus:bg-primary/30 focus:outline-none transition-colors ${
-                option.value === selectedOption ? "bg-primary/10 font-bold" : ""
+              className={`group cursor-pointer px-4 py-2 transition-colors outline-none ${
+                option.value === selectedOption
+                  ? "bg-primary font-semibold text-primary-contrast"
+                  : "text-text-primary hover:bg-primary hover:text-primary-contrast focus-visible:bg-primary focus-visible:text-primary-contrast"
               }`}
               onClick={() => {
                 onChange(option.value);
@@ -228,7 +230,7 @@ const CustomSelect = <T extends string>({
                 )}
                 <span>{option.label}</span>
                 {option.name && (
-                  <span className="text-xs text-text-secondary ml-auto">
+                  <span className="ml-auto text-xs opacity-70">
                     {option.name}
                   </span>
                 )}

@@ -12,6 +12,8 @@ import {
   forceLogout,
   shouldRedirectToLogin,
 } from '@/lib/auth-session';
+import { isAdminPath, isAdminPublicPath } from '@/lib/platform-session';
+import { usePlatformMe } from '@/hooks/use-platform-auth';
 import { queryClient } from '@/lib/query-client';
 import Modals from '@/modals/Modals';
 import Toaster from '@/components/ui/Toaster';
@@ -19,7 +21,37 @@ import LoadingPage from '@/pages/system/LoadingPage';
 import { prefetchOnboardingState } from '@/routes/guards';
 import { router } from '@/routes/router';
 
+function AdminRouter() {
+  const pathname =
+    typeof window !== 'undefined' ? window.location.pathname : '';
+  const isPublicAdmin = isAdminPublicPath(pathname);
+  const hasToken = Boolean(TokenManager.getAccessToken());
+  const meQuery = usePlatformMe(hasToken && !isPublicAdmin);
+
+  useEffect(() => {
+    if (isPublicAdmin && hasToken) {
+      TokenManager.clearTokens();
+      queryClient.removeQueries({ queryKey: ['auth'] });
+      queryClient.removeQueries({ queryKey: ['platform'] });
+    }
+  }, [isPublicAdmin, hasToken]);
+
+  if (
+    hasToken &&
+    !isPublicAdmin &&
+    (meQuery.isLoading || (!meQuery.data && !meQuery.isError))
+  ) {
+    return <LoadingPage type="outer" />;
+  }
+
+  return <RouterProvider router={router} />;
+}
+
 function StudioRouter() {
+  if (typeof window !== 'undefined' && isAdminPath(window.location.pathname)) {
+    return <AdminRouter />;
+  }
+
   const { isLoading, isAuthenticated, session, isError } = useAuth();
   const hasToken = Boolean(TokenManager.getAccessToken());
 

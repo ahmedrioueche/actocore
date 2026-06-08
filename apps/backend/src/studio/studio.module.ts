@@ -31,12 +31,23 @@ import {
 import { UsageEvent, UsageEventSchema } from '../usage/schemas/usage-event.schema';
 import { RedisModule } from '../redis/redis.module';
 import {
+  StudioPlanModel,
+  StudioPlanSchema,
+  StudioSubscriptionHistoryModel,
+  StudioSubscriptionHistorySchema,
   StudioSubscriptionModel,
   StudioSubscriptionSchema,
 } from '../studio-billing/schemas/billing.schema';
 import { StudioWebRateLimitInterceptor } from './interceptors/studio-web-rate-limit.interceptor';
+import { StudioPlatformAuthController } from './studio-platform-auth.controller';
+import { StudioPlatformAuthService } from './studio-platform-auth.service';
+import { StudioPlatformBootstrapService } from './studio-platform-bootstrap.service';
 import { StudioPlatformController } from './studio-platform.controller';
+import { StudioPlatformManagersController } from './studio-platform-managers.controller';
+import { StudioPlatformManagersService } from './studio-platform-managers.service';
 import { StudioPlatformService } from './studio-platform.service';
+import { PlatformPermissionGuard } from './guards/platform-permission.guard';
+import { StudioPlatformAccessService } from './studio-platform-access.service';
 import { StudioAdminEmailsService } from './studio-admin-emails.service';
 import { StudioAdminNotificationService } from './studio-admin-notification.service';
 import { StudioQuotaWebhookService } from './studio-quota-webhook.service';
@@ -85,6 +96,11 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
       { name: ChatMessage.name, schema: ChatMessageSchema },
       { name: UsageEvent.name, schema: UsageEventSchema },
       { name: StudioSubscriptionModel.name, schema: StudioSubscriptionSchema },
+      {
+        name: StudioSubscriptionHistoryModel.name,
+        schema: StudioSubscriptionHistorySchema,
+      },
+      { name: StudioPlanModel.name, schema: StudioPlanSchema },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -105,6 +121,8 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioAccountController,
     StudioOnboardingController,
     StudioPlatformController,
+    StudioPlatformAuthController,
+    StudioPlatformManagersController,
   ],
   providers: [
     {
@@ -118,7 +136,12 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioMembersService,
     StudioTeamAuditService,
     StudioPlatformService,
+    StudioPlatformBootstrapService,
+    StudioPlatformAuthService,
+    StudioPlatformManagersService,
     StudioQuotaWebhookService,
+    PlatformPermissionGuard,
+    StudioPlatformAccessService,
     StudioAdminEmailsService,
     StudioAdminNotificationService,
     StudioAccountDeleteService,
@@ -140,6 +163,9 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioQuotaWebhookService,
     StudioAdminEmailsService,
     StudioAdminNotificationService,
+    StudioPlatformBootstrapService,
+    PlatformPermissionGuard,
+    StudioPlatformAccessService,
   ],
 })
 export class StudioModule {}

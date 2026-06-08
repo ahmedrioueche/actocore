@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import {
+  persistStudioLanguage,
   STUDIO_LANGUAGES,
   type StudioLanguage,
 } from "@/constants/languages";
@@ -9,8 +10,8 @@ export default function LanguagesDropdown() {
   const { i18n } = useTranslation();
 
   const handleChange = (lang: StudioLanguage) => {
+    persistStudioLanguage(lang);
     void i18n.changeLanguage(lang);
-    document.documentElement.dir = STUDIO_LANGUAGES[lang].dir;
   };
 
   return (

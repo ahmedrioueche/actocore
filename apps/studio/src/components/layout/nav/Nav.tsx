@@ -22,6 +22,11 @@ interface NavProps {
   sidebarLinks: StudioNavLink[];
   navMode: "workspace" | "project";
   projectId?: string | null;
+  logoTo?: string;
+  headerBadge?: ReactNode;
+  profileMenu?: ReactNode;
+  onLogout?: () => void;
+  logoutPending?: boolean;
 }
 
 export default function Nav({
@@ -29,6 +34,11 @@ export default function Nav({
   sidebarLinks,
   navMode,
   projectId,
+  logoTo,
+  headerBadge,
+  profileMenu,
+  onLogout,
+  logoutPending: logoutPendingProp,
 }: NavProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
@@ -48,7 +58,7 @@ export default function Nav({
     isCollapsed,
     handleLogout,
     logoutPending,
-  } = useNav();
+  } = useNav({ onLogout, logoutPending: logoutPendingProp });
 
   useEffect(() => {
     resetAllScrollers();
@@ -87,6 +97,7 @@ export default function Nav({
           <NavLogo
             collapsed={isCollapsed}
             onNavigate={() => setSidebarOpen(false)}
+            to={logoTo}
           />
           {isMobile ? (
             <button
@@ -163,14 +174,17 @@ export default function Nav({
               </button>
             ) : null}
 
-            {navMode === "project" && projectId ? (
-              <ProjectContextBadge projectId={projectId} />
-            ) : (
-              <WorkspaceBadge />
-            )}
+            {headerBadge ??
+              (navMode === "project" && projectId ? (
+                <ProjectContextBadge projectId={projectId} />
+              ) : (
+                <WorkspaceBadge />
+              ))}
           </div>
 
-          <ProfileMenu onLogout={handleLogout} logoutPending={logoutPending} />
+          {profileMenu ?? (
+            <ProfileMenu onLogout={handleLogout} logoutPending={logoutPending} />
+          )}
         </header>
 
         <main
