@@ -24,6 +24,9 @@ export function filterNavLinks(
   session: StudioAuthMeData | undefined,
   links: StudioNavLink[],
 ): StudioNavLink[] {
+  if (!session) {
+    return links.filter((link) => !link.permission);
+  }
   return links.filter((link) => canAccessNavItem(session, link.permission));
 }
 

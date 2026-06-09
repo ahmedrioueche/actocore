@@ -9,8 +9,10 @@ import {
 } from 'react';
 
 import { useAuthMe } from '@/hooks/use-auth';
+import { useWindowPathname } from '@/hooks/use-window-pathname';
 import { clearAuthSession } from '@/lib/auth-session';
 import { isAdminPath } from '@/lib/platform-session';
+import { getCachedSession } from '@/routes/guards';
 
 interface AuthContextValue {
   session: StudioAuthMeData | undefined;
@@ -23,10 +25,12 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const onAdminPath =
-    typeof window !== 'undefined' && isAdminPath(window.location.pathname);
+  const pathname = useWindowPathname();
+  const onAdminPath = isAdminPath(pathname);
   const hasToken = Boolean(TokenManager.getAccessToken());
   const meQuery = useAuthMe(hasToken && !onAdminPath);
+  const cachedSession = getCachedSession();
+  const session = meQuery.data ?? cachedSession;
 
   useEffect(() => {
     if (!hasToken || !meQuery.isError) {
@@ -39,16 +43,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      session: meQuery.data,
-      isAuthenticated: Boolean(meQuery.data && hasToken),
-      isLoading: hasToken && meQuery.isLoading,
-      isError: meQuery.isError,
+      session,
+      isAuthenticated: Boolean(session && hasToken),
+      isLoading:
+        hasToken && meQuery.isLoading && !session && !meQuery.isError,
+      isError: meQuery.isError && !session,
       refetch: () => {
         void meQuery.refetch();
       },
     }),
     [
-      meQuery.data,
+      session,
       meQuery.isLoading,
       meQuery.isError,
       meQuery.refetch,

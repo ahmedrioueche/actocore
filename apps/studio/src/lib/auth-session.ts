@@ -3,6 +3,7 @@ import {
   studioAuthApi,
   TokenManager,
   type StudioAuthMeData,
+  type StudioSessionData,
 } from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
@@ -133,11 +134,46 @@ export function shouldRedirectToLogin(): boolean {
   return !TokenManager.getAccessToken() && !isPublicAppPath(pathname);
 }
 
+export function sessionFromLogin(data: StudioSessionData): StudioAuthMeData {
+  return {
+    user: data.user,
+    account: data.account,
+    role: data.role,
+    permissions: data.permissions,
+    projectIds: data.projectIds,
+  };
+}
+
+/** Prime the auth cache from a login/verify response before `/me` returns. */
+export function setAuthSessionCache(session: StudioAuthMeData): void {
+  queryClient.setQueryData(queryKeys.auth.me(), session);
+}
+
 /** Load `/me` into the query cache — call after tokens are stored. */
 export async function fetchAuthSession(): Promise<StudioAuthMeData> {
   ensureApiConfigured();
   return queryClient.fetchQuery({
     queryKey: queryKeys.auth.me(),
     queryFn: async () => parseApiResponse(await studioAuthApi.me()),
+    staleTime: 0,
   });
+}
+
+async function refreshAuthSessionInBackground(): Promise<void> {
+  try {
+    await fetchAuthSession();
+  } catch {
+    // Keep the login-seeded session when `/me` races logout or transient 401.
+  }
+}
+
+/** Seed cache from login payload; refresh `/me` in the background (non-blocking). */
+export async function hydrateAuthSession(
+  loginData: StudioSessionData,
+): Promise<StudioAuthMeData> {
+  const session = sessionFromLogin(loginData);
+  queryClient.resetQueries({ queryKey: queryKeys.auth.me() });
+  setAuthSessionCache(session);
+  void refreshAuthSessionInBackground();
+  return session;
 }

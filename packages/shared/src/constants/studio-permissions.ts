@@ -47,6 +47,13 @@ export function resolveStudioPermissions(
   role: StudioRole,
   overrides?: string[] | null,
 ): string[] {
+  // Workspace owners always receive the full tenant permission set.
+  if (
+    role === StudioRole.SUPER_ADMIN ||
+    role === StudioRole.USER_ADMIN
+  ) {
+    return [...STUDIO_ROLE_DEFAULT_PERMISSIONS[role]];
+  }
   if (overrides && overrides.length > 0) {
     return [...new Set(overrides)];
   }

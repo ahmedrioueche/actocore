@@ -8,11 +8,13 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import i18n from '@/i18n';
+import { useWindowPathname } from '@/hooks/use-window-pathname';
 import {
   forceLogout,
   shouldRedirectToLogin,
 } from '@/lib/auth-session';
 import { isAdminPath, isAdminPublicPath } from '@/lib/platform-session';
+import { getCachedSession } from '@/routes/guards';
 import { usePlatformMe } from '@/hooks/use-platform-auth';
 import { queryClient } from '@/lib/query-client';
 import Modals from '@/modals/Modals';
@@ -48,11 +50,13 @@ function AdminRouter() {
 }
 
 function StudioRouter() {
-  if (typeof window !== 'undefined' && isAdminPath(window.location.pathname)) {
+  const pathname = useWindowPathname();
+  if (isAdminPath(pathname)) {
     return <AdminRouter />;
   }
 
   const { isLoading, isAuthenticated, session, isError } = useAuth();
+  const resolvedSession = session ?? getCachedSession();
   const hasToken = Boolean(TokenManager.getAccessToken());
 
   useEffect(() => {
@@ -65,12 +69,16 @@ function StudioRouter() {
     if (isLoading) {
       return;
     }
+    if (hasToken && isError && !resolvedSession) {
+      void forceLogout();
+      return;
+    }
     if (shouldRedirectToLogin()) {
       void forceLogout();
     }
-  }, [isLoading, isAuthenticated]);
+  }, [hasToken, isLoading, isAuthenticated, isError, resolvedSession]);
 
-  if (hasToken && (isLoading || (!session && !isError))) {
+  if (hasToken && !resolvedSession) {
     return <LoadingPage type="outer" />;
   }
 

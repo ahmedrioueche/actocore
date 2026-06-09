@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   studioAuthApi,
   TokenManager,
@@ -7,13 +7,19 @@ import {
   type StudioSignupDto,
 } from '@ahmedrioueche/actocore-shared';
 
-import { signOut, fetchAuthSession } from '@/lib/auth-session';
+import {
+  signOut,
+  fetchAuthSession,
+  hydrateAuthSession,
+} from '@/lib/auth-session';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
 import { ensureApiConfigured } from '@/lib/configure-api';
+import { getCachedSession } from '@/routes/guards';
 
 export function useAuthMe(enabled = true) {
   ensureApiConfigured();
+  const cachedSession = getCachedSession();
   return useQuery({
     queryKey: queryKeys.auth.me(),
     queryFn: async () => {
@@ -21,20 +27,19 @@ export function useAuthMe(enabled = true) {
       return parseApiResponse(res);
     },
     enabled: enabled && Boolean(TokenManager.getAccessToken()),
+    initialData: cachedSession,
     retry: false,
   });
 }
 
 export function useLogin() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (body: StudioLoginDto) => {
       ensureApiConfigured();
       const res = await studioAuthApi.login(body);
-      return parseApiResponse(res);
-    },
-    onSuccess: async () => {
-      await fetchAuthSession();
+      const session = parseApiResponse(res);
+      await hydrateAuthSession(session);
+      return session;
     },
   });
 }
@@ -65,15 +70,13 @@ export function useResendVerification() {
 }
 
 export function useVerifyEmail() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (token: string) => {
       ensureApiConfigured();
       const res = await studioAuthApi.verifyEmail({ token });
-      return parseApiResponse(res);
-    },
-    onSuccess: async () => {
-      await fetchAuthSession();
+      const session = parseApiResponse(res);
+      await hydrateAuthSession(session);
+      return session;
     },
   });
 }
@@ -108,15 +111,13 @@ export function useGoogleAuth() {
 }
 
 export function useCompleteGoogleAuth() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (code: string) => {
       ensureApiConfigured();
       const res = await studioAuthApi.completeGoogleAuth({ code });
-      return parseApiResponse(res);
-    },
-    onSuccess: async () => {
-      await fetchAuthSession();
+      const session = parseApiResponse(res);
+      await hydrateAuthSession(session);
+      return session;
     },
   });
 }
@@ -130,12 +131,9 @@ export function useLogout() {
 }
 
 export function useStoreOAuthTokens() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (tokens: { accessToken: string; refreshToken: string }) => {
       TokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
-    },
-    onSuccess: async () => {
       await fetchAuthSession();
     },
   });
