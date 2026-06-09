@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import type { QaSourceCitation } from '@ahmedrioueche/actocore-shared';
 import { RagRetrievalService } from './rag-retrieval.service';
 
+/** Fixed reply when QA intent matches but RAG returns no citations (no LLM call). */
+export const QA_NO_CITATIONS_REPLY =
+  "I don't have documentation that answers that yet. I can help with features documented for this app or in-app actions — try rephrasing or ask about a specific screen.";
+
 @Injectable()
 export class QaRunnerService {
   constructor(private readonly retrieval: RagRetrievalService) {}

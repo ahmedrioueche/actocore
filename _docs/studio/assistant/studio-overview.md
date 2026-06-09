@@ -33,3 +33,12 @@ Editors can configure assigned projects if they have write permissions. Only wor
 When `VITE_ACTOCORE_API_KEY` is set (via `npm run setup:assistant` in `apps/studio`), a floating chat widget appears after login. That bot answers questions about Studio and SDK integration — it is **not** your tenant project's assistant.
 
 Setup: add `STUDIO_SETUP_EMAIL` and `STUDIO_SETUP_PASSWORD` to `apps/studio/.env`, run `npm run setup:assistant`, restart the dev server.
+
+## Troubleshooting
+
+**Wrong product answers (e.g. fitness/gym copy instead of ActoCore Studio)**
+
+1. Confirm `VITE_ACTOCORE_API_KEY` belongs to the **ActoCore Studio Assistant** project — not a tenant app project. `npm run setup:assistant` validates the project name and fails with instructions if the key points elsewhere.
+2. Re-run `npm run setup:assistant` to seed articles from `_docs/studio/assistant/*.md`.
+3. In Studio → **Knowledge** for the assistant project, delete any foreign documents the setup script warns about (uploads from other apps mixed into the same project).
+4. Restart the Studio dev server after `.env` changes.

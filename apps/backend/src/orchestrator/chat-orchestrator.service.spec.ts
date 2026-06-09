@@ -3,7 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ActionRunnerService } from '../actions/action-runner.service';
 import { ActionSelectorService } from '../actions/action-selector.service';
 import { ActionsService } from '../actions/actions.service';
-import { QaRunnerService } from '../knowledge/qa-runner.service';
+import {
+  QA_NO_CITATIONS_REPLY,
+  QaRunnerService,
+} from '../knowledge/qa-runner.service';
 import { AiDecisionLogger } from '../observability/ai-decision.logger';
 import { ChatResponseFormatter } from '../response/chat-response.formatter';
 import { UsageService } from '../usage/usage.service';
@@ -114,5 +117,29 @@ describe('ChatOrchestratorService', () => {
       }),
     );
     expect(aiLoggerMock.log).toHaveBeenCalled();
+  });
+
+  it('refuses QA questions when RAG returns no citations without calling the LLM', async () => {
+    classifierMock.classify.mockResolvedValue('qa');
+    qaRunnerMock.buildPromptContext.mockResolvedValue({
+      modeNote: 'No docs matched',
+      citations: [],
+    });
+    sessionsMock.appendMessage.mockResolvedValue({
+      id: 'm2',
+      sessionId: '507f1f77bcf86cd799439012',
+      role: 'assistant',
+      content: QA_NO_CITATIONS_REPLY,
+      createdAt: new Date().toISOString(),
+    });
+
+    const response = await orchestrator.sendMessage(context, {
+      message: 'What is this app about?',
+    });
+
+    expect(llmMock.complete).not.toHaveBeenCalled();
+    expect(response.content).toBe(QA_NO_CITATIONS_REPLY);
+    expect(response.intent).toBe('qa');
+    expect(response.sources).toBeUndefined();
   });
 });

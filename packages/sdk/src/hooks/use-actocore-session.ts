@@ -1,23 +1,37 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { sessionsApi } from '@ahmedrioueche/actocore-shared';
-import type { SessionData, SessionMessageData } from '@ahmedrioueche/actocore-shared';
+import type { SessionMessageData } from '@ahmedrioueche/actocore-shared';
 import type { CreateSessionDto } from '@ahmedrioueche/actocore-shared';
+import { useActocoreConfig } from '../context/actocore-context';
 import { useApiErrorMessage } from './use-api-error';
+import { MESSAGE_HISTORY_PAGE_SIZE } from '../session/message-history';
+import {
+  clearPersistedSessionId,
+  readPersistedSessionId,
+  writePersistedSessionId,
+  type PersistedSessionScope,
+} from '../session/persist-session';
 
 export interface UseActocoreSessionOptions {
   sessionId?: string;
   externalUserId?: string;
   metadata?: Record<string, unknown>;
   loadHistory?: boolean;
+  persistSession?: boolean;
+  historyPageSize?: number;
 }
 
 export interface UseActocoreSessionResult {
   sessionId: string | undefined;
   history: SessionMessageData[];
+  hasMoreHistory: boolean;
   isInitializing: boolean;
   isLoadingHistory: boolean;
+  isLoadingMoreHistory: boolean;
   error: string | null;
   refreshHistory: () => Promise<void>;
+  loadMoreHistory: () => Promise<void>;
+  startNewConversation: () => Promise<string>;
   createSession: (body?: Partial<CreateSessionDto>) => Promise<string>;
 }
 
@@ -30,55 +44,134 @@ function pickCreateSessionBody(
   return body;
 }
 
+async function fetchMessagePage(
+  sessionId: string,
+  formatError: (error: unknown) => string,
+  options: { limit: number; before?: string },
+) {
+  const res = await sessionsApi.listMessagePage(sessionId, options);
+  if (!res.success || !res.data) {
+    throw new Error(formatError(res));
+  }
+  return res.data;
+}
+
 export function useActocoreSession(
   options: UseActocoreSessionOptions = {},
 ): UseActocoreSessionResult {
+  const sdkConfig = useActocoreConfig();
   const {
     sessionId: initialSessionId,
     loadHistory = true,
-    externalUserId,
+    externalUserId = sdkConfig.externalUserId,
     metadata,
+    persistSession = sdkConfig.persistSession,
+    historyPageSize = MESSAGE_HISTORY_PAGE_SIZE,
   } = options;
+
+  const persistScope = useMemo<PersistedSessionScope>(
+    () => ({
+      apiKey: sdkConfig.api.apiKey,
+      baseURL: sdkConfig.api.baseURL,
+      externalUserId,
+    }),
+    [externalUserId, sdkConfig.api.apiKey, sdkConfig.api.baseURL],
+  );
 
   const [sessionId, setSessionId] = useState<string | undefined>(
     initialSessionId,
   );
   const [history, setHistory] = useState<SessionMessageData[]>([]);
+  const [hasMoreHistory, setHasMoreHistory] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [isLoadingMoreHistory, setIsLoadingMoreHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const formatError = useApiErrorMessage();
+
+  const persistSessionId = useCallback(
+    (id: string) => {
+      if (!persistSession) return;
+      writePersistedSessionId(persistScope, id);
+    },
+    [persistScope, persistSession],
+  );
+
+  const loadInitialHistory = useCallback(
+    async (id: string) => {
+      const page = await fetchMessagePage(id, formatError, {
+        limit: historyPageSize,
+      });
+      return page;
+    },
+    [formatError, historyPageSize],
+  );
 
   const refreshHistory = useCallback(async () => {
     if (!sessionId) return;
     setIsLoadingHistory(true);
     setError(null);
     try {
-      const res = await sessionsApi.listMessages(sessionId);
-      if (!res.success) {
-        setError(formatError(res));
-        return;
-      }
-      setHistory(res.data ?? []);
+      const page = await loadInitialHistory(sessionId);
+      setHistory(page.items);
+      setHasMoreHistory(page.hasMore);
     } catch (e) {
       setError(formatError(e));
     } finally {
       setIsLoadingHistory(false);
     }
-  }, [formatError, sessionId]);
+  }, [formatError, loadInitialHistory, sessionId]);
+
+  const loadMoreHistory = useCallback(async () => {
+    if (!sessionId || !hasMoreHistory || isLoadingMoreHistory) return;
+    const oldest = history[0];
+    if (!oldest) return;
+
+    setIsLoadingMoreHistory(true);
+    setError(null);
+    try {
+      const page = await fetchMessagePage(sessionId, formatError, {
+        limit: historyPageSize,
+        before: oldest.id,
+      });
+      setHistory((prev) => [...page.items, ...prev]);
+      setHasMoreHistory(page.hasMore);
+    } catch (e) {
+      setError(formatError(e));
+    } finally {
+      setIsLoadingMoreHistory(false);
+    }
+  }, [
+    formatError,
+    hasMoreHistory,
+    history,
+    historyPageSize,
+    isLoadingMoreHistory,
+    sessionId,
+  ]);
+
+  const createSessionRecord = useCallback(
+    async (body?: Partial<CreateSessionDto>) => {
+      const res = await sessionsApi.create(body ?? {});
+      if (!res.success || !res.data) {
+        throw new Error(formatError(res));
+      }
+      return res.data.id;
+    },
+    [formatError],
+  );
 
   const createSession = useCallback(
     async (body?: Partial<CreateSessionDto>) => {
       setIsInitializing(true);
       setError(null);
       try {
-        const res = await sessionsApi.create(body ?? {});
-        if (!res.success || !res.data) {
-          setError(formatError(res));
-          throw new Error('Session creation failed');
-        }
-        setSessionId(res.data.id);
-        return res.data.id;
+        const id = await createSessionRecord(body);
+        setSessionId(id);
+        setHistory([]);
+        setHasMoreHistory(false);
+        persistSessionId(id);
+        return id;
       } catch (e) {
         setError(formatError(e));
         throw e;
@@ -86,8 +179,39 @@ export function useActocoreSession(
         setIsInitializing(false);
       }
     },
-    [formatError],
+    [createSessionRecord, formatError, persistSessionId],
   );
+
+  const startNewConversation = useCallback(async () => {
+    setError(null);
+    const previousId = sessionId;
+
+    if (previousId) {
+      try {
+        await sessionsApi.delete(previousId);
+      } catch {
+        // Best-effort cleanup — still start a fresh session.
+      }
+      clearPersistedSessionId(persistScope);
+    }
+
+    setHistory([]);
+    setHasMoreHistory(false);
+
+    const id = await createSessionRecord(
+      pickCreateSessionBody({ externalUserId, metadata }),
+    );
+    setSessionId(id);
+    persistSessionId(id);
+    return id;
+  }, [
+    createSessionRecord,
+    externalUserId,
+    metadata,
+    persistScope,
+    persistSessionId,
+    sessionId,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,34 +219,77 @@ export function useActocoreSession(
     async function ensureSession() {
       setIsInitializing(true);
       setError(null);
+      setHistory([]);
+      setHasMoreHistory(false);
 
       if (initialSessionId) {
+        let page = { items: [] as SessionMessageData[], hasMore: false };
+        if (loadHistory) {
+          try {
+            page = await loadInitialHistory(initialSessionId);
+          } catch (e) {
+            if (!cancelled) setError(formatError(e));
+          }
+        }
         if (!cancelled) {
           setSessionId(initialSessionId);
+          setHistory(page.items);
+          setHasMoreHistory(page.hasMore);
           setIsInitializing(false);
         }
         return;
       }
 
-      // Already initialized in this hook instance; don't recreate continuously.
-      if (sessionId) {
-        if (!cancelled) setIsInitializing(false);
+      let resolvedId: string | undefined;
+
+      if (persistSession) {
+        const storedId = readPersistedSessionId(persistScope);
+        if (storedId) {
+          try {
+            const res = await sessionsApi.get(storedId);
+            if (res.success && res.data) {
+              resolvedId = storedId;
+            } else {
+              clearPersistedSessionId(persistScope);
+            }
+          } catch {
+            clearPersistedSessionId(persistScope);
+          }
+        }
+      }
+
+      if (!resolvedId) {
+        try {
+          resolvedId = await createSessionRecord(
+            pickCreateSessionBody({ externalUserId, metadata }),
+          );
+          if (persistSession && resolvedId) {
+            writePersistedSessionId(persistScope, resolvedId);
+          }
+        } catch (e) {
+          if (!cancelled) setError(formatError(e));
+          return;
+        }
+      }
+
+      if (cancelled || !resolvedId) {
         return;
       }
 
-      try {
-        const res = await sessionsApi.create(
-          pickCreateSessionBody({ externalUserId, metadata }),
-        );
-        if (!res.success || !res.data) {
-          if (!cancelled) setError(formatError(res));
-          return;
+      let page = { items: [] as SessionMessageData[], hasMore: false };
+      if (loadHistory) {
+        try {
+          page = await loadInitialHistory(resolvedId);
+        } catch (e) {
+          if (!cancelled) setError(formatError(e));
         }
-        if (!cancelled) setSessionId(res.data.id);
-      } catch (e) {
-        if (!cancelled) setError(formatError(e));
-      } finally {
-        if (!cancelled) setIsInitializing(false);
+      }
+
+      if (!cancelled) {
+        setSessionId(resolvedId);
+        setHistory(page.items);
+        setHasMoreHistory(page.hasMore);
+        setIsInitializing(false);
       }
     }
 
@@ -131,22 +298,29 @@ export function useActocoreSession(
     return () => {
       cancelled = true;
     };
-  }, [externalUserId, formatError, initialSessionId, metadata, sessionId]);
-
-  useEffect(() => {
-    if (!loadHistory || !sessionId) {
-      return;
-    }
-    void refreshHistory();
-  }, [loadHistory, refreshHistory, sessionId]);
+  }, [
+    createSessionRecord,
+    externalUserId,
+    formatError,
+    initialSessionId,
+    loadHistory,
+    loadInitialHistory,
+    metadata,
+    persistScope,
+    persistSession,
+  ]);
 
   return {
     sessionId,
     history,
+    hasMoreHistory,
     isInitializing,
     isLoadingHistory,
+    isLoadingMoreHistory,
     error,
     refreshHistory,
+    loadMoreHistory,
+    startNewConversation,
     createSession: async (body) => {
       const resolvedBody = {
         ...pickCreateSessionBody({ externalUserId, metadata }),
@@ -156,4 +330,3 @@ export function useActocoreSession(
     },
   };
 }
-

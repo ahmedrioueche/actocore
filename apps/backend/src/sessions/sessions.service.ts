@@ -2,10 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   CreateSessionDto,
+  ListSessionMessagesQuery,
   Paginated,
   PaginationQuery,
   SessionData,
   SessionMessageData,
+  SessionMessagesPageData,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
@@ -115,6 +117,78 @@ export class SessionsService {
       .exec();
 
     return docs.map((doc) => this.toMessageData(doc, sessionId));
+  }
+
+  async listMessagesPage(
+    projectId: string,
+    sessionId: string,
+    query: ListSessionMessagesQuery = {},
+  ): Promise<SessionMessagesPageData> {
+    await this.requireSession(projectId, sessionId);
+
+    const limit = Math.min(Math.max(query.limit ?? 20, 1), 100);
+    const sessionObjectId = new Types.ObjectId(sessionId);
+    const filter: Record<string, unknown> = {
+      sessionId: sessionObjectId,
+    };
+
+    if (query.before) {
+      const cursor = await this.messageModel
+        .findOne(
+          withProjectId(projectId, {
+            _id: query.before,
+            sessionId: sessionObjectId,
+          }),
+        )
+        .exec();
+
+      if (!cursor) {
+        throw new NotFoundException(`Message ${query.before} not found`);
+      }
+
+      const createdAt = cursor.createdAt ?? new Date(0);
+      filter.$or = [
+        { createdAt: { $lt: createdAt } },
+        {
+          createdAt,
+          _id: { $lt: cursor._id },
+        },
+      ];
+    }
+
+    const docs = await this.messageModel
+      .find(withProjectId(projectId, filter))
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(limit + 1)
+      .exec();
+
+    const hasMore = docs.length > limit;
+    const pageDocs = hasMore ? docs.slice(0, limit) : docs;
+
+    return {
+      items: pageDocs
+        .slice()
+        .reverse()
+        .map((doc) => this.toMessageData(doc, sessionId)),
+      hasMore,
+    };
+  }
+
+  async deleteSession(projectId: string, sessionId: string): Promise<void> {
+    await this.requireSession(projectId, sessionId);
+    const sessionObjectId = new Types.ObjectId(sessionId);
+
+    await this.messageModel
+      .deleteMany(
+        withProjectId(projectId, {
+          sessionId: sessionObjectId,
+        }),
+      )
+      .exec();
+
+    await this.sessionModel
+      .deleteOne(withProjectId(projectId, { _id: sessionId }))
+      .exec();
   }
 
   async appendMessage(

@@ -14,7 +14,7 @@ export function buildAppAssistantSystemPrompt(
     'Do NOT answer off-topic requests (general knowledge, recipes, news, homework, unrelated coding, other products, etc.).',
     'If the request is unrelated, politely decline in one or two sentences and remind the user what you can help with inside this app.',
     'Never pretend to be a general-purpose ChatGPT-style assistant.',
-    'Format replies with Markdown. For grouped features or topics, use bold section titles on their own line (e.g. **Gym Management**: …) instead of bullet lists with asterisks.',
+    'Format replies with Markdown. For grouped features or topics, use bold section titles on their own line (e.g. **Feature area**: …) instead of bullet lists with asterisks.',
   ];
 
   if (enabledActionNames.length > 0) {

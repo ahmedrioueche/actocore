@@ -138,6 +138,10 @@ export interface ActocoreSdkConfig extends ActocoreApiConfig {
   ui?: ActocoreUiConfig;
   voice?: ActocoreVoiceConfig;
   i18n?: ActocoreI18nConfig;
+  /** Stable host user id — scopes persisted chat sessions per end user. */
+  externalUserId?: string;
+  /** Restore the last chat session from localStorage on mount (default true). */
+  persistSession?: boolean;
 }
 
 export interface ResolvedActocoreConfig {
@@ -164,6 +168,8 @@ export interface ResolvedActocoreConfig {
     Pick<ActocoreVoiceConfig, 'input' | 'output' | 'inputMode' | 'autoSendOnFinalize'>
   > &
     Pick<ActocoreVoiceConfig, 'language'>;
+  externalUserId?: string;
+  persistSession: boolean;
 }
 
 export type ActocoreI18nInstance = i18n;

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useUiText } from '../../hooks/use-ui-text';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
@@ -6,10 +7,17 @@ import type { ReactNode } from 'react';
 
 export function ChatHeader({
   launcherIcon,
+  onMinimize,
+  onNewConversation,
+  isNewConversationDisabled,
 }: {
   /** Same override as `ActoChatWidget` launcherIcon — wins over `ui.launcher.iconUrl`. */
   launcherIcon?: ReactNode;
+  onMinimize?: () => void;
+  onNewConversation?: () => void;
+  isNewConversationDisabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const ui = useActocoreUiConfig();
   const title = useUiText('headerTitle');
   const subtitle = useUiText('headerSubtitle');
@@ -32,6 +40,47 @@ export function ChatHeader({
       <div className="ac-chat__header-text">
         <h2 className="ac-chat__header-title">{title}</h2>
         <p className="ac-chat__header-subtitle">{subtitle}</p>
+      </div>
+      <div className="ac-chat__header-actions">
+        {onNewConversation ? (
+          <button
+            type="button"
+            className="ac-chat__header-btn"
+            onClick={onNewConversation}
+            disabled={isNewConversationDisabled}
+            aria-label={t('chat.newConversation')}
+            title={t('chat.newConversation')}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+              <path
+                d="M12 5v14M5 12h14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        ) : null}
+        {onMinimize ? (
+          <button
+            type="button"
+            className="ac-chat__header-btn"
+            onClick={onMinimize}
+            aria-label={t('chat.minimize')}
+            title={t('chat.minimize')}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+              <path
+                d="M5 12h14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        ) : null}
       </div>
     </header>
   );

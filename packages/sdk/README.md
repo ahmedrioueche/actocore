@@ -77,6 +77,8 @@ export function App() {
 - `voice.inputMode` — `browser` (Web Speech API), `server` (POST audio to Core STT), or `auto` (default).
 - `voice.autoSendOnFinalize` — send when dictation completes (default `false`; user taps Send).
 - `loadRemoteConfig` — fetch `GET /v1/sdk/runtime` and merge `sdk` settings (dashboard) under local props.
+- `persistSession` (default `true`) — restore the last chat session from `localStorage` on mount (scoped by API key, base URL, and `externalUserId`).
+- `externalUserId` — stable host user id for session scoping and persistence (pass from your auth layer).
 
 ### Dashboard-driven config (no Studio UI required)
 

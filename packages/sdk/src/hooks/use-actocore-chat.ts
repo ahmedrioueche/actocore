@@ -30,16 +30,21 @@ export interface UseActocoreChatOptions {
   externalUserId?: string;
   metadata?: Record<string, unknown>;
   loadHistory?: boolean;
+  persistSession?: boolean;
   onSessionId?: (sessionId: string) => void;
 }
 
 export interface UseActocoreChatResult {
   sessionId: string | undefined;
   messages: UiChatMessage[];
+  hasMoreHistory: boolean;
   isInitializing: boolean;
   isSending: boolean;
+  isLoadingMoreHistory: boolean;
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
+  loadMoreHistory: () => Promise<void>;
+  startNewConversation: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -84,6 +89,7 @@ export function useActocoreChat(
     externalUserId,
     metadata,
     loadHistory,
+    persistSession,
     onSessionId,
   } = options;
 
@@ -91,13 +97,19 @@ export function useActocoreChat(
   const {
     sessionId,
     history,
+    hasMoreHistory,
     isInitializing,
+    isLoadingHistory,
+    isLoadingMoreHistory,
+    loadMoreHistory,
+    startNewConversation: startNewSession,
     error: sessionError,
   } = useActocoreSession({
     sessionId: initialSessionId,
     externalUserId,
     metadata,
     loadHistory,
+    persistSession,
   });
 
   const formatError = useApiErrorMessage();
@@ -123,13 +135,37 @@ export function useActocoreChat(
 
   useEffect(() => {
     if (!sessionId) {
-      setMessages(initialUiMessages);
+      setMessages([]);
       setHydratedSessionId(null);
       return;
     }
 
+    setMessages((prev) => {
+      const inFlight = prev.filter((m) => m.id.startsWith('local-'));
+      const notices = prev.filter(
+        (m) => m.isErrorNotice || m.id === SESSION_ERROR_ID,
+      );
+      const liveTail = [...inFlight, ...notices];
+
+      if (inFlight.length > 0) return prev;
+
+      if (hydratedSessionId !== sessionId) {
+        return [...initialUiMessages, ...liveTail];
+      }
+
+      const historyIds = new Set(initialUiMessages.map((m) => m.id));
+      const liveReplies = prev.filter(
+        (m) =>
+          !historyIds.has(m.id) &&
+          !m.id.startsWith('local-') &&
+          !m.isErrorNotice &&
+          m.id !== SESSION_ERROR_ID,
+      );
+
+      return [...initialUiMessages, ...liveReplies, ...liveTail];
+    });
+
     if (hydratedSessionId !== sessionId) {
-      setMessages(initialUiMessages);
       setHydratedSessionId(sessionId);
     }
   }, [hydratedSessionId, initialUiMessages, sessionId]);
@@ -192,13 +228,26 @@ export function useActocoreChat(
     [formatSendFailure, isSending, onSessionId, sessionId],
   );
 
+  const startNewConversation = useCallback(async () => {
+    setMessages([]);
+    setHydratedSessionId(null);
+    await startNewSession();
+  }, [startNewSession]);
+
+  const isBootstrapping =
+    isInitializing || (loadHistory !== false && isLoadingHistory);
+
   return {
     sessionId,
     messages,
-    isInitializing,
+    hasMoreHistory,
+    isInitializing: isBootstrapping,
     isSending,
+    isLoadingMoreHistory,
     error: null,
     sendMessage,
+    loadMoreHistory,
+    startNewConversation,
     clearError: () => undefined,
   };
 }

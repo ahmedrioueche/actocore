@@ -11,7 +11,10 @@ import type {
 import { ActionRunnerService } from '../actions/action-runner.service';
 import { ActionSelectorService } from '../actions/action-selector.service';
 import { ActionsService } from '../actions/actions.service';
-import { QaRunnerService } from '../knowledge/qa-runner.service';
+import {
+  QA_NO_CITATIONS_REPLY,
+  QaRunnerService,
+} from '../knowledge/qa-runner.service';
 import { AiDecisionLogger } from '../observability/ai-decision.logger';
 import {
   ChatResponseFormatter,
@@ -182,13 +185,17 @@ export class ChatOrchestratorService {
       userMessage,
     );
 
+    if (citations.length === 0) {
+      return { content: QA_NO_CITATIONS_REPLY };
+    }
+
     const result = await this.completeWithLlm(context, projectId, sessionId, {
       modeNote,
     });
 
     return {
       ...result,
-      sources: citations.length > 0 ? citations : undefined,
+      sources: citations,
     };
   }
 

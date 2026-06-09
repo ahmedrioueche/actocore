@@ -24,7 +24,7 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
     ui: {
       showSources: config.ui?.showSources ?? true,
       showIntentBadge: config.ui?.showIntentBadge ?? false,
-      showActionsHint: config.ui?.showActionsHint ?? true,
+      showActionsHint: config.ui?.showActionsHint ?? false,
       showActionPicker: config.ui?.showActionPicker ?? false,
       composerMinRows: config.ui?.composerMinRows ?? 1,
       composerMaxRows: config.ui?.composerMaxRows ?? 6,
@@ -45,5 +45,7 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
         config.voice?.autoSendOnFinalize ?? SDK_VOICE_DEFAULTS.autoSendOnFinalize,
       language: config.voice?.language,
     },
+    externalUserId: config.externalUserId,
+    persistSession: config.persistSession ?? true,
   };
 }

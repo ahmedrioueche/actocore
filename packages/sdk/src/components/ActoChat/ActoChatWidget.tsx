@@ -19,6 +19,11 @@ export interface ActoChatWidgetProps {
   className?: string;
   /** Custom launcher icon (React node). Overrides `ui.launcher.iconUrl`. */
   launcherIcon?: ReactNode;
+  sessionId?: string;
+  externalUserId?: string;
+  metadata?: Record<string, unknown>;
+  loadHistory?: boolean;
+  persistSession?: boolean;
 }
 
 function getAnchorPositionStyle(
@@ -51,6 +56,11 @@ export function ActoChatWidget({
   initialOpen = false,
   className,
   launcherIcon,
+  sessionId,
+  externalUserId,
+  metadata,
+  loadHistory,
+  persistSession,
 }: ActoChatWidgetProps) {
   const ui = useActocoreUiConfig();
   const position = positionProp ?? ui.widget?.position ?? 'bottom-right';
@@ -96,7 +106,15 @@ export function ActoChatWidget({
             )}
             aria-hidden={!isOpen}
           >
-            <ActoChat launcherIcon={launcherIcon} />
+            <ActoChat
+              launcherIcon={launcherIcon}
+              sessionId={sessionId}
+              externalUserId={externalUserId}
+              metadata={metadata}
+              loadHistory={loadHistory}
+              persistSession={persistSession}
+              onMinimize={() => setIsOpen(false)}
+            />
           </div>
         ) : null}
 

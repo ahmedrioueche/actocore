@@ -4,8 +4,8 @@ import type { SdkThemeMode, SdkWidgetPosition } from '@ahmedrioueche/actocore-sh
 export const SDK_CONFIG_UI_TEXT_DEFAULTS = {
   headerTitle: 'Assistant',
   headerSubtitle: 'Ask questions or run actions in your app.',
-  emptyTitle: 'Start a conversation',
-  emptyDescription: 'Ask a question or describe what you want to do.',
+  emptyTitle: '',
+  emptyDescription: 'Ask a question or describe what you want.',
   actionsHint:
     'Ask in plain language — the assistant prepares actions and you confirm once; your app runs the real UI.',
   placeholder: 'Type a message…',
@@ -17,7 +17,7 @@ export const SDK_CONFIG_UI_TEXT_DEFAULTS = {
 export const SDK_CONFIG_UI_TOGGLE_DEFAULTS = {
   showSources: true,
   showIntentBadge: false,
-  showActionsHint: true,
+  showActionsHint: false,
   showActionPicker: false,
 } as const;
 

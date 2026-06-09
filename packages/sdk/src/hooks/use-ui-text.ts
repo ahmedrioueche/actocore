@@ -20,7 +20,7 @@ export function useUiText(key: TextKey): string {
   const ui = useActocoreUiConfig();
   const { t } = useTranslation();
   const override = ui.text?.[key];
-  if (override) {
+  if (override !== undefined) {
     return override;
   }
   return t(I18N_KEYS[key]);

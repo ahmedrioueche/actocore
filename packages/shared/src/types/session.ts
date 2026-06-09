@@ -12,3 +12,9 @@ export interface SessionMessageData {
   content: string;
   createdAt: string;
 }
+
+/** Cursor page of session messages (newest window or older slice via `before`). */
+export interface SessionMessagesPageData {
+  items: SessionMessageData[];
+  hasMore: boolean;
+}
