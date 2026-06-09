@@ -18,6 +18,8 @@ cp .env.example .env   # set VITE_ACTOCORE_API_URL
 npm run setup:assistant   # writes VITE_ACTOCORE_API_KEY — restart `npm run dev` after
 ```
 
+Assistant knowledge sources: [`_docs/studio/assistant/`](../../_docs/studio/assistant/). Edit those markdown files, then re-run `npm run setup:assistant` to upload new articles.
+
 ## Scripts
 
 | Command | Description |

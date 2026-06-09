@@ -358,18 +358,32 @@
     },
     "upload": {
       "button": "Add source",
-      "title": "Upload a document",
-      "subtitle": "Add a file so your assistant can answer from its content.",
-      "dropzone": "Drag and drop a file, or click to browse",
-      "hint": "{{types}} up to {{size}}",
+      "title": "Upload documents",
+      "subtitle": "Add one or more files so your assistant can answer from their content.",
+      "dropzone": "Drag and drop files, or click to browse",
+      "hint": "{{types}} up to {{size}} each",
+      "bulkHint": "Up to {{max}} files per upload",
+      "selected_one": "{{count}} file selected",
+      "selected_other": "{{count}} files selected",
+      "addMore": "Add more",
       "titleLabel": "Title (optional)",
       "titlePlaceholder": "Defaults to the file name",
+      "titleBulkHint": "Each file uses its file name as the source title.",
       "submit": "Upload",
+      "submitMany_one": "Upload {{count}} file",
+      "submitMany_other": "Upload {{count}} files",
+      "progress": "Uploading {{current}} of {{total}}…",
+      "successOne": "Document uploaded.",
+      "successMany_one": "{{count}} document uploaded.",
+      "successMany_other": "{{count}} documents uploaded.",
       "errors": {
-        "required": "Please choose a file to upload.",
+        "required": "Please choose at least one file to upload.",
         "type": "Unsupported file type. Allowed: PDF, plain text, markdown.",
         "size": "File is too large. Maximum size is 10 MB.",
-        "empty": "This file is empty."
+        "empty": "This file is empty.",
+        "tooMany": "You can upload at most {{max}} files at a time.",
+        "partial_one": "{{count}} file failed to upload. Fix or remove it and try again.",
+        "partial_other": "{{count}} files failed to upload. Fix or remove them and try again."
       }
     },
     "delete": {

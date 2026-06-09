@@ -33,7 +33,7 @@ Studio is a **configuration and observability UI**. It must **not**:
 
 Studio users authenticate with **JWT** on **`/v1/web/*`**. Customer apps use **their** project API keys on **`/v1/sdk/*`**.
 
-**ActoCore Assistant (optional):** Studio may embed the same React SDK as customers, using **one platform-owned** API key in `VITE_ACTOCORE_API_KEY` (`npm run setup:assistant`). That widget is ActoCore’s product help chat, not the tenant’s project assistant. Shared HTTP client auth routes `/sdk/*` to the embed key and `/web/*` to the session JWT.
+**ActoCore Assistant (optional):** Studio may embed the same React SDK as customers, using **one platform-owned** API key in `VITE_ACTOCORE_API_KEY` (`npm run setup:assistant`). That widget is ActoCore’s product help chat, not the tenant’s project assistant. Shared HTTP client auth routes `/sdk/*` to the embed key and `/web/*` to the session JWT. Product help knowledge lives in [`assistant/`](./assistant/) (markdown ingested by the setup script).
 
 ---
 

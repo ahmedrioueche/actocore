@@ -6,6 +6,9 @@ import {
 
 export const KNOWLEDGE_MAX_BYTES = KNOWLEDGE_UPLOAD_MAX_BYTES;
 
+/** Max files per bulk upload on the Knowledge page. */
+export const KNOWLEDGE_BULK_UPLOAD_MAX_FILES = 20;
+
 /** Allowed file extensions, derived from the shared extension→mime map. */
 export const KNOWLEDGE_ALLOWED_EXTENSIONS = Object.keys(
   KNOWLEDGE_EXTENSION_MIME,

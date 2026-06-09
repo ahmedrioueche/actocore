@@ -1,30 +1,60 @@
 /**
  * Bootstrap the ActoCore Studio product assistant (platform-owned SDK project).
+ * Seeds knowledge from _docs/studio/assistant/*.md
  * Run with backend up: npm run setup:assistant
  */
+import { readdir, readFile } from 'fs/promises';
+import { dirname, join, basename } from 'path';
+import { fileURLToPath } from 'url';
+
 import { getApiKey, getBaseUrl, loadStudioEnv, writeStudioEnv } from './lib/studio-env.mjs';
 import { requestJson, setStudioAccessToken } from './lib/studio-api.mjs';
 
 const PROJECT_NAME = 'ActoCore Studio Assistant';
-const KNOWLEDGE_TITLE = 'ActoCore Studio help';
 
-const STUDIO_HELP_TEXT = `
-ActoCore Studio is the web dashboard for configuring AI assistants in your applications.
-
-Key areas:
-- Projects: create apps and manage API keys, knowledge, actions, and SDK settings.
-- Knowledge: upload documents and URLs so your assistant can answer from your content.
-- Actions: define tools the assistant can call; implement handlers in your app with the SDK.
-- SDK config: customize theme, copy, and UI for the embedded chat widget (loadRemoteConfig in ActocoreProvider).
-- Team: invite members and assign project access.
-- Billing and subscription: view usage, plans, and payment history.
-
-Integration: install @ahmedrioueche/actocore-sdk, set apiKey and baseURL on ActocoreProvider, register action handlers, enable loadRemoteConfig to apply dashboard SDK settings.
-`.trim();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const KNOWLEDGE_DIR = join(__dirname, '../../../_docs/studio/assistant');
 
 loadStudioEnv();
 
 const baseUrl = getBaseUrl();
+
+function titleFromMarkdown(content, filename) {
+  const match = content.match(/^#\s+(.+)$/m);
+  if (match) {
+    return match[1].trim();
+  }
+  return basename(filename, '.md')
+    .replace(/^\d+-/, '')
+    .replace(/-/g, ' ');
+}
+
+async function loadKnowledgeArticles() {
+  let files;
+  try {
+    files = (await readdir(KNOWLEDGE_DIR))
+      .filter((name) => name.endsWith('.md') && name.toLowerCase() !== 'readme.md')
+      .sort();
+  } catch (err) {
+    throw new Error(
+      `Knowledge folder not found at ${KNOWLEDGE_DIR}: ${err.message}`,
+    );
+  }
+
+  if (files.length === 0) {
+    throw new Error(`No .md files in ${KNOWLEDGE_DIR}`);
+  }
+
+  const articles = [];
+  for (const file of files) {
+    const content = (await readFile(join(KNOWLEDGE_DIR, file), 'utf8')).trim();
+    articles.push({
+      title: titleFromMarkdown(content, file),
+      content,
+    });
+  }
+  return articles;
+}
 
 async function ensureStudioAccessToken() {
   const fromEnv =
@@ -108,30 +138,45 @@ async function ensureAssistantProject() {
   return { projectId, apiKey: keyRes.data.key };
 }
 
-async function ensureKnowledge(projectId) {
+async function listKnowledgeTitles(projectId) {
   const list = await requestJson(
     'GET',
-    `/v1/web/projects/${projectId}/knowledge`,
+    `/v1/web/projects/${projectId}/knowledge?limit=100`,
   );
-  const existing = list.data?.find((row) => row.title === KNOWLEDGE_TITLE);
-  if (existing) {
-    console.log('  knowledge already seeded');
-    return;
+  const rows = list.data?.items ?? [];
+  return new Set(rows.map((row) => row.title));
+}
+
+async function ensureKnowledge(projectId) {
+  const existingTitles = await listKnowledgeTitles(projectId);
+  const articles = await loadKnowledgeArticles();
+  let uploaded = 0;
+
+  for (const article of articles) {
+    if (existingTitles.has(article.title)) {
+      console.log(`  knowledge skip: ${article.title}`);
+      continue;
+    }
+
+    const created = await requestJson(
+      'POST',
+      `/v1/web/projects/${projectId}/knowledge`,
+      {
+        type: 'text',
+        title: article.title,
+        content: article.content,
+      },
+    );
+    if (created.data?.status === 'error') {
+      throw new Error(created.data.errorMessage ?? `Ingest failed: ${article.title}`);
+    }
+    console.log(`  uploaded: ${article.title}`);
+    uploaded += 1;
   }
 
-  const created = await requestJson(
-    'POST',
-    `/v1/web/projects/${projectId}/knowledge`,
-    {
-      type: 'text',
-      title: KNOWLEDGE_TITLE,
-      content: STUDIO_HELP_TEXT,
-    },
-  );
-  if (created.data?.status === 'error') {
-    throw new Error(created.data.errorMessage ?? 'Knowledge ingest failed');
+  if (uploaded === 0 && articles.length > 0) {
+    console.log('  all knowledge articles already present');
   }
-  console.log('  uploaded Studio help knowledge');
 }
 
 async function main() {
@@ -140,7 +185,9 @@ async function main() {
   const { projectId } = await ensureAssistantProject();
   await ensureKnowledge(projectId);
   console.log('\nDone. Restart Studio dev server if it is already running.');
-  console.log('The ActoCore Assistant widget appears after login when VITE_ACTOCORE_API_KEY is set.\n');
+  console.log(
+    'Edit knowledge in _docs/studio/assistant/*.md then re-run npm run setup:assistant to add new articles.\n',
+  );
 }
 
 main().catch((err) => {
