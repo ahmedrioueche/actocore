@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StudioModule } from '../studio/studio.module';
 import { LlmModule } from '../external/llm/llm.module';
 import { ProjectsModule } from '../projects/projects.module';
+import { StudioBillingModule } from '../studio-billing/studio-billing.module';
 import { ActionRunnerService } from './action-runner.service';
 import { ActionSchemaValidator } from './action-schema.validator';
 import { ActionSectionsController } from './action-sections.controller';
@@ -27,6 +28,7 @@ import {
       { name: ActionSection.name, schema: ActionSectionSchema },
     ]),
     ProjectsModule,
+    forwardRef(() => StudioBillingModule),
     LlmModule,
   ],
   controllers: [ActionsController, ActionSectionsController],

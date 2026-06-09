@@ -15,7 +15,8 @@ export interface PlanFormState {
   yearlyPrice: number;
   maxProjects: number;
   maxTeamSeats: number;
-  monthlyChatQuota: number;
+  monthlyTokenQuota: number;
+  maxActionsPerProject: number;
   features: string[];
   order: number;
   isActive: boolean;
@@ -49,7 +50,8 @@ export function defaultPlanFormState(): PlanFormState {
     yearlyPrice: 0,
     maxProjects: 1,
     maxTeamSeats: 1,
-    monthlyChatQuota: 1000,
+    monthlyTokenQuota: 5_000_000,
+    maxActionsPerProject: 30,
     features: [],
     order: 0,
     isActive: true,
@@ -68,7 +70,8 @@ export function planToFormState(plan: StudioPlan): PlanFormState {
     yearlyPrice: plan.pricing.USD?.yearly ?? 0,
     maxProjects: plan.limits.maxProjects ?? 1,
     maxTeamSeats: plan.limits.maxTeamSeats ?? 1,
-    monthlyChatQuota: plan.limits.monthlyChatQuota ?? 0,
+    monthlyTokenQuota: plan.limits.monthlyTokenQuota ?? 0,
+    maxActionsPerProject: plan.limits.maxActionsPerProject ?? 0,
     features: [...(plan.features ?? [])],
     order: plan.order ?? 0,
     isActive: plan.isActive ?? true,
@@ -87,7 +90,8 @@ export function formStateToCreateDto(form: PlanFormState): CreateStudioPlanDto {
     limits: {
       maxProjects: form.maxProjects,
       maxTeamSeats: form.maxTeamSeats,
-      monthlyChatQuota: form.monthlyChatQuota,
+      monthlyTokenQuota: form.monthlyTokenQuota,
+      maxActionsPerProject: form.maxActionsPerProject,
     },
     order: form.order,
     isActive: form.isActive,
@@ -106,7 +110,8 @@ export function formStateToUpdateDto(form: PlanFormState): UpdateStudioPlanDto {
     limits: {
       maxProjects: form.maxProjects,
       maxTeamSeats: form.maxTeamSeats,
-      monthlyChatQuota: form.monthlyChatQuota,
+      monthlyTokenQuota: form.monthlyTokenQuota,
+      maxActionsPerProject: form.maxActionsPerProject,
     },
     features: normalizePlanFeatures(form.features),
     order: form.order,

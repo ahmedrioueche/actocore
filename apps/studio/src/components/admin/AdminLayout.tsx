@@ -1,5 +1,6 @@
 import { Outlet } from '@tanstack/react-router';
 
+import { StudioAssistant } from '@/components/assistant/StudioAssistant';
 import Nav from '@/components/layout/nav/Nav';
 import { PlatformProfileMenu } from '@/components/layout/nav/PlatformProfileMenu';
 import { SuperAdminBadge } from '@/components/layout/nav/SuperAdminBadge';
@@ -23,6 +24,7 @@ export default function AdminLayout() {
       onLogout={() => void signOutPlatform()}
     >
       <Outlet />
+      <StudioAssistant />
     </Nav>
   );
 }

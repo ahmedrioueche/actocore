@@ -23,7 +23,10 @@ class StudioPlanLimitsSchema {
   maxTeamSeats?: number;
 
   @Prop({ min: 0 })
-  monthlyChatQuota?: number;
+  monthlyTokenQuota?: number;
+
+  @Prop({ min: 0 })
+  maxActionsPerProject?: number;
 }
 
 @Schema({ collection: 'studio_plans', timestamps: true })

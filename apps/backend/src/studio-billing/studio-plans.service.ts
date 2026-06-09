@@ -22,6 +22,7 @@ import {
 } from '../common/pagination/pagination.util';
 import { getAppEnvironment } from '../config/mongodb.config';
 import { StudioPlanModel } from './schemas/billing.schema';
+import { normalizeStudioPlanLimits } from './studio-plan-limits.util';
 import { seedDefaultStudioPlans } from './studio-plans-seed.util';
 
 @Injectable()
@@ -174,7 +175,7 @@ export class StudioPlansService implements OnApplicationBootstrap {
       paypalProductId: doc.paypalProductId,
       paypalPlanIds: doc.paypalPlanIds,
       trialDays: doc.trialDays,
-      limits: doc.limits ?? {},
+      limits: normalizeStudioPlanLimits(doc.limits),
       features: doc.features ?? [],
       isRecommended: doc.isRecommended ?? false,
       yearlyDiscountBadge: doc.yearlyDiscountBadge,

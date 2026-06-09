@@ -14,6 +14,8 @@ export class StubLlmProvider implements LlmProvider {
     return {
       content: `[stub] Received: ${lastUser?.content ?? '(empty)'}`,
       model: 'stub',
+      promptTokens: 10,
+      completionTokens: 5,
     };
   }
 }

@@ -16,8 +16,8 @@ describe('QuotaAlertService', () => {
   const quotaWebhook = { notifyThreshold: jest.fn() };
   const adminEmails = { resolveForAccount: jest.fn(async () => ['admin@test.local']) };
   const entitlements = {
-    resolveMonthlyChatQuota: jest.fn(async () => 100),
-    countAccountMonthlyChatUsage: jest.fn(async () => 90),
+    resolveMonthlyTokenQuota: jest.fn(async () => 100),
+    countAccountMonthlyTokenUsage: jest.fn(async () => 90),
   };
 
   const saveAccount = jest.fn();
@@ -60,7 +60,7 @@ describe('QuotaAlertService', () => {
           useValue: {
             getOrThrow: () => ({
               enabled: true,
-              chatPerMonth: 100,
+              tokensPerMonth: 100,
               alertPercentages: [80, 90, 100],
             }),
           },

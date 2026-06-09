@@ -126,7 +126,7 @@ describe('Usage & quota (e2e)', () => {
         .set(auth)
         .expect(200);
 
-      expect(quota.body.data.monthlyChatUsed).toBeGreaterThanOrEqual(1);
+      expect(quota.body.data.monthlyTokensUsed).toBeGreaterThanOrEqual(15);
 
       await request(server)
         .get(`/v1/web/projects/${projectId}/usage`)

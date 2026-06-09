@@ -68,6 +68,14 @@ describe('statusMessage', () => {
     ).toBe(
       "You've reached your team seat limit (5). Upgrade your plan to invite more members.",
     );
+    expect(
+      getApiErrorMessage(t, {
+        errorCode: 'ACTION_LIMIT_REACHED',
+        details: { limit: 30, used: 30 },
+      }),
+    ).toBe(
+      "You've reached your action limit (30 per project). Upgrade your plan to create more.",
+    );
   });
 
   it('maps unknown thrown values for billing flows', () => {

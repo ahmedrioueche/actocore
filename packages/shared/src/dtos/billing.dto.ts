@@ -58,7 +58,8 @@ export class CreateStudioPlanDto {
   limits!: {
     maxProjects?: number;
     maxTeamSeats?: number;
-    monthlyChatQuota?: number;
+    monthlyTokenQuota?: number;
+    maxActionsPerProject?: number;
   };
 
   @IsOptional()
@@ -117,7 +118,8 @@ export class UpdateStudioPlanDto {
   limits?: {
     maxProjects?: number;
     maxTeamSeats?: number;
-    monthlyChatQuota?: number;
+    monthlyTokenQuota?: number;
+    maxActionsPerProject?: number;
   };
 
   @IsOptional()

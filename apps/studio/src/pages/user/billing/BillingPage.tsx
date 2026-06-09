@@ -18,6 +18,7 @@ import {
 } from "@/hooks/use-billing";
 import { useSubscriptionSummary } from "@/hooks/use-subscription";
 import { isAtPlanLimit } from "@/lib/plan-limits";
+import { formatTokenCount } from "@/utils/format-token-count";
 
 export default function BillingPage() {
   const { t } = useTranslation();
@@ -33,13 +34,13 @@ export default function BillingPage() {
   const summary = summaryQuery.data;
   const usage = summary?.usage;
   const limits = summary?.limits ?? {};
-  const monthlyChatUsed =
-    quotaQuery.data?.monthlyChatUsed ?? usage?.monthlyChatUsed ?? 0;
-  const monthlyChatLimit =
-    quotaQuery.data?.monthlyChatLimit ?? limits.monthlyChatQuota ?? null;
+  const monthlyTokensUsed =
+    quotaQuery.data?.monthlyTokensUsed ?? usage?.monthlyTokensUsed ?? 0;
+  const monthlyTokenLimit =
+    quotaQuery.data?.monthlyTokenLimit ?? limits.monthlyTokenQuota ?? null;
   const atProjectLimit = isAtPlanLimit(usage?.projectsUsed, limits.maxProjects);
   const atSeatLimit = isAtPlanLimit(usage?.teamSeatsUsed, limits.maxTeamSeats);
-  const atChatLimit = isAtPlanLimit(monthlyChatUsed, monthlyChatLimit);
+  const atTokenLimit = isAtPlanLimit(monthlyTokensUsed, monthlyTokenLimit);
 
   return (
     <>
@@ -72,7 +73,7 @@ export default function BillingPage() {
         />
       ) : (
         <div className="space-y-8">
-          {!isLoading && (atProjectLimit || atSeatLimit || atChatLimit) ? (
+          {!isLoading && (atProjectLimit || atSeatLimit || atTokenLimit) ? (
             <div className="space-y-3">
               {atProjectLimit && limits.maxProjects != null ? (
                 <PlanLimitTip kind="project" limit={limits.maxProjects} />
@@ -80,8 +81,12 @@ export default function BillingPage() {
               {atSeatLimit && limits.maxTeamSeats != null ? (
                 <PlanLimitTip kind="seat" limit={limits.maxTeamSeats} />
               ) : null}
-              {atChatLimit && monthlyChatLimit != null ? (
-                <PlanLimitTip kind="chat" limit={monthlyChatLimit} />
+              {atTokenLimit && monthlyTokenLimit != null ? (
+                <PlanLimitTip
+                  kind="chat"
+                  limit={monthlyTokenLimit}
+                  formatLimit={formatTokenCount}
+                />
               ) : null}
             </div>
           ) : null}
@@ -95,7 +100,7 @@ export default function BillingPage() {
               <>
                 <UsageMeterSkeleton label={t("billing.projects")} />
                 <UsageMeterSkeleton label={t("billing.teamSeats")} />
-                <UsageMeterSkeleton label={t("billing.monthlyChat")} />
+                <UsageMeterSkeleton label={t("billing.monthlyTokens")} />
               </>
             ) : (
               <>
@@ -110,9 +115,10 @@ export default function BillingPage() {
                   limit={limits.maxTeamSeats}
                 />
                 <UsageMeter
-                  label={t("billing.monthlyChat")}
-                  used={monthlyChatUsed}
-                  limit={monthlyChatLimit}
+                  label={t("billing.monthlyTokens")}
+                  used={monthlyTokensUsed}
+                  limit={monthlyTokenLimit}
+                  formatValue={formatTokenCount}
                 />
               </>
             )}

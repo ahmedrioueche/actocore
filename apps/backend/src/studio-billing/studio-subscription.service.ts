@@ -45,6 +45,7 @@ import {
   StudioPayPalService,
   type PayPalSubscriptionData,
 } from './studio-paypal.service';
+import { normalizeStudioPlanLimits } from './studio-plan-limits.util';
 import { StudioPlansService } from './studio-plans.service';
 import { decodePayPalCustomId } from './utils/paypal-custom-id.util';
 import { isUpgrade } from './utils/plan-level.util';
@@ -112,12 +113,20 @@ export class StudioSubscriptionService {
   async getSummary(accountId: string) {
     await this.expireEndedTrials(accountId);
     const subscription = await this.getAccountSubscription(accountId);
-    let limits: StudioPlan['limits'] = subscription?.plan?.limits ?? {};
-    if (!subscription) {
-      const free = await this.planModel
-        .findOne({ level: 'free', isActive: { $ne: false } })
+    let limits = normalizeStudioPlanLimits(subscription?.plan?.limits);
+    const missingCoreLimits =
+      limits.maxProjects == null && limits.maxTeamSeats == null;
+    if (!subscription || missingCoreLimits) {
+      const planDoc = await this.planModel
+        .findOne(
+          subscription
+            ? { planId: subscription.planId }
+            : { level: 'free', isActive: { $ne: false } },
+        )
         .exec();
-      limits = free?.limits ?? {};
+      if (planDoc) {
+        limits = this.plans.toPlan(planDoc).limits;
+      }
     }
 
     const [projectsUsed, teamSeatsUsed] = await Promise.all([
@@ -131,7 +140,7 @@ export class StudioSubscriptionService {
       .find({ accountId })
       .select('_id')
       .exec();
-    const monthlyChatUsed = await this.usage.countChatRequestsThisMonthForAccount(
+    const monthlyTokensUsed = await this.usage.sumChatTokensThisMonthForAccount(
       accountId,
       projects.map((p) => p._id.toString()),
     );
@@ -142,7 +151,7 @@ export class StudioSubscriptionService {
       usage: {
         projectsUsed,
         teamSeatsUsed,
-        monthlyChatUsed,
+        monthlyTokensUsed,
       },
       trial: await this.buildTrialStatus(accountId, subscription),
     };

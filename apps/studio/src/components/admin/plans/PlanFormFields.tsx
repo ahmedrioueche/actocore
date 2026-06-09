@@ -162,16 +162,29 @@ export function PlanFormFields({
             }
             placeholder={t('admin.plans.maxTeamSeatsPlaceholder')}
           />
+          <InputField
+            label={t('admin.plans.maxActionsPerProject')}
+            type="number"
+            min={0}
+            value={String(form.maxActionsPerProject)}
+            onChange={(e) =>
+              onChange({
+                ...form,
+                maxActionsPerProject: Number(e.target.value),
+              })
+            }
+            placeholder={t('admin.plans.maxActionsPerProjectPlaceholder')}
+          />
           <div className="md:col-span-2">
             <InputField
-              label={t('admin.plans.monthlyChatQuota')}
+              label={t('admin.plans.monthlyTokenQuota')}
               type="number"
               min={0}
-              value={String(form.monthlyChatQuota)}
+              value={String(form.monthlyTokenQuota)}
               onChange={(e) =>
-                onChange({ ...form, monthlyChatQuota: Number(e.target.value) })
+                onChange({ ...form, monthlyTokenQuota: Number(e.target.value) })
               }
-              placeholder={t('admin.plans.monthlyChatQuotaPlaceholder')}
+              placeholder={t('admin.plans.monthlyTokenQuotaPlaceholder')}
             />
           </div>
         </div>

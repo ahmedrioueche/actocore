@@ -1,6 +1,7 @@
 import { Outlet, useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
+import { StudioAssistant } from '@/components/assistant/StudioAssistant';
 import Nav from '@/components/layout/nav/Nav';
 import { useOnboardingState } from '@/hooks/use-onboarding';
 import { useStudioNav } from '@/hooks/use-studio-nav';
@@ -23,6 +24,7 @@ export default function StudioLayout() {
   return (
     <Nav sidebarLinks={links} navMode={mode} projectId={projectId}>
       <Outlet />
+      <StudioAssistant />
     </Nav>
   );
 }

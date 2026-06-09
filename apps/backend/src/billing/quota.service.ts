@@ -40,33 +40,33 @@ export class QuotaService {
   async getAccountQuotaStatus(accountId: string): Promise<AccountQuotaStatusData> {
     const limits = this.config.getOrThrow<QuotaLimits>('quota');
     const monthlyLimit = await this.resolveAccountMonthlyLimit(accountId);
-    let monthlyChatUsed = 0;
+    let monthlyTokensUsed = 0;
     if (this.entitlements) {
-      monthlyChatUsed =
-        await this.entitlements.countAccountMonthlyChatUsage(accountId);
+      monthlyTokensUsed =
+        await this.entitlements.countAccountMonthlyTokenUsage(accountId);
     }
 
     let limitsSource: AccountQuotaStatusData['limitsSource'] = 'env';
-    let monthlyChatLimit: number | null = limits.enabled ? limits.chatPerMonth : null;
+    let monthlyTokenLimit: number | null = limits.enabled ? limits.tokensPerMonth : null;
 
     if (monthlyLimit != null) {
-      monthlyChatLimit = monthlyLimit;
+      monthlyTokenLimit = monthlyLimit;
       limitsSource = 'plan';
     } else if (!limits.enabled) {
       limitsSource = 'none';
-      monthlyChatLimit = null;
+      monthlyTokenLimit = null;
     }
 
     const percentUsed =
-      monthlyChatLimit != null && monthlyChatLimit > 0
-        ? Math.min(100, Math.floor((monthlyChatUsed / monthlyChatLimit) * 100))
+      monthlyTokenLimit != null && monthlyTokenLimit > 0
+        ? Math.min(100, Math.floor((monthlyTokensUsed / monthlyTokenLimit) * 100))
         : null;
 
     return {
       accountId,
       enforced: limits.enabled,
-      monthlyChatUsed,
-      monthlyChatLimit,
+      monthlyTokensUsed,
+      monthlyTokenLimit,
       percentUsed,
       limitsSource,
       perMinuteLimit: limits.chatPerMinute,
@@ -84,12 +84,12 @@ export class QuotaService {
 
     if (!project?.accountId || project.accountId === 'legacy') {
       const limits = this.config.getOrThrow<QuotaLimits>('quota');
-      const monthlyChatUsed = await this.usage.countChatRequestsThisMonth(projectId);
+      const monthlyTokensUsed = await this.usage.sumChatTokensThisMonth(projectId);
       return {
         projectId,
         enforced: limits.enabled,
-        monthlyChatUsed,
-        monthlyChatLimit: limits.enabled ? limits.chatPerMonth : null,
+        monthlyTokensUsed,
+        monthlyTokenLimit: limits.enabled ? limits.tokensPerMonth : null,
         limitsSource: 'env',
         perMinuteLimit: limits.chatPerMinute,
         perDayLimit: limits.chatPerDay,
@@ -100,8 +100,8 @@ export class QuotaService {
     return {
       projectId,
       enforced: accountStatus.enforced,
-      monthlyChatUsed: accountStatus.monthlyChatUsed,
-      monthlyChatLimit: accountStatus.monthlyChatLimit,
+      monthlyTokensUsed: accountStatus.monthlyTokensUsed,
+      monthlyTokenLimit: accountStatus.monthlyTokenLimit,
       limitsSource: accountStatus.limitsSource,
       perMinuteLimit: accountStatus.perMinuteLimit,
       perDayLimit: accountStatus.perDayLimit,
@@ -115,7 +115,7 @@ export class QuotaService {
     }
 
     const accountLimit = await this.resolveAccountMonthlyLimit(projectId);
-    const monthlyCap = accountLimit ?? limits.chatPerMonth;
+    const monthlyCap = accountLimit ?? limits.tokensPerMonth;
 
     if (accountLimit != null) {
       await this.assertAccountMonthlyQuota(projectId, monthlyCap);
@@ -167,7 +167,7 @@ export class QuotaService {
     if (!project?.accountId || project.accountId === 'legacy') {
       return null;
     }
-    return this.entitlements.resolveMonthlyChatQuota(project.accountId);
+    return this.entitlements.resolveMonthlyTokenQuota(project.accountId);
   }
 
   private async assertAccountMonthlyQuota(
@@ -185,13 +185,13 @@ export class QuotaService {
     if (!project?.accountId || project.accountId === 'legacy') {
       return this.assertMonthlyQuota(projectId, limit);
     }
-    const count = await this.entitlements.countAccountMonthlyChatUsage(
+    const tokens = await this.entitlements.countAccountMonthlyTokenUsage(
       project.accountId,
     );
-    if (count >= limit) {
+    if (tokens >= limit) {
       throw new QuotaExceededException({
         window: 'monthly',
-        message: `Monthly chat quota exceeded for account (${count}/${limit})`,
+        message: `Monthly token quota exceeded for account (${tokens}/${limit})`,
       });
     }
   }
@@ -200,11 +200,11 @@ export class QuotaService {
     projectId: string,
     limit: number,
   ): Promise<void> {
-    const count = await this.usage.countChatRequestsThisMonth(projectId);
-    if (count >= limit) {
+    const tokens = await this.usage.sumChatTokensThisMonth(projectId);
+    if (tokens >= limit) {
       throw new QuotaExceededException({
         window: 'monthly',
-        message: `Monthly chat quota exceeded for project (${count}/${limit})`,
+        message: `Monthly token quota exceeded for project (${tokens}/${limit})`,
       });
     }
   }

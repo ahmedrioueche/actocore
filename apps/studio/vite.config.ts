@@ -9,6 +9,7 @@ const sharedRoot = fileURLToPath(
 const sharedAssetsRoot = fileURLToPath(
   new URL("../../packages/shared/assets", import.meta.url),
 );
+const sdkRoot = fileURLToPath(new URL("../../packages/sdk", import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
@@ -28,7 +29,7 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: [appRoot, sharedRoot, sharedAssetsRoot],
+      allow: [appRoot, sharedRoot, sharedAssetsRoot, sdkRoot],
     },
     port: 5174,
   },

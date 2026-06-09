@@ -42,7 +42,8 @@ export type AppPlanPricing = {
 export interface StudioPlanLimits {
   maxProjects?: number;
   maxTeamSeats?: number;
-  monthlyChatQuota?: number;
+  monthlyTokenQuota?: number;
+  maxActionsPerProject?: number;
 }
 
 export interface StudioPlan extends AuditInfo {
@@ -123,7 +124,7 @@ export interface StudioSubscriptionSummary {
   usage?: {
     projectsUsed: number;
     teamSeatsUsed: number;
-    monthlyChatUsed: number;
+    monthlyTokensUsed: number;
   };
   trial?: StudioTrialStatus;
 }

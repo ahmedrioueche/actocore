@@ -18,15 +18,18 @@ describe('QuotaService', () => {
               enabled: true,
               chatPerMinute: 2,
               chatPerDay: 100,
-              chatPerMonth: 1000,
+              tokensPerMonth: 1000,
               alertPercentages: [80, 90, 100] as [number, number, number],
             }),
           },
         },
-        { provide: RedisService, useValue: { getClient: () => null } },
+        {
+          provide: RedisService,
+          useValue: { getClient: () => null, incrWithTtl: async () => null },
+        },
         {
           provide: UsageService,
-          useValue: { countChatRequestsThisMonth: jest.fn().mockResolvedValue(0) },
+          useValue: { sumChatTokensThisMonth: jest.fn().mockResolvedValue(0) },
         },
         {
           provide: getModelToken(Project.name),

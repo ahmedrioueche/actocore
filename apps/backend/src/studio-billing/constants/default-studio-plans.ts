@@ -20,7 +20,12 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
     isActive: true,
     trialDays: 14,
     pricing: { USD: { monthly: 0, yearly: 0 } },
-    limits: { maxProjects: 1, maxTeamSeats: 1, monthlyChatQuota: 500 },
+    limits: {
+      maxProjects: 1,
+      maxTeamSeats: 1,
+      monthlyTokenQuota: 500_000,
+      maxActionsPerProject: 10,
+    },
     features: ['Knowledge base and actions', 'SDK embed with dashboard config'],
   },
   {
@@ -37,7 +42,12 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
       monthly: process.env.PAYPAL_PLAN_STARTER_MONTHLY || '',
       yearly: process.env.PAYPAL_PLAN_STARTER_YEARLY || '',
     },
-    limits: { maxProjects: 3, maxTeamSeats: 5, monthlyChatQuota: 10_000 },
+    limits: {
+      maxProjects: 3,
+      maxTeamSeats: 5,
+      monthlyTokenQuota: 5_000_000,
+      maxActionsPerProject: 30,
+    },
     features: ['Everything in Free', 'Email support'],
     yearlyDiscountBadge: '2 months free',
   },
@@ -56,13 +66,41 @@ export const DEFAULT_STUDIO_PLANS: DefaultStudioPlanSeed[] = [
       monthly: process.env.PAYPAL_PLAN_PRO_MONTHLY || '',
       yearly: process.env.PAYPAL_PLAN_PRO_YEARLY || '',
     },
-    limits: { maxProjects: 10, maxTeamSeats: 20, monthlyChatQuota: 100_000 },
+    limits: {
+      maxProjects: 10,
+      maxTeamSeats: 20,
+      monthlyTokenQuota: 50_000_000,
+      maxActionsPerProject: 100,
+    },
     features: ['Everything in Starter', 'Priority support'],
+    yearlyDiscountBadge: '2 months free',
+  },
+  {
+    planId: 'business',
+    level: 'premium',
+    order: 3,
+    name: 'Business',
+    description: 'For high-volume teams',
+    isActive: true,
+    trialDays: 0,
+    pricing: { USD: { monthly: 199, yearly: 1990 } },
+    paypalProductId: PAYPAL_CATALOG_PRODUCT_ID,
+    paypalPlanIds: {
+      monthly: process.env.PAYPAL_PLAN_BUSINESS_MONTHLY || '',
+      yearly: process.env.PAYPAL_PLAN_BUSINESS_YEARLY || '',
+    },
+    limits: {
+      maxProjects: 25,
+      maxTeamSeats: 50,
+      monthlyTokenQuota: 200_000_000,
+      maxActionsPerProject: 250,
+    },
+    features: ['Everything in Pro', 'Dedicated support'],
     yearlyDiscountBadge: '2 months free',
   },
 ];
 
-export const PUBLIC_PAID_PLAN_IDS = ['starter', 'pro'] as const;
+export const PUBLIC_PAID_PLAN_IDS = ['starter', 'pro', 'business'] as const;
 
 export function getDefaultPlanLevels(): AppPlanLevel[] {
   return DEFAULT_STUDIO_PLANS.map((plan) => plan.level);

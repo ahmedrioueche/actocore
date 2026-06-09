@@ -22,6 +22,7 @@ const ERROR_I18N_KEYS: Partial<Record<ErrorCodeType, string>> = {
   [ErrorCode.TOO_MANY_REQUESTS]: 'errors.tooManyRequests',
   [ErrorCode.PROJECT_LIMIT_REACHED]: 'errors.projectLimitReached',
   [ErrorCode.SEAT_LIMIT_REACHED]: 'errors.seatLimitReached',
+  [ErrorCode.ACTION_LIMIT_REACHED]: 'errors.actionLimitReached',
   [ErrorCode.QUOTA_EXCEEDED]: 'errors.chatQuotaExceeded',
   [ErrorCode.TEAM_MEMBER_NOT_FOUND]: 'errors.teamMemberNotFound',
   [ErrorCode.CANNOT_REMOVE_SELF]: 'errors.cannotRemoveSelf',
@@ -70,6 +71,7 @@ export function getMessage(
         limit != null &&
         (errorCode === ErrorCode.PROJECT_LIMIT_REACHED ||
           errorCode === ErrorCode.SEAT_LIMIT_REACHED ||
+          errorCode === ErrorCode.ACTION_LIMIT_REACHED ||
           errorCode === ErrorCode.QUOTA_EXCEEDED)
       ) {
         return t(key, { limit });

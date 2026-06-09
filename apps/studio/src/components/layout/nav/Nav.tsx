@@ -162,7 +162,9 @@ export default function Nav({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex min-h-16 shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-3 py-2 md:min-h-[4.5rem] md:px-4">
-          <div className="flex min-w-0 items-center gap-2 md:gap-3">
+          <div
+            className={`flex min-w-0 items-center gap-2 md:gap-3 ${!isMobile ? "px-12" : ""}`}
+          >
             {isMobile ? (
               <button
                 type="button"
@@ -183,7 +185,10 @@ export default function Nav({
           </div>
 
           {profileMenu ?? (
-            <ProfileMenu onLogout={handleLogout} logoutPending={logoutPending} />
+            <ProfileMenu
+              onLogout={handleLogout}
+              logoutPending={logoutPending}
+            />
           )}
         </header>
 

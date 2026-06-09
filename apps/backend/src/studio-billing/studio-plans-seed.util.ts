@@ -19,7 +19,13 @@ export async function seedDefaultStudioPlans(
     await planStore.updateOne(
       { planId: plan.planId },
       {
-        $set: { ...plan, version: 1, updatedAt: now },
+        $set: {
+          ...plan,
+          limits: plan.limits,
+          features: plan.features ?? [],
+          version: 1,
+          updatedAt: now,
+        },
         $setOnInsert: { createdAt: now },
       },
       { upsert: true },

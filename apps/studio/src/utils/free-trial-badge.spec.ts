@@ -11,7 +11,7 @@ const freePlan: StudioPlan = {
   name: 'Free',
   trialDays: 14,
   pricing: { USD: { monthly: 0, yearly: 0 } },
-  limits: { maxProjects: 1, maxTeamSeats: 1, monthlyChatQuota: 500 },
+  limits: { maxProjects: 1, maxTeamSeats: 1, monthlyTokenQuota: 500_000 },
   createdAt: new Date().toISOString(),
 };
 

@@ -18,7 +18,7 @@ describe('Quota (e2e)', () => {
     process.env.QUOTA_ENFORCE = 'true';
     process.env.QUOTA_CHAT_PER_MINUTE = '2';
     process.env.QUOTA_CHAT_PER_DAY = '100';
-    process.env.QUOTA_CHAT_PER_MONTH = '1000';
+    process.env.QUOTA_TOKENS_PER_MONTH = '1000';
     mongod = await MongoMemoryServer.create();
     process.env.MONGODB_URI = mongod.getUri();
     delete process.env.REDIS_URL;

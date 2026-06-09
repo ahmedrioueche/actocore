@@ -27,11 +27,13 @@ Product context: [`_docs/PROJECT.md`](../PROJECT.md) § Studio.
 
 Studio is a **configuration and observability UI**. It must **not**:
 
-- Run AI orchestration or chat inference (that is Core + SDK)
-- Call `/v1/sdk/*` with project API keys as the logged-in Studio user
+- Run tenant AI orchestration inside server-side Studio code (that is Core + SDK)
+- Expose **tenant** project API keys in the browser or call `/v1/sdk/*` as if the logged-in user were that tenant’s embed
 - Duplicate API DTOs or HTTP clients outside `packages/shared`
 
-Studio users authenticate with **JWT** on **`/v1/web/*`**. End-user apps use **project API keys** on **`/v1/sdk/*`**. Those identities must stay separate.
+Studio users authenticate with **JWT** on **`/v1/web/*`**. Customer apps use **their** project API keys on **`/v1/sdk/*`**.
+
+**ActoCore Assistant (optional):** Studio may embed the same React SDK as customers, using **one platform-owned** API key in `VITE_ACTOCORE_API_KEY` (`npm run setup:assistant`). That widget is ActoCore’s product help chat, not the tenant’s project assistant. Shared HTTP client auth routes `/sdk/*` to the embed key and `/web/*` to the session JWT.
 
 ---
 

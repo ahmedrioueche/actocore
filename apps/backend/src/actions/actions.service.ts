@@ -17,6 +17,7 @@ import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { ProjectsService } from '../projects/projects.service';
+import { StudioEntitlementsService } from '../studio-billing/studio-entitlements.service';
 import { ActionSectionsService } from './action-sections.service';
 import { ActionSchemaValidator } from './action-schema.validator';
 import {
@@ -43,10 +44,17 @@ export class ActionsService {
     private readonly projects: ProjectsService,
     private readonly sections: ActionSectionsService,
     private readonly schemaValidator: ActionSchemaValidator,
+    private readonly entitlements: StudioEntitlementsService,
   ) {}
 
   async create(projectId: string, body: CreateActionDto): Promise<ActionData> {
-    await this.projects.assertExists(projectId);
+    const project = await this.projects.findByIdOrFail(null, projectId);
+    if (project.accountId && project.accountId !== 'legacy') {
+      await this.entitlements.assertCanCreateAction(
+        project.accountId,
+        projectId,
+      );
+    }
 
     const inputSchema = body.inputSchema ?? DEFAULT_INPUT_SCHEMA;
     try {

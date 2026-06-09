@@ -6,11 +6,14 @@ import { useParams } from '@tanstack/react-router';
 
 import { ActionsTable } from '@/components/actions/ActionsTable';
 import { SectionSidebar } from '@/components/actions/SectionSidebar';
+import { PlanLimitTip } from '@/components/billing/PlanLimitTip';
 import { PageHeader } from '@/components/layout/PageHeader';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useProject } from '@/hooks/use-projects';
 import { useProjectActions } from '@/hooks/use-actions';
+import { useSubscriptionSummary } from '@/hooks/use-subscription';
+import { isAtPlanLimit } from '@/lib/plan-limits';
 import { canWriteActions } from '@/lib/studio-permissions';
 import { useModalStore } from '@/stores/modal';
 
@@ -21,13 +24,17 @@ export default function ProjectActionsPage() {
   const openModal = useModalStore((state) => state.openModal);
 
   const projectQuery = useProject(projectId ?? null);
+  const summaryQuery = useSubscriptionSummary();
   const actionsQuery = useProjectActions(projectId ?? null, {
     page: 1,
     limit: 1,
   });
   const canWrite = canWriteActions(session);
   const projectName = projectQuery.data?.name;
-  const hasActions = (actionsQuery.data?.total ?? 0) > 0;
+  const actionsUsed = actionsQuery.data?.total ?? 0;
+  const actionLimit = summaryQuery.data?.limits.maxActionsPerProject;
+  const atActionLimit = isAtPlanLimit(actionsUsed, actionLimit);
+  const hasActions = actionsUsed > 0;
 
   const [selectedSectionId, setSelectedSectionId] = useState<
     string | undefined
@@ -65,6 +72,7 @@ export default function ProjectActionsPage() {
               {canWrite ? (
                 <Button
                   icon={<Zap className="h-4 w-4" />}
+                  disabled={atActionLimit}
                   onClick={() =>
                     openModal('createAction', {
                       projectId,
@@ -79,6 +87,10 @@ export default function ProjectActionsPage() {
           ) : null
         }
       />
+
+      {atActionLimit && actionLimit != null ? (
+        <PlanLimitTip kind="action" limit={actionLimit} className="mb-6" />
+      ) : null}
 
       {projectId ? (
         <div className="flex gap-6">

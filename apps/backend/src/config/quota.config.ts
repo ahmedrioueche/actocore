@@ -4,7 +4,7 @@ export interface QuotaLimits {
   enabled: boolean;
   chatPerMinute: number;
   chatPerDay: number;
-  chatPerMonth: number;
+  tokensPerMonth: number;
   /** Email account admins when monthly usage crosses these % thresholds */
   alertPercentages: [number, number, number];
 }
@@ -51,10 +51,10 @@ export function resolveQuotaLimits(): QuotaLimits {
       nodeEnv === 'test' ? 100_000 : 5_000,
       'QUOTA_CHAT_PER_DAY',
     ),
-    chatPerMonth: parsePositiveInt(
-      process.env.QUOTA_CHAT_PER_MONTH,
-      nodeEnv === 'test' ? 1_000_000 : 100_000,
-      'QUOTA_CHAT_PER_MONTH',
+    tokensPerMonth: parsePositiveInt(
+      process.env.QUOTA_TOKENS_PER_MONTH ?? process.env.QUOTA_CHAT_PER_MONTH,
+      nodeEnv === 'test' ? 1_000_000 : 10_000_000,
+      'QUOTA_TOKENS_PER_MONTH',
     ),
   };
 }

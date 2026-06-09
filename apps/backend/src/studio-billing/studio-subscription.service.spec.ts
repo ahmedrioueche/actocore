@@ -149,7 +149,7 @@ describe('StudioSubscriptionService idempotency', () => {
         {
           provide: UsageService,
           useValue: {
-            countChatRequestsThisMonthForAccount: jest.fn().mockResolvedValue(0),
+            sumChatTokensThisMonthForAccount: jest.fn().mockResolvedValue(0),
           },
         },
         { provide: StudioPayPalService, useValue: {} },

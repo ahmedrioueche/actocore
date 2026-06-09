@@ -1,6 +1,10 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import {
+  ProjectAction,
+  ProjectActionSchema,
+} from '../actions/schemas/project-action.schema';
 import { Project, ProjectSchema } from '../projects/schemas/project.schema';
 import { BillingModule } from '../billing/billing.module';
 import { UsageModule } from '../usage/usage.module';
@@ -51,6 +55,7 @@ import { PlatformPermissionGuard } from '../studio/guards/platform-permission.gu
       { name: StudioAccount.name, schema: StudioAccountSchema },
       { name: StudioMembership.name, schema: StudioMembershipSchema },
       { name: Project.name, schema: ProjectSchema },
+      { name: ProjectAction.name, schema: ProjectActionSchema },
     ]),
   ],
   controllers: [

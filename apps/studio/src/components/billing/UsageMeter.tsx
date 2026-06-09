@@ -7,14 +7,23 @@ export function UsageMeter({
   label,
   used,
   limit,
+  formatValue,
 }: {
   label: string;
   used: number;
   limit?: number | null;
+  formatValue?: (value: number) => string;
 }) {
   const { t } = useTranslation();
   const hasLimit = limit != null && limit > 0;
   const percent = hasLimit ? Math.min(100, (used / limit) * 100) : 0;
+  const displayUsed = formatValue ? formatValue(used) : used;
+  const displayLimit =
+    hasLimit && limit != null
+      ? formatValue
+        ? formatValue(limit)
+        : limit
+      : null;
 
   return (
     <div className="space-y-2">
@@ -22,8 +31,10 @@ export function UsageMeter({
         <span className="font-medium text-text-primary">{label}</span>
         <span className="text-text-secondary">
           {hasLimit
-            ? t('billing.usageValue', { used, limit })
-            : t('billing.usageUnlimited', { used })}
+            ? t('billing.usageValue', { used: displayUsed, limit: displayLimit })
+            : t('billing.usageUnlimited', {
+                used: formatValue ? formatValue(used) : used,
+              })}
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-surface-secondary">

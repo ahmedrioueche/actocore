@@ -178,34 +178,50 @@ export class UsageService {
     };
   }
 
-  async countChatRequestsThisMonthForAccount(
+  async sumChatTokensThisMonthForAccount(
     accountId: string,
     projectIds: string[],
   ): Promise<number> {
     if (projectIds.length === 0) {
       return 0;
     }
-    const startOfMonth = this.startOfUtcMonth();
-
-    return this.usageModel
-      .countDocuments({
-        projectId: { $in: projectIds },
-        route: 'sdk/chat',
-        createdAt: { $gte: startOfMonth },
-      })
-      .exec();
+    return this.aggregateChatTokensThisMonth({ projectId: { $in: projectIds } });
   }
 
-  async countChatRequestsThisMonth(projectId: string): Promise<number> {
-    const startOfMonth = this.startOfUtcMonth();
+  async sumChatTokensThisMonth(projectId: string): Promise<number> {
+    return this.aggregateChatTokensThisMonth(withProjectId(projectId));
+  }
 
-    return this.usageModel
-      .countDocuments({
-        ...withProjectId(projectId),
-        route: 'sdk/chat',
-        createdAt: { $gte: startOfMonth },
-      })
+  private async aggregateChatTokensThisMonth(
+    projectFilter: Record<string, unknown>,
+  ): Promise<number> {
+    const startOfMonth = this.startOfUtcMonth();
+    const rows = await this.usageModel
+      .aggregate<{ total: number }>([
+        {
+          $match: {
+            ...projectFilter,
+            route: 'sdk/chat',
+            createdAt: { $gte: startOfMonth },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: {
+              $sum: {
+                $add: [
+                  { $ifNull: ['$promptTokens', 0] },
+                  { $ifNull: ['$completionTokens', 0] },
+                ],
+              },
+            },
+          },
+        },
+      ])
       .exec();
+
+    return rows[0]?.total ?? 0;
   }
 
   async getProjectSummary(

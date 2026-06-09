@@ -47,6 +47,8 @@ export const ErrorCode = {
   PROJECT_LIMIT_REACHED: 'PROJECT_LIMIT_REACHED',
   /** Studio workspace team seat cap reached — see `details.limit`. */
   SEAT_LIMIT_REACHED: 'SEAT_LIMIT_REACHED',
+  /** Studio project action cap reached — see `details.limit`. */
+  ACTION_LIMIT_REACHED: 'ACTION_LIMIT_REACHED',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

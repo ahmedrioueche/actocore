@@ -81,6 +81,33 @@ describe('UsageService', () => {
     );
   });
 
+  it('sums prompt and completion tokens for the current UTC month', async () => {
+    usageModel.aggregate.mockReturnValue({
+      exec: async () => [{ total: 42 }],
+    });
+
+    const total = await service.sumChatTokensThisMonth('proj-1');
+
+    expect(total).toBe(42);
+    expect(usageModel.aggregate).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          $match: expect.objectContaining({
+            projectId: 'proj-1',
+            route: 'sdk/chat',
+          }),
+        }),
+        expect.objectContaining({
+          $group: expect.objectContaining({
+            total: expect.objectContaining({
+              $sum: expect.objectContaining({ $add: expect.any(Array) }),
+            }),
+          }),
+        }),
+      ]),
+    );
+  });
+
   it('aggregates platform usage overview by provider', async () => {
     projectModel.find.mockReturnValue({
       select: () => ({

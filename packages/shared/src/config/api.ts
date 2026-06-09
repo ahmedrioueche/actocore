@@ -56,6 +56,24 @@ export const configureApi = (config: ApiConfig): void => {
   apiClientInstance = null;
 };
 
+/** SDK routes use the embed API key; Studio web routes use the session JWT. */
+function resolveRequestAuthToken(requestUrl: string): string | null {
+  const path = requestUrl.includes('://')
+    ? new URL(requestUrl, BASE_URL()).pathname
+    : requestUrl;
+  const isSdkRoute = path.includes('/sdk/');
+
+  if (isSdkRoute) {
+    return configuredApiKey || TokenManager.getAccessToken();
+  }
+
+  return (
+    configuredStudioAccessToken ||
+    TokenManager.getAccessToken() ||
+    configuredApiKey
+  );
+}
+
 export const getApiClient = (): AxiosInstance => {
   if (!apiClientInstance) {
     apiClientInstance = axios.create({
@@ -68,10 +86,7 @@ export const getApiClient = (): AxiosInstance => {
     });
 
     apiClientInstance.interceptors.request.use((reqConfig) => {
-      const token =
-        configuredApiKey ??
-        configuredStudioAccessToken ??
-        TokenManager.getAccessToken();
+      const token = resolveRequestAuthToken(reqConfig.url ?? '');
       if (token && reqConfig.headers) {
         reqConfig.headers.Authorization = `Bearer ${token}`;
       }

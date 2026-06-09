@@ -38,18 +38,18 @@ export class QuotaAlertService {
       return;
     }
 
-    const planLimit = await this.entitlements.resolveMonthlyChatQuota(accountId);
+    const planLimit = await this.entitlements.resolveMonthlyTokenQuota(accountId);
     const monthlyLimit =
       planLimit != null && planLimit > 0
         ? planLimit
         : limits.enabled
-          ? limits.chatPerMonth
+          ? limits.tokensPerMonth
           : null;
     if (monthlyLimit == null || monthlyLimit <= 0) {
       return;
     }
 
-    const used = await this.entitlements.countAccountMonthlyChatUsage(accountId);
+    const used = await this.entitlements.countAccountMonthlyTokenUsage(accountId);
     const percent = Math.floor((used / monthlyLimit) * 100);
     const thresholds = limits.alertPercentages;
 
@@ -81,7 +81,7 @@ export class QuotaAlertService {
           used,
           monthlyLimit,
           100,
-          'Monthly AI chat limit reached',
+          'Monthly AI token limit reached',
         );
       }
     } else if (percent >= thresholds[1] && !alerts.warned90) {
@@ -92,7 +92,7 @@ export class QuotaAlertService {
           used,
           monthlyLimit,
           90,
-          '90% of monthly AI chat allowance used',
+          '90% of monthly AI token allowance used',
         );
       }
     } else if (percent >= thresholds[0] && !alerts.warned80) {
@@ -103,7 +103,7 @@ export class QuotaAlertService {
           used,
           monthlyLimit,
           80,
-          '80% of monthly AI chat allowance used',
+          '80% of monthly AI token allowance used',
         );
       }
     }
@@ -144,7 +144,7 @@ export class QuotaAlertService {
     const body = [
       quotaOwnerMessage('monthly', used, limit),
       '',
-      `Your plan allows ${limit} AI chat requests per month for all projects in "${account.name}".`,
+      `Your plan allows ${limit} AI tokens per month for all projects in "${account.name}".`,
       percent >= 100
         ? 'New chat requests from your app users may be blocked until the next billing period or you upgrade your plan.'
         : 'Consider upgrading your plan before your end users are affected.',

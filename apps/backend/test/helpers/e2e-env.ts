@@ -31,5 +31,6 @@ export function clearQuotaEnforceEnv(): void {
   delete process.env.QUOTA_ENFORCE;
   delete process.env.QUOTA_CHAT_PER_MINUTE;
   delete process.env.QUOTA_CHAT_PER_DAY;
+  delete process.env.QUOTA_TOKENS_PER_MONTH;
   delete process.env.QUOTA_CHAT_PER_MONTH;
 }

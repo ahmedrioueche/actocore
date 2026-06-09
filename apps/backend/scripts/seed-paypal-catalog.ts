@@ -174,6 +174,20 @@ async function main(): Promise<void> {
     '790',
     'YEAR',
   );
+  const businessMonthly = await createPlan(
+    token,
+    productId,
+    'ActoCore Business Monthly',
+    '199',
+    'MONTH',
+  );
+  const businessYearly = await createPlan(
+    token,
+    productId,
+    'ActoCore Business Yearly',
+    '1990',
+    'YEAR',
+  );
 
   console.log('\nAdd these to your .env:\n');
   console.log(`PAYPAL_PRODUCT_ID=${productId}`);
@@ -181,6 +195,8 @@ async function main(): Promise<void> {
   console.log(`PAYPAL_PLAN_STARTER_YEARLY=${starterYearly}`);
   console.log(`PAYPAL_PLAN_PRO_MONTHLY=${proMonthly}`);
   console.log(`PAYPAL_PLAN_PRO_YEARLY=${proYearly}`);
+  console.log(`PAYPAL_PLAN_BUSINESS_MONTHLY=${businessMonthly}`);
+  console.log(`PAYPAL_PLAN_BUSINESS_YEARLY=${businessYearly}`);
 }
 
 void main().catch((err) => {

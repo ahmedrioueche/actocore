@@ -90,8 +90,8 @@ export interface AccountUsageSummaryData {
 export interface ProjectQuotaStatusData {
   projectId: string;
   enforced: boolean;
-  monthlyChatUsed: number;
-  monthlyChatLimit: number | null;
+  monthlyTokensUsed: number;
+  monthlyTokenLimit: number | null;
   limitsSource: 'plan' | 'env' | 'none';
   perMinuteLimit: number;
   perDayLimit: number;
@@ -101,8 +101,8 @@ export interface ProjectQuotaStatusData {
 export interface AccountQuotaStatusData {
   accountId: string;
   enforced: boolean;
-  monthlyChatUsed: number;
-  monthlyChatLimit: number | null;
+  monthlyTokensUsed: number;
+  monthlyTokenLimit: number | null;
   percentUsed: number | null;
   limitsSource: 'plan' | 'env' | 'none';
   perMinuteLimit: number;

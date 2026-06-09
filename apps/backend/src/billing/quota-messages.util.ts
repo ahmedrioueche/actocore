@@ -27,6 +27,6 @@ export function quotaOwnerMessage(
       return `Your account has used ${pct}% of today's chat allowance (${used}/${limit}).`;
     case 'monthly':
     default:
-      return `Your account has used ${pct}% of this month's included AI chat allowance (${used} of ${limit} requests).`;
+      return `Your account has used ${pct}% of this month's included AI token allowance (${used} of ${limit} tokens).`;
   }
 }
