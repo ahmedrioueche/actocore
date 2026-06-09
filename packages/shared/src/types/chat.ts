@@ -22,3 +22,10 @@ export interface ChatMessageData {
   /** Present when `intent` is `qa` and knowledge was retrieved. */
   sources?: QaSourceCitation[];
 }
+
+/** SSE events from POST /sdk/chat/stream (`data: {json}\n\n`). */
+export type ChatStreamEvent =
+  | { type: 'meta'; sessionId: string; intent: ChatIntent }
+  | { type: 'delta'; text: string }
+  | { type: 'done'; message: ChatMessageData; cancelled?: boolean }
+  | { type: 'error'; errorCode: string; message: string };

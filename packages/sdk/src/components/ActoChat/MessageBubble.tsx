@@ -7,6 +7,7 @@ import { ActionPendingCard } from './ActionPendingCard';
 import { ActionErrorCard } from './ActionErrorCard';
 import { ListenButton } from './ListenButton';
 import { ChatMessageContent } from './ChatMessageContent';
+import { StreamingAssistantContent } from './StreamingAssistantContent';
 
 export function MessageBubble({
   message,
@@ -35,6 +36,7 @@ export function MessageBubble({
           'ac-chat__bubble',
           isUser ? 'ac-chat__bubble--user' : 'ac-chat__bubble--assistant',
           message.isErrorNotice && 'ac-chat__bubble--error-notice',
+          message.isStreaming && 'ac-chat__bubble--streaming',
           isUser ? ui.classNames?.userBubble : ui.classNames?.assistantBubble,
         )}
       >
@@ -54,10 +56,17 @@ export function MessageBubble({
                 !isUser && 'ac-chat__bubble-text--markdown',
               )}
             >
-              <ChatMessageContent
-                content={message.content}
-                markdown={!isUser}
-              />
+              {message.isStreaming ? (
+                <StreamingAssistantContent
+                  content={message.content}
+                  isStreaming
+                />
+              ) : (
+                <ChatMessageContent
+                  content={message.content}
+                  markdown={!isUser}
+                />
+              )}
             </div>
             {!isUser && message.content && !message.isErrorNotice ? (
               <div className="ac-chat__bubble-footer">

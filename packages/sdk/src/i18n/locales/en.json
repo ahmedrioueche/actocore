@@ -6,6 +6,8 @@
     "placeholder": "Type a message…",
     "send": "Send",
     "sending": "Sending…",
+    "stop": "Stop generating",
+    "stopping": "Stopping…",
     "emptyTitle": "",
     "emptyDescription": "Ask a question or describe what you want.",
     "actionsHint": "Ask in plain language — the assistant prepares actions and you confirm once; your app runs the real UI.",

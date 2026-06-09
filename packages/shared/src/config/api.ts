@@ -56,6 +56,10 @@ export const configureApi = (config: ApiConfig): void => {
   apiClientInstance = null;
 };
 
+/** Bearer token for SDK routes (`/sdk/*`) — configured API key wins over stored tokens. */
+export const getSdkAuthToken = (): string | null =>
+  configuredApiKey || TokenManager.getAccessToken();
+
 /** SDK routes use the embed API key; Studio web routes use the session JWT. */
 function resolveRequestAuthToken(requestUrl: string): string | null {
   const path = requestUrl.includes('://')
@@ -64,7 +68,7 @@ function resolveRequestAuthToken(requestUrl: string): string | null {
   const isSdkRoute = path.includes('/sdk/');
 
   if (isSdkRoute) {
-    return configuredApiKey || TokenManager.getAccessToken();
+    return getSdkAuthToken();
   }
 
   return (

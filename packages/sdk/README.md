@@ -79,6 +79,7 @@ export function App() {
 - `loadRemoteConfig` — fetch `GET /v1/sdk/runtime` and merge `sdk` settings (dashboard) under local props.
 - `persistSession` (default `true`) — restore the last chat session from `localStorage` on mount (scoped by API key, base URL, and `externalUserId`).
 - `externalUserId` — stable host user id for session scoping and persistence (pass from your auth layer).
+- `streamResponses` (default `true`) — stream assistant replies over SSE (`POST /v1/sdk/chat/stream`) so tokens appear as they are generated. The composer shows a **Stop** control while streaming; partial text is kept and billing uses tokens actually generated. Set `false` to use the legacy JSON `POST /v1/sdk/chat` endpoint only. If the stream route is unavailable (404/501), the SDK falls back to JSON automatically.
 
 ### Dashboard-driven config (no Studio UI required)
 

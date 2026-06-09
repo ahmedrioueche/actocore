@@ -142,6 +142,8 @@ export interface ActocoreSdkConfig extends ActocoreApiConfig {
   externalUserId?: string;
   /** Restore the last chat session from localStorage on mount (default true). */
   persistSession?: boolean;
+  /** Stream assistant replies via SSE (default true). Falls back to JSON when disabled or unavailable. */
+  streamResponses?: boolean;
 }
 
 export interface ResolvedActocoreConfig {
@@ -170,6 +172,7 @@ export interface ResolvedActocoreConfig {
     Pick<ActocoreVoiceConfig, 'language'>;
   externalUserId?: string;
   persistSession: boolean;
+  streamResponses: boolean;
 }
 
 export type ActocoreI18nInstance = i18n;

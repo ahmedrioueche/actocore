@@ -177,6 +177,14 @@
   gap: var(--ac-space-md);
 }
 
+[data-actocore] .ac-chat__scroll-anchor {
+  width: 100%;
+  height: 1px;
+  flex-shrink: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 [data-actocore] .ac-chat__row {
   display: flex;
   width: 100%;
@@ -216,6 +224,35 @@
   border-color: color-mix(in srgb, var(--ac-color-danger) 35%, transparent);
   background: var(--ac-color-danger-surface);
   color: var(--ac-color-text);
+}
+
+[data-actocore] .ac-chat__bubble--streaming .ac-chat__bubble-text {
+  display: inline;
+}
+
+[data-actocore] .ac-chat__stream-cursor {
+  display: inline-block;
+  width: 0.5rem;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  opacity: 0.65;
+  animation: ac-stream-cursor 1s step-end infinite;
+}
+
+@keyframes ac-stream-cursor {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+[data-actocore] .ac-chat__send--stop {
+  color: var(--ac-color-danger);
 }
 
 [data-actocore] .ac-chat__intent {

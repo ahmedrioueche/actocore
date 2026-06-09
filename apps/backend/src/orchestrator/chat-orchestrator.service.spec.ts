@@ -30,7 +30,7 @@ describe('ChatOrchestratorService', () => {
     listMessages: jest.fn(),
   };
 
-  const llmMock = { complete: jest.fn() };
+  const llmMock = { complete: jest.fn(), completeStream: jest.fn() };
   const classifierMock = { classify: jest.fn().mockResolvedValue('direct') };
   const actionsMock = {
     listEnabled: jest.fn().mockResolvedValue([]),
@@ -83,6 +83,21 @@ describe('ChatOrchestratorService', () => {
       promptTokens: 3,
       completionTokens: 2,
     });
+    llmMock.completeStream.mockImplementation(
+      async (
+        _messages: unknown,
+        handlers: { onDelta: (text: string) => void },
+      ) => {
+        handlers.onDelta('LLM ');
+        handlers.onDelta('reply');
+        return {
+          content: 'LLM reply',
+          model: 'stub',
+          promptTokens: 3,
+          completionTokens: 2,
+        };
+      },
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -117,6 +132,20 @@ describe('ChatOrchestratorService', () => {
       }),
     );
     expect(aiLoggerMock.log).toHaveBeenCalled();
+  });
+
+  it('emits meta, delta, and done events when streaming', async () => {
+    const events: Array<{ type: string }> = [];
+
+    await orchestrator.sendMessageStream(
+      context,
+      { message: 'Hello' },
+      (event) => events.push(event),
+    );
+
+    expect(events.map((e) => e.type)).toEqual(['meta', 'delta', 'delta', 'done']);
+    expect(llmMock.completeStream).toHaveBeenCalled();
+    expect(usageMock.recordChatUsage).toHaveBeenCalled();
   });
 
   it('refuses QA questions when RAG returns no citations without calling the LLM', async () => {

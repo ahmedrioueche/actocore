@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type {
   ChatIntent,
   ChatMessageData,
+  ChatStreamEvent,
   RequestContextData,
   SendChatMessageDto,
   SessionMessageData,
@@ -32,6 +33,16 @@ import { isLikelyActionMessage } from '../actions/natural-language-action.util';
 import { buildAppAssistantSystemPrompt } from './app-assistant-prompt.util';
 import { SessionsService } from '../sessions/sessions.service';
 import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
+import { estimateTokensFromText } from '../usage/utils/usage-export.util';
+
+type ChatStreamEmitter = (event: ChatStreamEvent) => void;
+
+interface PreparedIncomingMessage {
+  projectId: string;
+  sessionId: string;
+  intent: ChatIntent;
+  followUp: { actionName: string; input: Record<string, unknown> } | null;
+}
 
 @Injectable()
 export class ChatOrchestratorService {
@@ -54,6 +65,95 @@ export class ChatOrchestratorService {
     context: RequestContextData,
     body: SendChatMessageDto,
   ): Promise<ChatMessageData> {
+    const prep = await this.prepareIncomingMessage(context, body);
+    await this.sessions.appendMessage(
+      prep.projectId,
+      prep.sessionId,
+      'user',
+      body.message,
+    );
+
+    const startedAt = Date.now();
+    const branch = prep.followUp
+      ? await this.runActionBranchFromFollowUp(prep.projectId, prep.followUp)
+      : await this.runBranch(
+          prep.intent,
+          context,
+          prep.projectId,
+          prep.sessionId,
+          body.message,
+        );
+
+    return this.finalizeAssistantReply({
+      context,
+      projectId: prep.projectId,
+      sessionId: prep.sessionId,
+      intent: prep.intent,
+      branch,
+      startedAt,
+    });
+  }
+
+  async sendMessageStream(
+    context: RequestContextData,
+    body: SendChatMessageDto,
+    emit: ChatStreamEmitter,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    const prep = await this.prepareIncomingMessage(context, body);
+    await this.sessions.appendMessage(
+      prep.projectId,
+      prep.sessionId,
+      'user',
+      body.message,
+    );
+
+    emit({
+      type: 'meta',
+      sessionId: prep.sessionId,
+      intent: prep.intent,
+    });
+
+    const startedAt = Date.now();
+    const branch = prep.followUp
+      ? await this.runActionBranchFromFollowUpStream(
+          prep.projectId,
+          prep.followUp,
+          emit,
+        )
+      : await this.runBranchStream(
+          prep.intent,
+          context,
+          prep.projectId,
+          prep.sessionId,
+          body.message,
+          emit,
+          signal,
+        );
+
+    const cancelled = signal?.aborted ?? false;
+    const usage = this.resolveStreamUsage(branch, cancelled);
+
+    const response = await this.finalizeAssistantReply({
+      context,
+      projectId: prep.projectId,
+      sessionId: prep.sessionId,
+      intent: prep.intent,
+      branch: { ...branch, usage },
+      startedAt,
+    });
+
+    emit({
+      type: 'done',
+      message: response,
+      ...(cancelled ? { cancelled: true } : {}),
+    });
+  }
+
+  private async prepareIncomingMessage(
+    context: RequestContextData,
+    body: SendChatMessageDto,
+  ): Promise<PreparedIncomingMessage> {
     const projectId = context.projectId;
     const sessionId = await this.sessions.resolveSessionId(
       projectId,
@@ -87,18 +187,37 @@ export class ChatOrchestratorService {
       intent = 'action';
     }
 
-    await this.sessions.appendMessage(projectId, sessionId, 'user', body.message);
+    return { projectId, sessionId, intent, followUp };
+  }
 
-    const startedAt = Date.now();
-    const branch = followUp
-      ? await this.runActionBranchFromFollowUp(projectId, followUp)
-      : await this.runBranch(
-          intent,
-          context,
-          projectId,
-          sessionId,
-          body.message,
-        );
+  private resolveStreamUsage(
+    branch: OrchestratorBranchPayload,
+    cancelled: boolean,
+  ): TokenUsageData | undefined {
+    if (!branch.usage) return undefined;
+
+    if (
+      cancelled &&
+      (branch.usage.completionTokens == null || branch.usage.completionTokens === 0)
+    ) {
+      return {
+        ...branch.usage,
+        completionTokens: estimateTokensFromText(branch.content.length),
+      };
+    }
+
+    return branch.usage;
+  }
+
+  private async finalizeAssistantReply(input: {
+    context: RequestContextData;
+    projectId: string;
+    sessionId: string;
+    intent: ChatIntent;
+    branch: OrchestratorBranchPayload;
+    startedAt: number;
+  }): Promise<ChatMessageData> {
+    const { context, projectId, sessionId, intent, branch, startedAt } = input;
 
     const assistant = await this.sessions.appendMessage(
       projectId,
@@ -151,6 +270,128 @@ export class ChatOrchestratorService {
       .catch(() => undefined);
 
     return response;
+  }
+
+  private async runBranchStream(
+    intent: ChatIntent,
+    context: RequestContextData,
+    projectId: string,
+    sessionId: string,
+    userMessage: string,
+    emit: ChatStreamEmitter,
+    signal?: AbortSignal,
+  ): Promise<OrchestratorBranchPayload> {
+    switch (intent) {
+      case 'direct':
+        return this.completeWithLlmStream(
+          context,
+          projectId,
+          sessionId,
+          emit,
+          signal,
+        );
+      case 'qa':
+        return this.runQaBranchStream(
+          context,
+          projectId,
+          sessionId,
+          userMessage,
+          emit,
+          signal,
+        );
+      case 'action':
+        return this.runActionBranchStream(projectId, userMessage, emit);
+      default: {
+        const _exhaustive: never = intent;
+        throw new Error(`Unsupported intent: ${String(_exhaustive)}`);
+      }
+    }
+  }
+
+  private async runQaBranchStream(
+    context: RequestContextData,
+    projectId: string,
+    sessionId: string,
+    userMessage: string,
+    emit: ChatStreamEmitter,
+    signal?: AbortSignal,
+  ): Promise<OrchestratorBranchPayload> {
+    const { modeNote, citations } = await this.qaRunner.buildPromptContext(
+      projectId,
+      userMessage,
+    );
+
+    if (citations.length === 0) {
+      emit({ type: 'delta', text: QA_NO_CITATIONS_REPLY });
+      return { content: QA_NO_CITATIONS_REPLY };
+    }
+
+    const result = await this.completeWithLlmStream(
+      context,
+      projectId,
+      sessionId,
+      emit,
+      signal,
+      { modeNote },
+    );
+
+    return {
+      ...result,
+      sources: citations,
+    };
+  }
+
+  private async runActionBranchStream(
+    projectId: string,
+    userMessage: string,
+    emit: ChatStreamEmitter,
+  ): Promise<OrchestratorBranchPayload> {
+    const branch = await this.runActionBranch(projectId, userMessage);
+    emit({ type: 'delta', text: branch.content });
+    return branch;
+  }
+
+  private async runActionBranchFromFollowUpStream(
+    projectId: string,
+    followUp: { actionName: string; input: Record<string, unknown> },
+    emit: ChatStreamEmitter,
+  ): Promise<OrchestratorBranchPayload> {
+    const branch = await this.runActionBranchFromFollowUp(projectId, followUp);
+    emit({ type: 'delta', text: branch.content });
+    return branch;
+  }
+
+  private async completeWithLlmStream(
+    context: RequestContextData,
+    projectId: string,
+    sessionId: string,
+    emit: ChatStreamEmitter,
+    signal?: AbortSignal,
+    options?: { modeNote?: string },
+  ): Promise<OrchestratorBranchPayload> {
+    const messages = await this.buildMessages(
+      context,
+      projectId,
+      sessionId,
+      options?.modeNote,
+    );
+
+    const completion = await this.llm.completeStream(
+      messages,
+      {
+        onDelta: (text) => emit({ type: 'delta', text }),
+      },
+      { signal },
+    );
+
+    return {
+      content: completion.content,
+      usage: {
+        model: completion.model,
+        promptTokens: completion.promptTokens,
+        completionTokens: completion.completionTokens,
+      },
+    };
   }
 
   private async runBranch(

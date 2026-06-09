@@ -80,6 +80,20 @@ export function ActoChatWidget({
     }
   }, [isOpen]);
 
+  /** Defer scroll until the panel is visible (not `display: none`). */
+  const [panelVisible, setPanelVisible] = useState(initialOpen);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setPanelVisible(false);
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      setPanelVisible(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isOpen]);
+
   const anchorStyle = getAnchorPositionStyle(position, offsetX, offsetY);
   const open = () => setIsOpen(true);
 
@@ -113,6 +127,7 @@ export function ActoChatWidget({
               metadata={metadata}
               loadHistory={loadHistory}
               persistSession={persistSession}
+              isOpen={panelVisible}
               onMinimize={() => setIsOpen(false)}
             />
           </div>

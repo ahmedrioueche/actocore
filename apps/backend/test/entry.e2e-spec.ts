@@ -118,6 +118,40 @@ describe('Entry layer (e2e)', () => {
     expect(messages.body.data[2].content).toBe('Second turn');
   });
 
+  it('POST /v1/sdk/chat/stream returns SSE events', async () => {
+    const server = app.getHttpServer();
+    const auth = { Authorization: `Bearer ${apiKey}` };
+
+    const sessionId = (
+      await request(server)
+        .post('/v1/sdk/sessions')
+        .set(auth)
+        .send({})
+        .expect(201)
+    ).body.data.id;
+
+    const res = await request(server)
+      .post('/v1/sdk/chat/stream')
+      .set(auth)
+      .set('Accept', 'text/event-stream')
+      .send({ sessionId, message: 'Stream hello' })
+      .buffer(true)
+      .parse((response, callback) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk: string) => {
+          body += chunk;
+        });
+        response.on('end', () => callback(null, body));
+      })
+      .expect(200);
+
+    expect(res.text).toContain('"type":"meta"');
+    expect(res.text).toContain('"type":"delta"');
+    expect(res.text).toContain('"type":"done"');
+    expect(res.text).toContain('[stub]');
+  });
+
   it('uses direct LLM when action phrasing is sent but no actions exist', async () => {
     const server = app.getHttpServer();
     const auth = { Authorization: `Bearer ${apiKey}` };

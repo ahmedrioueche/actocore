@@ -10,10 +10,16 @@ vi.mock('../../hooks/use-actocore-chat', () => {
     useActocoreChat: () => ({
       messages: [],
       sessionId: 'session-test',
+      hasMoreHistory: false,
       isInitializing: false,
       isSending: false,
+      isStreaming: false,
+      isLoadingMoreHistory: false,
       error: null,
       sendMessage,
+      stopGenerating: vi.fn(),
+      loadMoreHistory: vi.fn(),
+      startNewConversation: vi.fn(),
       clearError: vi.fn(),
     }),
   };

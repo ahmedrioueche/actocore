@@ -47,5 +47,6 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
     },
     externalUserId: config.externalUserId,
     persistSession: config.persistSession ?? true,
+    streamResponses: config.streamResponses ?? true,
   };
 }

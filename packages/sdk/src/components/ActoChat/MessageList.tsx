@@ -20,11 +20,22 @@ export function MessageList({
 }) {
   const ui = useActocoreUiConfig();
   const typingRef = useRef<HTMLDivElement>(null);
+  const streamingRowRef = useRef<HTMLDivElement>(null);
+  const streamingMessage = messages.find((m) => m.isStreaming);
+  const showTypingIndicator = Boolean(isSending && !streamingMessage);
 
   useEffect(() => {
-    if (!isSending) return;
+    if (!showTypingIndicator) return;
     typingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, [isSending, messages.length]);
+  }, [showTypingIndicator]);
+
+  useEffect(() => {
+    if (!streamingMessage?.content) return;
+    streamingRowRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  }, [streamingMessage?.content]);
 
   return (
     <div
@@ -34,15 +45,20 @@ export function MessageList({
       )}
     >
       {messages.map((m) => (
-        <MessageBubble
+        <div
           key={m.id}
-          message={m}
-          showIntentBadge={showIntentBadge}
-          showSources={showSources}
-          sessionId={sessionId}
-        />
+          ref={m.isStreaming ? streamingRowRef : undefined}
+          data-streaming-active={m.isStreaming ? 'true' : undefined}
+        >
+          <MessageBubble
+            message={m}
+            showIntentBadge={showIntentBadge}
+            showSources={showSources}
+            sessionId={sessionId}
+          />
+        </div>
       ))}
-      {isSending ? (
+      {showTypingIndicator ? (
         <div ref={typingRef}>
           <TypingIndicator />
         </div>

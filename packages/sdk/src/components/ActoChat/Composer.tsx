@@ -4,18 +4,22 @@ import { useAutoResizeTextarea } from '../../hooks/use-auto-resize-textarea';
 import { useUiText } from '../../hooks/use-ui-text';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
-import { IconSend, IconSpinner } from '../icons/ChatIcons';
+import { IconSend, IconSpinner, IconStop } from '../icons/ChatIcons';
 import { ActionPicker } from './ActionPicker';
 import { VoiceInputButton } from './VoiceInputButton';
 
 export function Composer({
   onSend,
+  onStop,
   isSending,
+  isStreaming,
   minRows = 1,
   maxRows = 5,
 }: {
   onSend: (content: string) => Promise<void>;
+  onStop?: () => void;
   isSending: boolean;
+  isStreaming?: boolean;
   minRows?: number;
   maxRows?: number;
 }) {
@@ -47,6 +51,7 @@ export function Composer({
   }, [value, minRows, maxRows]);
 
   const trimmed = useMemo(() => value.trim(), [value]);
+  const showStop = Boolean(isStreaming && onStop);
   const disabled = isSending || trimmed.length === 0;
 
   const submit = useCallback(async () => {
@@ -94,14 +99,27 @@ export function Composer({
             type="button"
             className={mergeClassNames(
               'ac-chat__send',
+              showStop && 'ac-chat__send--stop',
               ui.classNames?.sendButton,
             )}
-            onClick={() => void submit()}
-            disabled={disabled}
-            aria-label={sendLabel}
-            title={isSending ? t('chat.sending') : sendLabel}
+            onClick={() => (showStop ? onStop?.() : void submit())}
+            disabled={showStop ? false : disabled}
+            aria-label={showStop ? t('chat.stop') : sendLabel}
+            title={
+              showStop
+                ? t('chat.stop')
+                : isSending
+                  ? t('chat.sending')
+                  : sendLabel
+            }
           >
-            {isSending ? <IconSpinner /> : <IconSend />}
+            {showStop ? (
+              <IconStop />
+            ) : isSending ? (
+              <IconSpinner />
+            ) : (
+              <IconSend />
+            )}
           </button>
         </div>
       </div>
