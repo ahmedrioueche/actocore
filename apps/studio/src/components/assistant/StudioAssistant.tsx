@@ -44,6 +44,9 @@ export function StudioAssistant() {
         theme={{ mode: theme }}
         ui={{
           showActionsHint: false,
+          widget: {
+            hideWhenSelector: '[data-modal-open]',
+          },
           text: {
             headerTitle: 'ActoCore Assistant',
             headerSubtitle: 'Help using ActoCore Studio',

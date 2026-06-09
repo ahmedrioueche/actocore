@@ -64,6 +64,13 @@ export interface SdkWidgetConfig {
   /** CSS length from the screen edge, e.g. `1.25rem` or `20px`. */
   offsetX?: string;
   offsetY?: string;
+  /** Stacking order for launcher and open chat. Default `1000`. Set below host modals if needed. */
+  zIndex?: number;
+  /**
+   * Hide the widget while this CSS selector matches any element (e.g. `[data-modal-open]` on body).
+   * Host apps toggle the marker when overlays open.
+   */
+  hideWhenSelector?: string;
 }
 
 export interface SdkUiConfig {

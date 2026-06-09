@@ -1,6 +1,7 @@
 import type { StudioBillingHistoryEntry } from '@ahmedrioueche/actocore-shared';
 import { useTranslation } from 'react-i18next';
 
+import { MobileDataCard, MobileDataRow } from '@/components/ui/MobileDataCard';
 import NoData from '@/components/ui/NoData';
 import { Table, type TableColumn } from '@/components/ui/Table';
 import {
@@ -89,6 +90,46 @@ export function PaymentHistoryTable({
           centered={false}
         />
       }
+      renderMobileCard={(entry) => {
+        const details = formatBillingHistoryDetails(t, entry);
+        const amount =
+          entry.amountPaid != null && entry.currency
+            ? new Intl.NumberFormat(i18n.language, {
+                style: 'currency',
+                currency: entry.currency,
+              }).format(entry.amountPaid)
+            : '—';
+
+        return (
+          <MobileDataCard
+            footer={
+              <>
+                {details ? (
+                  <MobileDataRow
+                    label={t('billing.history.columns.details')}
+                    value={details}
+                  />
+                ) : null}
+                <MobileDataRow
+                  label={t('billing.history.columns.amount')}
+                  value={amount}
+                />
+              </>
+            }
+          >
+            <p className="font-medium text-text-primary">
+              {formatBillingHistoryAction(t, entry)}
+            </p>
+            <p className="mt-1 text-xs text-text-secondary">
+              {new Date(entry.createdAt).toLocaleDateString(i18n.language, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </p>
+          </MobileDataCard>
+        );
+      }}
     />
   );
 }

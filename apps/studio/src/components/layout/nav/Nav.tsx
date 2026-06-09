@@ -195,9 +195,9 @@ export default function Nav({
         <main
           id="studio-content-scroller"
           data-scroll-container
-          className="flex flex-1 flex-col overflow-auto"
+          className="flex flex-1  flex-col overflow-auto"
         >
-          <div className="studio-page">{children}</div>
+          <div className="studio-page pb-4">{children}</div>
         </main>
       </div>
     </div>

@@ -98,6 +98,17 @@ export class SdkWidgetConfigDto {
   @IsString()
   @MaxLength(20)
   offsetY?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(999999)
+  zIndex?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  hideWhenSelector?: string;
 }
 
 export class SdkUiConfigDto {

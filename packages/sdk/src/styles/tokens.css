@@ -51,6 +51,7 @@
   --ac-scrollbar-track: var(--ac-color-primary-muted);
   --ac-send-button-size: 2.5rem;
   --ac-header-icon-size: 2.25rem;
+  --ac-widget-z-index: 1000;
   --ac-widget-offset-x: 1.25rem;
   --ac-widget-offset-y: 1.25rem;
   --ac-widget-button-size: 3.25rem;

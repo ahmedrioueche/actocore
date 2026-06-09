@@ -1,20 +1,21 @@
 import type {
   ProjectUsageBreakdownData,
   UsageSummaryData,
-} from '@ahmedrioueche/actocore-shared';
+} from "@ahmedrioueche/actocore-shared";
 import {
   AlertTriangle,
   ArrowDownUp,
   Clock,
   MessageSquare,
   type LucideIcon,
-} from 'lucide-react';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+} from "lucide-react";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
-import { formatCompactNumber } from '@/components/admin/analytics/format-analytics';
-import type { MetricTone } from '@/components/admin/analytics/MetricCard';
+import { formatCompactNumber } from "@/components/admin/analytics/format-analytics";
+import type { MetricTone } from "@/components/admin/analytics/MetricCard";
 
+const showP95Latency = false;
 export interface UsageMetricDefinition {
   key: string;
   label: string;
@@ -26,7 +27,7 @@ export interface UsageMetricDefinition {
 
 function formatPercent(value: number, locale: string): string {
   return new Intl.NumberFormat(locale, {
-    style: 'percent',
+    style: "percent",
     maximumFractionDigits: 1,
   }).format(value);
 }
@@ -50,47 +51,47 @@ export function useUsageSummaryMetrics(
 
     const metrics: UsageMetricDefinition[] = [
       {
-        key: 'requests',
-        label: t('usage.metrics.requests'),
+        key: "requests",
+        label: t("usage.metrics.requests"),
         value: formatCompactNumber(totalRequests, i18n.language),
-        hint: t('usage.metrics.requestsHint'),
+        hint: t("usage.metrics.requestsHint"),
         icon: MessageSquare,
-        tone: 'primary',
+        tone: "primary",
       },
       {
-        key: 'promptTokens',
-        label: t('usage.metrics.promptTokens'),
+        key: "promptTokens",
+        label: t("usage.metrics.promptTokens"),
         value: formatCompactNumber(totalPromptTokens, i18n.language),
-        hint: t('usage.metrics.promptTokensHint'),
+        hint: t("usage.metrics.promptTokensHint"),
         icon: ArrowDownUp,
-        tone: 'info',
+        tone: "info",
       },
       {
-        key: 'completionTokens',
-        label: t('usage.metrics.completionTokens'),
+        key: "completionTokens",
+        label: t("usage.metrics.completionTokens"),
         value: formatCompactNumber(totalCompletionTokens, i18n.language),
-        hint: t('usage.metrics.completionTokensHint'),
+        hint: t("usage.metrics.completionTokensHint"),
         icon: ArrowDownUp,
-        tone: 'accent',
+        tone: "accent",
       },
       {
-        key: 'errorRate',
-        label: t('usage.metrics.errorRate'),
+        key: "errorRate",
+        label: t("usage.metrics.errorRate"),
         value: formatPercent(errorRate, i18n.language),
-        hint: t('usage.metrics.errorRateHint'),
+        hint: t("usage.metrics.errorRateHint"),
         icon: AlertTriangle,
-        tone: errorRate > 0.05 ? 'warning' : 'success',
+        tone: errorRate > 0.05 ? "warning" : "success",
       },
     ];
 
-    if (p95LatencyMs != null) {
+    if (p95LatencyMs != null && showP95Latency) {
       metrics.push({
-        key: 'p95Latency',
-        label: t('usage.metrics.p95Latency'),
+        key: "p95Latency",
+        label: t("usage.metrics.p95Latency"),
         value: formatCompactNumber(p95LatencyMs, i18n.language),
-        hint: t('usage.metrics.p95LatencyHint'),
+        hint: t("usage.metrics.p95LatencyHint"),
         icon: Clock,
-        tone: 'info',
+        tone: "info",
       });
     }
 

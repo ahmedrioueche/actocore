@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components/states';
 import { DataTable } from '@/components/ui/DataTable';
+import { MobileDataCard, MobileDataRow } from '@/components/ui/MobileDataCard';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -236,6 +237,110 @@ export function ActionsTable({ projectId, sectionId }: ActionsTableProps) {
           description={t('projectPages.sections.actions.emptyDescription')}
         />
       }
+      renderMobileCard={(action) => {
+        const formatDate = (value: string) =>
+          new Date(value).toLocaleDateString(i18n.language, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+
+        const statusControl = canWrite ? (
+          <ToggleSwitch
+            checked={action.enabled}
+            ariaLabel={
+              action.enabled
+                ? t('projectActions.status.disable')
+                : t('projectActions.status.enable')
+            }
+            onChange={(next) => {
+              void updateAction.mutateAsync({
+                actionId: action.id,
+                body: { enabled: next },
+              });
+            }}
+          />
+        ) : (
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+              action.enabled
+                ? 'bg-success/10 text-success'
+                : 'bg-surface-hover text-text-secondary'
+            }`}
+          >
+            {action.enabled
+              ? t('projectActions.status.enabled')
+              : t('projectActions.status.disabled')}
+          </span>
+        );
+
+        const rowActions = canWrite ? (
+          <>
+            <button
+              type="button"
+              onClick={() =>
+                openModal('editAction', { projectId, actionId: action.id })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              aria-label={t('projectActions.edit.title')}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                openConfirm({
+                  title: t('projectActions.delete.title'),
+                  text: t('projectActions.delete.text', { name: action.name }),
+                  confirmText: t('projectActions.delete.confirm'),
+                  confirmVariant: 'danger',
+                  onConfirm: () => {
+                    void deleteAction.mutateAsync(action.id);
+                  },
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger-surface hover:text-danger"
+              aria-label={t('projectActions.delete.confirm')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </>
+        ) : undefined;
+
+        return (
+          <MobileDataCard
+            actions={rowActions}
+            footer={
+              <>
+                <MobileDataRow
+                  label={t('projectActions.columns.status')}
+                  value={statusControl}
+                />
+                <MobileDataRow
+                  label={t('projectActions.columns.updated')}
+                  value={formatDate(action.updatedAt)}
+                />
+              </>
+            }
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-text-secondary">
+                <Zap className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate font-mono text-sm font-medium text-text-primary">
+                  {action.name}
+                </p>
+                {action.description ? (
+                  <p className="truncate text-xs text-text-secondary">
+                    {action.description}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </MobileDataCard>
+        );
+      }}
     />
   );
 }

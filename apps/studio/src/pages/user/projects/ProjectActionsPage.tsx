@@ -1,21 +1,21 @@
-import { UNCATEGORIZED_SECTION_ID } from '@ahmedrioueche/actocore-shared';
-import { Code2, Zap } from 'lucide-react';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from '@tanstack/react-router';
+import { UNCATEGORIZED_SECTION_ID } from "@ahmedrioueche/actocore-shared";
+import { useParams } from "@tanstack/react-router";
+import { Code2, Zap } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { ActionsTable } from '@/components/actions/ActionsTable';
-import { SectionSidebar } from '@/components/actions/SectionSidebar';
-import { PlanLimitTip } from '@/components/billing/PlanLimitTip';
-import { PageHeader } from '@/components/layout/PageHeader';
-import Button from '@/components/ui/Button';
-import { useAuth } from '@/context/AuthContext';
-import { useProject } from '@/hooks/use-projects';
-import { useProjectActions } from '@/hooks/use-actions';
-import { useSubscriptionSummary } from '@/hooks/use-subscription';
-import { isAtPlanLimit } from '@/lib/plan-limits';
-import { canWriteActions } from '@/lib/studio-permissions';
-import { useModalStore } from '@/stores/modal';
+import { ActionsTable } from "@/components/actions/ActionsTable";
+import { SectionSidebar } from "@/components/actions/SectionSidebar";
+import { PlanLimitTip } from "@/components/billing/PlanLimitTip";
+import { PageHeader } from "@/components/layout/PageHeader";
+import Button from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
+import { useProjectActions } from "@/hooks/use-actions";
+import { useProject } from "@/hooks/use-projects";
+import { useSubscriptionSummary } from "@/hooks/use-subscription";
+import { isAtPlanLimit } from "@/lib/plan-limits";
+import { canWriteActions } from "@/lib/studio-permissions";
+import { useModalStore } from "@/stores/modal";
 
 export default function ProjectActionsPage() {
   const { t } = useTranslation();
@@ -48,39 +48,39 @@ export default function ProjectActionsPage() {
   return (
     <>
       <PageHeader
-        title={t('projectPages.sections.actions.title')}
+        title={t("projectPages.sections.actions.title")}
         subtitle={
           projectName
-            ? t('projectPages.sectionSubtitle', { project: projectName })
-            : t('projectPages.sections.actions.emptyDescription')
+            ? t("projectPages.sectionSubtitle", { project: projectName })
+            : t("projectPages.sections.actions.emptyDescription")
         }
         actions={
           projectId ? (
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
               <Button
                 variant="outline"
                 icon={<Code2 className="h-4 w-4" />}
                 disabled={!hasActions}
                 onClick={() =>
-                  openModal('actionsSdkCode', {
+                  openModal("actionsSdkCode", {
                     projectId,
                   })
                 }
               >
-                {t('projectActions.generateCode.button')}
+                {t("projectActions.generateCode.button")}
               </Button>
               {canWrite ? (
                 <Button
                   icon={<Zap className="h-4 w-4" />}
                   disabled={atActionLimit}
                   onClick={() =>
-                    openModal('createAction', {
+                    openModal("createAction", {
                       projectId,
                       defaultSectionId: realSectionId,
                     })
                   }
                 >
-                  {t('projectActions.create.button')}
+                  {t("projectActions.create.button")}
                 </Button>
               ) : null}
             </div>
@@ -93,7 +93,7 @@ export default function ProjectActionsPage() {
       ) : null}
 
       {projectId ? (
-        <div className="flex gap-6">
+        <div className="flex flex-col gap-4 md:flex-row md:gap-6">
           <SectionSidebar
             projectId={projectId}
             selectedSectionId={selectedSectionId}

@@ -60,6 +60,8 @@ export interface ActocoreWidgetConfig {
   position?: ActocoreWidgetPosition;
   offsetX?: string;
   offsetY?: string;
+  zIndex?: number;
+  hideWhenSelector?: string;
 }
 
 /** Optional class names per UI region (host/dashboard overrides). */

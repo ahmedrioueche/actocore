@@ -1,4 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useMobileViewport } from '../../hooks/use-mobile-viewport';
+import { useSuppressedWhenSelector } from '../../hooks/use-suppressed-when-selector';
 import { useUiText } from '../../hooks/use-ui-text';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
@@ -11,10 +13,16 @@ export type WidgetPosition =
   | 'top-right'
   | 'top-left';
 
+const DEFAULT_WIDGET_Z_INDEX = 1000;
+
 export interface ActoChatWidgetProps {
   position?: WidgetPosition;
   offsetX?: string;
   offsetY?: string;
+  /** Stacking order — set below host modals if the launcher overlaps them. */
+  zIndex?: number;
+  /** Hide widget while this CSS selector matches (e.g. `[data-modal-open]`). */
+  hideWhenSelector?: string;
   initialOpen?: boolean;
   className?: string;
   /** Custom launcher icon (React node). Overrides `ui.launcher.iconUrl`. */
@@ -30,10 +38,11 @@ function getAnchorPositionStyle(
   position: WidgetPosition,
   offsetX: string,
   offsetY: string,
+  zIndex: number,
 ): CSSProperties {
   const base: CSSProperties = {
     position: 'fixed',
-    zIndex: 1000,
+    zIndex,
   };
 
   switch (position) {
@@ -53,6 +62,8 @@ export function ActoChatWidget({
   position: positionProp,
   offsetX: offsetXProp,
   offsetY: offsetYProp,
+  zIndex: zIndexProp,
+  hideWhenSelector: hideWhenSelectorProp,
   initialOpen = false,
   className,
   launcherIcon,
@@ -70,6 +81,12 @@ export function ActoChatWidget({
     offsetYProp ?? ui.widget?.offsetY ?? 'var(--ac-widget-offset-y)';
   const defaultOpenLabel = useUiText('open');
   const openLabel = ui.launcher?.ariaLabel ?? defaultOpenLabel;
+  const isMobile = useMobileViewport();
+  const widgetZIndex =
+    zIndexProp ?? ui.widget?.zIndex ?? DEFAULT_WIDGET_Z_INDEX;
+  const hideWhenSelector =
+    hideWhenSelectorProp ?? ui.widget?.hideWhenSelector;
+  const suppressed = useSuppressedWhenSelector(hideWhenSelector);
   const [isOpen, setIsOpen] = useState(initialOpen);
   /** Keep chat mounted after first open so conversation state survives close/reopen. */
   const [chatMounted, setChatMounted] = useState(initialOpen);
@@ -94,22 +111,52 @@ export function ActoChatWidget({
     return () => cancelAnimationFrame(frame);
   }, [isOpen]);
 
-  const anchorStyle = getAnchorPositionStyle(position, offsetX, offsetY);
+  const anchorStyle: CSSProperties =
+    isOpen && isMobile
+      ? { position: 'fixed', zIndex: widgetZIndex }
+      : getAnchorPositionStyle(position, offsetX, offsetY, widgetZIndex);
   const open = () => setIsOpen(true);
+
+  useEffect(() => {
+    if (suppressed && isOpen) {
+      setIsOpen(false);
+    }
+  }, [suppressed, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !isMobile) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen, isMobile]);
+
+  if (suppressed) {
+    return null;
+  }
 
   return (
     <>
       {isOpen ? (
         <div
           className="ac-widget__backdrop"
+          style={{ zIndex: widgetZIndex - 2 }}
           onClick={() => setIsOpen(false)}
           aria-hidden
         />
       ) : null}
 
       <div
-        style={anchorStyle}
-        className={mergeClassNames('ac-widget', className)}
+        style={{
+          ...anchorStyle,
+          ['--ac-widget-z-index' as string]: String(widgetZIndex),
+        }}
+        className={mergeClassNames(
+          'ac-widget',
+          isOpen && isMobile && 'ac-widget--mobile-open',
+          className,
+        )}
       >
         {chatMounted ? (
           <div

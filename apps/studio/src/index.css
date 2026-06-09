@@ -1,4 +1,4 @@
-@import './styles/tokens.css';
+@import "./styles/tokens.css";
 
 @tailwind base;
 @tailwind components;
@@ -67,13 +67,13 @@
   }
 
   /* Hide native number input spinners */
-  input[type='number']::-webkit-inner-spin-button,
-  input[type='number']::-webkit-outer-spin-button {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  input[type='number'] {
+  input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
   }
@@ -224,8 +224,16 @@
       transparent
     );
     animation: empty-state-spin 10s linear infinite;
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 2px),
+      #000 calc(100% - 1px)
+    );
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 2px),
+      #000 calc(100% - 1px)
+    );
   }
 
   .dark .empty-state__ring {

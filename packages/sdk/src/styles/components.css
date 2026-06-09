@@ -754,13 +754,13 @@
 
 [data-actocore] .ac-widget {
   position: fixed;
-  z-index: 1000;
+  z-index: var(--ac-widget-z-index);
 }
 
 [data-actocore] .ac-widget__backdrop {
   position: fixed;
   inset: 0;
-  z-index: 998;
+  z-index: calc(var(--ac-widget-z-index) - 2);
   background: var(--ac-backdrop-bg);
 }
 
@@ -802,6 +802,65 @@
 
 [data-actocore] .ac-widget__launcher--open {
   transform: rotate(0deg);
+}
+
+/* Mobile: full-width bottom sheet (matches Studio BaseModal pattern). */
+@media (max-width: 767px) {
+  [data-actocore] .ac-widget__backdrop {
+    background: rgb(0 0 0 / 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  [data-actocore] .ac-widget--mobile-open {
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  [data-actocore] .ac-widget--mobile-open .ac-widget__panel {
+    pointer-events: auto;
+    width: 100%;
+    max-width: 100%;
+    height: 92dvh;
+    max-height: 92dvh;
+    border-radius: var(--ac-radius-xl) var(--ac-radius-xl) 0 0;
+    animation: ac-widget-sheet-in 0.3s ease-out;
+  }
+
+  [data-actocore] .ac-widget--mobile-open .ac-chat {
+    max-width: 100%;
+    height: 100%;
+    border-radius: var(--ac-radius-xl) var(--ac-radius-xl) 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-shadow: var(--ac-shadow-lg);
+  }
+
+  [data-actocore] .ac-widget--mobile-open .ac-chat__composer {
+    padding-bottom: calc(
+      var(--ac-space-lg) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+}
+
+@keyframes ac-widget-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 [data-actocore] .ac-action-card {

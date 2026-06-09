@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components/states';
 import { DataTable } from '@/components/ui/DataTable';
+import { MobileDataCard, MobileDataRow } from '@/components/ui/MobileDataCard';
 import { useAuth } from '@/context/AuthContext';
 import { useProjectApiKeys, useRevokeApiKey } from '@/hooks/use-api-keys';
 import { canWriteApiKeys } from '@/lib/studio-permissions';
@@ -186,6 +187,80 @@ export function ApiKeysTable({ projectId }: ApiKeysTableProps) {
           description={t('projectPages.sections.apiKeys.emptyDescription')}
         />
       }
+      renderMobileCard={(key) => {
+        const formatCreated = (value: string) =>
+          new Date(value).toLocaleDateString(i18n.language, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+
+        const actions = canWrite ? (
+          <>
+            <button
+              type="button"
+              onClick={() =>
+                openModal('editApiKey', {
+                  projectId,
+                  keyId: key.id,
+                  currentName: key.name ?? '',
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              aria-label={t('apiKeys.edit.title')}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                openConfirm({
+                  title: t('apiKeys.delete.title'),
+                  text: t('apiKeys.delete.text', { name: formatKeyLabel(key) }),
+                  confirmText: t('apiKeys.delete.confirm'),
+                  confirmVariant: 'danger',
+                  onConfirm: () => {
+                    void revokeKey.mutateAsync(key.id);
+                  },
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger-surface hover:text-danger"
+              aria-label={t('apiKeys.delete.confirm')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </>
+        ) : undefined;
+
+        return (
+          <MobileDataCard
+            actions={actions}
+            footer={
+              <>
+                <MobileDataRow
+                  label={t('apiKeys.columns.created')}
+                  value={formatCreated(key.createdAt)}
+                />
+                <MobileDataRow
+                  label={t('apiKeys.columns.lastUsed')}
+                  value={
+                    key.lastUsedAt
+                      ? formatCreated(key.lastUsedAt)
+                      : t('apiKeys.neverUsed')
+                  }
+                />
+              </>
+            }
+          >
+            <p className="truncate font-medium text-text-primary">
+              {formatKeyLabel(key)}
+            </p>
+            <p className="mt-1 truncate font-mono text-xs text-text-secondary">
+              {key.prefix}…
+            </p>
+          </MobileDataCard>
+        );
+      }}
     />
   );
 }

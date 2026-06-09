@@ -3,6 +3,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { MobileDataCard, MobileDataRow } from '@/components/ui/MobileDataCard';
 import { Table, type TableColumn } from '@/components/ui/Table';
 import UserAvatar from '@/components/ui/UserAvatar';
 import { useAuth } from '@/context/AuthContext';
@@ -165,21 +166,95 @@ export function TeamMembersTable({
       data={members}
       keyExtractor={(member) => member.userId}
       isLoading={isLoading}
-      renderMobileCard={(member) => (
-        <div className="rounded-2xl bg-surface p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <UserAvatar name={memberLabel(member)} size="sm" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-text-primary">
-                {memberLabel(member)}
-              </p>
-              <p className="text-xs text-text-secondary">
-                {t(`roles.${member.role}`)}
-              </p>
+      renderMobileCard={(member) => {
+        const editable = canWrite && isEditableTeamMember(member);
+        const actions = editable ? (
+          <>
+            <button
+              type="button"
+              onClick={() =>
+                openModal('editMember', {
+                  userId: member.userId,
+                  username: member.username,
+                  displayName: member.displayName,
+                  projectIds: member.projectIds,
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              aria-label={t('team.edit.title')}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                openConfirm({
+                  title: t('team.remove.title'),
+                  text: t('team.remove.confirm', {
+                    name: memberLabel(member),
+                  }),
+                  confirmText: t('team.remove.submit'),
+                  confirmVariant: 'danger',
+                  onConfirm: () => {
+                    void (async () => {
+                      try {
+                        await removeMember.mutateAsync(member.userId);
+                        toast.success(t('team.remove.success'));
+                      } catch (err) {
+                        toast.error(getUnknownApiErrorMessage(t, err));
+                      }
+                    })();
+                  },
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger-surface hover:text-danger"
+              aria-label={t('team.remove.submit')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </>
+        ) : undefined;
+
+        return (
+          <MobileDataCard
+            actions={actions}
+            footer={
+              <>
+                <MobileDataRow
+                  label={t('team.columns.role')}
+                  value={
+                    <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                      {t(`roles.${member.role}`)}
+                    </span>
+                  }
+                />
+                <MobileDataRow
+                  label={t('team.columns.projects')}
+                  value={formatMemberProjectsLabel(member, t)}
+                />
+              </>
+            }
+          >
+            <div className="flex items-center gap-3">
+              <UserAvatar name={memberLabel(member)} size="sm" />
+              <div className="min-w-0">
+                <p className="truncate font-medium text-text-primary">
+                  {memberLabel(member)}
+                </p>
+                {member.username ? (
+                  <p className="truncate text-xs text-text-secondary">
+                    @{member.username}
+                  </p>
+                ) : member.email ? (
+                  <p className="truncate text-xs text-text-secondary">
+                    {member.email}
+                  </p>
+                ) : null}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </MobileDataCard>
+        );
+      }}
     />
   );
 }

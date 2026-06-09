@@ -3,6 +3,7 @@ import { Inbox, Layers, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
+import { cn } from '@/utils/helper';
 import {
   useActionSections,
   useDeleteActionSection,
@@ -18,7 +19,7 @@ interface SectionSidebarProps {
 }
 
 const ITEM_BASE =
-  'group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors';
+  'group flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors md:w-full';
 
 export function SectionSidebar({
   projectId,
@@ -44,7 +45,7 @@ export function SectionSidebar({
     }`;
 
   return (
-    <aside className="w-64 shrink-0 space-y-3">
+    <aside className="w-full shrink-0 space-y-3 md:w-64">
       <div className="flex items-center justify-between px-1">
         <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
           {t('projectActions.sections.title')}
@@ -62,7 +63,7 @@ export function SectionSidebar({
         ) : null}
       </div>
 
-      <nav className="space-y-1">
+      <nav className="flex gap-1 overflow-x-auto pb-1 hide-scrollbar md:block md:space-y-1 md:overflow-visible md:pb-0">
         <button
           type="button"
           onClick={() => onSelect(undefined)}
@@ -77,7 +78,7 @@ export function SectionSidebar({
         {sections.map((section) => {
           const active = selectedSectionId === section.id;
           return (
-            <div key={section.id} className={itemClass(active)}>
+            <div key={section.id} className={cn(itemClass(active), 'md:pr-1')}>
               <button
                 type="button"
                 onClick={() => onSelect(section.id)}
@@ -100,7 +101,7 @@ export function SectionSidebar({
               </button>
 
               {canWrite ? (
-                <div className="flex items-center gap-1">
+                <div className="hidden items-center gap-1 md:flex">
                   <span
                     onClick={(e) => e.stopPropagation()}
                     className="opacity-0 transition-opacity group-hover:opacity-100"

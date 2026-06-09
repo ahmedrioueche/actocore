@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 
 import ConfirmModal from '@/components/ConfirmModal';
+import { useModalBodyFlag } from '@/hooks/use-modal-body-flag';
 
 const UploadKnowledgeModal = lazy(
   () => import('@/components/knowledge/UploadKnowledgeModal'),
@@ -55,6 +56,8 @@ const EditPlatformManagerModal = lazy(
 );
 
 export default function Modals() {
+  useModalBodyFlag();
+
   return (
     <>
       <ConfirmModal />

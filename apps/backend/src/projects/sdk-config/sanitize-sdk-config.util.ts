@@ -233,6 +233,14 @@ function pickWidget(raw: unknown): SdkWidgetConfig | undefined {
   if (offsetX) result.offsetX = offsetX;
   if (offsetY) result.offsetY = offsetY;
 
+  if (typeof o.zIndex === 'number' && Number.isInteger(o.zIndex) && o.zIndex >= 1) {
+    result.zIndex = o.zIndex;
+  }
+
+  const hideWhenSelector =
+    typeof o.hideWhenSelector === 'string' ? o.hideWhenSelector.trim() : undefined;
+  if (hideWhenSelector) result.hideWhenSelector = hideWhenSelector;
+
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
