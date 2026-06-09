@@ -9,12 +9,14 @@ interface UsageTimeSeriesChartProps {
   buckets: UsageDailyBucket[];
   isLoading?: boolean;
   className?: string;
+  emptyLabel?: string;
 }
 
 export function UsageTimeSeriesChart({
   buckets,
   isLoading = false,
   className,
+  emptyLabel,
 }: UsageTimeSeriesChartProps) {
   const { t, i18n } = useTranslation();
   const maxRequests = buckets.reduce(
@@ -40,7 +42,9 @@ export function UsageTimeSeriesChart({
 
   if (buckets.length === 0) {
     return (
-      <p className="text-sm text-text-secondary">{t('admin.usage.series.empty')}</p>
+      <p className="text-sm text-text-secondary">
+        {emptyLabel ?? t('admin.usage.series.empty')}
+      </p>
     );
   }
 

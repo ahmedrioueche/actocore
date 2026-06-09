@@ -676,6 +676,7 @@
     "allProjects": "All projects",
     "team": "Team",
     "subscription": "Subscription",
+    "usage": "Usage",
     "billing": "Billing",
     "settings": "Settings",
     "workspace": "Workspace",
@@ -1228,6 +1229,64 @@
         "tokens": "Tokens",
         "empty": "No project usage in this range yet."
       }
+    }
+  },
+  "usage": {
+    "title": "Usage",
+    "subtitle": "Workspace consumption and per-project roll-up for the selected period.",
+    "manageBilling": "Billing & limits",
+    "dateRange": {
+      "label": "Date range",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "month": "This month"
+    },
+    "quota": {
+      "title": "Plan usage",
+      "monthlyTokens": "Monthly tokens"
+    },
+    "metrics": {
+      "requests": "Chat requests",
+      "requestsHint": "SDK chat calls in the selected range",
+      "promptTokens": "Prompt tokens",
+      "promptTokensHint": "Input tokens sent to the LLM",
+      "completionTokens": "Completion tokens",
+      "completionTokensHint": "Output tokens returned by the LLM",
+      "errorRate": "Error rate",
+      "errorRateHint": "Share of requests that failed",
+      "p95Latency": "P95 latency",
+      "p95LatencyHint": "95th percentile response time (ms)"
+    },
+    "series": {
+      "title": "Daily activity",
+      "description": "Requests per day for this project.",
+      "empty": "No daily activity in this range yet."
+    },
+    "intentBreakdown": {
+      "title": "Intent breakdown",
+      "description": "How chat requests were classified in this range.",
+      "workspaceDescription": "Intent mix across all projects in your workspace.",
+      "empty": "No intent data in this range yet."
+    },
+    "modelBreakdown": {
+      "title": "Model breakdown",
+      "description": "Top models by request count in the selected range.",
+      "empty": "No model usage in this range yet."
+    },
+    "apiKeyBreakdown": {
+      "title": "API key breakdown",
+      "description": "Requests grouped by API key name.",
+      "empty": "No API key usage in this range yet.",
+      "removedKey": "Removed key",
+      "unknownKey": "Unknown"
+    },
+    "projectsTable": {
+      "title": "Projects",
+      "description": "Consumption by project — open a row for detailed analytics.",
+      "name": "Project",
+      "requests": "Requests",
+      "tokens": "Tokens",
+      "empty": "No project usage in this range yet."
     }
   },
   "theme": {

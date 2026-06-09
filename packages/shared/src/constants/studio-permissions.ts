@@ -27,11 +27,8 @@ export const StudioPermission = {
 export type StudioPermission =
   (typeof StudioPermission)[keyof typeof StudioPermission];
 
-/** Default grants when membership.permissions is empty. */
-/** Tenant-facing permissions (no platform usage analytics). */
-const TENANT_USER_ADMIN_PERMISSIONS = Object.values(StudioPermission).filter(
-  (p) => p !== StudioPermission.USAGE_READ,
-);
+/** Default grants when membership.permissions is empty (tenant Studio). */
+const TENANT_USER_ADMIN_PERMISSIONS = Object.values(StudioPermission);
 
 export const STUDIO_ROLE_DEFAULT_PERMISSIONS: Record<StudioRole, string[]> = {
   [StudioRole.SUPER_ADMIN]: Object.values(StudioPermission),

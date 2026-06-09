@@ -19,6 +19,24 @@ async function createApp(): Promise<INestApplication<App>> {
   return application;
 }
 
+async function signupAndLogin(
+  server: App,
+  label: string,
+): Promise<{ token: string; email: string }> {
+  const email = `${label}-${Date.now()}@test.local`;
+  await request(server)
+    .post('/v1/web/auth/signup')
+    .send({ accountName: `${label} Co`, email, password: 'password123' })
+    .expect(201);
+
+  const login = await request(server)
+    .post('/v1/web/auth/login')
+    .send({ email, password: 'password123' })
+    .expect(201);
+
+  return { token: login.body.data.accessToken as string, email };
+}
+
 describe('Usage & quota (e2e)', () => {
   let mongod: MongoMemoryServer;
 
@@ -68,7 +86,7 @@ describe('Usage & quota (e2e)', () => {
     });
   });
 
-  describe('tenant billing quota (not usage analytics)', () => {
+  describe('tenant usage analytics', () => {
     let app: INestApplication<App>;
 
     beforeEach(async () => {
@@ -85,21 +103,9 @@ describe('Usage & quota (e2e)', () => {
       await app?.close();
     });
 
-    it('exposes account quota for billing.read and blocks tenant usage routes', async () => {
+    it('exposes workspace and project usage for the authenticated tenant', async () => {
       const server = app.getHttpServer();
-      const email = `quota-${Date.now()}@test.local`;
-
-      await request(server)
-        .post('/v1/web/auth/signup')
-        .send({ accountName: 'Quota Co', email, password: 'password123' })
-        .expect(201);
-
-      const login = await request(server)
-        .post('/v1/web/auth/login')
-        .send({ email, password: 'password123' })
-        .expect(201);
-
-      const token = login.body.data.accessToken as string;
+      const { token } = await signupAndLogin(server, 'usage-tenant');
       const auth = { Authorization: `Bearer ${token}` };
 
       const project = await request(server)
@@ -121,17 +127,109 @@ describe('Usage & quota (e2e)', () => {
         .send({ message: 'hi' })
         .expect(201);
 
+      const workspace = await request(server)
+        .get('/v1/web/usage')
+        .set(auth)
+        .expect(200);
+
+      expect(workspace.body.data.totalRequests).toBeGreaterThanOrEqual(1);
+      expect(workspace.body.data.projects).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            projectId,
+            projectName: 'App',
+            totalRequests: expect.any(Number),
+          }),
+        ]),
+      );
+
+      const summary = await request(server)
+        .get(`/v1/web/projects/${projectId}/usage/summary`)
+        .set(auth)
+        .expect(200);
+
+      expect(summary.body.data.projectId).toBe(projectId);
+      expect(summary.body.data.totalRequests).toBeGreaterThanOrEqual(1);
+      for (const label of Object.keys(summary.body.data.byApiKey ?? {})) {
+        expect(label).not.toMatch(/^[a-f0-9]{24}$/i);
+      }
+
+      const series = await request(server)
+        .get(`/v1/web/projects/${projectId}/usage/series`)
+        .set(auth)
+        .expect(200);
+
+      expect(series.body.data.projectId).toBe(projectId);
+      expect(Array.isArray(series.body.data.buckets)).toBe(true);
+
+      const breakdown = await request(server)
+        .get(`/v1/web/projects/${projectId}/usage/breakdown`)
+        .set(auth)
+        .expect(200);
+
+      expect(breakdown.body.data.projectId).toBe(projectId);
+
+      const events = await request(server)
+        .get(`/v1/web/projects/${projectId}/usage/events`)
+        .set(auth)
+        .expect(200);
+
+      expect(events.body.data.items.length).toBeGreaterThanOrEqual(1);
+      expect(events.body.data.items[0].apiKeyId).toBeUndefined();
+
       const quota = await request(server)
         .get('/v1/web/billing/quota')
         .set(auth)
         .expect(200);
 
       expect(quota.body.data.monthlyTokensUsed).toBeGreaterThanOrEqual(15);
+    });
+
+    it('isolates usage data between tenants', async () => {
+      const server = app.getHttpServer();
+      const tenantA = await signupAndLogin(server, 'usage-a');
+      const tenantB = await signupAndLogin(server, 'usage-b');
+
+      const projectA = await request(server)
+        .post('/v1/web/projects')
+        .set({ Authorization: `Bearer ${tenantA.token}` })
+        .send({ name: 'Tenant A App' })
+        .expect(201);
+
+      const projectAId = projectA.body.data.id as string;
+      const keyA = await request(server)
+        .post('/v1/web/api-keys')
+        .set({ Authorization: `Bearer ${tenantA.token}` })
+        .send({ projectId: projectAId, name: 'a' })
+        .expect(201);
 
       await request(server)
-        .get(`/v1/web/projects/${projectId}/usage`)
-        .set(auth)
+        .post('/v1/sdk/chat')
+        .set({ Authorization: `Bearer ${keyA.body.data.key}` })
+        .send({ message: 'hello from A' })
+        .expect(201);
+
+      await request(server)
+        .get(`/v1/web/projects/${projectAId}/usage/summary`)
+        .set({ Authorization: `Bearer ${tenantB.token}` })
         .expect(404);
+
+      const workspaceB = await request(server)
+        .get('/v1/web/usage')
+        .set({ Authorization: `Bearer ${tenantB.token}` })
+        .expect(200);
+
+      expect(workspaceB.body.data.totalRequests).toBe(0);
+      expect(
+        workspaceB.body.data.projects.some(
+          (row: { projectId: string }) => row.projectId === projectAId,
+        ),
+      ).toBe(false);
+      expect(
+        workspaceB.body.data.projects.every(
+          (row: { totalRequests: number }) => row.totalRequests === 0,
+        ),
+      ).toBe(true);
     });
   });
 });

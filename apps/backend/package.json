@@ -22,7 +22,7 @@
     "seed:paypal-catalog": "ts-node -r dotenv/config -r tsconfig-paths/register scripts/seed-paypal-catalog.ts"
   },
   "dependencies": {
-    "@ahmedrioueche/actocore-shared": "file:../../packages/shared",
+    "@ahmedrioueche/actocore-shared": "0.0.31",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",

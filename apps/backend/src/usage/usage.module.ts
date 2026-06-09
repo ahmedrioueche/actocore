@@ -24,9 +24,14 @@ import {
   ChatSession,
   ChatSessionSchema,
 } from '../sessions/schemas/chat-session.schema';
+import { ApiKey, ApiKeySchema } from '../auth/schemas/api-key.schema';
 import { UsageEvent, UsageEventSchema } from './schemas/usage-event.schema';
 import { PlatformPermissionGuard } from '../studio/guards/platform-permission.guard';
 import { UsageAdminController } from './usage-admin.controller';
+import {
+  ProjectUsageStudioController,
+  UsageStudioController,
+} from './usage-studio.controller';
 import { UsageService } from './usage.service';
 
 @Module({
@@ -35,6 +40,7 @@ import { UsageService } from './usage.service';
     forwardRef(() => StudioModule),
     MongooseModule.forFeature([
       { name: UsageEvent.name, schema: UsageEventSchema },
+      { name: ApiKey.name, schema: ApiKeySchema },
       { name: Project.name, schema: ProjectSchema },
       { name: StudioAccount.name, schema: StudioAccountSchema },
       { name: KnowledgeSource.name, schema: KnowledgeSourceSchema },
@@ -44,7 +50,11 @@ import { UsageService } from './usage.service';
     ]),
     forwardRef(() => ProjectsModule),
   ],
-  controllers: [UsageAdminController],
+  controllers: [
+    UsageAdminController,
+    UsageStudioController,
+    ProjectUsageStudioController,
+  ],
   providers: [UsageService, PlatformPermissionGuard],
   exports: [UsageService],
 })

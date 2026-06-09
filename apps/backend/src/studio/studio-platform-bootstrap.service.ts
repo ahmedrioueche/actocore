@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
+import { MongoServerError } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { StudioRole } from '@ahmedrioueche/actocore-shared';
 import type { PlatformAuthConfig } from '../config/platform-auth.config';
@@ -80,7 +81,15 @@ export class StudioPlatformBootstrapService implements OnModuleInit {
 
   private async dropStaleUserIndexes(): Promise<void> {
     const collection = this.userModel.collection;
-    const indexes = await collection.indexes();
+    let indexes;
+    try {
+      indexes = await collection.indexes();
+    } catch (error) {
+      if (error instanceof MongoServerError && error.code === 26) {
+        return;
+      }
+      throw error;
+    }
     if (!indexes.some((index) => index.name === 'username_1')) {
       return;
     }

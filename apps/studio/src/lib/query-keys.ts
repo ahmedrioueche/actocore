@@ -79,4 +79,20 @@ export const queryKeys = {
   sdkConfig: {
     detail: (projectId: string) => ["sdkConfig", "detail", projectId] as const,
   },
+  usage: {
+    workspace: (params: { from?: string; to?: string } = {}) =>
+      ["usage", "workspace", params] as const,
+    projectSummary: (
+      projectId: string,
+      params: { from?: string; to?: string } = {},
+    ) => ["usage", "project", projectId, "summary", params] as const,
+    projectSeries: (
+      projectId: string,
+      params: { from?: string; to?: string } = {},
+    ) => ["usage", "project", projectId, "series", params] as const,
+    projectBreakdown: (
+      projectId: string,
+      params: { from?: string; to?: string } = {},
+    ) => ["usage", "project", projectId, "breakdown", params] as const,
+  },
 } as const;

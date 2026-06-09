@@ -16,7 +16,8 @@ import type {
   UsageSummaryData,
   UsageTimeSeriesData,
 } from '@ahmedrioueche/actocore-shared';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import { ApiKey, ApiKeyDocument } from '../auth/schemas/api-key.schema';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import {
   KnowledgeChunk,
@@ -78,6 +79,8 @@ export class UsageService {
     private readonly bootstrap: StudioPlatformBootstrapService,
     @InjectModel(UsageEvent.name)
     private readonly usageModel: Model<UsageEventDocument>,
+    @InjectModel(ApiKey.name)
+    private readonly apiKeyModel: Model<ApiKeyDocument>,
     @InjectModel(Project.name)
     private readonly projectModel: Model<ProjectDocument>,
     @InjectModel(StudioAccount.name)
@@ -228,6 +231,7 @@ export class UsageService {
     projectId: string,
     fromRaw?: string,
     toRaw?: string,
+    options?: { labelApiKeys?: boolean },
   ): Promise<UsageSummaryData> {
     await this.projects.assertExists(projectId);
     const range = parseUsageRangeQuery(fromRaw, toRaw);
@@ -240,6 +244,12 @@ export class UsageService {
       .exec();
 
     const aggregated = this.aggregateEvents(events);
+    if (options?.labelApiKeys) {
+      aggregated.byApiKey = await this.labelApiKeyBreakdown(
+        projectId,
+        aggregated.byApiKey,
+      );
+    }
     return {
       projectId,
       ...aggregated,
@@ -790,6 +800,37 @@ export class UsageService {
       contentType: 'text/csv; charset=utf-8',
       filename: `usage-${projectId}-${stamp}.csv`,
     };
+  }
+
+  private async labelApiKeyBreakdown(
+    projectId: string,
+    byApiKey: Record<string, number>,
+  ): Promise<Record<string, number>> {
+    const objectIds = Object.keys(byApiKey)
+      .filter((id) => id !== 'unknown' && Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+
+    const docs =
+      objectIds.length === 0
+        ? []
+        : await this.apiKeyModel
+            .find({ projectId, _id: { $in: objectIds } })
+            .exec();
+
+    const idToLabel = new Map(
+      docs.map((doc) => [
+        doc._id.toString(),
+        doc.name?.trim() || doc.prefix,
+      ]),
+    );
+
+    const labeled: Record<string, number> = {};
+    for (const [id, count] of Object.entries(byApiKey)) {
+      const label =
+        id === 'unknown' ? 'Unknown' : (idToLabel.get(id) ?? 'Removed key');
+      labeled[label] = (labeled[label] ?? 0) + count;
+    }
+    return labeled;
   }
 
   private aggregateEvents(events: UsageEventDocument[]) {

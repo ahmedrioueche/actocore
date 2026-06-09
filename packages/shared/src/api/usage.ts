@@ -128,3 +128,67 @@ export class PlatformUsageAdminApi extends BaseApi {
 }
 
 export const platformUsageAdminApi = new PlatformUsageAdminApi();
+
+/** Tenant workspace / project usage analytics. */
+export class StudioUsageApi extends BaseApi {
+  getAccountSummary(
+    query?: UsageRangeQueryDto,
+  ): Promise<ApiResponse<AccountUsageSummaryData>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<AccountUsageSummaryData>>(
+        apiPath('web/usage'),
+        { params: query },
+      ),
+    );
+  }
+
+  getProjectSummary(
+    projectId: string,
+    query?: UsageRangeQueryDto,
+  ): Promise<ApiResponse<UsageSummaryData>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<UsageSummaryData>>(
+        apiPath(`web/projects/${projectId}/usage/summary`),
+        { params: query },
+      ),
+    );
+  }
+
+  getProjectSeries(
+    projectId: string,
+    query?: UsageSeriesQueryDto,
+  ): Promise<ApiResponse<UsageTimeSeriesData>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<UsageTimeSeriesData>>(
+        apiPath(`web/projects/${projectId}/usage/series`),
+        { params: query },
+      ),
+    );
+  }
+
+  getProjectBreakdown(
+    projectId: string,
+    query?: UsageRangeQueryDto,
+  ): Promise<ApiResponse<ProjectUsageBreakdownData>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<ProjectUsageBreakdownData>>(
+        apiPath(`web/projects/${projectId}/usage/breakdown`),
+        { params: query },
+      ),
+    );
+  }
+
+  listProjectEvents(
+    projectId: string,
+    query?: UsageEventsQueryDto,
+  ): Promise<ApiResponse<UsageEventsPageData>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<UsageEventsPageData>>(
+        apiPath(`web/projects/${projectId}/usage/events`),
+        { params: query },
+      ),
+    );
+  }
+}
+
+export const studioUsageApi = new StudioUsageApi();

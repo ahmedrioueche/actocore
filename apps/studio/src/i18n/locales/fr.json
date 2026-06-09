@@ -1,0 +1,63 @@
+{
+  "nav": {
+    "usage": "Utilisation"
+  },
+  "usage": {
+    "title": "Utilisation",
+    "subtitle": "Consommation de l'espace de travail et synthèse par projet pour la période sélectionnée.",
+    "manageBilling": "Facturation et limites",
+    "dateRange": {
+      "label": "Période",
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "month": "Ce mois-ci"
+    },
+    "quota": {
+      "title": "Utilisation du forfait",
+      "monthlyTokens": "Jetons mensuels"
+    },
+    "metrics": {
+      "requests": "Requêtes chat",
+      "requestsHint": "Appels SDK chat sur la période",
+      "promptTokens": "Jetons prompt",
+      "promptTokensHint": "Jetons d'entrée envoyés au LLM",
+      "completionTokens": "Jetons de complétion",
+      "completionTokensHint": "Jetons de sortie renvoyés par le LLM",
+      "errorRate": "Taux d'erreur",
+      "errorRateHint": "Part des requêtes en échec",
+      "p95Latency": "Latence P95",
+      "p95LatencyHint": "Temps de réponse au 95e percentile (ms)"
+    },
+    "series": {
+      "title": "Activité quotidienne",
+      "description": "Requêtes par jour pour ce projet.",
+      "empty": "Aucune activité quotidienne sur cette période."
+    },
+    "intentBreakdown": {
+      "title": "Répartition par intention",
+      "description": "Classification des requêtes chat sur la période.",
+      "workspaceDescription": "Répartition des intentions sur tous les projets de l'espace.",
+      "empty": "Aucune donnée d'intention sur cette période."
+    },
+    "modelBreakdown": {
+      "title": "Répartition par modèle",
+      "description": "Modèles les plus utilisés sur la période.",
+      "empty": "Aucune utilisation de modèle sur cette période."
+    },
+    "apiKeyBreakdown": {
+      "title": "Répartition par clé API",
+      "description": "Requêtes groupées par nom de clé API.",
+      "empty": "Aucune utilisation par clé API sur cette période.",
+      "removedKey": "Clé supprimée",
+      "unknownKey": "Inconnue"
+    },
+    "projectsTable": {
+      "title": "Projets",
+      "description": "Consommation par projet — ouvrez une ligne pour le détail.",
+      "name": "Projet",
+      "requests": "Requêtes",
+      "tokens": "Jetons",
+      "empty": "Aucune utilisation projet sur cette période."
+    }
+  }
+}

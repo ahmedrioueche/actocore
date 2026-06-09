@@ -36,6 +36,13 @@ export const STUDIO_NAV_LINKS: StudioNavLink[] = [
   },
 
   {
+    path: "/usage",
+    labelKey: "nav.usage",
+    icon: BarChart3,
+    matchPaths: ["/usage"],
+    permission: StudioPermission.USAGE_READ,
+  },
+  {
     path: "/subscription",
     labelKey: "nav.subscription",
     icon: CreditCard,
