@@ -45,9 +45,25 @@ export interface SdkUiTextOverrides {
   open?: string;
 }
 
+export const SDK_WIDGET_POSITIONS = [
+  'bottom-right',
+  'bottom-left',
+  'top-right',
+  'top-left',
+] as const;
+
+export type SdkWidgetPosition = (typeof SDK_WIDGET_POSITIONS)[number];
+
 export interface SdkLauncherConfig {
   iconUrl?: string;
   ariaLabel?: string;
+}
+
+export interface SdkWidgetConfig {
+  position?: SdkWidgetPosition;
+  /** CSS length from the screen edge, e.g. `1.25rem` or `20px`. */
+  offsetX?: string;
+  offsetY?: string;
 }
 
 export interface SdkUiConfig {
@@ -59,6 +75,7 @@ export interface SdkUiConfig {
   composerMaxRows?: number;
   text?: SdkUiTextOverrides;
   launcher?: SdkLauncherConfig;
+  widget?: SdkWidgetConfig;
 }
 
 export interface SdkVoiceConfig {

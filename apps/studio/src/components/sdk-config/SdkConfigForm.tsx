@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { SdkLauncherPositionPicker } from '@/components/sdk-config/SdkLauncherPositionPicker';
 import { SdkThemeModePicker } from '@/components/sdk-config/SdkThemeModePicker';
 import { SdkThemeColorEditor } from '@/components/sdk-config/SdkThemeColorEditor';
 import { SdkFontField } from '@/components/sdk-config/SdkFontField';
@@ -10,6 +11,7 @@ import {
   SDK_CONFIG_COMPOSER_DEFAULTS,
   SDK_CONFIG_UI_TEXT_DEFAULTS,
   SDK_CONFIG_UI_TOGGLE_DEFAULTS,
+  SDK_CONFIG_WIDGET_DEFAULTS,
 } from '@/constants/sdk-config-defaults';
 import type { SdkConfigFormState } from '@/utils/sdk-config-form';
 
@@ -266,6 +268,34 @@ export function SdkConfigForm({
             {t('sdkConfig.fields.launcherGroup')}
           </p>
           <div className="space-y-4">
+            <SdkLauncherPositionPicker
+              value={value.launcherPosition}
+              onChange={(launcherPosition) => patch({ launcherPosition })}
+              disabled={disabled}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <InputField
+                label={t('sdkConfig.fields.launcherOffsetX')}
+                value={value.launcherOffsetX}
+                onChange={(e) => patch({ launcherOffsetX: e.target.value })}
+                placeholder={defaultCopyPlaceholder(
+                  SDK_CONFIG_WIDGET_DEFAULTS.offsetX,
+                )}
+                disabled={disabled}
+              />
+              <InputField
+                label={t('sdkConfig.fields.launcherOffsetY')}
+                value={value.launcherOffsetY}
+                onChange={(e) => patch({ launcherOffsetY: e.target.value })}
+                placeholder={defaultCopyPlaceholder(
+                  SDK_CONFIG_WIDGET_DEFAULTS.offsetY,
+                )}
+                disabled={disabled}
+              />
+            </div>
+            <p className="text-xs text-text-secondary">
+              {t('sdkConfig.fields.launcherOffsetHint')}
+            </p>
             <InputField
               label={t('sdkConfig.fields.launcherIconUrl')}
               type="url"

@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { projectsApi, type ListProjectsQuery } from '@ahmedrioueche/actocore-shared';
+import {
+  projectsApi,
+  type ListProjectsQuery,
+  type UpdateProjectDto,
+} from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
 import { parseApiResponse } from '@/lib/parse-api-response';
@@ -37,6 +41,40 @@ export function useCreateProject() {
     onSuccess: (project) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
       queryClient.setQueryData(queryKeys.projects.detail(project.id), project);
+    },
+  });
+}
+
+export function useUpdateProject(projectId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (body: UpdateProjectDto) => {
+      ensureApiConfigured();
+      return parseApiResponse(
+        await projectsApi.update(projectId!, body),
+      );
+    },
+    onSuccess: (project) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
+      queryClient.setQueryData(queryKeys.projects.detail(project.id), project);
+    },
+  });
+}
+
+export function useDeleteProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (projectId: string) => {
+      ensureApiConfigured();
+      return parseApiResponse(await projectsApi.delete(projectId));
+    },
+    onSuccess: (_data, projectId) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
+      queryClient.removeQueries({
+        queryKey: queryKeys.projects.detail(projectId),
+      });
     },
   });
 }

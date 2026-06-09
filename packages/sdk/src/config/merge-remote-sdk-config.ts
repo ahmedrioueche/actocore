@@ -68,6 +68,10 @@ function mergeUi(
       ...(remote?.launcher ?? {}),
       ...(local?.launcher ?? {}),
     },
+    widget: {
+      ...(remote?.widget ?? {}),
+      ...(local?.widget ?? {}),
+    },
     classNames: local?.classNames,
   };
 }

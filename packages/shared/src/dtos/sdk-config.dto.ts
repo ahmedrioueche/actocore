@@ -14,7 +14,12 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import type { SdkThemeMode, SdkVoiceInputMode } from '../types/sdk-config';
+import { SDK_WIDGET_POSITIONS } from '../types/sdk-config';
+import type {
+  SdkThemeMode,
+  SdkVoiceInputMode,
+  SdkWidgetPosition,
+} from '../types/sdk-config';
 
 export class SdkI18nConfigDto {
   @IsOptional()
@@ -79,6 +84,22 @@ export class SdkLauncherConfigDto {
   @IsOptional() @IsString() @MaxLength(120) ariaLabel?: string;
 }
 
+export class SdkWidgetConfigDto {
+  @IsOptional()
+  @IsEnum(SDK_WIDGET_POSITIONS)
+  position?: SdkWidgetPosition;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  offsetX?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  offsetY?: string;
+}
+
 export class SdkUiConfigDto {
   @IsOptional() @IsBoolean() showSources?: boolean;
   @IsOptional() @IsBoolean() showIntentBadge?: boolean;
@@ -96,6 +117,11 @@ export class SdkUiConfigDto {
   @ValidateNested()
   @Type(() => SdkLauncherConfigDto)
   launcher?: SdkLauncherConfigDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SdkWidgetConfigDto)
+  widget?: SdkWidgetConfigDto;
 }
 
 export class SdkVoiceConfigDto {

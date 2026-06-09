@@ -50,6 +50,18 @@ export interface ActocoreLauncherConfig {
   ariaLabel?: string;
 }
 
+export type ActocoreWidgetPosition =
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'top-right'
+  | 'top-left';
+
+export interface ActocoreWidgetConfig {
+  position?: ActocoreWidgetPosition;
+  offsetX?: string;
+  offsetY?: string;
+}
+
 /** Optional class names per UI region (host/dashboard overrides). */
 export interface ActocoreUiClassNames {
   chat?: string;
@@ -104,6 +116,7 @@ export interface ActocoreUiConfig {
   classNames?: ActocoreUiClassNames;
   text?: ActocoreUiTextOverrides;
   launcher?: ActocoreLauncherConfig;
+  widget?: ActocoreWidgetConfig;
 }
 
 export interface ActocoreI18nConfig {
@@ -145,7 +158,7 @@ export interface ResolvedActocoreConfig {
       | 'composerMaxRows'
     >
   > &
-    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'launcher'>;
+    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'launcher' | 'widget'>;
   i18n: Required<Pick<ActocoreI18nConfig, 'locale'>> & ActocoreI18nConfig;
   voice: Required<
     Pick<ActocoreVoiceConfig, 'input' | 'output' | 'inputMode' | 'autoSendOnFinalize'>

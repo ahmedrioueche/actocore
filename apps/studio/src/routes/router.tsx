@@ -33,6 +33,7 @@ import ProjectApiKeysPage from '@/pages/user/projects/ProjectApiKeysPage';
 import ProjectDocsPage from '@/pages/user/projects/ProjectDocsPage';
 import ProjectKnowledgePage from '@/pages/user/projects/ProjectKnowledgePage';
 import ProjectSdkConfigPage from '@/pages/user/projects/ProjectSdkConfigPage';
+import ProjectSettingsPage from '@/pages/user/projects/ProjectSettingsPage';
 import ProjectSectionPage from '@/pages/user/projects/ProjectSectionPage';
 import ProjectsPage from '@/pages/user/projects/ProjectsPage';
 import SettingsPage from '@/pages/user/settings/SettingsPage';
@@ -172,6 +173,13 @@ const projectUsageRoute = createRoute({
   path: '/projects/$projectId/usage',
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
   component: () => <ProjectSectionPage section="usage" />,
+});
+
+const projectSettingsRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId/settings',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: ProjectSettingsPage,
 });
 
 const teamRoute = createRoute({
@@ -318,6 +326,7 @@ const routeTree = rootRoute.addChildren([
     projectSdkConfigRoute,
     projectApiKeysRoute,
     projectUsageRoute,
+    projectSettingsRoute,
     teamRoute,
     subscriptionRoute,
     billingRoute,

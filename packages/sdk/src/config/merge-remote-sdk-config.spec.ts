@@ -9,7 +9,11 @@ describe('mergeRemoteSdkConfig', () => {
     i18n: { locale: 'en', translations: { en: { chat: { send: 'Send' } } } },
     theme: { mode: 'dark', tokens: { 'color-primary': '#111' } },
     security: { allowedActionNames: ['deploy'], enforceActionAllowlist: true },
-    ui: { showSources: false, text: { headerTitle: 'Host' } },
+    ui: {
+      showSources: false,
+      text: { headerTitle: 'Host' },
+      widget: { position: 'top-right', offsetX: '2rem' },
+    },
     voice: { input: false, language: 'en-US' },
   };
 
@@ -18,7 +22,12 @@ describe('mergeRemoteSdkConfig', () => {
     i18n: { locale: 'fr', translations: { fr: { chat: { send: 'Envoyer' } } } },
     theme: { mode: 'light', tokens: { 'color-primary': '#fff', 'color-bg': '#eee' } },
     security: { allowedActionNames: ['list_users'], enforceActionAllowlist: false },
-    ui: { showSources: true, showIntentBadge: true, text: { placeholder: 'Dashboard' } },
+    ui: {
+      showSources: true,
+      showIntentBadge: true,
+      text: { placeholder: 'Dashboard' },
+      widget: { position: 'bottom-left', offsetY: '1rem' },
+    },
     voice: { input: true, output: true, inputMode: 'server' as const },
   };
 
@@ -48,6 +57,11 @@ describe('mergeRemoteSdkConfig', () => {
     expect(merged.ui?.text).toEqual({
       placeholder: 'Dashboard',
       headerTitle: 'Host',
+    });
+    expect(merged.ui?.widget).toEqual({
+      position: 'top-right',
+      offsetX: '2rem',
+      offsetY: '1rem',
     });
 
     expect(merged.voice?.input).toBe(false);

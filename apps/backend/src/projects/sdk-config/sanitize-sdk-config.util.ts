@@ -2,8 +2,17 @@ import type {
   SdkLauncherConfig,
   SdkProjectConfigData,
   SdkUiTextOverrides,
+  SdkWidgetConfig,
+  SdkWidgetPosition,
   UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
+
+const WIDGET_POSITIONS: readonly SdkWidgetPosition[] = [
+  'bottom-right',
+  'bottom-left',
+  'top-right',
+  'top-left',
+];
 
 export const SDK_CONFIG_MAX_TRANSLATIONS_BYTES = 32_768;
 export const SDK_CONFIG_MAX_ALLOWED_ACTIONS = 50;
@@ -170,6 +179,9 @@ function pickUi(raw: unknown): SdkProjectConfigData['ui'] | undefined {
   const launcher = pickLauncher(o.launcher);
   if (launcher) result.launcher = launcher;
 
+  const widget = pickWidget(o.widget);
+  if (widget) result.widget = widget;
+
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
@@ -202,6 +214,26 @@ function pickLauncher(raw: unknown): SdkLauncherConfig | undefined {
   const ariaLabel = typeof o.ariaLabel === 'string' ? o.ariaLabel : undefined;
   if (!iconUrl && !ariaLabel) return undefined;
   return { iconUrl, ariaLabel };
+}
+
+function pickWidget(raw: unknown): SdkWidgetConfig | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const o = raw as Record<string, unknown>;
+  const result: SdkWidgetConfig = {};
+
+  if (
+    typeof o.position === 'string' &&
+    (WIDGET_POSITIONS as readonly string[]).includes(o.position)
+  ) {
+    result.position = o.position as SdkWidgetPosition;
+  }
+
+  const offsetX = typeof o.offsetX === 'string' ? o.offsetX.trim() : undefined;
+  const offsetY = typeof o.offsetY === 'string' ? o.offsetY.trim() : undefined;
+  if (offsetX) result.offsetX = offsetX;
+  if (offsetY) result.offsetY = offsetY;
+
+  return Object.keys(result).length > 0 ? result : undefined;
 }
 
 function pickVoice(raw: unknown): SdkProjectConfigData['voice'] | undefined {

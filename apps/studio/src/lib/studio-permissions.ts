@@ -1,6 +1,7 @@
 import {
   hasStudioPermission,
   StudioPermission,
+  StudioRole,
   type StudioAuthMeData,
 } from "@ahmedrioueche/actocore-shared";
 
@@ -60,6 +61,21 @@ export function canWriteProjects(
   session: StudioAuthMeData | undefined,
 ): boolean {
   return canAccessNavItem(session, StudioPermission.PROJECT_WRITE);
+}
+
+export function isWorkspaceAdmin(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return (
+    session?.role === StudioRole.USER_ADMIN ||
+    session?.role === StudioRole.SUPER_ADMIN
+  );
+}
+
+export function canDeleteProject(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return isWorkspaceAdmin(session);
 }
 
 export function canWriteBilling(

@@ -10,6 +10,7 @@ import {
   KeyRound,
   Receipt,
   Settings,
+  Settings2,
   SlidersHorizontal,
   Users,
   Zap,
@@ -109,6 +110,13 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       icon: BarChart3,
       matchPaths: [`${base}/usage`],
       permission: StudioPermission.USAGE_READ,
+    },
+    {
+      path: `${base}/settings`,
+      labelKey: "nav.project.settings",
+      icon: Settings2,
+      matchPaths: [`${base}/settings`],
+      permission: StudioPermission.PROJECT_READ,
     },
   ];
 }

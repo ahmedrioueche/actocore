@@ -9,6 +9,30 @@ describe('sanitize-sdk-config.util', () => {
     expect(normalizeSdkConfig(null)).toEqual({ sdkConfigVersion: 0 });
   });
 
+  it('normalizes widget launcher position', () => {
+    expect(
+      normalizeSdkConfig({
+        sdkConfigVersion: 1,
+        ui: {
+          widget: {
+            position: 'top-left',
+            offsetX: '2rem',
+            offsetY: '16px',
+          },
+        },
+      }),
+    ).toEqual({
+      sdkConfigVersion: 1,
+      ui: {
+        widget: {
+          position: 'top-left',
+          offsetX: '2rem',
+          offsetY: '16px',
+        },
+      },
+    });
+  });
+
   it('deep merges patch sections', () => {
     const current = {
       ...emptySdkProjectConfig(),

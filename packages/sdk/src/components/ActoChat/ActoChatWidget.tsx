@@ -45,14 +45,19 @@ function getAnchorPositionStyle(
 }
 
 export function ActoChatWidget({
-  position = 'bottom-right',
-  offsetX = 'var(--ac-widget-offset-x)',
-  offsetY = 'var(--ac-widget-offset-y)',
+  position: positionProp,
+  offsetX: offsetXProp,
+  offsetY: offsetYProp,
   initialOpen = false,
   className,
   launcherIcon,
 }: ActoChatWidgetProps) {
   const ui = useActocoreUiConfig();
+  const position = positionProp ?? ui.widget?.position ?? 'bottom-right';
+  const offsetX =
+    offsetXProp ?? ui.widget?.offsetX ?? 'var(--ac-widget-offset-x)';
+  const offsetY =
+    offsetYProp ?? ui.widget?.offsetY ?? 'var(--ac-widget-offset-y)';
   const defaultOpenLabel = useUiText('open');
   const openLabel = ui.launcher?.ariaLabel ?? defaultOpenLabel;
   const [isOpen, setIsOpen] = useState(initialOpen);

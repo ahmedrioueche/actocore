@@ -3,6 +3,7 @@ import {
   SDK_CONFIG_THEME_MODE_DEFAULT,
   SDK_CONFIG_UI_TEXT_DEFAULTS,
   SDK_CONFIG_UI_TOGGLE_DEFAULTS,
+  SDK_CONFIG_WIDGET_DEFAULTS,
 } from '@/constants/sdk-config-defaults';
 import {
   createEmptyThemeColorsByVariant,
@@ -21,6 +22,7 @@ import { isValidHexColor, normalizeHexColor } from '@/utils/hex-color';
 import type {
   SdkProjectConfigData,
   SdkThemeMode,
+  SdkWidgetPosition,
   UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
 
@@ -45,12 +47,16 @@ export interface SdkConfigFormState {
   open: string;
   launcherIconUrl: string;
   launcherAriaLabel: string;
+  launcherPosition: SdkWidgetPosition;
+  launcherOffsetX: string;
+  launcherOffsetY: string;
 }
 
 export type SdkConfigFormValidationError =
   | 'composerRowsInvalid'
   | 'composerRowsOrder'
   | 'launcherIconUrlInvalid'
+  | 'launcherOffsetInvalid'
   | 'fieldTooLong'
   | 'invalidHexColor'
   | 'fontFamilyTooLong';
@@ -67,6 +73,8 @@ const TEXT_FIELD_LIMITS: Record<
     | 'send'
     | 'open'
     | 'launcherAriaLabel'
+    | 'launcherOffsetX'
+    | 'launcherOffsetY'
     | 'fontCustom'
   >,
   number
@@ -80,10 +88,17 @@ const TEXT_FIELD_LIMITS: Record<
   send: 80,
   open: 80,
   launcherAriaLabel: 120,
+  launcherOffsetX: 20,
+  launcherOffsetY: 20,
   fontCustom: 200,
 };
 
 const MAX_FONT_FAMILY_LENGTH = 200;
+const CSS_LENGTH_PATTERN = /^\d+(\.\d+)?(px|rem|em|%|vh|vw)$/;
+
+function isValidCssLength(value: string): boolean {
+  return CSS_LENGTH_PATTERN.test(value.trim());
+}
 
 type SdkConfigTextField = keyof typeof SDK_CONFIG_UI_TEXT_DEFAULTS;
 
@@ -130,6 +145,9 @@ export function createDefaultSdkConfigFormState(): SdkConfigFormState {
     open: SDK_CONFIG_UI_TEXT_DEFAULTS.open,
     launcherIconUrl: '',
     launcherAriaLabel: SDK_CONFIG_UI_TEXT_DEFAULTS.launcherAriaLabel,
+    launcherPosition: SDK_CONFIG_WIDGET_DEFAULTS.position,
+    launcherOffsetX: SDK_CONFIG_WIDGET_DEFAULTS.offsetX,
+    launcherOffsetY: SDK_CONFIG_WIDGET_DEFAULTS.offsetY,
   };
 }
 
@@ -174,6 +192,12 @@ export function configToFormState(
       config.ui?.launcher?.ariaLabel,
       'launcherAriaLabel',
     ),
+    launcherPosition:
+      config.ui?.widget?.position ?? SDK_CONFIG_WIDGET_DEFAULTS.position,
+    launcherOffsetX:
+      config.ui?.widget?.offsetX?.trim() || SDK_CONFIG_WIDGET_DEFAULTS.offsetX,
+    launcherOffsetY:
+      config.ui?.widget?.offsetY?.trim() || SDK_CONFIG_WIDGET_DEFAULTS.offsetY,
   };
 }
 
@@ -250,6 +274,15 @@ export function validateSdkConfigForm(
     return 'launcherIconUrlInvalid';
   }
 
+  const offsetX = trimOrEmpty(state.launcherOffsetX);
+  const offsetY = trimOrEmpty(state.launcherOffsetY);
+  if (
+    (offsetX && !isValidCssLength(offsetX)) ||
+    (offsetY && !isValidCssLength(offsetY))
+  ) {
+    return 'launcherOffsetInvalid';
+  }
+
   for (const variant of SDK_THEME_COLOR_VARIANTS) {
     if (!validateThemeColors(state.themeColorsByVariant[variant])) {
       return 'invalidHexColor';
@@ -315,6 +348,21 @@ export function formStateToPatch(
     ariaLabel: uiTextFieldForPatch('launcherAriaLabel', state.launcherAriaLabel),
   });
 
+  const widget = omitEmptyStrings({
+    position:
+      state.launcherPosition === SDK_CONFIG_WIDGET_DEFAULTS.position
+        ? ''
+        : state.launcherPosition,
+    offsetX:
+      trimOrEmpty(state.launcherOffsetX) === SDK_CONFIG_WIDGET_DEFAULTS.offsetX
+        ? ''
+        : trimOrEmpty(state.launcherOffsetX),
+    offsetY:
+      trimOrEmpty(state.launcherOffsetY) === SDK_CONFIG_WIDGET_DEFAULTS.offsetY
+        ? ''
+        : trimOrEmpty(state.launcherOffsetY),
+  });
+
   const tokens = buildThemeTokens(state);
 
   return {
@@ -331,6 +379,7 @@ export function formStateToPatch(
       composerMaxRows: state.composerMaxRows,
       text,
       launcher,
+      widget,
     },
   };
 }
