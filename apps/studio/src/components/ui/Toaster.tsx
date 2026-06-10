@@ -5,15 +5,14 @@ import { useToastStore, type ToastVariant } from '@/stores/toast';
 import { cn } from '@/utils/helper';
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
-  success: 'border-success/25 bg-success-surface text-text-primary',
-  error: 'border-danger/25 bg-danger-surface text-text-primary',
-  info: 'border-border bg-surface text-text-primary',
+  success:
+    'border-toast-success-border bg-toast-success-bg shadow-md ring-1 ring-success/10',
+  error:
+    'border-toast-error-border bg-toast-error-bg shadow-md ring-1 ring-danger/10',
+  info: 'border-toast-info-border bg-toast-info-bg shadow-md ring-1 ring-primary/10',
 };
 
-const VARIANT_ICONS: Record<
-  ToastVariant,
-  typeof CheckCircle2
-> = {
+const VARIANT_ICONS: Record<ToastVariant, typeof CheckCircle2> = {
   success: CheckCircle2,
   error: XCircle,
   info: Info,
@@ -46,7 +45,7 @@ export default function Toaster() {
           <div
             key={item.id}
             className={cn(
-              'pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg',
+              'pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3',
               VARIANT_STYLES[item.variant],
             )}
             role="status"
@@ -58,7 +57,9 @@ export default function Toaster() {
               )}
               aria-hidden
             />
-            <p className="min-w-0 flex-1 text-sm">{item.message}</p>
+            <p className="min-w-0 flex-1 text-sm font-medium text-text-primary">
+              {item.message}
+            </p>
             <button
               type="button"
               onClick={() => dismiss(item.id)}

@@ -112,7 +112,7 @@ export function ActionsTable({ projectId, sectionId }: ActionsTableProps) {
                     : t('projectActions.status.enable')
                 }
                 onChange={(next) => {
-                  void updateAction.mutateAsync({
+                  updateAction.mutate({
                     actionId: action.id,
                     body: { enabled: next },
                   });
@@ -254,7 +254,7 @@ export function ActionsTable({ projectId, sectionId }: ActionsTableProps) {
                 : t('projectActions.status.enable')
             }
             onChange={(next) => {
-              void updateAction.mutateAsync({
+              updateAction.mutate({
                 actionId: action.id,
                 body: { enabled: next },
               });

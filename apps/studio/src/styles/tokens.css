@@ -46,6 +46,14 @@
   --ac-color-warning: #d97706;
   --ac-color-warning-surface: #fffbeb;
 
+  /* Toast — solid surfaces (not transparent washes) */
+  --ac-color-toast-success-bg: #ecfdf5;
+  --ac-color-toast-success-border: #6ee7b7;
+  --ac-color-toast-error-bg: #fef2f2;
+  --ac-color-toast-error-border: #fca5a5;
+  --ac-color-toast-info-bg: #eef2ff;
+  --ac-color-toast-info-border: #a5b4fc;
+
   --ac-gradient-brand: linear-gradient(
     135deg,
     var(--ac-brand-primary) 0%,
@@ -147,6 +155,13 @@
   --ac-color-success-surface: rgb(74 222 128 / 0.1);
   --ac-color-warning: #fbbf24;
   --ac-color-warning-surface: rgb(251 191 36 / 0.1);
+
+  --ac-color-toast-success-bg: #14261c;
+  --ac-color-toast-success-border: #3f8f62;
+  --ac-color-toast-error-bg: #2a1418;
+  --ac-color-toast-error-border: #9f4d5c;
+  --ac-color-toast-info-bg: #1a1a30;
+  --ac-color-toast-info-border: #5b62a8;
 
   --ac-gradient-brand-soft: linear-gradient(
     135deg,

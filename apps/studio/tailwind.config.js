@@ -44,6 +44,14 @@ export default {
           DEFAULT: "var(--ac-color-warning)",
           surface: "var(--ac-color-warning-surface)",
         },
+        toast: {
+          "success-bg": "var(--ac-color-toast-success-bg)",
+          "success-border": "var(--ac-color-toast-success-border)",
+          "error-bg": "var(--ac-color-toast-error-bg)",
+          "error-border": "var(--ac-color-toast-error-border)",
+          "info-bg": "var(--ac-color-toast-info-bg)",
+          "info-border": "var(--ac-color-toast-info-border)",
+        },
       },
       fontFamily: {
         sans: ["var(--ac-font-family)", "system-ui", "sans-serif"],

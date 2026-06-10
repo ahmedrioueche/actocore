@@ -9,6 +9,7 @@ import {
   type ActionData,
   type CreateActionDto,
   type ListActionsQuery,
+  type Paginated,
   type UpdateActionDto,
 } from '@ahmedrioueche/actocore-shared';
 
@@ -72,12 +73,67 @@ export function useUpdateAction(projectId: string | null) {
         await actionsApi.update(projectId!, actionId, body),
       );
     },
-    onSuccess: () => {
-      if (projectId) {
-        void queryClient.invalidateQueries({
-          queryKey: queryKeys.actions.lists(projectId),
+    onMutate: async ({ actionId, body }) => {
+      if (!projectId) {
+        return;
+      }
+
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.actions.lists(projectId),
+      });
+
+      const previousLists = queryClient.getQueriesData<Paginated<ActionData>>({
+        queryKey: queryKeys.actions.lists(projectId),
+      });
+
+      queryClient.setQueriesData<Paginated<ActionData>>(
+        { queryKey: queryKeys.actions.lists(projectId) },
+        (old) => {
+          if (!old) {
+            return old;
+          }
+          return {
+            ...old,
+            items: old.items.map((action) =>
+              action.id === actionId ? { ...action, ...body } : action,
+            ),
+          };
+        },
+      );
+
+      const detailKey = queryKeys.actions.detail(projectId, actionId);
+      const previousDetail = queryClient.getQueryData<ActionData>(detailKey);
+      if (previousDetail) {
+        queryClient.setQueryData<ActionData>(detailKey, {
+          ...previousDetail,
+          ...body,
         });
       }
+
+      return { previousLists, previousDetail, actionId };
+    },
+    onError: (_error, _variables, context) => {
+      if (!projectId || !context) {
+        return;
+      }
+      for (const [key, data] of context.previousLists) {
+        queryClient.setQueryData(key, data);
+      }
+      queryClient.setQueryData(
+        queryKeys.actions.detail(projectId, context.actionId),
+        context.previousDetail,
+      );
+    },
+    onSettled: (_data, _error, variables) => {
+      if (!projectId) {
+        return;
+      }
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.actions.lists(projectId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.actions.detail(projectId, variables.actionId),
+      });
     },
   });
 }
