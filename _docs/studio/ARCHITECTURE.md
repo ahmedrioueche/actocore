@@ -99,6 +99,7 @@ useQuery({
 - Auth routes outside the app shell; shell routes under a layout route with permission checks.
 - Do **not** use `react-router-dom` in Studio.
 - Per-project landing: `/projects/:projectId` (**Overview**). Integration guide: `/projects/:projectId/docs`.
+- **Super admin** (`super_admin`) is redirected from tenant workspace routes (`/projects`, `/team`, …) to **`/admin`** — platform operators use the admin console, not the tenant dashboard.
 
 ---
 

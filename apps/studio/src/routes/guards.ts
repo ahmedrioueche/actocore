@@ -8,6 +8,11 @@ import {
 
 import { canAccessProject } from '@/constants/navigation';
 import { ensureApiConfigured } from '@/lib/configure-api';
+import {
+  isPlatformOperatorSession,
+  PLATFORM_CONSOLE_HOME,
+  TENANT_WORKSPACE_HOME,
+} from '@/lib/tenant-workspace';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryClient } from '@/lib/query-client';
 import { queryKeys } from '@/lib/query-keys';
@@ -38,9 +43,31 @@ export function requireStudioSession(): void {
 
 export function redirectIfAuthenticated(): void {
   ensureApiConfigured();
-  if (TokenManager.getAccessToken()) {
-    throw redirect({ to: '/projects' });
+  if (!TokenManager.getAccessToken()) {
+    return;
   }
+  const session = getCachedSession();
+  throw redirect({
+    to: isPlatformOperatorSession(session)
+      ? PLATFORM_CONSOLE_HOME
+      : TENANT_WORKSPACE_HOME,
+  });
+}
+
+/** Super admins belong on `/admin`, not the tenant workspace shell. */
+export function redirectPlatformOperatorFromTenantWorkspace(): void {
+  const session = getCachedSession();
+  if (!isPlatformOperatorSession(session)) {
+    return;
+  }
+  throw redirect({ to: PLATFORM_CONSOLE_HOME });
+}
+
+export function resolveAuthenticatedHomePath(): string {
+  const session = getCachedSession();
+  return isPlatformOperatorSession(session)
+    ? PLATFORM_CONSOLE_HOME
+    : TENANT_WORKSPACE_HOME;
 }
 
 /** Sync project access check using cached session — never blocks navigation on API calls. */
@@ -59,6 +86,7 @@ export function requireProjectAccessSync(projectId: string): void {
 
 export function requireOnboardingPendingSync(): void {
   requireStudioSession();
+  redirectPlatformOperatorFromTenantWorkspace();
 
   const state = queryClient.getQueryData<{
     required: boolean;

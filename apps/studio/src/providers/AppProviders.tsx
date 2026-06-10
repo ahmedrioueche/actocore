@@ -51,22 +51,20 @@ function AdminRouter() {
 
 function StudioRouter() {
   const pathname = useWindowPathname();
-  if (isAdminPath(pathname)) {
-    return <AdminRouter />;
-  }
-
+  const isAdmin = isAdminPath(pathname);
   const { isLoading, isAuthenticated, session, isError } = useAuth();
   const resolvedSession = session ?? getCachedSession();
   const hasToken = Boolean(TokenManager.getAccessToken());
 
   useEffect(() => {
-    if (isAuthenticated) {
-      void prefetchOnboardingState();
+    if (isAdmin || !isAuthenticated) {
+      return;
     }
-  }, [isAuthenticated]);
+    void prefetchOnboardingState();
+  }, [isAdmin, isAuthenticated]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isAdmin || isLoading) {
       return;
     }
     if (hasToken && isError && !resolvedSession) {
@@ -76,7 +74,11 @@ function StudioRouter() {
     if (shouldRedirectToLogin()) {
       void forceLogout();
     }
-  }, [hasToken, isLoading, isAuthenticated, isError, resolvedSession]);
+  }, [isAdmin, hasToken, isLoading, isAuthenticated, isError, resolvedSession]);
+
+  if (isAdmin) {
+    return <AdminRouter />;
+  }
 
   if (hasToken && !resolvedSession) {
     return <LoadingPage type="outer" />;

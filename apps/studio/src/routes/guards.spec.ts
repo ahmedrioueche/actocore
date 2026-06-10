@@ -33,13 +33,17 @@ vi.mock('@/lib/query-client', () => ({
 }));
 
 import { queryClient } from '@/lib/query-client';
+import { StudioRole } from '@ahmedrioueche/actocore-shared';
+
 import {
   redirectIfAuthenticated,
+  redirectPlatformOperatorFromTenantWorkspace,
   requireAuth,
   requireOnboardingPending,
   requireOnboardingPendingSync,
   requireProjectAccessSync,
   requireStudioSession,
+  resolveAuthenticatedHomePath,
 } from '@/routes/guards';
 
 describe('auth route guards', () => {
@@ -48,8 +52,11 @@ describe('auth route guards', () => {
   });
 
   describe('redirectIfAuthenticated', () => {
-    it('redirects to projects when access token exists', () => {
+    it('redirects tenant users to projects when access token exists', () => {
       getAccessToken.mockReturnValue('token');
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        role: StudioRole.USER_ADMIN,
+      });
       let thrown: unknown;
       try {
         redirectIfAuthenticated();
@@ -57,11 +64,59 @@ describe('auth route guards', () => {
         thrown = e;
       }
       expect(isRedirect(thrown)).toBe(true);
+      expect(resolveAuthenticatedHomePath()).toBe('/projects');
+    });
+
+    it('redirects super admin to the platform console', () => {
+      getAccessToken.mockReturnValue('token');
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        role: StudioRole.SUPER_ADMIN,
+      });
+      let thrown: unknown;
+      try {
+        redirectIfAuthenticated();
+      } catch (e) {
+        thrown = e;
+      }
+      expect(isRedirect(thrown)).toBe(true);
+      expect(resolveAuthenticatedHomePath()).toBe('/admin');
     });
 
     it('does nothing when no token', () => {
       getAccessToken.mockReturnValue(null);
       expect(() => redirectIfAuthenticated()).not.toThrow();
+    });
+  });
+
+  describe('redirectPlatformOperatorFromTenantWorkspace', () => {
+    it('redirects super admin away from tenant workspace routes', () => {
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        role: StudioRole.SUPER_ADMIN,
+      });
+      expect(() => redirectPlatformOperatorFromTenantWorkspace()).toThrow();
+    });
+
+    it('allows tenant admins through', () => {
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        role: StudioRole.USER_ADMIN,
+      });
+      expect(() => redirectPlatformOperatorFromTenantWorkspace()).not.toThrow();
+    });
+  });
+
+  describe('resolveAuthenticatedHomePath', () => {
+    it('returns platform console for super admin', () => {
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        role: StudioRole.SUPER_ADMIN,
+      });
+      expect(resolveAuthenticatedHomePath()).toBe('/admin');
+    });
+
+    it('returns projects for tenant users', () => {
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        role: StudioRole.USER_EDITOR,
+      });
+      expect(resolveAuthenticatedHomePath()).toBe('/projects');
     });
   });
 

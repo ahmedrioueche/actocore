@@ -49,9 +49,11 @@ import {
 } from '@/routes/admin-guards';
 import {
   redirectIfAuthenticated,
+  redirectPlatformOperatorFromTenantWorkspace,
   requireOnboardingPending,
   requireProjectAccessSync,
   requireStudioSession,
+  resolveAuthenticatedHomePath,
 } from '@/routes/guards';
 
 const rootRoute = createRootRoute({
@@ -62,7 +64,7 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: () => {
-    throw redirect({ to: '/projects' });
+    throw redirect({ to: resolveAuthenticatedHomePath() });
   },
 });
 
@@ -125,7 +127,10 @@ const onboardingRoute = createRoute({
 const studioLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'studio',
-  beforeLoad: requireStudioSession,
+  beforeLoad: () => {
+    requireStudioSession();
+    redirectPlatformOperatorFromTenantWorkspace();
+  },
   component: StudioLayout,
 });
 
