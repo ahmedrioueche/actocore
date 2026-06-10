@@ -17,6 +17,9 @@ const t = vi.fn((key: string, options?: Record<string, unknown>) => {
   if (key === 'subscription.plans.limits.actionsPerProject') {
     return `${options?.count} actions per project`;
   }
+  if (key.startsWith('subscription.plans.features.')) {
+    return key.replace('subscription.plans.features.', '');
+  }
   return key;
 });
 
@@ -41,13 +44,13 @@ describe('buildPlanBullets', () => {
       {
         ...basePlan,
         trialDays: 14,
-        features: ['Email support'],
+        features: ['email_support'],
       },
       t,
     );
 
     expect(bullets).toEqual([
-      'Email support',
+      'email_support',
       '500K chats',
       '1 projects',
       '1 seats',
@@ -59,17 +62,14 @@ describe('buildPlanBullets', () => {
     const bullets = buildPlanBullets(
       {
         ...basePlan,
-        features: [
-          'Knowledge base and actions',
-          'SDK embed with dashboard config',
-        ],
+        features: ['knowledge_and_actions', 'sdk_embed'],
       },
       t,
     );
 
     expect(bullets.slice(0, 3)).toEqual([
-      'Knowledge base and actions',
-      'SDK embed with dashboard config',
+      'knowledge_and_actions',
+      'sdk_embed',
       '500K chats',
     ]);
   });
@@ -81,7 +81,7 @@ describe('buildPlanBullets', () => {
         planId: 'starter',
         level: 'starter',
         trialDays: 0,
-        features: ['Everything in Free', 'Email support'],
+        features: ['everything_in_free', 'email_support'],
         limits: {
           maxProjects: 3,
           maxTeamSeats: 5,
@@ -93,11 +93,11 @@ describe('buildPlanBullets', () => {
     );
 
     expect(bullets).toEqual([
-      'Everything in Free',
+      'everything_in_free',
       '5M chats',
       '3 projects',
       '5 seats',
-      'Email support',
+      'email_support',
       '30 actions per project',
     ]);
   });

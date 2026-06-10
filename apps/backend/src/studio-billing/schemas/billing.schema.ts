@@ -15,6 +15,15 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
 @Schema({ _id: false })
+class StudioPlanLocaleTextSchema {
+  @Prop()
+  en?: string;
+
+  @Prop()
+  fr?: string;
+}
+
+@Schema({ _id: false })
 class StudioPlanLimitsSchema {
   @Prop({ min: 0 })
   maxProjects?: number;
@@ -49,8 +58,8 @@ export class StudioPlanModel extends Document {
   @Prop({ required: true })
   name!: string;
 
-  @Prop()
-  description?: string;
+  @Prop({ type: StudioPlanLocaleTextSchema })
+  description?: StudioPlanLocaleTextSchema;
 
   @Prop({ type: MongooseSchema.Types.Mixed, required: true })
   pricing!: Record<string, { monthly?: number; yearly?: number }>;
@@ -73,8 +82,8 @@ export class StudioPlanModel extends Document {
   @Prop({ default: false })
   isRecommended?: boolean;
 
-  @Prop()
-  yearlyDiscountBadge?: string;
+  @Prop({ type: StudioPlanLocaleTextSchema })
+  yearlyDiscountBadge?: StudioPlanLocaleTextSchema;
 
   createdAt?: Date;
   updatedAt?: Date;

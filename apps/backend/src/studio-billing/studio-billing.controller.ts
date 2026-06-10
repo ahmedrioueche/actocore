@@ -116,9 +116,12 @@ export class StudioBillingController {
   @Get('paypal/subscription/:subscriptionId')
   @RequireStudioPermission(StudioPermission.BILLING_WRITE)
   async getSubscriptionStatus(
+    @StudioCtx() ctx: StudioRequestContext,
     @Param('subscriptionId') subscriptionId: string,
   ) {
-    return apiSuccess(await this.paypal.getSubscriptionStatus(subscriptionId));
+    return apiSuccess(
+      await this.paypal.getSubscriptionStatus(subscriptionId, ctx.accountId),
+    );
   }
 
   @Get('paypal/manage-url')

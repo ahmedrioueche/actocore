@@ -9,7 +9,10 @@ import {
   type PlanFormState,
 } from '@/components/admin/plans/plan-form';
 import BaseModal from '@/components/ui/BaseModal';
-import { useUpdatePlatformPlan } from '@/hooks/use-platform-plans';
+import {
+  useSyncPlatformPlanPayPal,
+  useUpdatePlatformPlan,
+} from '@/hooks/use-platform-plans';
 import { useModalStore, type EditPlanModalProps } from '@/stores/modal';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
@@ -19,6 +22,7 @@ export default function EditPlanModal() {
   const modalProps = useModalStore((state) => state.modalProps);
   const closeModal = useModalStore((state) => state.closeModal);
   const updatePlan = useUpdatePlatformPlan();
+  const syncPayPal = useSyncPlatformPlanPayPal();
 
   const isOpen = currentModal === 'editPlan';
   const props = modalProps as EditPlanModalProps | null;
@@ -88,6 +92,27 @@ export default function EditPlanModal() {
           mode="edit"
           error={error}
         />
+        {plan.level !== 'free' ? (
+          <div className="mt-4 border-t border-border pt-4">
+            <button
+              type="button"
+              className="text-sm font-medium text-primary hover:underline disabled:opacity-60"
+              disabled={syncPayPal.isPending}
+              onClick={() => {
+                setError(null);
+                void syncPayPal
+                  .mutateAsync(plan.id)
+                  .catch((err) =>
+                    setError(getUnknownApiErrorMessage(t, err)),
+                  );
+              }}
+            >
+              {syncPayPal.isPending
+                ? t('admin.plans.paypalSyncing')
+                : t('admin.plans.paypalSyncNow')}
+            </button>
+          </div>
+        ) : null}
       </form>
     </BaseModal>
   );

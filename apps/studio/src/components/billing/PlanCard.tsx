@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/ui/Button";
 import type { FreeTrialBadgeState } from "@/utils/free-trial-badge";
 import { cn } from "@/utils/helper";
+import { resolvePlanLocaleText } from "@/utils/plan-locale-text";
 import { resolveYearlyDiscountBadge } from "@/utils/plan-badges";
 import { buildPlanBullets } from "@/utils/plan-bullets";
 
@@ -56,12 +57,18 @@ export function PlanCard({
   isPending,
   onSelect,
 }: PlanCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isCurrent = action === "current";
   const isRecommended = Boolean(plan.isRecommended);
   const price = formatPrice(plan, billingCycle);
   const bullets = buildPlanBullets(plan, t);
-  const yearlyDiscountBadge = resolveYearlyDiscountBadge(plan, billingCycle, t);
+  const description = resolvePlanLocaleText(plan.description, i18n.language);
+  const yearlyDiscountBadge = resolveYearlyDiscountBadge(
+    plan,
+    billingCycle,
+    t,
+    i18n.language,
+  );
 
   return (
     <article
@@ -96,10 +103,8 @@ export function PlanCard({
           <h4 className="text-lg font-semibold text-text-primary">
             {plan.name}
           </h4>
-          {plan.description ? (
-            <p className="mt-1 text-sm text-text-secondary">
-              {plan.description}
-            </p>
+          {description ? (
+            <p className="mt-1 text-sm text-text-secondary">{description}</p>
           ) : null}
         </div>
         <div className="flex flex-col items-end gap-1.5">

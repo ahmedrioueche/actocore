@@ -1,4 +1,14 @@
+import type {
+  StudioPlanFeatureId,
+  StudioPlanLocaleText,
+} from '../constants/studio-plan-features';
 import type { AuditInfo, PaymentMethod, SupportedCurrency } from './billing-common';
+
+export type { StudioPlanFeatureId, StudioPlanLocaleText } from '../constants/studio-plan-features';
+export {
+  STUDIO_PLAN_FEATURE_IDS,
+  STUDIO_PLAN_TIER_INHERITANCE_PREFIX,
+} from '../constants/studio-plan-features';
 
 export const APP_PAYMENT_PROVIDERS = ['paypal', 'internal'] as const;
 export const APP_SUBSCRIPTION_BILLING_CYCLES = ['monthly', 'yearly'] as const;
@@ -53,7 +63,7 @@ export interface StudioPlan extends AuditInfo {
   level: AppPlanLevel;
   order?: number;
   name: string;
-  description?: string;
+  description?: StudioPlanLocaleText;
   isActive?: boolean;
   pricing: AppPlanPricing;
   paypalProductId?: string;
@@ -63,12 +73,12 @@ export interface StudioPlan extends AuditInfo {
   };
   trialDays?: number;
   limits: StudioPlanLimits;
-  /** Marketing bullets shown on the subscription page (editable via super-admin API). */
-  features?: string[];
+  /** Marketing feature catalog IDs shown on the subscription page. */
+  features?: StudioPlanFeatureId[];
   /** Highlights this tier on the subscription page (e.g. “Recommended”). */
   isRecommended?: boolean;
   /** Badge copy when yearly billing is selected (e.g. “2 months free”). */
-  yearlyDiscountBadge?: string;
+  yearlyDiscountBadge?: StudioPlanLocaleText;
 }
 
 export interface StudioSubscription extends AuditInfo {

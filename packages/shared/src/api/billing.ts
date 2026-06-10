@@ -209,6 +209,14 @@ export class StudioPlansAdminApi extends BaseApi {
       ),
     );
   }
+
+  syncPayPal(id: string): Promise<ApiResponse<StudioPlan>> {
+    return this.request(() =>
+      this.client.post<ApiResponse<StudioPlan>>(
+        apiPath(`web/admin/plans/${id}/sync-paypal`),
+      ),
+    );
+  }
 }
 
 export const billingApi = new StudioBillingApi();

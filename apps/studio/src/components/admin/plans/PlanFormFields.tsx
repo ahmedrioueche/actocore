@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
+import { PlanFeatureChecklist } from '@/components/admin/plans/PlanFeatureChecklist';
 import { PlanFormSection } from '@/components/admin/plans/PlanFormSection';
-import { PlanMarketingFeatures } from '@/components/admin/plans/PlanMarketingFeatures';
+import { PlanLocaleTextFields } from '@/components/admin/plans/PlanLocaleTextFields';
 import type { PlanFormState } from '@/components/admin/plans/plan-form';
 import { PLAN_LEVEL_OPTIONS } from '@/components/admin/plans/plan-form';
 import CustomSelect from '@/components/ui/CustomSelect';
 import InputField from '@/components/ui/InputField';
-import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 
 interface PlanFormFieldsProps {
@@ -70,14 +70,13 @@ export function PlanFormFields({
             placeholder={t('admin.plans.orderPlaceholder')}
           />
           <div className="md:col-span-2">
-            <TextArea
+            <PlanLocaleTextFields
               label={t('admin.plans.description')}
               value={form.description}
-              onChange={(e) =>
-                onChange({ ...form, description: e.target.value })
-              }
-              placeholder={t('admin.plans.descriptionPlaceholder')}
-              rows={3}
+              onChange={(description) => onChange({ ...form, description })}
+              multiline
+              placeholderEn={t('admin.plans.descriptionPlaceholder')}
+              placeholderFr={t('admin.plans.descriptionPlaceholderFr')}
             />
           </div>
         </div>
@@ -97,6 +96,11 @@ export function PlanFormFields({
         title={t('admin.plans.pricingTitle')}
         subtitle={t('admin.plans.pricingSubtitle')}
       >
+        {form.level !== 'free' ? (
+          <p className="text-xs leading-relaxed text-text-secondary">
+            {t('admin.plans.paypalPricingHint')}
+          </p>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           <InputField
             label={t('admin.plans.monthlyPrice')}
@@ -121,14 +125,14 @@ export function PlanFormFields({
             disabled={form.level === 'free'}
           />
           <div className="md:col-span-2">
-            <InputField
+            <PlanLocaleTextFields
               label={t('admin.plans.yearlyDiscountBadge')}
               value={form.yearlyDiscountBadge}
-              onChange={(e) =>
-                onChange({ ...form, yearlyDiscountBadge: e.target.value })
+              onChange={(yearlyDiscountBadge) =>
+                onChange({ ...form, yearlyDiscountBadge })
               }
-              placeholder={t('admin.plans.yearlyDiscountBadgePlaceholder')}
-              disabled={form.level === 'free'}
+              placeholderEn={t('admin.plans.yearlyDiscountBadgePlaceholder')}
+              placeholderFr={t('admin.plans.yearlyDiscountBadgePlaceholderFr')}
             />
             <p className="mt-1.5 text-xs text-text-secondary">
               {t('admin.plans.yearlyDiscountBadgeHint')}
@@ -189,7 +193,7 @@ export function PlanFormFields({
           </div>
         </div>
 
-        <PlanMarketingFeatures
+        <PlanFeatureChecklist
           features={form.features}
           onChange={(features) => onChange({ ...form, features })}
         />

@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -6,13 +7,29 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  MaxLength,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { STUDIO_PLAN_FEATURE_IDS } from '../constants/studio-plan-features';
+import type { StudioPlanLocaleText } from '../constants/studio-plan-features';
 import {
   APP_PLAN_LEVELS,
   APP_SUBSCRIPTION_BILLING_CYCLES,
 } from '../types/billing';
+
+export class StudioPlanLocaleTextDto implements StudioPlanLocaleText {
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  en?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  fr?: string;
+}
 
 export class CreateStudioPlanDto {
   @IsString()
@@ -27,8 +44,9 @@ export class CreateStudioPlanDto {
   name!: string;
 
   @IsOptional()
-  @IsString()
-  description?: string;
+  @ValidateNested()
+  @Type(() => StudioPlanLocaleTextDto)
+  description?: StudioPlanLocaleTextDto;
 
   @IsObject()
   pricing!: Record<string, { monthly?: number; yearly?: number }>;
@@ -64,16 +82,17 @@ export class CreateStudioPlanDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  features?: string[];
+  @IsIn(STUDIO_PLAN_FEATURE_IDS, { each: true })
+  features?: (typeof STUDIO_PLAN_FEATURE_IDS)[number][];
 
   @IsOptional()
   @IsBoolean()
   isRecommended?: boolean;
 
   @IsOptional()
-  @IsString()
-  yearlyDiscountBadge?: string;
+  @ValidateNested()
+  @Type(() => StudioPlanLocaleTextDto)
+  yearlyDiscountBadge?: StudioPlanLocaleTextDto;
 }
 
 export class UpdateStudioPlanDto {
@@ -86,8 +105,9 @@ export class UpdateStudioPlanDto {
   name?: string;
 
   @IsOptional()
-  @IsString()
-  description?: string;
+  @ValidateNested()
+  @Type(() => StudioPlanLocaleTextDto)
+  description?: StudioPlanLocaleTextDto;
 
   @IsOptional()
   @IsObject()
@@ -124,16 +144,17 @@ export class UpdateStudioPlanDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  features?: string[];
+  @IsIn(STUDIO_PLAN_FEATURE_IDS, { each: true })
+  features?: (typeof STUDIO_PLAN_FEATURE_IDS)[number][];
 
   @IsOptional()
   @IsBoolean()
   isRecommended?: boolean;
 
   @IsOptional()
-  @IsString()
-  yearlyDiscountBadge?: string;
+  @ValidateNested()
+  @Type(() => StudioPlanLocaleTextDto)
+  yearlyDiscountBadge?: StudioPlanLocaleTextDto;
 }
 
 export class StartFreeTrialDto {

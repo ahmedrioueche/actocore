@@ -43,6 +43,18 @@ export function useUpdatePlatformPlan() {
   });
 }
 
+export function useSyncPlatformPlanPayPal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      ensureApiConfigured();
+      return parseApiResponse(await plansAdminApi.syncPayPal(id));
+    },
+    onSuccess: () => invalidatePlans(queryClient),
+  });
+}
+
 export function useDeletePlatformPlan() {
   const queryClient = useQueryClient();
 

@@ -56,6 +56,11 @@ export class StudioPlansAdminController {
     return apiSuccess(await this.plans.update(id, body));
   }
 
+  @Post(':id/sync-paypal')
+  async syncPayPal(@Param('id') id: string) {
+    return apiSuccess(await this.plans.syncPayPalCatalog(id));
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return apiSuccess(await this.plans.remove(id));

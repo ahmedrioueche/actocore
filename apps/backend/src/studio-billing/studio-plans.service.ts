@@ -1,5 +1,8 @@
 import {
   DEFAULT_CURRENCY,
+  normalizeStudioPlanLocaleText,
+  sanitizeStudioPlanFeatures,
+  sanitizeStudioPlanLocaleText,
   type AppPlanLevel,
   type CreateStudioPlanDto,
   type Paginated,
@@ -9,6 +12,8 @@ import {
 } from '@ahmedrioueche/actocore-shared';
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -22,8 +27,13 @@ import {
 } from '../common/pagination/pagination.util';
 import { getAppEnvironment } from '../config/mongodb.config';
 import { StudioPlanModel } from './schemas/billing.schema';
+import { StudioPayPalCatalogService } from './studio-paypal-catalog.service';
 import { normalizeStudioPlanLimits } from './studio-plan-limits.util';
 import { seedDefaultStudioPlans } from './studio-plans-seed.util';
+import {
+  paidPlanNeedsPayPalSync,
+  pricingCycleChanged,
+} from './utils/studio-paypal-catalog.util';
 
 @Injectable()
 export class StudioPlansService implements OnApplicationBootstrap {
@@ -32,6 +42,8 @@ export class StudioPlansService implements OnApplicationBootstrap {
   constructor(
     @InjectModel(StudioPlanModel.name)
     private readonly planModel: Model<StudioPlanModel>,
+    @Inject(forwardRef(() => StudioPayPalCatalogService))
+    private readonly paypalCatalog: StudioPayPalCatalogService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -51,10 +63,18 @@ export class StudioPlansService implements OnApplicationBootstrap {
     this.validatePaidPricing(dto.level, dto.pricing);
     const doc = await this.planModel.create({
       ...dto,
+      description: sanitizeStudioPlanLocaleText(dto.description),
+      yearlyDiscountBadge: sanitizeStudioPlanLocaleText(dto.yearlyDiscountBadge),
+      features: sanitizeStudioPlanFeatures(dto.features),
       version: 1,
       isActive: dto.isActive ?? true,
       trialDays: dto.trialDays ?? 0,
     });
+
+    if (paidPlanNeedsPayPalSync(doc.level, doc.pricing)) {
+      await this.applyPayPalCatalogSync(doc);
+    }
+
     return this.toPlan(doc);
   }
 
@@ -118,9 +138,68 @@ export class StudioPlansService implements OnApplicationBootstrap {
     if (dto.pricing) {
       this.validatePaidPricing(level, dto.pricing);
     }
-    Object.assign(doc, dto);
+    if (dto.description !== undefined) {
+      doc.description = sanitizeStudioPlanLocaleText(dto.description);
+    }
+    if (dto.yearlyDiscountBadge !== undefined) {
+      doc.yearlyDiscountBadge = sanitizeStudioPlanLocaleText(
+        dto.yearlyDiscountBadge,
+      );
+    }
+    if (dto.features !== undefined) {
+      doc.features = sanitizeStudioPlanFeatures(dto.features);
+    }
+
+    const pricingChanged =
+      dto.pricing != null
+        ? pricingCycleChanged(doc.pricing, dto.pricing)
+        : { monthly: false, yearly: false };
+
+    const { description, yearlyDiscountBadge, features, ...rest } = dto;
+    Object.assign(doc, rest);
+
+    const shouldSyncPayPal =
+      paidPlanNeedsPayPalSync(doc.level, doc.pricing) &&
+      (pricingChanged.monthly ||
+        pricingChanged.yearly ||
+        !doc.paypalPlanIds?.monthly ||
+        !doc.paypalPlanIds?.yearly);
+
+    if (shouldSyncPayPal) {
+      await this.applyPayPalCatalogSync(doc);
+    }
+
     await doc.save();
     return this.toPlan(doc);
+  }
+
+  async syncPayPalCatalog(id: string): Promise<StudioPlan> {
+    const doc = await this.planModel.findById(id).exec();
+    if (!doc) {
+      throw new NotFoundException('Plan not found');
+    }
+    if (doc.level === 'free') {
+      throw new BadRequestException('Free plan does not use PayPal catalog');
+    }
+    if (!this.paypalCatalog.isConfigured()) {
+      throw new BadRequestException('PayPal is not configured');
+    }
+    await this.applyPayPalCatalogSync(doc);
+    await doc.save();
+    return this.toPlan(doc);
+  }
+
+  private async applyPayPalCatalogSync(doc: StudioPlanModel): Promise<void> {
+    const result = await this.paypalCatalog.syncPlanCatalog(doc);
+    if (result.skipped) {
+      return;
+    }
+    if (result.paypalProductId) {
+      doc.paypalProductId = result.paypalProductId;
+    }
+    if (result.paypalPlanIds) {
+      doc.paypalPlanIds = result.paypalPlanIds;
+    }
   }
 
   async remove(id: string): Promise<{ message: string; planId: string }> {
@@ -169,16 +248,18 @@ export class StudioPlansService implements OnApplicationBootstrap {
       level: doc.level,
       order: doc.order,
       name: doc.name,
-      description: doc.description,
+      description: normalizeStudioPlanLocaleText(doc.description),
       isActive: doc.isActive,
       pricing: doc.pricing as StudioPlan['pricing'],
       paypalProductId: doc.paypalProductId,
       paypalPlanIds: doc.paypalPlanIds,
       trialDays: doc.trialDays,
       limits: normalizeStudioPlanLimits(doc.limits),
-      features: doc.features ?? [],
+      features: sanitizeStudioPlanFeatures(doc.features),
       isRecommended: doc.isRecommended ?? false,
-      yearlyDiscountBadge: doc.yearlyDiscountBadge,
+      yearlyDiscountBadge: normalizeStudioPlanLocaleText(
+        doc.yearlyDiscountBadge,
+      ),
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: doc.updatedAt?.toISOString(),
     };

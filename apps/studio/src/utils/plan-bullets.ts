@@ -1,19 +1,29 @@
-import type { StudioPlan } from '@ahmedrioueche/actocore-shared';
+import {
+  STUDIO_PLAN_TIER_INHERITANCE_PREFIX,
+  type StudioPlan,
+  type StudioPlanFeatureId,
+} from '@ahmedrioueche/actocore-shared';
 import type { TFunction } from 'i18next';
 
 import { formatTokenCount } from '@/utils/format-token-count';
 
-const TIER_INHERITANCE_FEATURE = /^everything in /i;
+function isTierInheritanceFeature(id: StudioPlanFeatureId): boolean {
+  return id.startsWith(STUDIO_PLAN_TIER_INHERITANCE_PREFIX);
+}
 
-function partitionFeatures(features: string[]): {
-  tierInheritance: string[];
-  other: string[];
+function translateFeature(id: StudioPlanFeatureId, t: TFunction): string {
+  return t(`subscription.plans.features.${id}`);
+}
+
+function partitionFeatures(features: StudioPlanFeatureId[]): {
+  tierInheritance: StudioPlanFeatureId[];
+  other: StudioPlanFeatureId[];
 } {
-  const tierInheritance: string[] = [];
-  const other: string[] = [];
+  const tierInheritance: StudioPlanFeatureId[] = [];
+  const other: StudioPlanFeatureId[] = [];
 
   for (const feature of features) {
-    if (TIER_INHERITANCE_FEATURE.test(feature.trim())) {
+    if (isTierInheritanceFeature(feature)) {
       tierInheritance.push(feature);
     } else {
       other.push(feature);
@@ -57,14 +67,14 @@ export function buildPlanBullets(plan: StudioPlan, t: TFunction): string[] {
       : null;
 
   if (tierInheritance.length > 0) {
-    bullets.push(...tierInheritance);
+    bullets.push(...tierInheritance.map((id) => translateFeature(id, t)));
     if (tokenBullet) {
       bullets.push(tokenBullet);
     }
     pushProjectAndSeatBullets(bullets, plan, t);
-    bullets.push(...other);
+    bullets.push(...other.map((id) => translateFeature(id, t)));
   } else {
-    bullets.push(...features);
+    bullets.push(...features.map((id) => translateFeature(id, t)));
     if (tokenBullet) {
       bullets.push(tokenBullet);
     }

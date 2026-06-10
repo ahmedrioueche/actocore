@@ -1,4 +1,7 @@
+import 'reflect-metadata';
+
 import { describe, expect, it } from '@jest/globals';
+import { STUDIO_PLAN_FEATURE_IDS } from '@ahmedrioueche/actocore-shared';
 
 import {
   DEFAULT_STUDIO_PLANS,
@@ -17,9 +20,23 @@ describe('default-studio-plans', () => {
     expect(PUBLIC_PAID_PLAN_IDS).toEqual(['starter', 'pro', 'business']);
   });
 
-  it('includes feature bullets for each plan', () => {
+  it('includes catalog feature IDs for each plan', () => {
     for (const plan of DEFAULT_STUDIO_PLANS) {
       expect(plan.features?.length).toBeGreaterThan(0);
+      for (const featureId of plan.features ?? []) {
+        expect(STUDIO_PLAN_FEATURE_IDS).toContain(featureId);
+      }
+    }
+  });
+
+  it('stores localized description and yearly badge copy', () => {
+    for (const plan of DEFAULT_STUDIO_PLANS) {
+      expect(plan.description?.en).toBeTruthy();
+    }
+
+    for (const plan of DEFAULT_STUDIO_PLANS.filter((p) => p.level !== 'free')) {
+      expect(plan.yearlyDiscountBadge?.en).toBeTruthy();
+      expect(plan.yearlyDiscountBadge?.fr).toBeTruthy();
     }
   });
 

@@ -95,7 +95,7 @@ npm run seed:paypal-catalog
 npm run seed:plans
 ```
 
-Catalog source: `src/studio-billing/constants/default-studio-plans.ts`. Super admin edits live plans (features, prices, limits) via `GET/POST/PATCH /v1/web/admin/plans` — no Studio admin UI yet.
+Catalog source: `src/studio-billing/constants/default-studio-plans.ts`. Super admin edits live plans (features, prices, limits) via Studio admin or `GET/POST/PATCH /v1/web/admin/plans`. Paid plan price changes auto-sync to PayPal (`update-pricing-schemes` or create missing billing plans) when `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` are set; manual resync: `POST /v1/web/admin/plans/:id/sync-paypal`.
 
 **Subscription lifecycle (simplified):** new accounts get a **14-day free-plan trial** automatically on signup (limits from the `free` row in `studio_plans`). Paid plans use PayPal checkout only (no paid-plan trial). Existing paid users can **upgrade** in-app; **downgrades** and **billing-cycle changes** go through PayPal's manage portal. Cancel keeps access until period end; reactivate undoes a scheduled cancel.
 

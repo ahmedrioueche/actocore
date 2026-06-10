@@ -1,10 +1,13 @@
 import type { AppSubscriptionBillingCycle, StudioPlan } from '@ahmedrioueche/actocore-shared';
 import type { TFunction } from 'i18next';
 
+import { resolvePlanLocaleText } from '@/utils/plan-locale-text';
+
 export function resolveYearlyDiscountBadge(
   plan: StudioPlan,
   billingCycle: AppSubscriptionBillingCycle,
   t: TFunction,
+  language: string,
 ): string | null {
   if (billingCycle !== 'yearly' || plan.level === 'free') {
     return null;
@@ -15,7 +18,7 @@ export function resolveYearlyDiscountBadge(
     return null;
   }
 
-  const custom = plan.yearlyDiscountBadge?.trim();
+  const custom = resolvePlanLocaleText(plan.yearlyDiscountBadge, language);
   if (custom) {
     return custom;
   }

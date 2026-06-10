@@ -4,6 +4,7 @@ import {
 } from '@ahmedrioueche/actocore-shared';
 import {
   BadRequestException,
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -15,6 +16,7 @@ import { randomUUID } from 'crypto';
 import type { PayPalConfig } from '../config/paypal.config';
 import type { PayPalWebhookPayload } from './paypal-webhook.types';
 import { StudioPlanModel } from './schemas/billing.schema';
+import { StudioPayPalHttpService } from './studio-paypal-http.service';
 import { StudioPayPalWebhookDedupService } from './studio-paypal-webhook-dedup.service';
 import { StudioPlansService } from './studio-plans.service';
 import { StudioAdminNotificationService } from '../studio/studio-admin-notification.service';
@@ -35,18 +37,14 @@ export interface PayPalSubscriptionData {
   payerId?: string;
 }
 
-type PayPalTokenCache = {
-  token: string;
-  expiresAt: number;
-};
-
 @Injectable()
 export class StudioPayPalService {
   private readonly logger = new Logger(StudioPayPalService.name);
-  private tokenCache: PayPalTokenCache | null = null;
 
   constructor(
     private readonly config: ConfigService,
+    private readonly paypalHttp: StudioPayPalHttpService,
+    @Inject(forwardRef(() => StudioPlansService))
     private readonly plans: StudioPlansService,
     @Inject(forwardRef(() => StudioSubscriptionService))
     private readonly subscriptions: StudioSubscriptionService,
@@ -58,70 +56,25 @@ export class StudioPayPalService {
     return this.config.getOrThrow<PayPalConfig>('paypal');
   }
 
+  isConfigured(): boolean {
+    return this.paypalHttp.isConfigured();
+  }
+
   private ensureConfigured(): void {
-    const { clientId, clientSecret } = this.cfg();
-    if (!clientId || !clientSecret) {
-      throw new BadRequestException({
-        errorCode: ErrorCode.BILLING_NOT_CONFIGURED,
-        message: 'PayPal is not configured',
-      });
-    }
+    this.paypalHttp.ensureConfigured();
   }
 
   async getAccessToken(): Promise<string> {
-    this.ensureConfigured();
-    const now = Date.now();
-    if (this.tokenCache && this.tokenCache.expiresAt > now + 60_000) {
-      return this.tokenCache.token;
-    }
-
-    const { clientId, clientSecret, apiBaseUrl } = this.cfg();
-    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(
-      'base64',
-    );
-    const response = await axios.post(
-      `${apiBaseUrl}/v1/oauth2/token`,
-      'grant_type=client_credentials',
-      {
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      },
-    );
-
-    const token = response.data.access_token as string;
-    const expiresIn = Number(response.data.expires_in ?? 3600);
-    this.tokenCache = {
-      token,
-      expiresAt: now + expiresIn * 1000,
-    };
-    return token;
+    return this.paypalHttp.getAccessToken();
   }
 
-  private async apiRequest<T>(
+  async billingApiRequest<T>(
     method: 'get' | 'post' | 'patch',
     path: string,
     body?: unknown,
     requestId?: string,
   ): Promise<T> {
-    const token = await this.getAccessToken();
-    const { apiBaseUrl } = this.cfg();
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    if (requestId) {
-      headers['PayPal-Request-Id'] = requestId;
-    }
-
-    const response = await axios.request<T>({
-      method,
-      url: `${apiBaseUrl}${path}`,
-      headers,
-      data: body,
-    });
-    return response.data;
+    return this.paypalHttp.billingApiRequest(method, path, body, requestId);
   }
 
   async createSubscriptionCheckout(
@@ -143,25 +96,29 @@ export class StudioPayPalService {
       throw new BadRequestException('PayPal plan not configured for billing cycle');
     }
 
-    const { returnUrl, cancelUrl } = this.cfg();
+    const { returnUrl, cancelUrl, apiBaseUrl } = this.cfg();
+    const sandbox = apiBaseUrl.includes('sandbox');
+    const applicationContext: Record<string, unknown> = {
+      brand_name: 'ActoCore Studio',
+      locale: 'en-US',
+      shipping_preference: 'NO_SHIPPING',
+      user_action: 'SUBSCRIBE_NOW',
+      return_url: returnUrl,
+      cancel_url: cancelUrl,
+    };
+    if (!sandbox) {
+      applicationContext.payment_method = {
+        payer_selected: 'PAYPAL',
+        payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
+      };
+    }
     const payload = {
       plan_id: paypalPlanId,
       custom_id: encodePayPalCustomId({ accountId, planId, billingCycle }),
-      application_context: {
-        brand_name: 'ActoCore Studio',
-        locale: 'en-US',
-        shipping_preference: 'NO_SHIPPING',
-        user_action: 'SUBSCRIBE_NOW',
-        payment_method: {
-          payer_selected: 'PAYPAL',
-          payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
-        },
-        return_url: returnUrl,
-        cancel_url: cancelUrl,
-      },
+      application_context: applicationContext,
     };
 
-    const data = await this.apiRequest<{
+    const data = await this.billingApiRequest<{
       id: string;
       links?: { href: string; rel: string }[];
     }>('post', '/v1/billing/subscriptions', payload, randomUUID());
@@ -189,8 +146,23 @@ export class StudioPayPalService {
       : plan.paypalPlanIds.monthly ?? null;
   }
 
-  async getSubscriptionStatus(subscriptionId: string) {
-    const data = await this.fetchSubscription(subscriptionId);
+  async getSubscriptionStatus(subscriptionId: string, accountId: string) {
+    this.ensureConfigured();
+    const raw = await this.billingApiRequest<Record<string, unknown>>(
+      'get',
+      `/v1/billing/subscriptions/${subscriptionId}`,
+    );
+    const customId = raw.custom_id as string | undefined;
+    const custom = decodePayPalCustomId(customId);
+    if (custom?.accountId && custom.accountId !== accountId) {
+      throw new ForbiddenException('Subscription does not belong to this account');
+    }
+
+    const data = this.mapPayPalSubscriptionData(raw);
+    if (data.status.toUpperCase() === 'ACTIVE') {
+      await this.subscriptions.activateFromPayPalWebhook(data, customId);
+    }
+
     return {
       id: data.paypalSubscriptionId,
       status: data.status,
@@ -200,7 +172,7 @@ export class StudioPayPalService {
 
   async fetchSubscription(subscriptionId: string): Promise<PayPalSubscriptionData> {
     this.ensureConfigured();
-    const data = await this.apiRequest<Record<string, unknown>>(
+    const data = await this.billingApiRequest<Record<string, unknown>>(
       'get',
       `/v1/billing/subscriptions/${subscriptionId}`,
     );
@@ -220,7 +192,7 @@ export class StudioPayPalService {
     }
 
     const { returnUrl, cancelUrl } = this.cfg();
-    const response = await this.apiRequest<{
+    const response = await this.billingApiRequest<{
       links?: { href: string; rel: string }[];
     }>(
       'post',
@@ -248,7 +220,7 @@ export class StudioPayPalService {
 
   async cancelSubscription(subscriptionId: string, reason?: string): Promise<void> {
     this.ensureConfigured();
-    await this.apiRequest(
+    await this.billingApiRequest(
       'post',
       `/v1/billing/subscriptions/${subscriptionId}/cancel`,
       { reason: reason ?? 'Customer requested cancellation' },
@@ -283,7 +255,7 @@ export class StudioPayPalService {
     }
 
     try {
-      const result = await this.apiRequest<{ verification_status?: string }>(
+      const result = await this.billingApiRequest<{ verification_status?: string }>(
         'post',
         '/v1/notifications/verify-webhook-signature',
         {
@@ -361,6 +333,11 @@ export class StudioPayPalService {
         break;
       case 'PAYMENT.SALE.COMPLETED':
         await this.handlePaymentSaleCompleted(resource);
+        break;
+      case 'BILLING.SUBSCRIPTION.CREATED':
+        this.logger.log(
+          `PayPal subscription created (awaiting activation): ${String(resource.id ?? '')} status=${String(resource.status ?? '')}`,
+        );
         break;
       default:
         this.logger.debug(`Ignored PayPal event ${event.event_type}`);

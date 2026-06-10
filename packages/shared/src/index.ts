@@ -4,6 +4,7 @@ export * from './constants/knowledge-upload';
 export * from './constants/studio-permissions';
 export * from './constants/platform-permissions';
 export * from './constants/studio-onboarding';
+export * from './constants/studio-plan-features';
 export * from './config/api';
 export * from './config/api-version';
 
@@ -14,6 +15,7 @@ export * from './types';
 export * from './dtos';
 
 export * from './utils/api-response';
+export * from './utils/studio-plan-normalize';
 export * from './api/token';
 export * from './api/helper';
 export * from './api/chat';

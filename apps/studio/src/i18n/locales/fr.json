@@ -66,5 +66,65 @@
       "tokens": "Jetons",
       "empty": "Aucune utilisation projet sur cette période."
     }
+  },
+  "subscription": {
+    "plans": {
+      "title": "Forfaits disponibles",
+      "subtitle": "Choisissez le forfait adapté à votre espace de travail.",
+      "cycleLabel": "Cycle de facturation",
+      "current": "Actuel",
+      "currentHint": "Votre forfait actif",
+      "recommended": "Recommandé",
+      "yearDiscountDefault": "2 mois offerts",
+      "trialBadge": "{{days}} jours",
+      "trialExpired": "Expiré",
+      "contactUs": "Nous contacter",
+      "per": {
+        "monthly": "mois",
+        "yearly": "an"
+      },
+      "limits": {
+        "projects_one": "{{count}} projet",
+        "projects_other": "{{count}} projets",
+        "seats_one": "{{count}} siège d'équipe",
+        "seats_other": "{{count}} sièges d'équipe",
+        "chat": "{{count}} jetons / mois",
+        "actionsPerProject_one": "{{count}} action par projet",
+        "actionsPerProject_other": "{{count}} actions par projet"
+      },
+      "features": {
+        "knowledge_and_actions": "Base de connaissances et actions",
+        "sdk_embed": "Intégration SDK avec configuration du tableau de bord",
+        "everything_in_free": "Tout ce qui est inclus dans Free",
+        "everything_in_starter": "Tout ce qui est inclus dans Starter",
+        "everything_in_pro": "Tout ce qui est inclus dans Pro",
+        "email_support": "Support par e-mail",
+        "priority_support": "Support prioritaire",
+        "dedicated_support": "Support dédié"
+      },
+      "actions": {
+        "subscribe": "S'abonner",
+        "trial": "Essai gratuit",
+        "upgrade": "Mettre à niveau"
+      }
+    }
+  },
+  "admin": {
+    "plans": {
+      "localeEn": "Anglais",
+      "localeFr": "Français",
+      "description": "Description",
+      "descriptionPlaceholder": "Résumé court affiché sur la page d'abonnement",
+      "descriptionPlaceholderFr": "Résumé court affiché sur la page d'abonnement",
+      "yearlyDiscountBadge": "Badge de réduction annuelle",
+      "yearlyDiscountBadgePlaceholder": "ex. 2 mois offerts",
+      "yearlyDiscountBadgePlaceholderFr": "ex. 2 mois offerts",
+      "yearlyDiscountBadgeHint": "Affiché sur la page d'abonnement lorsque la facturation annuelle est sélectionnée. Laissez vide pour utiliser le texte par défaut.",
+      "marketingFeatures": "Fonctionnalités marketing",
+      "marketingFeaturesHint": "Sélectionnez des fonctionnalités prédéfinies. L'ajout de nouvelles fonctionnalités nécessite une modification du code.",
+      "paypalPricingHint": "L'enregistrement d'un forfait payant synchronise ces prix avec PayPal automatiquement lorsque les identifiants PayPal sont configurés.",
+      "paypalSyncNow": "Synchroniser les prix avec PayPal",
+      "paypalSyncing": "Synchronisation avec PayPal…"
+    }
   }
 }

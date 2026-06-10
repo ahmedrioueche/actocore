@@ -1,8 +1,11 @@
 import {
   APP_PLAN_LEVELS,
+  sanitizeStudioPlanLocaleText,
   type AppPlanLevel,
   type CreateStudioPlanDto,
   type StudioPlan,
+  type StudioPlanFeatureId,
+  type StudioPlanLocaleText,
   type UpdateStudioPlanDto,
 } from '@ahmedrioueche/actocore-shared';
 
@@ -10,22 +13,28 @@ export interface PlanFormState {
   planId: string;
   level: AppPlanLevel;
   name: string;
-  description: string;
+  description: StudioPlanLocaleText;
   monthlyPrice: number;
   yearlyPrice: number;
   maxProjects: number;
   maxTeamSeats: number;
   monthlyTokenQuota: number;
   maxActionsPerProject: number;
-  features: string[];
+  features: StudioPlanFeatureId[];
   order: number;
   isActive: boolean;
   isRecommended: boolean;
-  yearlyDiscountBadge: string;
+  yearlyDiscountBadge: StudioPlanLocaleText;
 }
 
-export function normalizePlanFeatures(features: string[]): string[] {
-  return features.map((feature) => feature.trim()).filter(Boolean);
+function emptyLocaleText(): StudioPlanLocaleText {
+  return { en: '', fr: '' };
+}
+
+function formLocaleTextToDto(
+  value: StudioPlanLocaleText,
+): StudioPlanLocaleText | undefined {
+  return sanitizeStudioPlanLocaleText(value);
 }
 
 function formStateToPricing(form: PlanFormState) {
@@ -45,7 +54,7 @@ export function defaultPlanFormState(): PlanFormState {
     planId: '',
     level: 'starter',
     name: '',
-    description: '',
+    description: emptyLocaleText(),
     monthlyPrice: 0,
     yearlyPrice: 0,
     maxProjects: 1,
@@ -56,7 +65,7 @@ export function defaultPlanFormState(): PlanFormState {
     order: 0,
     isActive: true,
     isRecommended: false,
-    yearlyDiscountBadge: '',
+    yearlyDiscountBadge: emptyLocaleText(),
   };
 }
 
@@ -65,7 +74,10 @@ export function planToFormState(plan: StudioPlan): PlanFormState {
     planId: plan.planId,
     level: plan.level,
     name: plan.name,
-    description: plan.description ?? '',
+    description: {
+      en: plan.description?.en ?? '',
+      fr: plan.description?.fr ?? '',
+    },
     monthlyPrice: plan.pricing.USD?.monthly ?? 0,
     yearlyPrice: plan.pricing.USD?.yearly ?? 0,
     maxProjects: plan.limits.maxProjects ?? 1,
@@ -76,7 +88,10 @@ export function planToFormState(plan: StudioPlan): PlanFormState {
     order: plan.order ?? 0,
     isActive: plan.isActive ?? true,
     isRecommended: plan.isRecommended ?? false,
-    yearlyDiscountBadge: plan.yearlyDiscountBadge ?? '',
+    yearlyDiscountBadge: {
+      en: plan.yearlyDiscountBadge?.en ?? '',
+      fr: plan.yearlyDiscountBadge?.fr ?? '',
+    },
   };
 }
 
@@ -85,7 +100,7 @@ export function formStateToCreateDto(form: PlanFormState): CreateStudioPlanDto {
     planId: form.planId.trim(),
     level: form.level,
     name: form.name.trim(),
-    description: form.description.trim() || undefined,
+    description: formLocaleTextToDto(form.description),
     pricing: formStateToPricing(form),
     limits: {
       maxProjects: form.maxProjects,
@@ -96,8 +111,8 @@ export function formStateToCreateDto(form: PlanFormState): CreateStudioPlanDto {
     order: form.order,
     isActive: form.isActive,
     isRecommended: form.isRecommended,
-    yearlyDiscountBadge: form.yearlyDiscountBadge.trim() || undefined,
-    features: normalizePlanFeatures(form.features),
+    yearlyDiscountBadge: formLocaleTextToDto(form.yearlyDiscountBadge),
+    features: form.features,
   };
 }
 
@@ -105,7 +120,7 @@ export function formStateToUpdateDto(form: PlanFormState): UpdateStudioPlanDto {
   return {
     level: form.level,
     name: form.name.trim(),
-    description: form.description.trim() || undefined,
+    description: formLocaleTextToDto(form.description),
     pricing: formStateToPricing(form),
     limits: {
       maxProjects: form.maxProjects,
@@ -113,11 +128,11 @@ export function formStateToUpdateDto(form: PlanFormState): UpdateStudioPlanDto {
       monthlyTokenQuota: form.monthlyTokenQuota,
       maxActionsPerProject: form.maxActionsPerProject,
     },
-    features: normalizePlanFeatures(form.features),
+    features: form.features,
     order: form.order,
     isActive: form.isActive,
     isRecommended: form.isRecommended,
-    yearlyDiscountBadge: form.yearlyDiscountBadge.trim() || undefined,
+    yearlyDiscountBadge: formLocaleTextToDto(form.yearlyDiscountBadge),
   };
 }
 
