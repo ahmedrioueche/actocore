@@ -1,6 +1,13 @@
 {
   "nav": {
-    "usage": "Utilisation"
+    "usage": "Utilisation",
+    "project": {
+      "overview": "Aperçu",
+      "docs": "Documentation"
+    }
+  },
+  "projectOverview": {
+    "title": "Aperçu"
   },
   "usage": {
     "title": "Utilisation",

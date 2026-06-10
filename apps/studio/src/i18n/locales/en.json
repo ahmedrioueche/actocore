@@ -236,6 +236,31 @@
       "success": "Project deleted."
     }
   },
+  "projectOverview": {
+    "title": "Overview",
+    "viewDocs": "Integration docs",
+    "gettingStarted": {
+      "title": "Get your assistant live",
+      "body": "Create an API key, add knowledge sources, and define actions so the embedded SDK can help users in your app."
+    },
+    "resources": {
+      "title": "Project resources",
+      "description": "Counts for this project — open a section to manage."
+    },
+    "usage": {
+      "title": "Usage snapshot",
+      "description": "Last 30 days of chat activity for this project.",
+      "panelDescription": "Key metrics for the selected period.",
+      "viewAll": "Full usage"
+    },
+    "setup": {
+      "title": "Setup checklist",
+      "description": "{{completed}} of {{total}} core steps complete.",
+      "apiKeys": "Create at least one API key for SDK and server requests.",
+      "knowledge": "Upload documents or URLs so the assistant can answer from your content.",
+      "actions": "Define tools the assistant can propose and your app can run."
+    }
+  },
   "projectPages": {
     "sectionSubtitle": "In {{project}}",
     "fields": {
@@ -689,6 +714,7 @@
       "label": "Project",
       "section": "Project",
       "loadingName": "Loading…",
+      "overview": "Overview",
       "docs": "Docs",
       "knowledge": "Knowledge",
       "actions": "Actions",

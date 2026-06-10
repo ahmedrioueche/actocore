@@ -98,6 +98,7 @@ useQuery({
 - Define routes in `src/routes/` (TanStack Router).
 - Auth routes outside the app shell; shell routes under a layout route with permission checks.
 - Do **not** use `react-router-dom` in Studio.
+- Per-project landing: `/projects/:projectId` (**Overview**). Integration guide: `/projects/:projectId/docs`.
 
 ---
 

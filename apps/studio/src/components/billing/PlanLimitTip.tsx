@@ -47,7 +47,7 @@ export function PlanLimitTip({
       <p>{t(MESSAGE_KEYS[kind], { limit: displayLimit })}</p>
       <Link
         to="/subscription"
-        search={{ subscriptionId: undefined }}
+        search={{ subscriptionId: undefined, scrollTo: 'plans' }}
         className="inline-block font-medium text-primary underline-offset-2 hover:underline"
       >
         {t('planLimits.upgradeLink')}

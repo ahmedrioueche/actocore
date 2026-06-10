@@ -8,6 +8,7 @@ import {
   FileText,
   FolderKanban,
   KeyRound,
+  LayoutDashboard,
   Receipt,
   Settings,
   Settings2,
@@ -77,10 +78,17 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
   return [
     {
       path: base,
-      labelKey: "nav.project.docs",
-      icon: FileText,
+      labelKey: "nav.project.overview",
+      icon: LayoutDashboard,
       matchPaths: [base],
       exact: true,
+      permission: StudioPermission.PROJECT_READ,
+    },
+    {
+      path: `${base}/docs`,
+      labelKey: "nav.project.docs",
+      icon: FileText,
+      matchPaths: [`${base}/docs`],
       permission: StudioPermission.PROJECT_READ,
     },
     {

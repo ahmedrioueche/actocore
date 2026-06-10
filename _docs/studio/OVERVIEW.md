@@ -55,7 +55,7 @@ Default editor permissions, API key policy, and route guards are documented in [
 |------|--------|
 | `/v1/web/*` backend | Shipped (auth, RBAC, projects, keys, knowledge, sdk-config, usage, billing) |
 | `packages/shared` api + types | Shipped for web routes (global types only) |
-| `apps/studio` UI | In progress — projects, actions, SDK config, **subscription + billing**, **team** pages; TanStack Router/Query/Table |
+| `apps/studio` UI | In progress — projects (**per-project overview** + integration docs), actions, SDK config, **subscription + billing**, **team** pages; TanStack Router/Query/Table |
 
 ---
 

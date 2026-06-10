@@ -31,6 +31,7 @@ import OnboardingPage from '@/pages/user/onboarding/OnboardingPage';
 import ProjectActionsPage from '@/pages/user/projects/ProjectActionsPage';
 import ProjectApiKeysPage from '@/pages/user/projects/ProjectApiKeysPage';
 import ProjectDocsPage from '@/pages/user/projects/ProjectDocsPage';
+import ProjectOverviewPage from '@/pages/user/projects/ProjectOverviewPage';
 import ProjectKnowledgePage from '@/pages/user/projects/ProjectKnowledgePage';
 import ProjectSdkConfigPage from '@/pages/user/projects/ProjectSdkConfigPage';
 import ProjectSettingsPage from '@/pages/user/projects/ProjectSettingsPage';
@@ -134,9 +135,16 @@ const projectsRoute = createRoute({
   component: ProjectsPage,
 });
 
-const projectDocsRoute = createRoute({
+const projectOverviewRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: '/projects/$projectId',
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: ProjectOverviewPage,
+});
+
+const projectDocsRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: '/projects/$projectId/docs',
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
   component: ProjectDocsPage,
 });
@@ -205,6 +213,7 @@ const subscriptionRoute = createRoute({
         : typeof search.subscription_id === 'string'
           ? search.subscription_id
           : undefined,
+    scrollTo: search.scrollTo === 'plans' ? ('plans' as const) : undefined,
   }),
   component: SubscriptionPage,
 });
@@ -327,6 +336,7 @@ const routeTree = rootRoute.addChildren([
   ]),
   studioLayoutRoute.addChildren([
     projectsRoute,
+    projectOverviewRoute,
     projectDocsRoute,
     projectKnowledgeRoute,
     projectActionsRoute,

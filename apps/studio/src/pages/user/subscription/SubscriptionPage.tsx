@@ -30,6 +30,7 @@ import {
 import { canWriteBilling } from '@/lib/studio-permissions';
 import { useModalStore } from '@/stores/modal';
 import { toast } from '@/stores/toast';
+import { scrollToSubscriptionPlans } from '@/utils/scroll';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function SubscriptionPage() {
@@ -39,6 +40,7 @@ export default function SubscriptionPage() {
   const openConfirm = useModalStore((state) => state.openConfirm);
   const search = useSearch({ strict: false }) as {
     subscriptionId?: string;
+    scrollTo?: 'plans';
   };
   const checkoutHandled = useRef<string | null>(null);
 
@@ -107,6 +109,59 @@ export default function SubscriptionPage() {
         });
       });
   }, [search.subscriptionId, t, navigate, pollSubscription]);
+
+  useEffect(() => {
+    if (search.scrollTo !== 'plans' || isCheckoutProcessing) {
+      return;
+    }
+
+    const clearScrollSearch = () => {
+      void navigate({
+        to: '/subscription',
+        search: {
+          subscriptionId: search.subscriptionId,
+          scrollTo: undefined,
+        },
+        replace: true,
+      });
+    };
+
+    if (isError) {
+      clearScrollSearch();
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof window.setTimeout> | undefined;
+
+    const scroll = () => {
+      if (!scrollToSubscriptionPlans()) {
+        return false;
+      }
+      clearScrollSearch();
+      return true;
+    };
+
+    const frame = requestAnimationFrame(() => {
+      if (scroll()) {
+        return;
+      }
+      timeoutId = window.setTimeout(scroll, 150);
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (timeoutId != null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [
+    search.scrollTo,
+    search.subscriptionId,
+    isCheckoutProcessing,
+    isError,
+    navigate,
+    isLoading,
+  ]);
 
   const handleSubscribe = async (plan: StudioPlan) => {
     setPendingPlanId(plan.planId);

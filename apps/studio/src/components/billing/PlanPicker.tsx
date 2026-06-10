@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/utils/helper";
 import { resolveFreeTrialBadge } from "@/utils/free-trial-badge";
 import { isUpgrade } from "@/utils/plan-level";
+import { SUBSCRIPTION_PLANS_SECTION_ID } from "@/utils/scroll";
 
 export type { PlanActionKind };
 
@@ -65,7 +66,10 @@ export function PlanPicker({
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
-    <section className="space-y-4">
+    <section
+      id={SUBSCRIPTION_PLANS_SECTION_ID}
+      className="scroll-mt-6 space-y-4"
+    >
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h3 className="text-lg font-semibold text-text-primary">
