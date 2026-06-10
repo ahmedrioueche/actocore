@@ -141,7 +141,7 @@ export default function SettingsPage() {
             </div>
 
             <ThemeModeSelect />
-            <UiLanguageSelect />
+            <UiLanguageSelect hintKey="admin.settings.uiLanguageHint" />
           </section>
 
           <section className="space-y-5 rounded-2xl bg-surface p-6 shadow-sm md:p-8">

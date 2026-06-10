@@ -1,90 +1,889 @@
 {
-  "nav": {
-    "usage": "Utilisation",
-    "project": {
-      "overview": "Aperçu",
-      "docs": "Documentation"
+  "app": {
+    "name": "ActoCore Studio"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "edit": "Modifier",
+    "remove": "Retirer",
+    "loading": "Chargement…",
+    "error": "Quelque chose s'est mal passé",
+    "retry": "Essayer à nouveau",
+    "dismiss": "Fermer",
+    "goBack": "Retour",
+    "continue": "Continuer",
+    "viewMode": {
+      "cards": "Cartes",
+      "table": "Tableau"
+    },
+    "pagination": {
+      "showing": "Affichage de {{from}} à {{to}} sur {{total}}"
+    }
+  },
+  "confirm": {
+    "default": {
+      "title": "Confirmer l'action",
+      "text": "Êtes-vous sûr de vouloir continuer ?"
+    },
+    "typeToConfirm": "Tapez \"{{text}}\" pour confirmer"
+  },
+  "general": {
+    "loading": "Chargement",
+    "please_wait": "S'il vous plaît, attendez…",
+    "no_data": "Aucune donnée",
+    "no_data_desc": "Il n'y a encore rien à montrer.",
+    "page_not_found": "Page introuvable",
+    "page_not_found_desc": "La page que vous recherchez n'existe pas."
+  },
+  "actions": {
+    "go_back": "Retour",
+    "go_home": "Accueil"
+  },
+  "errorBoundary": {
+    "title": "Quelque chose s'est mal passé",
+    "message": "Une erreur inattendue s'est produite. Actualisez la page ou revenez en arrière."
+  },
+  "errors": {
+    "generic": "Quelque chose s'est mal passé. Veuillez réessayer.",
+    "invalidCredentials": "Adresse e-mail, espace de travail, nom d'utilisateur ou mot de passe invalide.",
+    "emailNotVerified": "Veuillez vérifier votre adresse e-mail avant de vous connecter.",
+    "emailAlreadyVerified": "Cet email est déjà vérifié.",
+    "invalidVerificationToken": "Ce lien de vérification est invalide ou a expiré.",
+    "invalidResetToken": "Ce lien de réinitialisation est invalide ou a expiré.",
+    "invalidRefreshToken": "Votre session a expiré. Veuillez vous reconnecter.",
+    "googleAuthFailed": "La connexion à Google a échoué. Veuillez réessayer.",
+    "googleNotConfigured": "La connexion à Google n'est pas disponible.",
+    "userAlreadyExists": "Un compte avec cette adresse email existe déjà.",
+    "validation": "Veuillez vérifier votre saisie et réessayer.",
+    "unauthorized": "Vous devez vous connecter pour continuer.",
+    "forbidden": "Vous n'avez pas la permission de faire cela.",
+    "internal": "Une erreur de serveur s'est produite. Veuillez réessayer plus tard.",
+    "tooManyRequests": "Trop de tentatives. Veuillez patienter et réessayer.",
+    "projectLimitReached": "Vous avez atteint la limite de votre projet ({{limit}}). Mettez à niveau votre forfait pour en ajouter davantage.",
+    "seatLimitReached": "Vous avez atteint la limite de sièges d'équipe ({{limit}}). Améliorez votre forfait pour inviter plus de membres.",
+    "actionLimitReached": "Vous avez atteint votre limite d'action ({{limit}} par projet). Améliorez votre plan pour en créer davantage.",
+    "chatQuotaExceeded": "Limite mensuelle de jetons atteinte ({{limit}}). Améliorez votre forfait pour plus de jetons.",
+    "teamMemberNotFound": "Membre de l'équipe introuvable.",
+    "cannotRemoveSelf": "Vous ne pouvez pas supprimer votre propre siège.",
+    "cannotRemoveAdmin": "Les propriétaires d'espace de travail ne peuvent pas être supprimés de la liste d'équipe.",
+    "insufficientPermissions": "Vous n'avez pas la permission de gérer l'équipe."
+  },
+  "planLimits": {
+    "projectReachedTitle": "Limite du projet atteinte",
+    "projectReached": "Votre forfait autorise jusqu'à {{limit}} projets. Mettez à niveau pour en créer davantage.",
+    "seatReachedTitle": "Limite de sièges par équipe atteinte",
+    "seatReached": "Votre forfait autorise jusqu'à {{limit}} sièges d'équipe. Mettez à niveau pour inviter plus de membres.",
+    "chatReachedTitle": "Limite mensuelle de jetons atteinte",
+    "chatReached": "Vous avez utilisé tous les {{limit}} jetons mensuels de votre forfait.",
+    "actionReachedTitle": "Limite d'action atteinte",
+    "actionReached": "Votre plan autorise jusqu'à {{limit}} actions par projet. Mettez à niveau pour en créer davantage.",
+    "upgradeLink": "Plan de mise à niveau"
+  },
+  "auth": {
+    "securityBadge": "Sécurité de niveau entreprise",
+    "brand": {
+      "headline": "La couche d'intelligence pour votre application",
+      "tagline": "Intégrez l'interaction en langage naturel et les capacités d'IA autonomes dans votre logiciel grâce à notre infrastructure de niveau entreprise.",
+      "subtagline": "Gérez les projets, les connaissances, les paramètres du SDK et l'accès des équipes en un seul endroit.",
+      "signup": {
+        "headline": "Créez des applications intelligentes en quelques minutes",
+        "tagline": "Exploitez la puissance des modes Q&A et Action pour créer des expériences fluides basées sur l’IA pour vos utilisateurs.",
+        "code": {
+          "const": "const",
+          "variable": "app",
+          "modeKey": "mode",
+          "modeValue": "action",
+          "intelligenceKey": "intelligence",
+          "intelligenceValue": "true",
+          "featuresKey": "features",
+          "featureQa": "QA",
+          "featureAutomation": "Automation",
+          "comment": "// Prêt à déployer en 2 minutes"
+        }
+      },
+      "code": {
+        "const": "const",
+        "variable": "studio",
+        "engineKey": "engine",
+        "engineValue": "neural-v4",
+        "contextKey": "context",
+        "contextValue": "app_state",
+        "comment": "// Prêt à interagir"
+      }
+    },
+    "or": "ou",
+    "google": "Continuer avec Google",
+    "login": {
+      "title": "Content de te revoir",
+      "subtitle": "Connectez-vous pour gérer vos intégrations d'IA.",
+      "dividerEmail": "ou continuez avec l'e-mail",
+      "email": "Adresse email",
+      "emailPlaceholder": "nom@entreprise.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Rappelez-vous pendant 30 jours",
+      "submit": "Se connecter",
+      "submitting": "Connexion…",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signupLink": "S'inscrire",
+      "teamToggle": "Connectez-vous en tant que membre de l'équipe",
+      "teamHide": "Connectez-vous plutôt avec votre e-mail",
+      "workspaceId": "ID de l'espace de travail",
+      "workspaceIdPlaceholder": "Collez l'ID de votre espace de travail",
+      "workspaceIdHelp": "Demandez à votre administrateur l’ID de l’espace de travail (ID de compte) dans Paramètres.",
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "par ex. Jeanne"
+    },
+    "signup": {
+      "title": "Créez votre compte",
+      "subtitle": "Commencez dès aujourd’hui à créer des applications intelligentes.",
+      "google": "Inscrivez-vous avec Google",
+      "dividerEmail": "ou inscrivez-vous par email",
+      "fullName": "Nom et prénom",
+      "fullNamePlaceholder": "John Doe",
+      "fullNameRequired": "Le nom complet est requis.",
+      "email": "E-mail professionnel",
+      "emailPlaceholder": "john@company.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "passwordHint": "Au moins 8 caractères",
+      "submit": "Créer un compte",
+      "submitting": "Création d'un compte…",
+      "legalPrefix": "En vous inscrivant, vous acceptez notre",
+      "legalAnd": "et",
+      "termsLink": "Conditions d'utilisation",
+      "privacyLink": "politique de confidentialité",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter",
+      "verifyTitle": "Vérifiez votre courrier électronique",
+      "verifySubtitle": "Nous avons envoyé un lien de vérification à {{email}}",
+      "verifyInstructions": "Ouvrez le lien dans votre e-mail pour activer votre compte, puis connectez-vous.",
+      "devVerifyTitle": "Mode développement",
+      "devVerifyHint": "Aucun serveur de messagerie n'est configuré. Utilisez ce lien pour vérifier votre compte :",
+      "devVerifyLink": "Vérifier le compte",
+      "resend": "Renvoyer l'e-mail de vérification",
+      "resendSuccess": "E-mail de vérification envoyé.",
+      "goToLogin": "Allez vous connecter"
+    },
+    "verify": {
+      "title": "Vérifier l'e-mail",
+      "subtitle": "Confirmation de votre adresse e-mail…",
+      "submit": "Vérifier l'e-mail",
+      "tokenLabel": "Le code de vérification",
+      "tokenPlaceholder": "Coller le jeton de l'e-mail",
+      "success": "E-mail vérifié. Redirection…",
+      "missingToken": "Aucun jeton de vérification trouvé. Ouvrez le lien depuis votre e-mail ou collez le jeton ci-dessous."
+    },
+    "forgot": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre e-mail et nous vous enverrons des instructions de réinitialisation",
+      "email": "E-mail",
+      "emailPlaceholder": "nom@entreprise.com",
+      "submit": "Envoyer le lien de réinitialisation",
+      "successTitle": "Vérifiez votre courrier électronique",
+      "successSubtitle": "S'il existe un compte pour cet e-mail, vous recevrez prochainement des instructions de réinitialisation.",
+      "backToLogin": "Retour pour vous connecter"
+    },
+    "reset": {
+      "title": "Réinitialiser le mot de passe",
+      "subtitle": "Choisissez un nouveau mot de passe pour votre compte",
+      "password": "Nouveau mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "submit": "Mettre à jour le mot de passe",
+      "success": "Mot de passe mis à jour. Vous pouvez vous connecter maintenant.",
+      "missingToken": "Lien de réinitialisation invalide. Demandez-en un nouveau depuis la page mot de passe oublié."
+    },
+    "callback": {
+      "title": "Vous connecter",
+      "subtitle": "Terminer la connexion à Google…",
+      "error": "La connexion à Google a échoué. Veuillez réessayer."
+    },
+    "logout": "se déconnecter"
+  },
+  "projects": {
+    "title": "Projets",
+    "listSubtitle_one": "Projet {{count}} dans votre espace de travail",
+    "listSubtitle_other": "{{count}} projets dans votre espace de travail",
+    "created": "Créé {{date}}",
+    "emptyTitle": "Aucun projet pour l'instant",
+    "emptyDescription": "Créez un projet pour gérer les clés API, les connaissances et les paramètres du SDK pour une application.",
+    "create": {
+      "button": "Créer un projet",
+      "title": "Créer un projet",
+      "subtitle": "Chaque projet possède ses propres clés API, connaissances et configuration SDK.",
+      "submit": "Créer un projet",
+      "nameRequired": "Le nom du projet est requis.",
+      "namePlaceholder": "par ex. Mon application SaaS"
+    }
+  },
+  "projectSettings": {
+    "title": "Paramètres du projet",
+    "save": "Enregistrer les modifications",
+    "saved": "Projet mis à jour.",
+    "nameRequired": "Le nom du projet est requis.",
+    "generalTitle": "Général",
+    "generalSubtitle": "Mettez à jour la façon dont ce projet apparaît dans Studio.",
+    "dangerTitle": "Zone dangereuse",
+    "dangerSubtitle": "Supprimez définitivement ce projet et toutes ses clés API, connaissances, actions et données de discussion.",
+    "delete": {
+      "button": "Supprimer le projet",
+      "title": "Supprimer le projet ?",
+      "text": "« {{name}} » et toutes les données associées seront définitivement supprimées. Cela ne peut pas être annulé.",
+      "confirm": "Supprimer le projet",
+      "success": "Projet supprimé."
     }
   },
   "projectOverview": {
-    "title": "Aperçu"
+    "title": "Aperçu",
+    "viewDocs": "Documents d'intégration",
+    "gettingStarted": {
+      "title": "Obtenez votre assistant en direct",
+      "body": "Créez une clé API, ajoutez des sources de connaissances et définissez des actions afin que le SDK intégré puisse aider les utilisateurs de votre application."
+    },
+    "resources": {
+      "title": "Ressources du projet",
+      "description": "Compte pour ce projet : ouvrez une section à gérer."
+    },
+    "usage": {
+      "title": "Instantané d'utilisation",
+      "description": "30 derniers jours d'activité de chat pour ce projet.",
+      "panelDescription": "Indicateurs clés pour la période sélectionnée.",
+      "viewAll": "Utilisation complète"
+    },
+    "setup": {
+      "title": "Liste de contrôle de configuration",
+      "description": "{{completed}} étapes principales sur {{total}} terminées.",
+      "apiKeys": "Créez au moins une clé API pour le SDK et les requêtes du serveur.",
+      "knowledge": "Téléchargez des documents ou des URL pour que l'assistant puisse répondre à partir de votre contenu.",
+      "actions": "Définissez les outils que l'assistant peut proposer et que votre application peut exécuter."
+    }
   },
-  "usage": {
-    "title": "Utilisation",
-    "subtitle": "Consommation de l'espace de travail et synthèse par projet pour la période sélectionnée.",
-    "manageBilling": "Facturation et limites",
-    "dateRange": {
-      "label": "Période",
-      "7d": "7 derniers jours",
-      "30d": "30 derniers jours",
-      "month": "Ce mois-ci"
+  "projectPages": {
+    "sectionSubtitle": "En {{project}}",
+    "fields": {
+      "name": "Nom",
+      "created": "Créé",
+      "id": "ID du projet"
     },
-    "quota": {
-      "title": "Utilisation du forfait",
-      "monthlyTokens": "Jetons mensuels"
+    "sections": {
+      "knowledge": {
+        "title": "Connaissance",
+        "emptyTitle": "Aucune source de connaissances pour l'instant",
+        "emptyDescription": "Téléchargez des documents et des URL pour que votre assistant puisse répondre à partir de votre contenu."
+      },
+      "actions": {
+        "title": "Actes",
+        "emptyTitle": "Aucune action pour l'instant",
+        "emptyDescription": "Définissez les outils que votre assistant peut appeler depuis le chat et la voix."
+      },
+      "sdkConfig": {
+        "title": "Configuration du SDK",
+        "emptyTitle": "La configuration du SDK n'est pas configurée",
+        "emptyDescription": "Configurez la personnalisation, les invites et le comportement d'exécution du SDK intégré."
+      },
+      "apiKeys": {
+        "title": "Clés API",
+        "emptyTitle": "Pas encore de clé API",
+        "emptyDescription": "Créez des clés pour authentifier les demandes du SDK et du serveur pour ce projet."
+      },
+      "usage": {
+        "title": "Usage",
+        "emptyTitle": "Aucune donnée d'utilisation pour l'instant",
+        "emptyDescription": "Les métriques d'utilisation de ce projet apparaîtront ici une fois le trafic démarré."
+      }
+    }
+  },
+  "projectDocs": {
+    "subtitle": "Guide d'intégration pour {{project}}",
+    "subtitleFallback": "Intégrez ActoCore dans votre application.",
+    "copyCode": "Copier le code",
+    "copied": "Copié",
+    "viewActionCode": "Gestionnaires d'actions",
+    "gettingStarted": {
+      "title": "Commencer",
+      "body": "Each project is a separate ActoCore environment. Create an API key, add knowledge, define actions, then drop the SDK into your app. Dashboard SDK settings apply automatically when loadRemoteConfig is enabled."
     },
-    "metrics": {
-      "requests": "Requêtes chat",
-      "requestsHint": "Appels SDK chat sur la période",
-      "promptTokens": "Jetons prompt",
-      "promptTokensHint": "Jetons d'entrée envoyés au LLM",
-      "completionTokens": "Jetons de complétion",
-      "completionTokensHint": "Jetons de sortie renvoyés par le LLM",
-      "errorRate": "Taux d'erreur",
-      "errorRateHint": "Part des requêtes en échec",
-      "p95Latency": "Latence P95",
-      "p95LatencyHint": "Temps de réponse au 95e percentile (ms)"
+    "quickStart": {
+      "title": "Démarrage rapide",
+      "description": "Installez le SDK, définissez l'URL et la clé de votre API, puis montez le widget de discussion dans votre application React.",
+      "installLabel": "Installer",
+      "envLabel": "Environnement",
+      "componentLabel": "Composant de réaction",
+      "componentWithActions": "Composant React (avec vos actions activées)",
+      "actionsHint_one": "L'extrait inclut l'action activée {{count}} de ce projet.",
+      "actionsHint_other": "L'extrait inclut {{count}} actions activées pour ce projet.",
+      "noActionsHint": "Définir les actions dans"
     },
-    "series": {
-      "title": "Activité quotidienne",
-      "description": "Requêtes par jour pour ce projet.",
-      "empty": "Aucune activité quotidienne sur cette période."
+    "setup": {
+      "title": "Configuration du projet",
+      "description": "Suivez ces étapes pour obtenir un assistant fonctionnel dans votre application.",
+      "apiKeys": "Créez une clé API pour le SDK et les requêtes du serveur. Gardez-le secret : utilisez les variables d'environnement en production.",
+      "knowledge": "Téléchargez des documents et des URL pour que l'assistant puisse répondre à partir du contenu de votre produit.",
+      "actions": "Définissez les outils que l'assistant peut exécuter dans le chat. Gestionnaires de câbles dans votre application avec des noms correspondants.",
+      "sdkConfig": "Personnalisez les paramètres par défaut du thème, de la copie, des paramètres régionaux et de la sécurité chargés par le SDK intégré."
+    }
+  },
+  "apiKeys": {
+    "neverUsed": "Jamais",
+    "create": {
+      "button": "Créer une clé API",
+      "title": "Créer une clé API",
+      "subtitle": "Étiquette facultative pour identifier où cette clé est utilisée.",
+      "submit": "Créer une clé"
     },
-    "intentBreakdown": {
-      "title": "Répartition par intention",
-      "description": "Classification des requêtes chat sur la période.",
-      "workspaceDescription": "Répartition des intentions sur tous les projets de l'espace.",
-      "empty": "Aucune donnée d'intention sur cette période."
+    "edit": {
+      "title": "Renommer la clé API",
+      "subtitle": "Mettez à jour l’étiquette de cette clé.",
+      "submit": "Enregistrer le nom",
+      "nameRequired": "Le nom est requis."
     },
-    "modelBreakdown": {
-      "title": "Répartition par modèle",
-      "description": "Modèles les plus utilisés sur la période.",
-      "empty": "Aucune utilisation de modèle sur cette période."
+    "issued": {
+      "title": "Copiez votre clé API",
+      "subtitle": "C'est la seule fois où la clé complète sera affichée.",
+      "copy": "Copier la clé",
+      "copied": "Copié",
+      "done": "Fait",
+      "warning": "Conservez cette clé en toute sécurité. Vous ne pourrez plus le consulter."
     },
-    "apiKeyBreakdown": {
-      "title": "Répartition par clé API",
-      "description": "Requêtes groupées par nom de clé API.",
-      "empty": "Aucune utilisation par clé API sur cette période.",
-      "removedKey": "Clé supprimée",
-      "unknownKey": "Inconnue"
+    "delete": {
+      "title": "Révoquer la clé API ?",
+      "text": "« {{name}} » cessera de fonctionner immédiatement. Cela ne peut pas être annulé.",
+      "confirm": "Révoquer la clé"
     },
-    "projectsTable": {
-      "title": "Projets",
-      "description": "Consommation par projet — ouvrez une ligne pour le détail.",
-      "name": "Projet",
-      "requests": "Requêtes",
-      "tokens": "Jetons",
-      "empty": "Aucune utilisation projet sur cette période."
+    "fields": {
+      "name": "Nom",
+      "namePlaceholder": "par ex. SDK de production",
+      "suggestName": "Proposer un nom"
+    },
+    "columns": {
+      "name": "Clé",
+      "created": "Créé",
+      "lastUsed": "Dernière utilisation"
+    }
+  },
+  "knowledge": {
+    "types": {
+      "document": "Document",
+      "url": "URL",
+      "text": "Texte"
+    },
+    "status": {
+      "ready": "Prêt",
+      "pending": "Traitement",
+      "error": "Échoué"
+    },
+    "columns": {
+      "source": "Source",
+      "status": "Statut",
+      "size": "Taille",
+      "created": "Ajouté"
+    },
+    "upload": {
+      "button": "Ajouter une source",
+      "title": "Télécharger des documents",
+      "subtitle": "Ajoutez un ou plusieurs fichiers pour que votre assistant puisse répondre à partir de leur contenu.",
+      "dropzone": "Glissez et déposez des fichiers ou cliquez pour parcourir",
+      "hint": "{{types}} jusqu'à {{size}} chacun",
+      "bulkHint": "Jusqu'à {{max}} fichiers par téléchargement",
+      "selected_one": "Fichier {{count}} sélectionné",
+      "selected_other": "{{count}} fichiers sélectionnés",
+      "addMore": "Ajouter plus",
+      "titleLabel": "Titre (facultatif)",
+      "titlePlaceholder": "Par défaut, le nom du fichier",
+      "titleBulkHint": "Chaque fichier utilise son nom de fichier comme titre source.",
+      "submit": "Télécharger",
+      "submitMany_one": "Téléchargez le fichier {{count}}",
+      "submitMany_other": "Téléchargez {{count}} fichiers",
+      "progress": "Téléchargement de {{current}} sur {{total}}…",
+      "successOne": "Document téléchargé.",
+      "successMany_one": "{{count}} document téléchargé.",
+      "successMany_other": "{{count}} documents téléchargés.",
+      "errors": {
+        "required": "Veuillez choisir au moins un fichier à télécharger.",
+        "type": "Type de fichier non pris en charge. Autorisé : PDF, texte brut, démarque.",
+        "size": "Le fichier est trop volumineux. La taille maximale est de 10 Mo.",
+        "empty": "Ce fichier est vide.",
+        "tooMany": "Vous pouvez télécharger au maximum {{max}} fichiers à la fois.",
+        "partial_one": "Échec du téléchargement du fichier {{count}}. Corrigez-le ou supprimez-le et réessayez.",
+        "partial_other": "Échec du téléchargement de {{count}} fichiers. Corrigez-les ou supprimez-les et réessayez."
+      }
+    },
+    "delete": {
+      "title": "Supprimer la source ?",
+      "text": "« {{name}} » et son contenu indexé seront supprimés. Cela ne peut pas être annulé.",
+      "confirm": "Supprimer la source"
+    }
+  },
+  "projectActions": {
+    "columns": {
+      "name": "Action",
+      "status": "Statut",
+      "updated": "Mis à jour"
+    },
+    "status": {
+      "enabled": "Activé",
+      "disabled": "Désactivé",
+      "enable": "Activer l'action",
+      "disable": "Désactiver l'action"
+    },
+    "fields": {
+      "name": "Nom",
+      "namePlaceholder": "par ex. créer_facture",
+      "nameHint": "Lettres minuscules, chiffres, tirets et traits de soulignement. Ne peut pas être modifié ultérieurement.",
+      "description": "Description",
+      "descriptionPlaceholder": "Ce que fait cette action (aide l'assistant à décider quand l'appeler)",
+      "inputSchema": "Schéma d'entrée (JSON)",
+      "inputSchemaPlaceholder": "{\n  \"type\": \"objet\",\n  \"propriétés\": {}\n}",
+      "inputSchemaHint": "Schéma JSON décrivant les arguments que l'assistant doit fournir.",
+      "enabled": "Activé",
+      "section": "Section"
+    },
+    "create": {
+      "button": "Créer une action",
+      "title": "Créer une action",
+      "subtitle": "Définissez un outil que votre assistant peut appeler depuis le chat et la voix.",
+      "submit": "Créer",
+      "step1Title": "Bases des actions",
+      "step2Title": "Paramètres d'entrée",
+      "stepCounter": "Étape {{current}} de {{total}}",
+      "progressLabel": "Créer une progression d'action",
+      "next": "Suivant",
+      "back": "Dos",
+      "suggestName": "Suggérer un nom à partir de la description",
+      "howItWorks": {
+        "title": "Comment fonctionnent les actions",
+        "studio": "Vous définissez l'action et ses paramètres ici dans Studio.",
+        "ai": "L'assistant sélectionne l'action et remplit les paramètres du chat.",
+        "sdk": "Votre application exécute le gestionnaire dans le SDK : connectez-le à votre API."
+      }
+    },
+    "edit": {
+      "title": "Modifier l'action",
+      "subtitle": "Mettez à jour le comportement de cette action.",
+      "submit": "Enregistrer les modifications"
+    },
+    "delete": {
+      "title": "Supprimer l'action ?",
+      "text": "« {{name}} » sera supprimé et l'assistant ne pourra plus l'appeler. Cela ne peut pas être annulé.",
+      "confirm": "Supprimer l'action"
+    },
+    "errors": {
+      "invalidName": "Le nom doit être en minuscules (lettres, chiffres, tirets, traits de soulignement).",
+      "invalidSchema": "Le schéma d'entrée doit être un objet JSON valide."
+    },
+    "advancedMode": "Schéma JSON avancé",
+    "advancedModeHint": "Modifiez le schéma JSON brut envoyé à l'assistant. Désactivez-le pour utiliser le générateur visuel lorsque le schéma est compatible.",
+    "advancedModeLockedHint": "Ce schéma utilise des formes avancées. Modifiez-le au format JSON ou simplifiez-le pour utiliser le générateur visuel.",
+    "templates": {
+      "title": "Partir d'un modèle",
+      "no_params": {
+        "label": "Aucun paramètre",
+        "description": "Pour la navigation, l’actualisation ou d’autres actions ne nécessitant aucune saisie."
+      },
+      "single_email": {
+        "label": "Adresse email",
+        "description": "Un champ email obligatoire."
+      },
+      "single_id": {
+        "label": "Identifiant de l'enregistrement",
+        "description": "Un champ d'identification obligatoire – pour les actions d'obtention ou de suppression."
+      },
+      "search_query": {
+        "label": "Requête de recherche",
+        "description": "Une chaîne de recherche obligatoire."
+      },
+      "create_record": {
+        "label": "Créer un enregistrement",
+        "description": "Un champ de titre obligatoire – ajoutez plus de paramètres ci-dessous si nécessaire."
+      },
+      "update_record": {
+        "label": "Mettre à jour l'enregistrement",
+        "description": "Nom de l'enregistrement plus une charge utile de données - par ex. mettre à jour une salle de sport par son nom avec de nouvelles valeurs de champ."
+      },
+      "custom": {
+        "label": "Coutume",
+        "description": "Créez votre propre liste de paramètres."
+      }
+    },
+    "parameters": {
+      "empty": "Aucun paramètre pour l'instant. Ajoutez des champs ou choisissez un modèle ci-dessus.",
+      "fieldLabel": "Paramètre {{index}}",
+      "name": "Nom du paramètre",
+      "namePlaceholder": "par ex. e-mail",
+      "type": "Taper",
+      "description": "Description",
+      "descriptionPlaceholder": "Aide l'assistant à savoir quoi collecter",
+      "required": "Requis",
+      "addField": "Ajouter un paramètre",
+      "removeField": "Supprimer le paramètre",
+      "types": {
+        "string": "Texte",
+        "number": "Nombre",
+        "boolean": "Oui / Non"
+      },
+      "errors": {
+        "invalidName": "Les noms de paramètres doivent être en minuscules (lettres, chiffres, traits de soulignement).",
+        "duplicateName": "Les noms de paramètres doivent être uniques."
+      }
+    },
+    "created": {
+      "title": "Action créée",
+      "subtitle": "Connectez \"{{name}}\" dans votre application",
+      "handlerHint": "Enregistrez un gestionnaire du même nom dans votre SDK. L'assistant valide la saisie ; votre code exécute l'action.",
+      "copySnippet": "Copier l'extrait du SDK",
+      "copied": "Copié",
+      "done": "Fait"
+    },
+    "generateCode": {
+      "button": "Générer du code SDK",
+      "title": "Code d'intégration du SDK",
+      "subtitle": "Déposez ce composant dans votre application React et remplissez les gestionnaires TODO.",
+      "hint": "Includes imports, ActocoreProvider, security allowlist, and typed handlers for every enabled action. Set VITE_ACTOCORE_API_KEY and VITE_ACTOCORE_API_URL in your environment.",
+      "empty": "Activez au moins une action pour générer du code d'intégration.",
+      "loading": "Chargement des actions…",
+      "copySnippet": "Copier le code",
+      "copied": "Copié",
+      "done": "Fait",
+      "truncatedHint": "Seules les premières {{count}} des {{total}} actions sont incluses. Ajoutez manuellement les gestionnaires restants."
+    },
+    "sections": {
+      "title": "Sections",
+      "all": "Toutes les actions",
+      "uncategorized": "Non classé",
+      "enable": "Activer la rubrique",
+      "disable": "Désactiver la section",
+      "fields": {
+        "name": "Nom",
+        "namePlaceholder": "par ex. Facturation",
+        "description": "Description",
+        "descriptionPlaceholder": "Quel genre d'actions vivent ici",
+        "color": "Couleur",
+        "enabled": "Activé",
+        "enabledHint": "Lorsqu'il est désactivé, l'assistant ne peut appeler aucune action dans cette section."
+      },
+      "create": {
+        "button": "Nouvelle rubrique",
+        "title": "Créer une rubrique",
+        "subtitle": "Regroupez les actions liées pour qu’elles soient plus faciles à gérer.",
+        "submit": "Créer une rubrique"
+      },
+      "edit": {
+        "title": "Modifier la rubrique",
+        "subtitle": "Mettez à jour cette section.",
+        "submit": "Enregistrer les modifications"
+      },
+      "delete": {
+        "title": "Supprimer la rubrique ?",
+        "text": "« {{name}} » sera supprimé. Ses actions sont conservées et déplacées vers Non classé.",
+        "confirm": "Supprimer la rubrique"
+      },
+      "errors": {
+        "nameRequired": "Veuillez saisir un nom de section."
+      }
+    }
+  },
+  "sdkConfig": {
+    "title": "Configuration du SDK",
+    "save": "Enregistrer les modifications",
+    "saved": "Paramètres du SDK enregistrés.",
+    "readOnly": "Vous pouvez afficher les paramètres du SDK, mais vous n'êtes pas autorisé à les modifier.",
+    "readOnlyTitle": "Visualisation uniquement",
+    "loadRemoteConfigTip": {
+      "title": "Appliquer les paramètres dans votre application",
+      "body": "Saved settings are loaded by the embedded SDK when the host app enables loadRemoteConfig on ActocoreProvider. Props you pass in code still override these dashboard values.",
+      "codeExample": "<ActocoreProvider\n  apiKey={apiKey}\n  loadRemoteConfig\n  actions={{ ... }}\n>"
+    },
+    "sections": {
+      "appearance": {
+        "title": "Apparence",
+        "description": "Mode thème, couleurs de la marque et typographie pour le widget de chat intégré."
+      },
+      "chatUi": {
+        "title": "Interface utilisateur de discussion",
+        "description": "Contrôlez ce qui apparaît dans l'expérience de chat."
+      },
+      "copyLauncher": {
+        "title": "Copie et lanceur",
+        "description": "Personnalisez les étiquettes et le bouton de lancement flottant."
+      }
+    },
+    "fields": {
+      "themeMode": "Mode thème",
+      "themeModeHint": "Applies when the host app uses loadRemoteConfig or merges dashboard settings.",
+      "themeModeDefault": "Par défaut : {{mode}}.",
+      "defaultPlaceholder": "Par défaut : {{value}}",
+      "defaultOn": "Par défaut : activé",
+      "defaultOff": "Par défaut : désactivé",
+      "leaveBlankHint": "Laissez vide pour utiliser la valeur par défaut du SDK affichée comme espace réservé.",
+      "copyLauncherHint": "Pré-rempli avec les valeurs par défaut du SDK. Seules les valeurs personnalisées sont enregistrées dans la configuration de votre projet.",
+      "colorsGroup": "Couleurs de la marque",
+      "colorPaletteTabs": "Palette de couleurs",
+      "colorPalettes": {
+        "light": "Palette de lumière",
+        "dark": "Palette sombre"
+      },
+      "themeColorsSystemHint": "Configurez des palettes distinctes pour la lumière et l'obscurité. Le SDK sélectionne le bon ensemble dans le mode thème (y compris les préférences système).",
+      "themeColorsModeHint": "Modification de la palette {{mode}}. Changez d'onglet pour personnaliser l'autre apparence.",
+      "themeColorsHint": "Laissez vide pour utiliser les valeurs par défaut du SDK pour cette palette. Choisissez un échantillon ou entrez un code hexadécimal (#RGB ou #RRGGBB).",
+      "themeColors": {
+        "color-primary": "Primaire",
+        "color-primary-contrast": "Texte principal",
+        "color-bg": "Arrière-plan",
+        "color-text": "Texte",
+        "color-text-muted": "Texte masqué",
+        "color-border": "Frontière",
+        "color-user-bubble": "Bulle utilisateur",
+        "color-user-bubble-text": "Texte de la bulle utilisateur",
+        "color-assistant-bubble": "Bulle d'assistant",
+        "color-assistant-bubble-text": "Texte de la bulle de l'assistant"
+      },
+      "fontFamily": "Fonte",
+      "fontFamilyHint": "Appliqué au widget de discussion via le jeton de conception font-family.",
+      "fontFamilyDefault": "Par défaut : pile de polices système.",
+      "fontFamilyCustom": "Pile de polices personnalisée",
+      "fontFamilyCustomPlaceholder": "par ex. 'DM Sans', système-ui, sans-serif",
+      "fontPresets": {
+        "systemDefault": "Valeur par défaut du système",
+        "inter": "Inter",
+        "roboto": "Roboto",
+        "openSans": "Ouvrir Sans",
+        "georgia": "Géorgie (serif)",
+        "monospace": "Monospace",
+        "custom": "Coutume…"
+      },
+      "showSources": "Afficher les sources de connaissances",
+      "showIntentBadge": "Afficher le badge d'intention",
+      "showActionsHint": "Afficher l'indice d'actions",
+      "showActionPicker": "Afficher le sélecteur d'actions",
+      "composerMinRows": "Lignes minimales du compositeur",
+      "composerMaxRows": "Nombre maximum de lignes du compositeur",
+      "composerRowsHint": "Chaque ligne doit être comprise entre 1 et 12. Le minimum ne peut pas dépasser le maximum. Valeurs par défaut du SDK : 1 minimum, 6 maximum.",
+      "headerTitle": "Titre de l'en-tête",
+      "headerSubtitle": "Sous-titre d'en-tête",
+      "emptyTitle": "Titre d'état vide",
+      "emptyDescription": "Description de l'état vide",
+      "actionsHint": "Indice d'action",
+      "placeholder": "Espace réservé au message",
+      "send": "Envoyer le libellé du bouton",
+      "open": "Ouvrir l'étiquette du lanceur",
+      "launcherGroup": "Lanceur",
+      "launcherPosition": "Position du lanceur",
+      "launcherPositionHint": "Coin de l'écran où apparaît le lanceur de chat.",
+      "launcherPositions": {
+        "bottom-right": "En bas à droite",
+        "bottom-left": "En bas à gauche",
+        "top-right": "En haut à droite",
+        "top-left": "En haut à gauche"
+      },
+      "launcherOffsetX": "Décalage horizontal",
+      "launcherOffsetY": "Décalage vertical",
+      "launcherOffsetHint": "Distance du bord de l'écran (par exemple 1,25rem ou 20px).",
+      "launcherIconUrl": "URL de l'icône du lanceur",
+      "launcherIconUrlDefault": "Par défaut : icône intégrée (laisser vide)",
+      "launcherAriaLabel": "Étiquette de l'aria du lanceur"
+    },
+    "errors": {
+      "composerRowsInvalid": "Les lignes du compositeur doivent être constituées de nombres entiers compris entre 1 et 12.",
+      "composerRowsOrder": "Le nombre minimum de lignes du composeur ne peut pas être supérieur au maximum.",
+      "launcherIconUrlInvalid": "L'URL de l'icône du lanceur doit être une URL http ou https valide.",
+      "launcherOffsetInvalid": "Les décalages doivent être des longueurs CSS telles que 1,25rem ou 20px.",
+      "fieldTooLong": "Un ou plusieurs champs dépassent la longueur maximale.",
+      "invalidHexColor": "Chaque couleur doit être un code hexadécimal valide (#RGB ou #RRGGBB) ou laissé vide.",
+      "fontFamilyTooLong": "La pile de polices est trop longue (200 caractères maximum)."
+    }
+  },
+  "nav": {
+    "title": "Navigation",
+    "projects": "Projets",
+    "allProjects": "Tous les projets",
+    "team": "Équipe",
+    "subscription": "Abonnement",
+    "usage": "Usage",
+    "billing": "Facturation",
+    "settings": "Paramètres",
+    "workspace": "Espace de travail",
+    "pin": "Épingler la barre latérale",
+    "unpin": "Supprimer la barre latérale",
+    "openMenu": "Ouvrir le menu",
+    "accountMenu": "Menu du compte",
+    "userFallback": "Utilisateur",
+    "project": {
+      "label": "Projet",
+      "section": "Projet",
+      "loadingName": "Chargement…",
+      "overview": "Aperçu",
+      "docs": "Documents",
+      "knowledge": "Connaissance",
+      "actions": "Actes",
+      "sdkConfig": "Configuration du SDK",
+      "apiKeys": "Clés API",
+      "usage": "Usage",
+      "settings": "Paramètres"
+    }
+  },
+  "roles": {
+    "super_admin": "Super administrateur",
+    "user_admin": "Administrateur",
+    "user_editor": "Éditeur"
+  },
+  "team": {
+    "title": "Équipe",
+    "subtitle_one": "{{count}} membre dans votre espace de travail",
+    "subtitle_other": "{{count}} membres dans votre espace de travail",
+    "emptyTitle": "Aucun membre de l'équipe pour l'instant",
+    "emptyDescription": "Ajoutez des postes d'éditeur pour que vos coéquipiers puissent se connecter avec votre identifiant d'espace de travail.",
+    "allProjects": "Tous",
+    "invite": {
+      "button": "Ajouter un éditeur",
+      "title": "Ajouter un éditeur",
+      "subtitle": "Créez un siège d'espace de travail avec un nom d'utilisateur et un mot de passe.",
+      "submit": "Ajouter un éditeur",
+      "success": "Éditeur ajouté.",
+      "usernameRequired": "Le nom d'utilisateur est requis.",
+      "passwordRequired": "Le mot de passe doit comporter au moins 8 caractères.",
+      "projectsRequired": "Sélectionnez au moins un projet.",
+      "workspaceTitle": "ID de l'espace de travail",
+      "workspaceHint": "Les éditeurs se connectent avec cet identifiant d'espace de travail, leur nom d'utilisateur et leur mot de passe."
+    },
+    "edit": {
+      "title": "Modifier l'éditeur",
+      "subtitle": "Mettez à jour les informations de connexion et l’accès au projet.",
+      "submit": "Enregistrer les modifications",
+      "success": "Éditeur mis à jour."
+    },
+    "remove": {
+      "title": "Supprimer l'éditeur",
+      "confirm": "Supprimer {{name}} de votre espace de travail ? Ils perdront immédiatement l’accès.",
+      "submit": "Retirer",
+      "success": "Éditeur supprimé."
+    },
+    "fields": {
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "par ex. Jeanne",
+      "displayName": "Nom d'affichage",
+      "displayNamePlaceholder": "Facultatif",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "newPassword": "Nouveau mot de passe",
+      "newPasswordPlaceholder": "Laisser vide pour rester à jour"
+    },
+    "projects": {
+      "label": "Accès au projet",
+      "hint": "Les éditeurs ne peuvent accéder qu'aux projets sélectionnés.",
+      "noProjects": "Créez un projet avant d'ajouter des éditeurs.",
+      "createFirst": "Créez un projet avant d'ajouter des postes d'éditeur."
+    },
+    "columns": {
+      "member": "Membre",
+      "role": "Rôle",
+      "projects": "Projets"
+    }
+  },
+  "billing": {
+    "title": "Facturation",
+    "subtitle": "Utilisation de l’espace de travail et historique des paiements.",
+    "usageTitle": "Usage",
+    "projects": "Projets",
+    "teamSeats": "Sièges d'équipe",
+    "monthlyTokens": "Jetons mensuels",
+    "usageValue": "{{used}} / {{limit}}",
+    "usageUnlimited": "{{used}} utilisé",
+    "manageSubscription": "Gérer l'abonnement",
+    "manageBilling": "Gérer la facturation",
+    "history": {
+      "title": "Activité de facturation",
+      "subtitle": "Modifications d'abonnement et paiements pour votre espace de travail.",
+      "empty": "Aucun événement de facturation pour l'instant",
+      "emptyDescription": "Les essais, les paiements et les modifications d'abonnement apparaîtront ici.",
+      "trialDays_one": "{{count}} jour",
+      "trialDays_other": "{{count}} jours",
+      "columns": {
+        "date": "Date",
+        "action": "Événement",
+        "details": "Détails",
+        "amount": "Montant"
+      },
+      "actions": {
+        "trial_started": "L'essai a commencé",
+        "trial_ended": "Essai terminé",
+        "subscribed": "Abonné",
+        "created": "Abonnement créé",
+        "renewed": "Paiement reçu",
+        "upgraded": "Mise à niveau prévue",
+        "cancelled": "Annulé",
+        "reactivated": "Réactivé",
+        "pending_change_cancelled": "Mise à niveau annulée",
+        "expired": "Essai terminé"
+      }
     }
   },
   "subscription": {
+    "title": "Abonnement",
+    "subtitle": "Consultez votre forfait et modifiez votre abonnement.",
+    "viewBilling": "Afficher la facturation",
+    "freePlan": "Free",
+    "currentPlan": "Forfait actuel",
+    "planIncludes": "Ce qui est inclus",
+    "trialEnds": "L'essai se termine le {{date}}",
+    "renewsOn": "Renouvelle le {{date}}",
+    "accessUntil": "Accès jusqu'au {{date}}",
+    "cancelButton": "Annuler l'abonnement",
+    "reactivate": "Réactiver l'abonnement",
+    "reactivateSuccess": "Abonnement réactivé.",
+    "cancelPendingUpgrade": "Conserver le forfait actuel",
+    "billingCycle": {
+      "monthly": "Mensuel",
+      "yearly": "Annuel"
+    },
+    "cancelScheduled": {
+      "title": "Annulation programmée",
+      "body": "Votre abonnement reste actif jusqu'à la fin de la période de facturation en cours."
+    },
+    "pendingUpgrade": {
+      "title": "Mise à niveau prévue",
+      "body": "Votre forfait passera à {{plan}} le {{date}}.",
+      "cancelled": "Mise à niveau programmée annulée."
+    },
+    "cancel": {
+      "title": "Annuler l'abonnement",
+      "confirm": "Votre espace de travail conserve un accès complet jusqu'au {{date}}. Après cela, les limites reviennent au niveau gratuit.",
+      "submit": "Annuler en fin de période",
+      "success": "Annulation de l'abonnement prévue."
+    },
+    "upgrade": {
+      "title": "Plan de mise à niveau",
+      "confirm": "Passer à {{plan}} ? Le nouveau prix prend effet lors de votre prochain cycle de facturation.",
+      "submit": "Mettre à niveau maintenant",
+      "success": "Mise à niveau du plan prévue."
+    },
+    "trial": {
+      "started": "L'essai gratuit a commencé."
+    },
+    "checkout": {
+      "processing": "Confirmation de votre paiement…",
+      "success": "Abonnement mis à jour avec succès.",
+      "failed": "Nous n'avons pas pu confirmer votre paiement. Réessayez ou contactez l'assistance."
+    },
     "plans": {
       "title": "Forfaits disponibles",
-      "subtitle": "Choisissez le forfait adapté à votre espace de travail.",
+      "subtitle": "Choisissez le plan qui correspond à votre espace de travail.",
       "cycleLabel": "Cycle de facturation",
       "current": "Actuel",
       "currentHint": "Votre forfait actif",
       "recommended": "Recommandé",
-      "yearDiscountDefault": "2 mois offerts",
+      "yearDiscountDefault": "2 mois gratuits",
       "trialBadge": "{{days}} jours",
       "trialExpired": "Expiré",
-      "contactUs": "Nous contacter",
+      "contactUs": "Contactez-nous",
       "per": {
-        "monthly": "mois",
-        "yearly": "an"
+        "monthly": "mo",
+        "yearly": "année"
       },
       "limits": {
-        "projects_one": "{{count}} projet",
+        "projects_one": "Projet {{count}}",
         "projects_other": "{{count}} projets",
         "seats_one": "{{count}} siège d'équipe",
         "seats_other": "{{count}} sièges d'équipe",
@@ -94,37 +893,492 @@
       },
       "features": {
         "knowledge_and_actions": "Base de connaissances et actions",
-        "sdk_embed": "Intégration SDK avec configuration du tableau de bord",
-        "everything_in_free": "Tout ce qui est inclus dans Free",
-        "everything_in_starter": "Tout ce qui est inclus dans Starter",
-        "everything_in_pro": "Tout ce qui est inclus dans Pro",
-        "email_support": "Support par e-mail",
-        "priority_support": "Support prioritaire",
-        "dedicated_support": "Support dédié"
+        "sdk_embed": "SDK intégré avec la configuration du tableau de bord",
+        "everything_in_free": "Tout est gratuit",
+        "everything_in_starter": "Tout dans Starter",
+        "everything_in_pro": "Tout en Pro",
+        "email_support": "Assistance par e-mail",
+        "priority_support": "Assistance prioritaire",
+        "dedicated_support": "Un support dédié"
       },
       "actions": {
         "subscribe": "S'abonner",
-        "trial": "Essai gratuit",
-        "upgrade": "Mettre à niveau"
+        "trial": "Commencer l'essai gratuit",
+        "upgrade": "Mise à niveau"
       }
     }
   },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Apparence, notifications et détails de l'espace de travail.",
+    "appearanceTitle": "Apparence",
+    "appearanceSubtitle": "Le thème est enregistré sur cet appareil. La langue est enregistrée dans votre espace de travail et s'applique aux sessions Studio et SDK.",
+    "workspaceTitle": "Espace de travail",
+    "workspaceSubtitle": "Détails de l’organisation utilisés dans les projets et la facturation.",
+    "language": "Langue",
+    "languageHint": "Anglais ou français pour Studio et l'assistant dans cet espace de travail.",
+    "languagePlaceholder": "Sélectionnez une langue",
+    "name": "Nom de l'organisation",
+    "namePlaceholder": "par ex. Acmé Inc.",
+    "nameRequired": "Le nom de l’organisation est requis.",
+    "billingEmail": "E-mail de facturation",
+    "billingEmailPlaceholder": "facturation@entreprise.com",
+    "timezone": "Fuseau horaire",
+    "timezonePlaceholder": "par ex. Europe/Paris",
+    "save": "Enregistrer les modifications",
+    "saved": "Paramètres enregistrés.",
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Les alertes par e-mail sont envoyées aux adresses d'administrateur de l'espace de travail avec une adresse e-mail vérifiée.",
+      "failure": "Alertes de panne",
+      "failureDescription": "Envoyez un e-mail lorsque des erreurs du fournisseur d'IA ou des échecs de paiement de facturation affectent votre espace de travail.",
+      "quotaWarning": "Limite en approche",
+      "quotaWarningDescription": "Envoyez un e-mail lorsque l'utilisation mensuelle du chat AI atteint 80 % ou 90 % de la limite de votre forfait.",
+      "quotaExhausted": "Limite atteinte",
+      "quotaExhaustedDescription": "Envoyez un e-mail lorsque l'utilisation mensuelle du chat AI atteint 100 % de la limite de votre forfait."
+    }
+  },
   "admin": {
+    "brand": "ActoCore Admin",
+    "platformLabel": "Plate-forme",
+    "signOut": "se déconnecter",
+    "yes": "Oui",
+    "no": "Non",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "accounts": "Comptes",
+      "plans": "Forfaits",
+      "subscriptions": "Abonnements",
+      "users": "Utilisateurs",
+      "projects": "Projets",
+      "analytics": "Analytique",
+      "usage": "Usage",
+      "team": "Équipe",
+      "settings": "Paramètres"
+    },
+    "login": {
+      "title": "Administrateur de la plateforme",
+      "subtitle": "Connectez-vous en tant que maître ou gestionnaire.",
+      "masterTab": "Master",
+      "managerTab": "Manager",
+      "email": "E-mail principal",
+      "emailPlaceholder": "master@entreprise.com",
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "par ex. chef des opérations",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Se connecter"
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "subtitle": "Bienvenue, {{name}}.",
+      "accounts": "Espaces de travail",
+      "activeSubs": "Abonnements actifs",
+      "trialingSubs": "Tester les abonnements",
+      "projects": "Projets",
+      "mrr": "MRR estimé",
+      "monthlyChat": "Demandes de chat mensuelles"
+    },
+    "accounts": {
+      "title": "Comptes",
+      "subtitle": "Tous les espaces de travail des locataires.",
+      "searchPlaceholder": "Rechercher par nom d'espace de travail",
+      "name": "Espace de travail",
+      "plan": "Plan",
+      "billingEmail": "E-mail de facturation",
+      "created": "Créé",
+      "emptyTitle": "Aucun espace de travail trouvé",
+      "emptyDescription": "Essayez une autre recherche ou attendez de nouvelles inscriptions."
+    },
+    "accountDetail": {
+      "title": "Détails du compte",
+      "noSubscription": "Aucun abonnement actif",
+      "status": "Statut",
+      "provider": "Fournisseur",
+      "payments": "Historique des paiements"
+    },
     "plans": {
+      "title": "Forfaits",
+      "subtitle": "Gérer le catalogue des plans d'abonnement.",
+      "create": "Créer un plan",
+      "createTitle": "Créer un plan",
+      "createSubtitle": "Ajoutez un nouveau niveau d'abonnement au catalogue.",
+      "editTitle": "Modifier le plan",
+      "editSubtitle": "Mettre à jour les paramètres pour {{planId}}.",
+      "save": "Enregistrer le plan",
+      "saveChanges": "Enregistrer les modifications",
+      "detailsTitle": "Détails du forfait",
+      "detailsSubtitle": "Ordre d'identité, de niveau et de catalogue.",
+      "pricingTitle": "Tarifs",
+      "pricingSubtitle": "Montants mensuels et annuels en USD.",
+      "paypalPricingHint": "L'enregistrement d'un forfait payant synchronise automatiquement ces prix avec PayPal lorsque les informations d'identification PayPal sont configurées.",
+      "paypalSyncNow": "Synchronisez les prix avec PayPal maintenant",
+      "paypalSyncing": "Synchronisation avec PayPal…",
+      "featuresTitle": "Caractéristiques et limites",
+      "featuresSubtitle": "Quotas d'utilisation et fonctionnalités marketing prédéfinies affichées sur la page d'abonnement.",
+      "marketingFeatures": "Fonctionnalités marketing",
+      "marketingFeaturesHint": "Sélectionnez des fonctionnalités prédéfinies. L’ajout de nouveaux nécessite un changement de code.",
       "localeEn": "Anglais",
       "localeFr": "Français",
+      "planId": "Identifiant du forfait",
+      "planIdPlaceholder": "par ex. démarreur",
+      "name": "Nom",
+      "namePlaceholder": "par ex. Démarreur",
       "description": "Description",
-      "descriptionPlaceholder": "Résumé court affiché sur la page d'abonnement",
+      "descriptionPlaceholder": "Bref résumé affiché sur la page d'abonnement",
       "descriptionPlaceholderFr": "Résumé court affiché sur la page d'abonnement",
+      "level": "Niveau",
+      "active": "Actif",
+      "monthlyPrice": "Prix ​​mensuel (USD)",
+      "monthlyPricePlaceholder": "par ex. 29",
+      "yearlyPrice": "Prix ​​annuel (USD)",
+      "yearlyPricePlaceholder": "par ex. 290",
       "yearlyDiscountBadge": "Badge de réduction annuelle",
-      "yearlyDiscountBadgePlaceholder": "ex. 2 mois offerts",
+      "yearlyDiscountBadgePlaceholder": "par ex. 2 mois gratuits",
       "yearlyDiscountBadgePlaceholderFr": "ex. 2 mois offerts",
-      "yearlyDiscountBadgeHint": "Affiché sur la page d'abonnement lorsque la facturation annuelle est sélectionnée. Laissez vide pour utiliser le texte par défaut.",
-      "marketingFeatures": "Fonctionnalités marketing",
-      "marketingFeaturesHint": "Sélectionnez des fonctionnalités prédéfinies. L'ajout de nouvelles fonctionnalités nécessite une modification du code.",
-      "paypalPricingHint": "L'enregistrement d'un forfait payant synchronise ces prix avec PayPal automatiquement lorsque les identifiants PayPal sont configurés.",
-      "paypalSyncNow": "Synchroniser les prix avec PayPal",
-      "paypalSyncing": "Synchronisation avec PayPal…"
+      "yearlyDiscountBadgeHint": "Affiché sur la page d'abonnement lorsque la facturation annuelle est sélectionnée. Laissez vide pour utiliser la copie par défaut.",
+      "isRecommended": "Forfait recommandé",
+      "monthlyTokenQuota": "Quota de jetons mensuel",
+      "monthlyTokenQuotaPlaceholder": "par ex. 5000000",
+      "maxProjects": "Projets maximum",
+      "maxProjectsPlaceholder": "par ex. 5",
+      "maxTeamSeats": "Nombre maximum de sièges d'équipe",
+      "maxTeamSeatsPlaceholder": "par ex. 10",
+      "maxActionsPerProject": "Actions maximales par projet",
+      "maxActionsPerProjectPlaceholder": "par ex. 30",
+      "order": "Ordre d'affichage",
+      "orderPlaceholder": "par ex. 1",
+      "emptyTitle": "Pas encore de projets",
+      "emptyDescription": "Créez un plan pour proposer des abonnements aux espaces de travail.",
+      "errors": {
+        "planIdRequired": "L’identifiant du plan est requis.",
+        "nameRequired": "Le nom du forfait est obligatoire."
+      },
+      "delete": {
+        "title": "Supprimer le forfait",
+        "text": "Supprimer \"{{name}}\" ({{planId}}) ? Les abonnements existants ne sont pas supprimés, mais les nouvelles inscriptions ne verront plus ce plan.",
+        "confirm": "Supprimer le forfait"
+      }
+    },
+    "team": {
+      "title": "Équipe plateforme",
+      "subtitle": "Gestionnaires disposant d’autorisations de plate-forme limitées.",
+      "addManager": "Ajouter un gestionnaire",
+      "createTitle": "Ajouter un gestionnaire",
+      "createSubtitle": "Créez un gestionnaire de plate-forme avec un nom d'utilisateur et des autorisations étendues.",
+      "editTitle": "Modifier le gestionnaire",
+      "editSubtitle": "Mettez à jour le profil et les autorisations pour @{{username}}.",
+      "save": "Gestionnaire de sauvegarde",
+      "saveChanges": "Enregistrer les modifications",
+      "newPassword": "Nouveau mot de passe",
+      "newPasswordPlaceholder": "Laisser vide pour conserver le mot de passe actuel",
+      "usernameLockedHint": "Le nom d'utilisateur ne peut pas être modifié après la création.",
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "par ex. chef des opérations",
+      "usernameHint": "2 à 32 caractères : lettres minuscules, chiffres, trait de soulignement ou trait d'union.",
+      "displayName": "Nom d'affichage",
+      "displayNamePlaceholder": "Facultatif",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "permissions": "Autorisations",
+      "permissionsHint": "Choisissez à quelles zones de plateforme ce gestionnaire peut accéder.",
+      "role": "Rôle",
+      "master": "Master",
+      "manager": "Manager",
+      "allPermissions": "Toutes les autorisations",
+      "emptyTitle": "Pas encore de gestionnaires",
+      "emptyDescription": "Ajoutez un responsable pour déléguer les opérations de la plateforme.",
+      "permissionLabels": {
+        "accountsRead": "Afficher les espaces de travail",
+        "plansWrite": "Gérer les forfaits",
+        "subscriptionsRead": "Afficher les abonnements",
+        "usersRead": "Afficher les utilisateurs",
+        "projectsRead": "Voir les projets",
+        "analyticsRead": "Afficher les analyses et l'utilisation",
+        "teamWrite": "Gérer l'équipe de la plateforme",
+        "settingsWrite": "Gérer les paramètres d'administration"
+      },
+      "createSuccess": "Gestionnaire ajouté.",
+      "updateSuccess": "Gestionnaire mis à jour.",
+      "errors": {
+        "usernameRequired": "Le nom d'utilisateur est requis.",
+        "usernameFormat": "Le nom d'utilisateur doit comporter de 2 à 32 caractères : lettres minuscules, chiffres, trait de soulignement ou trait d'union.",
+        "usernameTaken": "Le nom d'utilisateur est déjà pris.",
+        "passwordRequired": "Le mot de passe doit comporter au moins 8 caractères.",
+        "permissionsRequired": "Sélectionnez au moins une autorisation.",
+        "createFailed": "Impossible d'ajouter un gestionnaire. Veuillez réessayer.",
+        "updateFailed": "Impossible de mettre à jour le gestionnaire. Veuillez réessayer."
+      },
+      "delete": {
+        "title": "Supprimer le gestionnaire",
+        "text": "Supprimer {{name}} de l'équipe de la plateforme ? Ils perdront immédiatement l’accès administrateur.",
+        "confirm": "Supprimer le gestionnaire"
+      }
+    },
+    "settings": {
+      "title": "Paramètres d'administration",
+      "subtitle": "Apparence, sécurité et profil d'opérateur de votre plateforme.",
+      "appearanceTitle": "Apparence",
+      "appearanceSubtitle": "Le thème et la langue sont enregistrés sur cet appareil.",
+      "uiLanguageHint": "Langue de l'interface pour la console d'administration.",
+      "profileTitle": "Profil",
+      "profileSubtitle": "Comment vous apparaissez dans l’administrateur de la plateforme.",
+      "securityTitle": "Sécurité",
+      "securitySubtitle": "Mettez à jour votre mot de passe de connexion.",
+      "displayName": "Nom d'affichage",
+      "displayNamePlaceholder": "Facultatif",
+      "email": "E-mail",
+      "emailPlaceholder": "master@entreprise.com",
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "par ex. chef des opérations",
+      "role": "Rôle",
+      "rolePlaceholder": "Manager",
+      "save": "Enregistrer les modifications",
+      "saved": "Paramètres enregistrés.",
+      "currentPassword": "Mot de passe actuel",
+      "currentPasswordPlaceholder": "••••••••",
+      "newPassword": "Nouveau mot de passe",
+      "newPasswordPlaceholder": "Au moins 8 caractères",
+      "currentPasswordRequired": "Le mot de passe actuel est requis.",
+      "passwordRequired": "Le nouveau mot de passe doit comporter au moins 8 caractères.",
+      "masterPasswordHint": "Le mot de passe principal est configuré via des variables d'environnement."
+    },
+    "subscriptions": {
+      "title": "Abonnements",
+      "subtitle": "Présentation des abonnements multi-locataires.",
+      "searchPlaceholder": "Rechercher par nom d'espace de travail",
+      "account": "Espace de travail",
+      "plan": "Plan",
+      "status": "Statut",
+      "provider": "Fournisseur",
+      "emptyTitle": "Aucun abonnement trouvé",
+      "emptyDescription": "Les abonnements apparaîtront ici une fois que les espaces de travail se seront abonnés."
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "subtitle": "Tous les utilisateurs de Studio dans les espaces de travail.",
+      "searchPlaceholder": "Rechercher des utilisateurs",
+      "identity": "Utilisateur",
+      "memberships": "Adhésions",
+      "created": "Créé",
+      "emptyTitle": "Aucun utilisateur trouvé",
+      "emptyDescription": "Essayez un autre terme de recherche."
+    },
+    "projects": {
+      "title": "Projets",
+      "subtitle": "Tous les projets dans les espaces de travail.",
+      "searchPlaceholder": "Rechercher des projets",
+      "name": "Projet",
+      "account": "Espace de travail",
+      "archived": "Archivé",
+      "emptyTitle": "Aucun projet trouvé",
+      "emptyDescription": "Essayez un autre terme de recherche."
+    },
+    "analytics": {
+      "title": "Analytique",
+      "subtitle": "Présentation de l’utilisation à l’échelle de la plateforme.",
+      "accounts": "Espaces de travail",
+      "activeSubs": "Abonnements actifs",
+      "estimatedMrr": "MRR estimé",
+      "monthlyChat": "Demandes de chat mensuelles",
+      "hints": {
+        "accounts": "Espaces de travail des locataires sur la plateforme",
+        "activeSubs": "États de facturation payants ou actifs",
+        "mrr": "Estimé à partir du prix du forfait actif",
+        "monthlyChat": "Demandes de chat entre tous les locataires"
+      },
+      "revenue": {
+        "badge": "Revenu",
+        "title": "Revenu mensuel récurrent estimé",
+        "description": "Basé sur les abonnements actifs et les tarifs du plan de catalogue.",
+        "activeSubs": "Abonnés actifs",
+        "arpu": "Moy. par sous"
+      },
+      "subscriptionMix": {
+        "title": "Mélange d'abonnements",
+        "description": "Abonnements actifs ou d'essai sur tous les espaces de travail.",
+        "active": "Actif",
+        "trialing": "Essai"
+      },
+      "platformScale": {
+        "title": "Activité de la plateforme",
+        "description": "Échelle relative des projets et volume de discussions ce mois-ci.",
+        "projects": "Total des projets",
+        "chatVolume": "Demandes de chat mensuelles",
+        "ratioHint": "Moyenne de {{ratio}} projets par espace de travail."
+      }
+    },
+    "usage": {
+      "title": "Usage",
+      "subtitle": "Consommation LLM à l’échelle de la plateforme et répartition des fournisseurs.",
+      "configuredProvider": "Fournisseur LLM de déploiement",
+      "p95Latency": "Latence P95 : {{value}} ms",
+      "dateRange": {
+        "label": "Plage de dates",
+        "7d": "7 derniers jours",
+        "30d": "30 derniers jours",
+        "month": "Ce mois-ci"
+      },
+      "providers": {
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "google": "Google",
+        "stub": "Stub",
+        "unknown": "Inconnu"
+      },
+      "metrics": {
+        "requests": "Demandes de chat",
+        "requestsHint": "Appels de chat SDK dans la plage sélectionnée",
+        "promptTokens": "Jetons d'invite",
+        "promptTokensHint": "Jetons d'entrée envoyés au LLM",
+        "completionTokens": "Jetons d'achèvement",
+        "completionTokensHint": "Jetons de sortie renvoyés par le LLM",
+        "errorRate": "Taux d'erreur",
+        "errorRateHint": "Part des demandes ayant échoué"
+      },
+      "providerMix": {
+        "title": "Mélange de fournisseurs",
+        "description": "Requêtes regroupées par prestataire LLM enregistrées sur chaque événement.",
+        "empty": "Aucune utilisation de fournisseur dans cette plage pour l'instant."
+      },
+      "modelBreakdown": {
+        "title": "Répartition du modèle",
+        "description": "Les meilleurs modèles par demande comptent dans la gamme sélectionnée.",
+        "empty": "Aucune utilisation de modèle dans cette gamme pour l'instant."
+      },
+      "series": {
+        "title": "Activité quotidienne",
+        "description": "Requêtes par jour sur tous les projets locataires.",
+        "empty": "Aucune activité quotidienne dans cette plage pour l'instant."
+      },
+      "topAccounts": {
+        "title": "Meilleurs espaces de travail",
+        "description": "Espaces de travail avec le volume de discussion le plus élevé.",
+        "name": "Espace de travail",
+        "requests": "Demandes",
+        "tokens": "Jetons",
+        "empty": "Aucune utilisation de l'espace de travail dans cette plage pour l'instant."
+      },
+      "topProjects": {
+        "title": "Meilleurs projets",
+        "description": "Projets avec le volume de discussion le plus élevé.",
+        "name": "Projet",
+        "account": "Espace de travail",
+        "requests": "Demandes",
+        "tokens": "Jetons",
+        "empty": "Aucune utilisation de projet dans cette plage pour le moment."
+      }
+    }
+  },
+  "usage": {
+    "title": "Usage",
+    "subtitle": "Consommation de l'espace de travail et cumul par projet pour la période sélectionnée.",
+    "manageBilling": "Facturation et limites",
+    "dateRange": {
+      "label": "Plage de dates",
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "month": "Ce mois-ci"
+    },
+    "quota": {
+      "title": "Utilisation du forfait",
+      "monthlyTokens": "Jetons mensuels"
+    },
+    "metrics": {
+      "requests": "Demandes de chat",
+      "requestsHint": "Appels de chat SDK dans la plage sélectionnée",
+      "promptTokens": "Jetons d'invite",
+      "promptTokensHint": "Jetons d'entrée envoyés au LLM",
+      "completionTokens": "Jetons d'achèvement",
+      "completionTokensHint": "Jetons de sortie renvoyés par le LLM",
+      "errorRate": "Taux d'erreur",
+      "errorRateHint": "Part des demandes ayant échoué",
+      "p95Latency": "Latence P95",
+      "p95LatencyHint": "Temps de réponse au 95e percentile (ms)"
+    },
+    "series": {
+      "title": "Activité quotidienne",
+      "description": "Demandes par jour pour ce projet.",
+      "empty": "Aucune activité quotidienne dans cette plage pour l'instant."
+    },
+    "intentBreakdown": {
+      "title": "Répartition de l'intention",
+      "description": "Comment les demandes de chat ont été classées dans cette plage.",
+      "workspaceDescription": "Mélange d'intentions dans tous les projets de votre espace de travail.",
+      "empty": "Aucune donnée d'intention dans cette plage pour l'instant."
+    },
+    "modelBreakdown": {
+      "title": "Répartition du modèle",
+      "description": "Les meilleurs modèles par demande comptent dans la gamme sélectionnée.",
+      "empty": "Aucune utilisation de modèle dans cette gamme pour l'instant."
+    },
+    "apiKeyBreakdown": {
+      "title": "Répartition des clés API",
+      "description": "Requêtes regroupées par nom de clé API.",
+      "empty": "Aucune utilisation de clé API dans cette plage pour le moment.",
+      "removedKey": "Clé supprimée",
+      "unknownKey": "Inconnu"
+    },
+    "projectsTable": {
+      "title": "Projets",
+      "description": "Consommation par projet : ouvrez une ligne pour des analyses détaillées.",
+      "name": "Projet",
+      "requests": "Demandes",
+      "tokens": "Jetons",
+      "empty": "Aucune utilisation de projet dans cette plage pour le moment."
+    }
+  },
+  "theme": {
+    "label": "Thème",
+    "hint": "Clair, sombre ou correspondant aux paramètres de votre système.",
+    "modes": {
+      "light": "Lumière",
+      "dark": "Sombre",
+      "system": "Système"
+    }
+  },
+  "onboarding": {
+    "skip": "Passer pour l'instant",
+    "setupLabel": "Installation",
+    "setupHint": "Un petit tour avant d'expédier.",
+    "setupHintShort": "Environ 2 minutes",
+    "progressLabel": "Progression de la configuration",
+    "stepCounter": "Étape {{current}} de {{total}}",
+    "stepComplete": "complet",
+    "steps": {
+      "welcome": "Accueillir",
+      "workspace": "Espace de travail",
+      "project": "Premier projet"
+    },
+    "welcome": {
+      "title": "Bienvenue dans ActoCore Studio",
+      "subtitle": "Une courte configuration vous aidera à configurer l'IA pour vos applications.",
+      "pointProjects": "Créez des projets pour chaque application ou environnement dans lequel vous intégrez ActoCore.",
+      "pointKnowledge": "Téléchargez des connaissances et définissez les actions que votre assistant peut exécuter.",
+      "pointSdk": "Ajustez le thème, les paramètres régionaux et la sécurité du SDK à partir du tableau de bord.",
+      "cta": "Commencer"
+    },
+    "workspace": {
+      "title": "Détails de l'espace de travail",
+      "subtitle": "Ces paramètres s'appliquent à l'ensemble de votre organisation.",
+      "name": "Nom de l'organisation",
+      "namePlaceholder": "par ex. Acme Inc. ou le nom de votre équipe",
+      "nameRequired": "Le nom de l’organisation est requis.",
+      "timezone": "Fuseau horaire (facultatif)",
+      "timezonePlaceholder": "par ex. Europe/Paris",
+      "locale": "Langue",
+      "localePlaceholder": "Sélectionnez une langue",
+      "localeHint": "Anglais ou français pour Studio et l'assistant intégré."
+    },
+    "project": {
+      "title": "Créez votre premier projet",
+      "subtitle": "Chaque projet possède ses propres clés API, connaissances et configuration SDK.",
+      "subtitleRename": "Nommez le projet créé pour votre espace de travail – vous pourrez en ajouter d’autres plus tard.",
+      "name": "Nom du projet",
+      "nameRequired": "Le nom du projet est requis.",
+      "namePlaceholder": "par ex. Mon application SaaS",
+      "cta": "Créer un projet et terminer",
+      "ctaRename": "Enregistrer et terminer"
     }
   }
 }

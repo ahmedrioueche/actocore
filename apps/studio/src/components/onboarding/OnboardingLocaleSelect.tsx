@@ -1,8 +1,9 @@
-import { AccountLocaleSelect } from '@/components/settings/AccountLocaleSelect';
+import { UiLanguageSelect } from '@/components/settings/UiLanguageSelect';
+import type { StudioLanguage } from '@/constants/languages';
 
 interface OnboardingLocaleSelectProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: StudioLanguage;
+  onChange: (value: StudioLanguage) => void;
 }
 
 export function OnboardingLocaleSelect({
@@ -10,13 +11,11 @@ export function OnboardingLocaleSelect({
   onChange,
 }: OnboardingLocaleSelectProps) {
   return (
-    <AccountLocaleSelect
+    <UiLanguageSelect
       value={value}
       onChange={onChange}
       labelKey="onboarding.workspace.locale"
       hintKey="onboarding.workspace.localeHint"
-      placeholderKey="onboarding.workspace.localePlaceholder"
-      allowEmpty
     />
   );
 }

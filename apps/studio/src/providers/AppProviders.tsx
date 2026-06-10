@@ -17,6 +17,7 @@ import { isAdminPath, isAdminPublicPath } from '@/lib/platform-session';
 import { getCachedSession } from '@/routes/guards';
 import { usePlatformMe } from '@/hooks/use-platform-auth';
 import { queryClient } from '@/lib/query-client';
+import { StudioLanguageSync } from '@/components/i18n/StudioLanguageSync';
 import Modals from '@/modals/Modals';
 import Toaster from '@/components/ui/Toaster';
 import LoadingPage from '@/pages/system/LoadingPage';
@@ -98,6 +99,7 @@ export function AppProviders() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <ErrorBoundary>
+              <StudioLanguageSync />
               <StudioRouter />
               <Modals />
               <Toaster />

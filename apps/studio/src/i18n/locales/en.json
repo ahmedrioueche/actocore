@@ -912,11 +912,11 @@
     "title": "Settings",
     "subtitle": "Appearance, notifications, and workspace details.",
     "appearanceTitle": "Appearance",
-    "appearanceSubtitle": "Theme is saved on this device. Default language applies to new SDK sessions.",
+    "appearanceSubtitle": "Theme is saved on this device. Language is saved to your workspace and applies to Studio and SDK sessions.",
     "workspaceTitle": "Workspace",
     "workspaceSubtitle": "Organization details used across projects and billing.",
-    "language": "Default language",
-    "languageHint": "Default language for assistant copy and SDK sessions in this workspace.",
+    "language": "Language",
+    "languageHint": "English or French for Studio and assistant copy in this workspace.",
     "languagePlaceholder": "Select a language",
     "name": "Organization name",
     "namePlaceholder": "e.g. Acme Inc.",
@@ -1366,9 +1366,9 @@
       "nameRequired": "Organization name is required.",
       "timezone": "Timezone (optional)",
       "timezonePlaceholder": "e.g. Europe/Paris",
-      "locale": "Default language (optional)",
+      "locale": "Language",
       "localePlaceholder": "Select a language",
-      "localeHint": "Default language for new projects and the embedded assistant."
+      "localeHint": "English or French for Studio and the embedded assistant."
     },
     "project": {
       "title": "Create your first project",

@@ -1,14 +1,21 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import { resolveStoredStudioLanguage } from '@/constants/languages';
+import {
+  applyStudioLanguage,
+  resolveStoredStudioLanguage,
+} from '@/constants/languages';
 
 import en from './locales/en.json';
 import fr from './locales/fr.json';
 
+const initialLanguage = resolveStoredStudioLanguage();
+applyStudioLanguage(initialLanguage);
+
 void i18n.use(initReactI18next).init({
-  lng: resolveStoredStudioLanguage(),
+  lng: initialLanguage,
   fallbackLng: 'en',
+  supportedLngs: ['en', 'fr'],
   resources: {
     en: { translation: en },
     fr: { translation: fr },

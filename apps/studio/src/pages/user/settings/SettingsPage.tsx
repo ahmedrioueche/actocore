@@ -5,16 +5,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PageHeader } from '@/components/layout/PageHeader';
-import { AccountLocaleSelect } from '@/components/settings/AccountLocaleSelect';
 import { NotificationPreferencesSection } from '@/components/settings/NotificationPreferencesSection';
+import { UiLanguageSelect } from '@/components/settings/UiLanguageSelect';
 import { ThemeModeSelect } from '@/components/theme/ThemeModeSelect';
 import { AsyncContent } from '@/components/states';
 import Button from '@/components/ui/Button';
 import InputField from '@/components/ui/InputField';
-import {
-  isAccountLocaleCode,
-  resolveBrowserAccountLocale,
-} from '@/constants/account-locales';
 import { useAuth } from '@/context/AuthContext';
 import {
   useAccountSettings,
@@ -22,12 +18,6 @@ import {
   useUpdateAccountSettings,
 } from '@/hooks/use-account';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
-
-function resolveDefaultLocale(data: StudioAccountSettingsData): string {
-  return data.defaultLocale && isAccountLocaleCode(data.defaultLocale)
-    ? data.defaultLocale
-    : resolveBrowserAccountLocale();
-}
 
 function isWorkspaceAdmin(role: StudioRole | undefined): boolean {
   return role === StudioRole.USER_ADMIN || role === StudioRole.SUPER_ADMIN;
@@ -43,7 +33,6 @@ export default function SettingsPage() {
   const [name, setName] = useState('');
   const [billingEmail, setBillingEmail] = useState('');
   const [timezone, setTimezone] = useState('');
-  const [defaultLocale, setDefaultLocale] = useState('');
   const [failureAlertEmails, setFailureAlertEmails] = useState(true);
   const [quotaWarningEmails, setQuotaWarningEmails] = useState(true);
   const [quotaExhaustedEmails, setQuotaExhaustedEmails] = useState(true);
@@ -60,7 +49,6 @@ export default function SettingsPage() {
     setName(data.name);
     setBillingEmail(data.billingEmail ?? '');
     setTimezone(data.timezone ?? '');
-    setDefaultLocale(resolveDefaultLocale(data));
     setFailureAlertEmails(data.preferences.failureAlertEmails);
     setQuotaWarningEmails(data.preferences.quotaWarningEmails);
     setQuotaExhaustedEmails(data.preferences.quotaExhaustedEmails);
@@ -74,10 +62,9 @@ export default function SettingsPage() {
     return (
       name.trim() !== data.name ||
       billingEmail.trim() !== (data.billingEmail ?? '') ||
-      timezone.trim() !== (data.timezone ?? '') ||
-      defaultLocale !== resolveDefaultLocale(data)
+      timezone.trim() !== (data.timezone ?? '')
     );
-  }, [settingsQuery.data, name, billingEmail, timezone, defaultLocale]);
+  }, [settingsQuery.data, name, billingEmail, timezone]);
 
   const preferencesDirty = useMemo(() => {
     const data = settingsQuery.data;
@@ -117,7 +104,6 @@ export default function SettingsPage() {
             name: trimmedName,
             billingEmail: billingEmail.trim() || undefined,
             timezone: timezone.trim() || undefined,
-            defaultLocale: defaultLocale.trim() || undefined,
           }),
         );
       }
@@ -187,10 +173,7 @@ export default function SettingsPage() {
 
             <ThemeModeSelect />
 
-            <AccountLocaleSelect
-              value={defaultLocale}
-              onChange={setDefaultLocale}
-            />
+            <UiLanguageSelect syncToAccount />
           </section>
 
           {isAdmin ? (

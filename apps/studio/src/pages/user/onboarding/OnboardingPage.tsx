@@ -11,9 +11,11 @@ import { AsyncContent, PageSkeleton } from '@/components/states';
 import InputField from '@/components/ui/InputField';
 import Button from '@/components/ui/Button';
 import {
-  isAccountLocaleCode,
-  resolveBrowserAccountLocale,
-} from '@/constants/account-locales';
+  accountLocaleToStudioLanguage,
+  applyStudioLanguage,
+  studioLanguageToAccountLocale,
+  type StudioLanguage,
+} from '@/constants/languages';
 import { useAuth } from '@/context/AuthContext';
 import {
   useCompleteOnboardingStep,
@@ -38,7 +40,7 @@ function OnboardingError({ message }: { message: string }) {
 }
 
 export default function OnboardingPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { session, isLoading: authLoading } = useAuth();
   const stateQuery = useOnboardingState();
@@ -54,11 +56,10 @@ export default function OnboardingPage() {
 
   const [workspaceName, setWorkspaceName] = useState('');
   const [timezone, setTimezone] = useState('');
-  const [defaultLocale, setDefaultLocale] = useState('');
+  const [uiLanguage, setUiLanguage] = useState<StudioLanguage>('en');
   const [projectName, setProjectName] = useState('');
   const [existingProjectId, setExistingProjectId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [localeInitialized, setLocaleInitialized] = useState(false);
 
   useEffect(() => {
     if (session?.account.name) {
@@ -67,17 +68,10 @@ export default function OnboardingPage() {
     if (session?.account.timezone) {
       setTimezone(session.account.timezone);
     }
-    if (
-      session?.account.defaultLocale &&
-      isAccountLocaleCode(session.account.defaultLocale)
-    ) {
-      setDefaultLocale(session.account.defaultLocale);
-      setLocaleInitialized(true);
-    } else if (!localeInitialized) {
-      setDefaultLocale(resolveBrowserAccountLocale());
-      setLocaleInitialized(true);
+    if (session?.account.defaultLocale) {
+      setUiLanguage(accountLocaleToStudioLanguage(session.account.defaultLocale));
     }
-  }, [session?.account, localeInitialized]);
+  }, [session?.account]);
 
   useEffect(() => {
     if (currentStep !== 'project' || !projectsQuery.data?.length) {
@@ -141,8 +135,10 @@ export default function OnboardingPage() {
       await updateWorkspace.mutateAsync({
         name,
         timezone: timezone.trim() || undefined,
-        defaultLocale: defaultLocale.trim() || undefined,
+        defaultLocale: studioLanguageToAccountLocale(uiLanguage),
       });
+      applyStudioLanguage(uiLanguage);
+      void i18n.changeLanguage(uiLanguage);
       await completeStep.mutateAsync('workspace');
     } catch (err) {
       handleError(err);
@@ -252,8 +248,8 @@ export default function OnboardingPage() {
               placeholder={t('onboarding.workspace.timezonePlaceholder')}
             />
             <OnboardingLocaleSelect
-              value={defaultLocale}
-              onChange={setDefaultLocale}
+              value={uiLanguage}
+              onChange={setUiLanguage}
             />
             {formError ? <OnboardingError message={formError} /> : null}
             <AuthPrimaryButton type="submit" loading={isBusy}>

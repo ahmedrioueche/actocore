@@ -11,6 +11,20 @@ export function isStudioLanguage(value: string): value is StudioLanguage {
   return value in STUDIO_LANGUAGES;
 }
 
+/** Map workspace defaultLocale to a supported Studio UI language. */
+export function accountLocaleToStudioLanguage(
+  locale?: string | null,
+): StudioLanguage {
+  const normalized = locale?.trim().toLowerCase().split('-')[0];
+  return normalized === 'fr' ? 'fr' : 'en';
+}
+
+export function studioLanguageToAccountLocale(
+  lang: StudioLanguage,
+): 'en' | 'fr' {
+  return lang;
+}
+
 export function resolveStoredStudioLanguage(): StudioLanguage {
   if (typeof localStorage === 'undefined') {
     return 'en';
@@ -22,7 +36,12 @@ export function resolveStoredStudioLanguage(): StudioLanguage {
   return 'en';
 }
 
+export function applyStudioLanguage(lang: StudioLanguage): void {
+  persistStudioLanguage(lang);
+}
+
 export function persistStudioLanguage(lang: StudioLanguage): void {
   localStorage.setItem(STUDIO_LANGUAGE_STORAGE_KEY, lang);
+  document.documentElement.lang = lang;
   document.documentElement.dir = STUDIO_LANGUAGES[lang].dir;
 }
