@@ -12,11 +12,13 @@ describe('studio-email-templates', () => {
 
     expect(html).toContain('Verify email address');
     expect(html).toContain('href="https://studio.example/auth/verify-email?token=abc123"');
-    expect(html).toContain('bgcolor="#4f46e5"');
-    expect(html).toContain('class="email-cta-link"');
-    expect(html).toContain('padding:22px 56px');
+    expect(html).toContain('bgcolor="#4F46E5"');
+    expect(html).toContain('class="cta-btn"');
+    expect(html).toContain('border:14px solid #4F46E5');
+    expect(html).toContain('font-size:16px');
     expect(html).toContain('text-decoration:none');
-    expect(html).toContain('<font color="#ffffff"');
+    expect(html).not.toContain('<!--[if mso]>');
+    expect(html).not.toContain('<!--[if !mso]>');
     expect(text).toContain('abc123');
   });
 

@@ -14,8 +14,19 @@ const BRAND = {
   dangerSurface: '#fef2f2',
 } as const;
 
-const FONT =
-  '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+const FONT = 'Arial, Helvetica, sans-serif';
+
+/** Shared CTA styles — uppercase hex + border-padding survives Gmail/Outlook stripping. */
+const CTA = {
+  bg: '#4F46E5',
+  border: '#4338CA',
+  text: '#FFFFFF',
+  padY: '14px',
+  padX: '28px',
+  fontSize: '16px',
+  lineHeight: '20px',
+  radius: '12px',
+} as const;
 
 export type StudioEmailLayoutOptions = {
   preheader?: string;
@@ -53,22 +64,31 @@ export function renderStudioEmailLayout(options: StudioEmailLayoutOptions): stri
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>${escapeHtml(options.title)}</title>
   <style>
-    a.email-cta-link,
-    a.email-cta-link:hover,
-    a.email-cta-link:visited,
-    a.email-cta-link:active {
-      color: #ffffff !important;
+    .cta-btn,
+    .cta-btn:link,
+    .cta-btn:visited,
+    .cta-btn:hover,
+    .cta-btn:active {
+      color: ${CTA.text} !important;
+      text-decoration: none !important;
+    }
+    u + .body .cta-btn,
+    u + .body .cta-btn span {
+      color: ${CTA.text} !important;
+      text-decoration: none !important;
+    }
+    #MessageViewBody a.cta-btn {
+      color: ${CTA.text} !important;
       text-decoration: none !important;
     }
     @media only screen and (max-width: 620px) {
       .email-shell { width: 100% !important; }
       .email-body { padding-left: 24px !important; padding-right: 24px !important; }
-      .email-cta-cell { padding: 20px 28px !important; }
-      .email-cta-label { font-size: 18px !important; }
+      .cta-btn { font-size: 15px !important; border-width: 12px 22px !important; }
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background-color:${BRAND.bg};font-family:${FONT};-webkit-font-smoothing:antialiased;">
+<body class="body" style="margin:0;padding:0;background-color:${BRAND.bg};font-family:${FONT};-webkit-font-smoothing:antialiased;">
   ${preheader}
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:${BRAND.bg};">
     <tr>
@@ -106,32 +126,22 @@ function renderPrimaryButton(href: string, label: string): string {
   const safeHref = escapeHtml(href);
   const safeLabel = escapeHtml(label);
 
-  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:36px 0 16px;">
+  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:40px 0 20px;">
   <tr>
     <td align="center">
-      <!--[if mso]>
-      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${safeHref}" style="height:64px;v-text-anchor:middle;width:340px;" arcsize="16%" strokecolor="${BRAND.primaryDark}" strokeweight="2px" fillcolor="${BRAND.primary}">
-        <w:anchorlock/>
-        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:20px;font-weight:bold;mso-line-height-rule:exactly;line-height:24px;">${safeLabel}</center>
-      </v:roundrect>
-      <![endif]-->
-      <!--[if !mso]><!-->
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
         <tr>
-          <td align="center" class="email-cta-cell" bgcolor="${BRAND.primary}" style="border-radius:14px;background-color:${BRAND.primary};border:2px solid ${BRAND.primaryDark};box-shadow:0 10px 24px rgba(79,70,229,0.28);">
-            <a href="${safeHref}" class="email-cta-link" target="_blank" rel="noopener noreferrer" style="display:block;padding:22px 56px;font-family:${FONT};font-size:20px;font-weight:700;line-height:1.25;color:#ffffff;background-color:${BRAND.primary};text-decoration:none;border-radius:14px;min-width:220px;text-align:center;letter-spacing:0.01em;">
-              <span class="email-cta-label" style="color:#ffffff;text-decoration:none;display:inline-block;font-size:20px;font-weight:700;line-height:1.25;">
-                <font color="#ffffff" style="color:#ffffff;font-size:20px;font-weight:700;text-decoration:none;">${safeLabel}</font>
-              </span>
+          <td align="center" bgcolor="${CTA.bg}" style="background-color:${CTA.bg};border-radius:${CTA.radius};border:2px solid ${CTA.border};mso-padding-alt:${CTA.padY} ${CTA.padX};">
+            <a href="${safeHref}" class="cta-btn" target="_blank" rel="noopener noreferrer" style="background-color:${CTA.bg};border:${CTA.padY} solid ${CTA.bg};border-radius:${CTA.radius};color:${CTA.text};display:inline-block;font-family:${FONT};font-size:${CTA.fontSize};font-weight:700;line-height:${CTA.lineHeight};text-align:center;text-decoration:none;text-decoration-line:none;white-space:nowrap;box-sizing:border-box;">
+              <span style="color:${CTA.text};text-decoration:none;font-size:${CTA.fontSize};font-weight:700;line-height:${CTA.lineHeight};">${safeLabel}</span>
             </a>
           </td>
         </tr>
       </table>
-      <!--<![endif]-->
     </td>
   </tr>
 </table>
-<p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:${BRAND.muted};text-align:center;">Or copy and paste this link into your browser:</p>
+<p style="margin:28px 0 0;font-size:13px;line-height:1.6;color:${BRAND.muted};text-align:center;">Or copy and paste this link into your browser:</p>
 <p style="margin:8px 0 0;font-size:13px;line-height:1.6;text-align:center;word-break:break-all;"><span style="color:${BRAND.primary};">${safeHref}</span></p>`;
 }
 
