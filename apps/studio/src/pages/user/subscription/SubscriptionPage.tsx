@@ -96,7 +96,7 @@ export default function SubscriptionPage() {
         toast.success(t('subscription.checkout.success'));
         void navigate({
           to: '/subscription',
-          search: { subscriptionId: undefined },
+          search: { subscriptionId: undefined, scrollTo: undefined },
           replace: true,
         });
       })
@@ -104,7 +104,7 @@ export default function SubscriptionPage() {
         toast.error(t('subscription.checkout.failed'));
         void navigate({
           to: '/subscription',
-          search: { subscriptionId: undefined },
+          search: { subscriptionId: undefined, scrollTo: undefined },
           replace: true,
         });
       });
@@ -131,7 +131,7 @@ export default function SubscriptionPage() {
       return;
     }
 
-    let timeoutId: ReturnType<typeof window.setTimeout> | undefined;
+    let timeoutId: number | undefined;
 
     const scroll = () => {
       if (!scrollToSubscriptionPlans()) {

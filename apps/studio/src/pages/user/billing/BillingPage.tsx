@@ -54,7 +54,7 @@ export default function BillingPage() {
             onClick={() =>
               navigate({
                 to: "/subscription",
-                search: { subscriptionId: undefined },
+                search: { subscriptionId: undefined, scrollTo: undefined },
               })
             }
           >

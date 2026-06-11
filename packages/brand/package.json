@@ -1,0 +1,11 @@
+{
+  "name": "@actocore/brand",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "description": "ActoCore design tokens and Tailwind preset (Studio + marketing web)",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./tailwind.preset": "./tailwind.preset.js"
+  }
+}

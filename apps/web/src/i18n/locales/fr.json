@@ -1,0 +1,278 @@
+{
+  "meta": {
+    "siteName": "ActoCore",
+    "home": {
+      "title": "ActoCore Studio | La couche d'intégration IA pour l'entreprise",
+      "description": "La couche d'intégration multi-tenant sécurisée pour déployer des pipelines RAG et des actions agentiques en quelques minutes."
+    },
+    "pricing": {
+      "title": "Tarifs — ActoCore",
+      "description": "Forfaits flexibles du gratuit à l'échelle business. Facturation mensuelle ou annuelle."
+    },
+    "docs": {
+      "title": "Documentation — ActoCore",
+      "description": "Guides d'intégration pour ActoCore Studio, le SDK intégrable et votre backend."
+    },
+    "privacy": {
+      "title": "Politique de confidentialité — ActoCore",
+      "description": "Comment ActoCore collecte, utilise et protège vos données."
+    },
+    "terms": {
+      "title": "Conditions d'utilisation — ActoCore",
+      "description": "Conditions régissant l'utilisation des produits et services ActoCore."
+    }
+  },
+  "site": {
+    "name": "ActoCore",
+    "tagline": "La couche d'intelligence pour votre application"
+  },
+  "nav": {
+    "platform": "Plateforme",
+    "architecture": "Architecture",
+    "solutions": "Solutions",
+    "pricing": "Tarifs",
+    "docs": "Docs",
+    "signIn": "Connexion",
+    "getStarted": "Commencer",
+    "menu": "Menu",
+    "theme": "Thème",
+    "language": "Langue"
+  },
+  "footer": {
+    "tagline": "La couche manquante pour une intégration IA de niveau entreprise. Sécurisée, évolutive et conçue pour les développeurs.",
+    "product": "Produit",
+    "resources": "Ressources",
+    "company": "Entreprise",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "copyright": "© {year} ActoCore. Tous droits réservés.",
+    "builtIn": "Conçu à San Francisco",
+    "status": "Systèmes opérationnels",
+    "links": {
+      "sdkReference": "Référence SDK",
+      "pricing": "Tarifs",
+      "changelog": "Journal des modifications",
+      "integrations": "Intégrations",
+      "documentation": "Documentation",
+      "apiStatus": "État de l'API",
+      "community": "Communauté",
+      "caseStudies": "Études de cas",
+      "about": "À propos",
+      "careers": "Carrières",
+      "blog": "Blog",
+      "contact": "Contact",
+      "security": "Sécurité",
+      "compliance": "Conformité"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Certifié SOC2 Type II",
+      "title": "Le cœur intelligent pour les logiciels d'entreprise.",
+      "subtitle": "Arrêtez de construire une infrastructure IA from scratch. ActoCore fournit la couche d'intégration multi-tenant sécurisée pour déployer des pipelines RAG et des actions agentiques en quelques minutes.",
+      "ctaPrimary": "Construire gratuitement",
+      "ctaSecondary": "Parler à l'équipe technique",
+      "trust": {
+        "gdpr": "Conforme RGPD",
+        "zeroRetention": "Zéro rétention de données",
+        "uptime": "SLA 99,9 % de disponibilité"
+      },
+      "demo": {
+        "filename": "actocore-v2-deployment.log",
+        "line1": "Initialisation de la synchro vectorielle avec PostgreSQL...",
+        "line2": "[OK] 1,2 M de segments indexés.",
+        "userQuery": "// Utilisateur : « Qui sont mes 5 meilleurs clients par risque de churn ? »",
+        "response": "Analyse des données Salesforce et journaux d'usage. 1. Amazon 2. Stripe...",
+        "suggestion": "Suggestion : planifier un QBR pour Amazon ?",
+        "awaiting": "En attente d'une action..."
+      }
+    },
+    "partners": {
+      "label": "Partenaires d'infrastructure pour",
+      "items": ["Mercivio", "DevFlow", "LogicLayer", "StackPoint", "Aether"]
+    },
+    "capabilities": {
+      "title": "Conçu pour la fiabilité.",
+      "subtitle": "Standardisez vos workflows IA avec un ensemble d'outils robustes, pensés pour aller au-delà du bac à sable.",
+      "observability": {
+        "title": "Observabilité en temps réel",
+        "description": "Tracez chaque jeton, pic de latence et tentative d'injection de prompt avec des journaux d'audit complets et un débogage visuel.",
+        "bullets": ["Journaux de trace pas à pas", "Suivi du coût par requête"]
+      },
+      "isolation": {
+        "title": "Isolation multi-tenant",
+        "description": "Isolez les données clients en toute sécurité. ActoCore garantit aucune contamination entre embeddings ou contextes de locataires.",
+        "bullets": ["Clés de chiffrement par utilisateur", "Routage dynamique du contexte"]
+      },
+      "rag": {
+        "title": "Pipelines RAG personnalisés",
+        "description": "Enchaînez plusieurs vector stores, stratégies de recherche hybride et modèles de re-ranking sans code boilerplate.",
+        "bullets": ["Support Pinecone et pgvector", "Découpage automatique des segments"]
+      }
+    },
+    "architecture": {
+      "title": "Un seul cœur. Une flexibilité infinie.",
+      "subtitle": "Choisissez le niveau d'intégration adapté à votre stack, d'un simple SDK à un studio entièrement géré.",
+      "recommended": "Recommandé",
+      "engine": {
+        "title": "Moteur ActoCore",
+        "description": "Le moteur de raisonnement stateless. Faible latence, haute concurrence et agnostique du modèle.",
+        "badge": "API REST / gRPC"
+      },
+      "sdk": {
+        "title": "SDK unifié",
+        "description": "Wrappers côté client pour React, Vue et Python. Gère l'état et les composants UI en streaming.",
+        "badge": "NPM / PyPi"
+      },
+      "studio": {
+        "title": "Studio de gestion",
+        "description": "Orchestration no-code pour les non-ingénieurs : prompts, sources de données et contrôle de version.",
+        "badge": "Application web"
+      }
+    },
+    "testimonials": {
+      "title": "Adoré par les ingénieurs, approuvé par les CTO.",
+      "items": {
+        "marcus": {
+          "quote": "ActoCore a transformé notre fonctionnalité IA d'une « démo sympa » en « produit prêt pour la production » en trois jours. La sécurité multi-tenant seule nous a fait gagner deux mois de développement.",
+          "name": "Marcus Thorne",
+          "role": "Ingénieur principal @ Mercivio"
+        },
+        "sarah": {
+          "quote": "L'observabilité au niveau des traces est inégalée. Nous voyons enfin exactement pourquoi un prompt a échoué, sans fouiller dans des logs cloud cryptiques.",
+          "name": "Sarah Chen",
+          "role": "CTO @ DevFlow"
+        },
+        "alex": {
+          "quote": "Intégrer ActoCore, c'était comme ajouter un cerveau à notre app. Le moteur de mapping d'actions fonctionne parfaitement avec nos API legacy.",
+          "name": "Alex Rivera",
+          "role": "Architecte backend @ LogicLayer"
+        }
+      }
+    },
+    "finalCta": {
+      "title": "Construisez l'avenir des applications intelligentes.",
+      "subtitle": "Rejoignez plus de 500 équipes qui déploient de l'IA en production. Pas de configuration complexe, pas de carte bancaire requise.",
+      "ctaPrimary": "Obtenir une clé API gratuite",
+      "ctaSecondary": "Voir le dépôt de démo",
+      "footnote": "Le forfait développeur est 100 % gratuit jusqu'à 5 000 requêtes mensuelles."
+    }
+  },
+  "pricing": {
+    "title": "Tarifs simples et transparents",
+    "subtitle": "Commencez gratuitement et évoluez avec votre usage.",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "perMonth": "/ mois",
+    "perYear": "/ an",
+    "cta": "Commencer",
+    "contact": "Nous contacter",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "priceMonthly": "0 $",
+        "priceYearly": "0 $",
+        "description": "Essayez ActoCore Studio",
+        "features": ["1 projet", "500 K jetons / mois", "Connaissances et actions", "Intégration SDK"]
+      },
+      "starter": {
+        "name": "Starter",
+        "priceMonthly": "29 $",
+        "priceYearly": "290 $",
+        "description": "Pour les petites équipes qui lancent leur premier assistant",
+        "features": ["3 projets", "5 M jetons / mois", "5 sièges équipe", "Support e-mail"]
+      },
+      "pro": {
+        "name": "Pro",
+        "priceMonthly": "79 $",
+        "priceYearly": "790 $",
+        "description": "Pour les produits en croissance avec un volume plus élevé",
+        "features": ["10 projets", "50 M jetons / mois", "20 sièges équipe", "Support prioritaire"],
+        "badge": "Recommandé"
+      },
+      "business": {
+        "name": "Business",
+        "priceMonthly": "199 $",
+        "priceYearly": "1 990 $",
+        "description": "Pour les équipes à fort volume",
+        "features": ["25 projets", "200 M jetons / mois", "50 sièges équipe", "Support dédié"]
+      }
+    }
+  },
+  "docs": {
+    "title": "Documentation",
+    "subtitle": "Tout ce qu'il faut pour intégrer ActoCore dans votre application.",
+    "studio": {
+      "title": "Studio",
+      "description": "Gérez projets, connaissances, actions, clés API et configuration SDK depuis le tableau de bord web.",
+      "link": "Ouvrir Studio"
+    },
+    "sdk": {
+      "title": "SDK React",
+      "description": "Installez le widget chat intégrable et branchez les handlers d'actions dans votre app React.",
+      "link": "Package SDK (monorepo)"
+    },
+    "quickstart": {
+      "title": "Démarrage rapide",
+      "description": "Créez un projet dans Studio, ajoutez une clé API, importez des connaissances et montez le SDK avec loadRemoteConfig."
+    }
+  },
+  "legal": {
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "updated": "Dernière mise à jour : juin 2026",
+      "intro": "Cette politique décrit comment ActoCore (« nous ») collecte et utilise les informations lorsque vous utilisez notre site et nos produits.",
+      "sections": {
+        "collect": {
+          "title": "Informations collectées",
+          "body": "Nous collectons les informations de compte que vous fournissez (nom, e-mail), les données d'usage liées aux requêtes API et chat, et les journaux techniques nécessaires au service."
+        },
+        "use": {
+          "title": "Utilisation des informations",
+          "body": "Nous utilisons les données pour fournir et améliorer ActoCore, sécuriser la plateforme, traiter la facturation et communiquer sur votre compte."
+        },
+        "share": {
+          "title": "Partage",
+          "body": "Nous ne vendons pas de données personnelles. Nous partageons des informations avec des sous-traitants (hébergement, paiement) uniquement pour fournir le service."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "Pour toute question sur la confidentialité : privacy@actocore.pro."
+        }
+      }
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "updated": "Dernière mise à jour : juin 2026",
+      "intro": "En utilisant ActoCore, vous acceptez ces conditions. Sinon, n'utilisez pas le service.",
+      "sections": {
+        "service": {
+          "title": "Le service",
+          "body": "ActoCore fournit une plateforme d'intégration IA incluant Studio, des API et un SDK intégrable. Les fonctionnalités et limites dépendent de votre forfait."
+        },
+        "accounts": {
+          "title": "Comptes",
+          "body": "Vous êtes responsable de vos identifiants et de l'activité sous votre espace de travail. Les informations d'inscription doivent être exactes."
+        },
+        "acceptable": {
+          "title": "Usage acceptable",
+          "body": "Vous ne devez pas détourner le service, tenter un accès non autorisé ou utiliser ActoCore en violation de la loi ou des droits de tiers."
+        },
+        "liability": {
+          "title": "Limitation de responsabilité",
+          "body": "ActoCore est fourni « en l'état » dans la mesure permise par la loi. Notre responsabilité est limitée comme décrit dans votre accord commercial ou nos conditions SaaS."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "Pour toute question sur ces conditions : legal@actocore.pro."
+        }
+      }
+    }
+  },
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système"
+  }
+}

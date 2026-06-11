@@ -1,0 +1,96 @@
+@import '@actocore/brand/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: var(--ac-font-family);
+  }
+
+  body {
+    @apply bg-background text-text-primary antialiased;
+  }
+
+  .dark body {
+    background-color: var(--ac-color-bg);
+    background-image:
+      radial-gradient(
+        ellipse 90% 55% at 50% -15%,
+        rgb(99 102 241 / 0.09),
+        transparent 58%
+      ),
+      radial-gradient(
+        ellipse 50% 40% at 100% 0%,
+        rgb(139 92 246 / 0.06),
+        transparent 50%
+      );
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .mesh-bg {
+    background-color: var(--ac-brand-primary);
+    background-image: var(--ac-gradient-brand);
+  }
+
+  .bg-brand-gradient {
+    background-image: var(--ac-gradient-brand);
+  }
+
+  .bg-brand-gradient-soft {
+    background-image: var(--ac-gradient-brand-soft);
+  }
+
+  .text-brand-gradient {
+    background-image: var(--ac-gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .site-container {
+    @apply mx-auto w-full max-w-[1440px] px-6 lg:px-8;
+  }
+
+  .glass-panel {
+    background: var(--ac-glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--ac-glass-border);
+  }
+
+  .card-hover {
+    @apply transition-all duration-300;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--ac-color-primary) 30%, transparent);
+    background: var(--ac-glass-hover-bg);
+  }
+
+  .mesh-gradient {
+    background-color: var(--ac-color-bg);
+    background-image:
+      radial-gradient(at 0% 0%, color-mix(in srgb, var(--ac-color-bg) 90%, var(--ac-brand-primary)) 0, transparent 50%),
+      radial-gradient(at 50% 0%, var(--ac-blob-primary) 0, transparent 50%),
+      radial-gradient(at 100% 0%, var(--ac-blob-accent) 0, transparent 50%);
+  }
+
+  .animated-blob {
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: blob-float 20s infinite alternate;
+  }
+
+  @keyframes blob-float {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      transform: translate(20px, 40px) scale(1.1);
+    }
+  }
+}

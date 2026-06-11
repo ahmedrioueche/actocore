@@ -1,0 +1,278 @@
+{
+  "meta": {
+    "siteName": "ActoCore",
+    "home": {
+      "title": "ActoCore Studio | The Enterprise AI Integration Layer",
+      "description": "The secure, multi-tenant integration layer to deploy RAG pipelines and agentic actions in minutes."
+    },
+    "pricing": {
+      "title": "Pricing — ActoCore",
+      "description": "Flexible plans from free tier to business scale. Monthly and yearly billing."
+    },
+    "docs": {
+      "title": "Documentation — ActoCore",
+      "description": "Integration guides for ActoCore Studio, the embeddable SDK, and your backend."
+    },
+    "privacy": {
+      "title": "Privacy Policy — ActoCore",
+      "description": "How ActoCore collects, uses, and protects your data."
+    },
+    "terms": {
+      "title": "Terms of Service — ActoCore",
+      "description": "Terms governing use of ActoCore products and services."
+    }
+  },
+  "site": {
+    "name": "ActoCore",
+    "tagline": "The intelligence layer for your application"
+  },
+  "nav": {
+    "platform": "Platform",
+    "architecture": "Architecture",
+    "solutions": "Solutions",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "menu": "Menu",
+    "theme": "Theme",
+    "language": "Language"
+  },
+  "footer": {
+    "tagline": "Providing the missing layer for enterprise-grade AI integration. Secure, scalable, and built for developers.",
+    "product": "Product",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "© {year} ActoCore. All rights reserved.",
+    "builtIn": "Built in San Francisco",
+    "status": "Systems Operational",
+    "links": {
+      "sdkReference": "SDK Reference",
+      "pricing": "Pricing",
+      "changelog": "Changelog",
+      "integrations": "Integrations",
+      "documentation": "Documentation",
+      "apiStatus": "API Status",
+      "community": "Community",
+      "caseStudies": "Case Studies",
+      "about": "About Us",
+      "careers": "Careers",
+      "blog": "Blog",
+      "contact": "Contact",
+      "security": "Security",
+      "compliance": "Compliance"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Now SOC2 Type II Certified",
+      "title": "The Intelligent Core for Enterprise Software.",
+      "subtitle": "Stop building AI infrastructure from scratch. ActoCore provides the secure, multi-tenant integration layer to deploy RAG pipelines and agentic actions in minutes.",
+      "ctaPrimary": "Build for Free",
+      "ctaSecondary": "Talk to Engineering",
+      "trust": {
+        "gdpr": "GDPR Compliant",
+        "zeroRetention": "Zero Data Retention",
+        "uptime": "99.9% Uptime SLA"
+      },
+      "demo": {
+        "filename": "actocore-v2-deployment.log",
+        "line1": "Initializing vector sync with PostgreSQL...",
+        "line2": "[OK] 1.2M chunks indexed.",
+        "userQuery": "// User: \"Who are my top 5 customers by churn risk?\"",
+        "response": "Analyzed Salesforce data & usage logs. 1. Amazon 2. Stripe...",
+        "suggestion": "Suggestion: Schedule QBR for Amazon?",
+        "awaiting": "Awaiting action input..."
+      }
+    },
+    "partners": {
+      "label": "Infrastructure partners for",
+      "items": ["Mercivio", "DevFlow", "LogicLayer", "StackPoint", "Aether"]
+    },
+    "capabilities": {
+      "title": "Engineered for Reliability.",
+      "subtitle": "Standardize your AI workflows with a robust set of tools designed to move beyond the sandbox.",
+      "observability": {
+        "title": "Real-time Observability",
+        "description": "Trace every token, latency spike, and prompt injection attempt with full audit logs and visual debugging.",
+        "bullets": ["Step-by-step trace logs", "Cost-per-query tracking"]
+      },
+      "isolation": {
+        "title": "Multi-tenant Isolation",
+        "description": "Securely isolate client data. ActoCore ensures no cross-pollination between tenant embeddings or context.",
+        "bullets": ["Per-user encryption keys", "Dynamic context routing"]
+      },
+      "rag": {
+        "title": "Custom RAG Pipelines",
+        "description": "Chain multiple vector stores, hybrid search strategies, and re-ranking models without writing boilerplate code.",
+        "bullets": ["Pinecone & pgvector support", "Automatic chunking logic"]
+      }
+    },
+    "architecture": {
+      "title": "One Core. Endless Flexibility.",
+      "subtitle": "Choose the depth of integration that fits your stack, from a simple SDK to a full-managed studio.",
+      "recommended": "Recommended",
+      "engine": {
+        "title": "ActoCore Engine",
+        "description": "The stateless reasoning engine. Low-latency, high-concurrency, and model-agnostic.",
+        "badge": "REST API / gRPC"
+      },
+      "sdk": {
+        "title": "Unified SDK",
+        "description": "Client-side wrappers for React, Vue, and Python. Handles state management and streaming UI components.",
+        "badge": "NPM / PyPi"
+      },
+      "studio": {
+        "title": "Management Studio",
+        "description": "No-code orchestration for non-engineers to manage prompts, data sources, and version control.",
+        "badge": "Web App"
+      }
+    },
+    "testimonials": {
+      "title": "Loved by Engineers, Trusted by CTOs.",
+      "items": {
+        "marcus": {
+          "quote": "ActoCore took our AI feature from a 'cool demo' to a 'production-ready product' in three days. The multi-tenant security alone saved us two months of dev time.",
+          "name": "Marcus Thorne",
+          "role": "Lead Engineer @ Mercivio"
+        },
+        "sarah": {
+          "quote": "The trace-level observability is unparalleled. We can finally see exactly why a prompt failed and fix it without digging through cryptic cloud logs.",
+          "name": "Sarah Chen",
+          "role": "CTO @ DevFlow"
+        },
+        "alex": {
+          "quote": "Integrating with ActoCore felt like adding a brain to our app. The action mapping engine works flawlessly across our legacy APIs.",
+          "name": "Alex Rivera",
+          "role": "Backend Architect @ LogicLayer"
+        }
+      }
+    },
+    "finalCta": {
+      "title": "Start Building the Future of Intelligent Apps.",
+      "subtitle": "Join 500+ teams shipping production AI today. No complex setup, no credit card required.",
+      "ctaPrimary": "Get Free API Key",
+      "ctaSecondary": "View Demo Repo",
+      "footnote": "Developer tier is 100% free up to 5,000 monthly requests."
+    }
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Start free and scale as your assistant usage grows.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perMonth": "/ mo",
+    "perYear": "/ yr",
+    "cta": "Get started",
+    "contact": "Contact us",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "priceMonthly": "$0",
+        "priceYearly": "$0",
+        "description": "Try ActoCore Studio",
+        "features": ["1 project", "500K tokens / month", "Knowledge & actions", "SDK embed"]
+      },
+      "starter": {
+        "name": "Starter",
+        "priceMonthly": "$29",
+        "priceYearly": "$290",
+        "description": "For small teams shipping their first assistant",
+        "features": ["3 projects", "5M tokens / month", "5 team seats", "Email support"]
+      },
+      "pro": {
+        "name": "Pro",
+        "priceMonthly": "$79",
+        "priceYearly": "$790",
+        "description": "For growing products with higher volume",
+        "features": ["10 projects", "50M tokens / month", "20 team seats", "Priority support"],
+        "badge": "Recommended"
+      },
+      "business": {
+        "name": "Business",
+        "priceMonthly": "$199",
+        "priceYearly": "$1,990",
+        "description": "For high-volume teams",
+        "features": ["25 projects", "200M tokens / month", "50 team seats", "Dedicated support"]
+      }
+    }
+  },
+  "docs": {
+    "title": "Documentation",
+    "subtitle": "Everything you need to integrate ActoCore into your application.",
+    "studio": {
+      "title": "Studio",
+      "description": "Manage projects, knowledge, actions, API keys, and SDK configuration from the web dashboard.",
+      "link": "Open Studio"
+    },
+    "sdk": {
+      "title": "React SDK",
+      "description": "Install the embeddable chat widget and wire action handlers in your React app.",
+      "link": "SDK package (monorepo)"
+    },
+    "quickstart": {
+      "title": "Quick start",
+      "description": "Create a project in Studio, add an API key, upload knowledge, and mount the SDK with loadRemoteConfig."
+    }
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "updated": "Last updated: June 2026",
+      "intro": "This privacy policy describes how ActoCore (“we”, “us”) collects and uses information when you use our website and products.",
+      "sections": {
+        "collect": {
+          "title": "Information we collect",
+          "body": "We collect account information you provide (such as name and email), usage data related to API and chat requests, and technical logs needed to operate the service."
+        },
+        "use": {
+          "title": "How we use information",
+          "body": "We use data to provide and improve ActoCore, secure the platform, process billing, and communicate about your account."
+        },
+        "share": {
+          "title": "Sharing",
+          "body": "We do not sell personal data. We share information with subprocessors (such as hosting and payment providers) only as needed to deliver the service."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "For privacy questions, contact us at privacy@actocore.pro."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "updated": "Last updated: June 2026",
+      "intro": "By using ActoCore, you agree to these terms. If you do not agree, do not use the service.",
+      "sections": {
+        "service": {
+          "title": "The service",
+          "body": "ActoCore provides an AI integration platform including Studio, APIs, and an embeddable SDK. Features and limits depend on your subscription plan."
+        },
+        "accounts": {
+          "title": "Accounts",
+          "body": "You are responsible for safeguarding credentials and for activity under your workspace. You must provide accurate registration information."
+        },
+        "acceptable": {
+          "title": "Acceptable use",
+          "body": "You may not misuse the service, attempt unauthorized access, or use ActoCore in violation of applicable law or third-party rights."
+        },
+        "liability": {
+          "title": "Limitation of liability",
+          "body": "ActoCore is provided as-is to the extent permitted by law. Our liability is limited as described in your commercial agreement or standard SaaS terms."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "For questions about these terms, contact legal@actocore.pro."
+        }
+      }
+    }
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
+}

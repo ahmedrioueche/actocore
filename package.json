@@ -6,6 +6,7 @@
     "dev:infra": "docker compose -f compose.yml up -d",
     "dev:infra:down": "docker compose -f compose.yml down",
     "dev:backend": "npm run start:dev --prefix apps/backend",
+    "dev:web": "npm run dev --prefix apps/web",
     "dev:playground": "npm run dev --prefix apps/sdk-playground",
     "playground:setup": "npm run setup --prefix apps/sdk-playground",
     "playground:config:fr": "npm run config:fr --prefix apps/sdk-playground",

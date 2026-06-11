@@ -17,6 +17,15 @@ import { ensureApiConfigured } from '@/lib/configure-api';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
 
+function mergeActionUpdate(action: ActionData, body: UpdateActionDto): ActionData {
+  const { sectionId, ...rest } = body;
+  return {
+    ...action,
+    ...rest,
+    ...(sectionId !== undefined ? { sectionId: sectionId ?? undefined } : {}),
+  };
+}
+
 export function useProjectActions(
   projectId: string | null,
   query: ListActionsQuery = {},
@@ -95,7 +104,7 @@ export function useUpdateAction(projectId: string | null) {
           return {
             ...old,
             items: old.items.map((action) =>
-              action.id === actionId ? { ...action, ...body } : action,
+              action.id === actionId ? mergeActionUpdate(action, body) : action,
             ),
           };
         },
@@ -104,10 +113,10 @@ export function useUpdateAction(projectId: string | null) {
       const detailKey = queryKeys.actions.detail(projectId, actionId);
       const previousDetail = queryClient.getQueryData<ActionData>(detailKey);
       if (previousDetail) {
-        queryClient.setQueryData<ActionData>(detailKey, {
-          ...previousDetail,
-          ...body,
-        });
+        queryClient.setQueryData<ActionData>(
+          detailKey,
+          mergeActionUpdate(previousDetail, body),
+        );
       }
 
       return { previousLists, previousDetail, actionId };
