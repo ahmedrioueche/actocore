@@ -6,9 +6,6 @@ const appRoot = fileURLToPath(new URL(".", import.meta.url));
 const sharedRoot = fileURLToPath(
   new URL("../../packages/shared", import.meta.url),
 );
-const sharedAssetsRoot = fileURLToPath(
-  new URL("../../packages/shared/assets", import.meta.url),
-);
 const sdkRoot = fileURLToPath(new URL("../../packages/sdk", import.meta.url));
 
 export default defineConfig({
@@ -16,7 +13,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
-      "@actocore/shared-assets": sharedAssetsRoot,
       "@ahmedrioueche/actocore-shared": fileURLToPath(
         new URL("../../packages/shared/src/index.ts", import.meta.url),
       ),
@@ -29,7 +25,7 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: [appRoot, sharedRoot, sharedAssetsRoot, sdkRoot],
+      allow: [appRoot, sharedRoot, sdkRoot],
     },
     port: 5174,
   },
