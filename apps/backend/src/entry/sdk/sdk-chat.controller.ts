@@ -72,17 +72,19 @@ export class SdkChatController {
       );
     } catch (error) {
       if (!abortController.signal.aborted) {
-        const message =
-          error instanceof HttpException
-            ? (error.getResponse() as { message?: string }).message ??
-              error.message
-            : error instanceof Error
-              ? error.message
-              : 'Stream failed';
+        const payload =
+          error instanceof HttpException &&
+          typeof error.getResponse() === 'object' &&
+          error.getResponse() !== null
+            ? (error.getResponse() as {
+                errorCode?: string;
+                message?: string;
+              })
+            : undefined;
         writeEvent({
           type: 'error',
-          errorCode: 'INTERNAL_ERROR',
-          message: String(message),
+          errorCode: payload?.errorCode ?? 'INTERNAL_ERROR',
+          message: payload?.message ?? 'Stream failed',
         });
       }
     } finally {

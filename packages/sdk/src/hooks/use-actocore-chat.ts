@@ -137,12 +137,15 @@ export function useActocoreChat(
 
   const formatSendFailure = useCallback(
     (error: unknown): string => {
-      const formatted = formatError(error);
-      const generic = t('errors.generic');
-      if (formatted === generic) {
-        return t('chat.sendFailed');
+      const maybe = error as { errorCode?: string } | null | undefined;
+      const errorCode =
+        maybe && typeof maybe.errorCode === 'string' ? maybe.errorCode : undefined;
+
+      if (errorCode === 'QUOTA_EXCEEDED') {
+        return formatError(error);
       }
-      return formatted;
+
+      return t('chat.unavailable');
     },
     [formatError, t],
   );
@@ -317,7 +320,10 @@ export function useActocoreChat(
                 if (isStreamUnavailableError(event)) {
                   shouldFallback = true;
                 } else {
-                  streamError = event.message;
+                  streamError = formatSendFailure({
+                    errorCode: event.errorCode,
+                    message: event.message,
+                  });
                 }
               }
             },

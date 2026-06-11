@@ -5,6 +5,7 @@ import { LlmProviderException } from '../../external/llm/exceptions/llm-provider
 const LLM_INFRA_ERROR_CODES = new Set<ErrorCode>([
   ErrorCode.BAD_GATEWAY,
   ErrorCode.GATEWAY_TIMEOUT,
+  ErrorCode.SERVICE_UNAVAILABLE,
   ErrorCode.INTERNAL_ERROR,
 ]);
 

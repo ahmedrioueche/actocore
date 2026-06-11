@@ -18,6 +18,7 @@
     "minimize": "Minimize chat",
     "thinking": "Thinking…",
     "sendFailed": "I couldn't respond right now. Please try again in a moment.",
+    "unavailable": "Sorry, I can't talk right now. Please try again in a moment.",
     "open": "Open chat",
     "close": "Close chat"
   },

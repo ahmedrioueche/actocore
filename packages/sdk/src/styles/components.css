@@ -221,9 +221,9 @@
 }
 
 [data-actocore] .ac-chat__bubble--error-notice {
-  border-color: color-mix(in srgb, var(--ac-color-danger) 35%, transparent);
-  background: var(--ac-color-danger-surface);
-  color: var(--ac-color-text);
+  background: var(--ac-color-assistant-bubble);
+  color: var(--ac-color-assistant-bubble-text);
+  border: var(--ac-border-width) solid var(--ac-color-border);
 }
 
 [data-actocore] .ac-chat__bubble--streaming .ac-chat__bubble-text {
@@ -392,9 +392,9 @@
   margin: var(--ac-space-md);
   padding: var(--ac-space-md) var(--ac-space-lg);
   border-radius: var(--ac-radius-md);
-  border: var(--ac-border-width) solid var(--ac-color-danger);
-  background: var(--ac-color-danger-surface);
-  color: var(--ac-color-text);
+  border: var(--ac-border-width) solid var(--ac-color-border);
+  background: var(--ac-color-assistant-bubble);
+  color: var(--ac-color-assistant-bubble-text);
   font-size: var(--ac-font-size-sm);
 }
 
