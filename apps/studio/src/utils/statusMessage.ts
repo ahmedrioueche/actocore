@@ -28,6 +28,9 @@ const ERROR_I18N_KEYS: Partial<Record<ErrorCodeType, string>> = {
   [ErrorCode.CANNOT_REMOVE_SELF]: 'errors.cannotRemoveSelf',
   [ErrorCode.CANNOT_REMOVE_ADMIN]: 'errors.cannotRemoveAdmin',
   [ErrorCode.INSUFFICIENT_PERMISSIONS]: 'errors.insufficientPermissions',
+  [ErrorCode.INVALID_OTP]: 'errors.invalidOtp',
+  [ErrorCode.DELETE_ACCOUNT_BLOCKED]: 'errors.deleteAccountBlocked',
+  [ErrorCode.SEAT_SELF_DELETE_BLOCKED]: 'errors.seatSelfDeleteBlocked',
 };
 
 function resolveLimit(

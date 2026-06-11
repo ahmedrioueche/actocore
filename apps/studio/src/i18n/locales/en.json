@@ -68,7 +68,10 @@
     "teamMemberNotFound": "Team member not found.",
     "cannotRemoveSelf": "You cannot remove your own seat.",
     "cannotRemoveAdmin": "Workspace owners cannot be removed from the team list.",
-    "insufficientPermissions": "You do not have permission to manage the team."
+    "insufficientPermissions": "You do not have permission to manage the team.",
+    "invalidOtp": "Invalid or expired confirmation code.",
+    "deleteAccountBlocked": "Remove all team members before deleting the workspace.",
+    "seatSelfDeleteBlocked": "Team seats cannot be self-deleted. Ask your workspace admin to remove your access."
   },
   "planLimits": {
     "projectReachedTitle": "Project limit reached",
@@ -936,6 +939,33 @@
       "quotaWarningDescription": "Email when monthly AI chat usage reaches 80% or 90% of your plan limit.",
       "quotaExhausted": "Limit reached",
       "quotaExhaustedDescription": "Email when monthly AI chat usage reaches 100% of your plan limit."
+    },
+    "deleteAccount": {
+      "dangerTitle": "Delete account",
+      "dangerSubtitle": "Permanently delete your Studio account and associated personal data.",
+      "seatBlocked": "Workspace seat accounts cannot be deleted here. Ask your admin to remove your access.",
+      "button": "Delete account",
+      "title": "Delete your account?",
+      "subtitle": "This action cannot be undone.",
+      "ownerWarningTitle": "You are deleting the workspace owner account.",
+      "ownerWarningBody": "If you are the only workspace member, your entire workspace will be permanently deleted.",
+      "memberWarningBody": "Your personal account will be removed from this workspace.",
+      "memberWarningTitle": "You are deleting your personal account.",
+      "ownerBulletProjects": "All projects, API keys, knowledge, actions, and chat data",
+      "ownerBulletTeam": "Team memberships and workspace settings",
+      "ownerBulletBilling": "Billing history retained only where legally required",
+      "memberBulletAccess": "Your access to this workspace",
+      "memberBulletProfile": "Your profile and login credentials",
+      "emailHint": "We will send a 6-digit confirmation code to {{email}}.",
+      "sendCode": "Send confirmation code",
+      "otpTitle": "Enter confirmation code",
+      "otpSubtitle": "Check your inbox at {{email}}",
+      "otpInstructions": "Enter the 6-digit code from your email to confirm deletion.",
+      "otpLabel": "Confirmation code",
+      "otpRequired": "Enter the 6-digit code from your email.",
+      "resendCode": "Resend code",
+      "back": "Back",
+      "confirmDelete": "Delete permanently"
     }
   },
   "admin": {

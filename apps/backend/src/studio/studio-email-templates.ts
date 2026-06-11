@@ -97,22 +97,49 @@ function renderPrimaryButton(href: string, label: string): string {
   const safeHref = escapeHtml(href);
   const safeLabel = escapeHtml(label);
 
-  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0 8px;">
+  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:32px 0 12px;">
   <tr>
-    <td align="center" style="border-radius:10px;background-color:${BRAND.primary};">
-      <a href="${safeHref}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:14px 28px;font-family:${FONT};font-size:15px;font-weight:600;line-height:1;color:#ffffff;text-decoration:none;border-radius:10px;background-color:${BRAND.primary};border:1px solid ${BRAND.primaryDark};">${safeLabel}</a>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${safeHref}" style="height:52px;v-text-anchor:middle;width:280px;" arcsize="18%" strokecolor="${BRAND.primaryDark}" fillcolor="${BRAND.primary}">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-family:${FONT};font-size:18px;font-weight:bold;">${safeLabel}</center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+          <td align="center" bgcolor="${BRAND.primary}" style="border-radius:12px;background-color:${BRAND.primary};mso-padding-alt:18px 40px;">
+            <a href="${safeHref}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:18px 40px;font-family:${FONT};font-size:18px;font-weight:700;line-height:1.2;color:#ffffff !important;text-decoration:none !important;border-radius:12px;background-color:${BRAND.primary};border:2px solid ${BRAND.primaryDark};letter-spacing:0.01em;">
+              <span style="color:#ffffff !important;text-decoration:none !important;">${safeLabel}</span>
+            </a>
+          </td>
+        </tr>
+      </table>
+      <!--<![endif]-->
     </td>
   </tr>
 </table>
-<p style="margin:16px 0 0;font-size:13px;line-height:1.5;color:${BRAND.muted};">Or copy and paste this link into your browser:<br><a href="${safeHref}" style="color:${BRAND.primary};word-break:break-all;">${safeHref}</a></p>`;
+<p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:${BRAND.muted};text-align:center;">Or copy and paste this link into your browser:</p>
+<p style="margin:8px 0 0;font-size:13px;line-height:1.6;text-align:center;"><a href="${safeHref}" style="color:${BRAND.primary};word-break:break-all;text-decoration:underline;">${safeHref}</a></p>`;
 }
 
-function renderOtpCode(code: string): string {
-  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:24px 0;">
+function renderOtpCode(code: string, caption = 'Confirmation code'): string {
+  const digits = escapeHtml(code)
+    .split('')
+    .map(
+      (digit) =>
+        `<td style="width:44px;height:52px;text-align:center;vertical-align:middle;font-family:ui-monospace,'Cascadia Code','Segoe UI Mono',monospace;font-size:28px;font-weight:700;color:${BRAND.text};background-color:${BRAND.surface};border:1px solid ${BRAND.border};border-radius:10px;">${digit}</td>`,
+    )
+    .join(`<td style="width:8px;font-size:0;line-height:0;">&nbsp;</td>`);
+
+  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:28px 0;">
   <tr>
-    <td align="center" style="padding:20px 24px;background-color:${BRAND.bg};border:1px dashed ${BRAND.border};border-radius:12px;">
-      <p style="margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:${BRAND.textMuted};">Confirmation code</p>
-      <p style="margin:0;font-family:ui-monospace,'Cascadia Code','Segoe UI Mono',monospace;font-size:32px;font-weight:700;letter-spacing:0.2em;color:${BRAND.text};">${escapeHtml(code)}</p>
+    <td align="center" style="padding:24px 20px;background-color:${BRAND.bg};border:1px solid ${BRAND.border};border-radius:16px;">
+      <p style="margin:0 0 16px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${BRAND.textMuted};">${escapeHtml(caption)}</p>
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+        <tr>${digits}</tr>
+      </table>
     </td>
   </tr>
 </table>`;
@@ -172,9 +199,15 @@ export function buildDeleteAccountOtpEmail(otp: string): { html: string; text: s
     title: 'Confirm account deletion',
     footerNote:
       'Account deletion is permanent. If you did not request this, secure your account and ignore this email.',
-    bodyHtml: `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:${BRAND.textMuted};">Enter this code in Studio to permanently delete your account and associated data.</p>
-${renderOtpCode(otp)}
-<p style="margin:0;font-size:13px;line-height:1.5;color:${BRAND.danger};background-color:${BRAND.dangerSurface};padding:12px 14px;border-radius:8px;">This code expires in <strong>15 minutes</strong>. Never share it with anyone.</p>`,
+    bodyHtml: `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:${BRAND.textMuted};">You requested to delete your ActoCore Studio account. Enter this code in Settings to confirm — your workspace and data will be permanently removed.</p>
+${renderOtpCode(otp, 'Deletion confirmation code')}
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:0;">
+  <tr>
+    <td style="padding:14px 16px;border-radius:10px;background-color:${BRAND.dangerSurface};border:1px solid rgba(220,38,38,0.2);">
+      <p style="margin:0;font-size:13px;line-height:1.6;color:${BRAND.danger};"><strong>Expires in 15 minutes.</strong> Never share this code. If you did not request deletion, change your password and ignore this email.</p>
+    </td>
+  </tr>
+</table>`,
   });
 
   return { html, text };

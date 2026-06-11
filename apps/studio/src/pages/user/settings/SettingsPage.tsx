@@ -1,10 +1,11 @@
 import type { StudioAccountSettingsData } from '@ahmedrioueche/actocore-shared';
 import { StudioRole } from '@ahmedrioueche/actocore-shared';
-import { Save } from 'lucide-react';
+import { Save, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PageHeader } from '@/components/layout/PageHeader';
+import { DeleteAccountModal } from '@/components/settings/DeleteAccountModal';
 import { NotificationPreferencesSection } from '@/components/settings/NotificationPreferencesSection';
 import { UiLanguageSelect } from '@/components/settings/UiLanguageSelect';
 import { ThemeModeSelect } from '@/components/theme/ThemeModeSelect';
@@ -38,8 +39,10 @@ export default function SettingsPage() {
   const [quotaExhaustedEmails, setQuotaExhaustedEmails] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const isAdmin = isWorkspaceAdmin(session?.role);
+  const canSelfDelete = Boolean(session?.user.email);
 
   useEffect(() => {
     const data = settingsQuery.data;
@@ -248,8 +251,42 @@ export default function SettingsPage() {
               </p>
             ) : null}
           </section>
+
+          <section className="space-y-4 rounded-2xl border border-danger/30 bg-surface p-6 shadow-sm md:p-8">
+            <div>
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t('settings.deleteAccount.dangerTitle')}
+              </h2>
+              <p className="mt-1 text-sm text-text-secondary">
+                {canSelfDelete
+                  ? t('settings.deleteAccount.dangerSubtitle')
+                  : t('settings.deleteAccount.seatBlocked')}
+              </p>
+            </div>
+
+            {canSelfDelete ? (
+              <Button
+                type="button"
+                variant="outline"
+                color="danger"
+                icon={<Trash2 className="h-4 w-4" />}
+                onClick={() => setDeleteModalOpen(true)}
+              >
+                {t('settings.deleteAccount.button')}
+              </Button>
+            ) : null}
+          </section>
         </form>
       </AsyncContent>
+
+      {session ? (
+        <DeleteAccountModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          role={session.role}
+          email={session.user.email}
+        />
+      ) : null}
     </>
   );
 }

@@ -68,7 +68,10 @@
     "teamMemberNotFound": "Membre de l'équipe introuvable.",
     "cannotRemoveSelf": "Vous ne pouvez pas supprimer votre propre siège.",
     "cannotRemoveAdmin": "Les propriétaires d'espace de travail ne peuvent pas être supprimés de la liste d'équipe.",
-    "insufficientPermissions": "Vous n'avez pas la permission de gérer l'équipe."
+    "insufficientPermissions": "Vous n'avez pas la permission de gérer l'équipe.",
+    "invalidOtp": "Code de confirmation invalide ou expiré.",
+    "deleteAccountBlocked": "Supprimez tous les membres de l'équipe avant de supprimer l'espace de travail.",
+    "seatSelfDeleteBlocked": "Les sièges d'équipe ne peuvent pas être supprimés par vous-même. Demandez à l'administrateur de retirer votre accès."
   },
   "planLimits": {
     "projectReachedTitle": "Limite du projet atteinte",
@@ -936,6 +939,33 @@
       "quotaWarningDescription": "Envoyez un e-mail lorsque l'utilisation mensuelle du chat AI atteint 80 % ou 90 % de la limite de votre forfait.",
       "quotaExhausted": "Limite atteinte",
       "quotaExhaustedDescription": "Envoyez un e-mail lorsque l'utilisation mensuelle du chat AI atteint 100 % de la limite de votre forfait."
+    },
+    "deleteAccount": {
+      "dangerTitle": "Supprimer le compte",
+      "dangerSubtitle": "Supprimez définitivement votre compte Studio et les données personnelles associées.",
+      "seatBlocked": "Les comptes siège ne peuvent pas être supprimés ici. Demandez à votre administrateur de retirer votre accès.",
+      "button": "Supprimer le compte",
+      "title": "Supprimer votre compte ?",
+      "subtitle": "Cette action est irréversible.",
+      "ownerWarningTitle": "Vous supprimez le compte propriétaire de l'espace de travail.",
+      "ownerWarningBody": "Si vous êtes le seul membre, tout l'espace de travail sera définitivement supprimé.",
+      "memberWarningBody": "Votre compte personnel sera retiré de cet espace de travail.",
+      "memberWarningTitle": "Vous supprimez votre compte personnel.",
+      "ownerBulletProjects": "Tous les projets, clés API, connaissances, actions et données de chat",
+      "ownerBulletTeam": "Les membres de l'équipe et les paramètres de l'espace de travail",
+      "ownerBulletBilling": "L'historique de facturation conservé uniquement si la loi l'exige",
+      "memberBulletAccess": "Votre accès à cet espace de travail",
+      "memberBulletProfile": "Votre profil et vos identifiants de connexion",
+      "emailHint": "Nous enverrons un code de confirmation à 6 chiffres à {{email}}.",
+      "sendCode": "Envoyer le code de confirmation",
+      "otpTitle": "Saisir le code de confirmation",
+      "otpSubtitle": "Consultez la boîte de réception de {{email}}",
+      "otpInstructions": "Saisissez le code à 6 chiffres reçu par e-mail pour confirmer la suppression.",
+      "otpLabel": "Code de confirmation",
+      "otpRequired": "Saisissez le code à 6 chiffres reçu par e-mail.",
+      "resendCode": "Renvoyer le code",
+      "back": "Retour",
+      "confirmDelete": "Supprimer définitivement"
     }
   },
   "admin": {

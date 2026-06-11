@@ -12,7 +12,8 @@ describe('studio-email-templates', () => {
 
     expect(html).toContain('Verify email address');
     expect(html).toContain('href="https://studio.example/auth/verify-email?token=abc123"');
-    expect(html).toContain('background-color:#4f46e5');
+    expect(html).toContain('bgcolor="#4f46e5"');
+    expect(html).toContain('color:#ffffff !important');
     expect(text).toContain('abc123');
   });
 
@@ -29,7 +30,7 @@ describe('studio-email-templates', () => {
     const { html, text } = buildDeleteAccountOtpEmail('482910');
 
     expect(html).toContain('482910');
-    expect(html).toContain('Confirmation code');
+    expect(html).toContain('Deletion confirmation code');
     expect(text).toContain('482910');
   });
 
