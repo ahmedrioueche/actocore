@@ -53,9 +53,18 @@ export function renderStudioEmailLayout(options: StudioEmailLayoutOptions): stri
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>${escapeHtml(options.title)}</title>
   <style>
+    a.email-cta-link,
+    a.email-cta-link:hover,
+    a.email-cta-link:visited,
+    a.email-cta-link:active {
+      color: #ffffff !important;
+      text-decoration: none !important;
+    }
     @media only screen and (max-width: 620px) {
       .email-shell { width: 100% !important; }
       .email-body { padding-left: 24px !important; padding-right: 24px !important; }
+      .email-cta-cell { padding: 20px 28px !important; }
+      .email-cta-label { font-size: 18px !important; }
     }
   </style>
 </head>
@@ -97,21 +106,23 @@ function renderPrimaryButton(href: string, label: string): string {
   const safeHref = escapeHtml(href);
   const safeLabel = escapeHtml(label);
 
-  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:32px 0 12px;">
+  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:36px 0 16px;">
   <tr>
     <td align="center">
       <!--[if mso]>
-      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${safeHref}" style="height:52px;v-text-anchor:middle;width:280px;" arcsize="18%" strokecolor="${BRAND.primaryDark}" fillcolor="${BRAND.primary}">
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${safeHref}" style="height:64px;v-text-anchor:middle;width:340px;" arcsize="16%" strokecolor="${BRAND.primaryDark}" strokeweight="2px" fillcolor="${BRAND.primary}">
         <w:anchorlock/>
-        <center style="color:#ffffff;font-family:${FONT};font-size:18px;font-weight:bold;">${safeLabel}</center>
+        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:20px;font-weight:bold;mso-line-height-rule:exactly;line-height:24px;">${safeLabel}</center>
       </v:roundrect>
       <![endif]-->
       <!--[if !mso]><!-->
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto;">
         <tr>
-          <td align="center" bgcolor="${BRAND.primary}" style="border-radius:12px;background-color:${BRAND.primary};mso-padding-alt:18px 40px;">
-            <a href="${safeHref}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:18px 40px;font-family:${FONT};font-size:18px;font-weight:700;line-height:1.2;color:#ffffff !important;text-decoration:none !important;border-radius:12px;background-color:${BRAND.primary};border:2px solid ${BRAND.primaryDark};letter-spacing:0.01em;">
-              <span style="color:#ffffff !important;text-decoration:none !important;">${safeLabel}</span>
+          <td align="center" class="email-cta-cell" bgcolor="${BRAND.primary}" style="border-radius:14px;background-color:${BRAND.primary};border:2px solid ${BRAND.primaryDark};box-shadow:0 10px 24px rgba(79,70,229,0.28);">
+            <a href="${safeHref}" class="email-cta-link" target="_blank" rel="noopener noreferrer" style="display:block;padding:22px 56px;font-family:${FONT};font-size:20px;font-weight:700;line-height:1.25;color:#ffffff;background-color:${BRAND.primary};text-decoration:none;border-radius:14px;min-width:220px;text-align:center;letter-spacing:0.01em;">
+              <span class="email-cta-label" style="color:#ffffff;text-decoration:none;display:inline-block;font-size:20px;font-weight:700;line-height:1.25;">
+                <font color="#ffffff" style="color:#ffffff;font-size:20px;font-weight:700;text-decoration:none;">${safeLabel}</font>
+              </span>
             </a>
           </td>
         </tr>
@@ -120,8 +131,8 @@ function renderPrimaryButton(href: string, label: string): string {
     </td>
   </tr>
 </table>
-<p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:${BRAND.muted};text-align:center;">Or copy and paste this link into your browser:</p>
-<p style="margin:8px 0 0;font-size:13px;line-height:1.6;text-align:center;"><a href="${safeHref}" style="color:${BRAND.primary};word-break:break-all;text-decoration:underline;">${safeHref}</a></p>`;
+<p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:${BRAND.muted};text-align:center;">Or copy and paste this link into your browser:</p>
+<p style="margin:8px 0 0;font-size:13px;line-height:1.6;text-align:center;word-break:break-all;"><span style="color:${BRAND.primary};">${safeHref}</span></p>`;
 }
 
 function renderOtpCode(code: string, caption = 'Confirmation code'): string {

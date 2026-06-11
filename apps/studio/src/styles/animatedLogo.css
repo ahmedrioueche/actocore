@@ -69,6 +69,19 @@
   animation: ac-logo-wordmark-in 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+.ac-logo-wordmark-animate--once {
+  animation-fill-mode: forwards;
+}
+
+.ac-logo-mark-animate--once {
+  animation-fill-mode: forwards;
+}
+
+.ac-logo-wordmark--visible {
+  opacity: 1;
+  transform: none;
+}
+
 @keyframes ac-logo-mark-pulse {
   0% {
     transform: scale(0.92);

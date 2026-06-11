@@ -9,6 +9,8 @@ export interface AnimatedLogoProps {
   variant?: 'default' | 'onDark';
   compact?: boolean;
   animateOnce?: boolean;
+  /** Keep the wordmark visible (no fade-out after intro) — use on boot/loading screens */
+  keepWordmarkVisible?: boolean;
   className?: string;
 }
 
@@ -16,10 +18,12 @@ export default function AnimatedLogo({
   variant = 'default',
   compact = false,
   animateOnce = false,
+  keepWordmarkVisible = false,
   className,
 }: AnimatedLogoProps) {
   const onDark = variant === 'onDark';
   const loop = animateOnce ? 1 : 'infinite';
+  const animateWordmark = !keepWordmarkVisible;
 
   return (
     <div
@@ -33,6 +37,7 @@ export default function AnimatedLogo({
       <div
         className={cn(
           'ac-logo-mark ac-logo-mark-animate',
+          animateOnce && 'ac-logo-mark-animate--once',
           onDark ? 'ac-logo-mark--on-dark' : 'ac-logo-mark--default',
         )}
         style={{ animationIterationCount: loop }}
@@ -42,8 +47,15 @@ export default function AnimatedLogo({
 
       {!compact ? (
         <div
-          className="ac-logo-wordmark ac-logo-wordmark-animate"
-          style={{ animationIterationCount: loop }}
+          className={cn(
+            'ac-logo-wordmark',
+            keepWordmarkVisible && 'ac-logo-wordmark--visible',
+            animateWordmark && 'ac-logo-wordmark-animate',
+            animateWordmark && animateOnce && 'ac-logo-wordmark-animate--once',
+          )}
+          style={
+            animateWordmark ? { animationIterationCount: loop } : undefined
+          }
         >
           <span
             className={cn(

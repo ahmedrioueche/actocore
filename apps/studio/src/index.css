@@ -327,4 +327,23 @@
   .shadow-brand {
     box-shadow: var(--ac-shadow-brand);
   }
+
+  @keyframes loading-screen-progress {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    50% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .loading-screen-bar {
+    background-size: 200% 100%;
+    animation: loading-screen-progress 2s ease-in-out infinite;
+  }
 }
