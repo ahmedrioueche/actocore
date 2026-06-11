@@ -3,7 +3,7 @@ export type AppEnvironment = 'development' | 'production' | 'test';
 const DEFAULT_URI = 'mongodb://localhost:27017';
 const DEFAULT_DB_BY_ENV = {
   development: 'actocore_dev',
-  production: 'actocore',
+  production: 'actocore_prod',
   test: 'actocore_test',
 } as const;
 

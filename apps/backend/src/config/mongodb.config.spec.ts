@@ -50,13 +50,13 @@ describe('mongodb.config', () => {
       );
     });
 
-    it('defaults to actocore in production', () => {
+    it('defaults to actocore_prod in production', () => {
       process.env.NODE_ENV = 'production';
       process.env.MONGODB_URI =
         'mongodb+srv://user:pass@cluster.example/?retryWrites=true';
 
       expect(resolveMongoUri()).toBe(
-        'mongodb+srv://user:pass@cluster.example/actocore?retryWrites=true',
+        'mongodb+srv://user:pass@cluster.example/actocore_prod?retryWrites=true',
       );
     });
 
