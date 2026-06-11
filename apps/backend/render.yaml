@@ -4,8 +4,8 @@ services:
     name: actocore-api
     runtime: node
     buildCommand: >-
-      cd ../../packages/shared && npm install && npm run build &&
-      cd ../../apps/backend && npm install --include=dev && npm run build
+      cd ../../packages/shared && npm ci && npm run build &&
+      cd ../../apps/backend && npm ci --include=dev && npm run build
     startCommand: npm run start:prod
     envVars:
       - key: NODE_ENV
