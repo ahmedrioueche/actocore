@@ -1,6 +1,6 @@
 # ActoCore
 
-ActoCore is an AI integration layer that allows developers to embed natural language interaction into their applications. It enables end users to both ask questions about an application and execute actions inside it using natural language.
+ActoCore ships as an embeddable React chat widget—the SDK you add to your app so users can ask questions and kick off real work in plain language, while your own code runs whatever the assistant requests in the UI. Behind the scenes, a hosted API handles the AI work: talking to language models, searching the documents you uploaded, deciding whether someone is asking a question or trying to do something, and keeping usage within plan limits. You set it all up from a web interface, knowledge, actions, keys, widget settings, billing—without wiring up models or tool-calling yourself.
 
 ---
 
