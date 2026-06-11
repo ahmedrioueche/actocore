@@ -150,21 +150,51 @@ export class StudioAuthService {
       };
     }
 
-    await this.email.sendVerificationEmail(email, verificationToken);
+    const verificationDelivery = await this.deliverVerificationEmail(
+      email,
+      verificationToken,
+    );
 
     return {
-      message: 'Check your email to verify your account before signing in.',
+      message: verificationDelivery.sent
+        ? 'Check your email to verify your account before signing in.'
+        : 'Account created. Verification email could not be sent — use resend verification on the login page.',
       email,
       defaultProjectId,
-      devVerificationUrl: this.maybeDevVerificationUrl(verificationToken),
+      devVerificationUrl: verificationDelivery.devVerificationUrl,
     };
   }
 
-  private maybeDevVerificationUrl(token: string): string | undefined {
-    if (getAppEnvironment() === 'production' || this.email.isEmailConfigured()) {
+  private maybeDevVerificationUrl(
+    token: string,
+    emailDeliveryFailed = false,
+  ): string | undefined {
+    if (getAppEnvironment() === 'production') {
       return undefined;
     }
-    return this.email.buildVerificationUrl(token);
+    if (!this.email.isEmailConfigured() || emailDeliveryFailed) {
+      return this.email.buildVerificationUrl(token);
+    }
+    return undefined;
+  }
+
+  private async deliverVerificationEmail(
+    email: string,
+    token: string,
+  ): Promise<{ sent: boolean; devVerificationUrl?: string }> {
+    try {
+      await this.email.sendVerificationEmail(email, token);
+      return {
+        sent: true,
+        devVerificationUrl: this.maybeDevVerificationUrl(token),
+      };
+    } catch (error) {
+      this.logger.warn(`Verification email failed for ${email}`, error);
+      return {
+        sent: false,
+        devVerificationUrl: this.maybeDevVerificationUrl(token, true),
+      };
+    }
   }
 
   async login(body: StudioLoginDto): Promise<StudioSessionData> {
@@ -364,11 +394,16 @@ export class StudioAuthService {
     user.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await user.save();
 
-    await this.email.sendVerificationEmail(email, verificationToken);
+    const verificationDelivery = await this.deliverVerificationEmail(
+      email,
+      verificationToken,
+    );
 
     return {
-      message: 'Verification email sent.',
-      devVerificationUrl: this.maybeDevVerificationUrl(verificationToken),
+      message: verificationDelivery.sent
+        ? 'Verification email sent.'
+        : 'Verification email could not be sent. Try again shortly.',
+      devVerificationUrl: verificationDelivery.devVerificationUrl,
     };
   }
 
@@ -387,7 +422,11 @@ export class StudioAuthService {
     user.resetPasswordTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
     await user.save();
 
-    await this.email.sendPasswordResetEmail(email, resetToken);
+    try {
+      await this.email.sendPasswordResetEmail(email, resetToken);
+    } catch (error) {
+      this.logger.warn(`Password reset email failed for ${email}`, error);
+    }
 
     return {
       message: 'If an account exists with this email, a reset link was sent.',

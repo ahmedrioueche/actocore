@@ -11,22 +11,27 @@ import { ensureApiConfigured } from '@/lib/configure-api';
 import {
   isPlatformOperatorSession,
   PLATFORM_CONSOLE_HOME,
+  TENANT_ONBOARDING_HOME,
   TENANT_WORKSPACE_HOME,
 } from '@/lib/tenant-workspace';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryClient } from '@/lib/query-client';
 import { queryKeys } from '@/lib/query-keys';
 
-function isOnboardingPending(
-  state: {
-    required: boolean;
-    completed: boolean;
-    skipped: boolean;
-  } | undefined,
-): boolean {
-  return Boolean(
-    state?.required && !state.completed && !state.skipped,
-  );
+export type OnboardingState = {
+  required: boolean;
+  completed: boolean;
+  skipped: boolean;
+};
+
+const ONBOARDING_STATE_STALE_MS = 60_000;
+
+function isOnboardingPending(state: OnboardingState | undefined): boolean {
+  return Boolean(state?.required && !state.completed && !state.skipped);
+}
+
+export function getCachedOnboardingState(): OnboardingState | undefined {
+  return queryClient.getQueryData<OnboardingState>(queryKeys.onboarding.state());
 }
 
 export function getCachedSession(): StudioAuthMeData | undefined {
@@ -41,17 +46,13 @@ export function requireStudioSession(): void {
   }
 }
 
-export function redirectIfAuthenticated(): void {
+export async function redirectIfAuthenticated(): Promise<void> {
   ensureApiConfigured();
   if (!TokenManager.getAccessToken()) {
     return;
   }
-  const session = getCachedSession();
-  throw redirect({
-    to: isPlatformOperatorSession(session)
-      ? PLATFORM_CONSOLE_HOME
-      : TENANT_WORKSPACE_HOME,
-  });
+  await ensureOnboardingState();
+  throw redirect({ to: resolveAuthenticatedHomePath() });
 }
 
 /** Super admins belong on `/admin`, not the tenant workspace shell. */
@@ -65,9 +66,13 @@ export function redirectPlatformOperatorFromTenantWorkspace(): void {
 
 export function resolveAuthenticatedHomePath(): string {
   const session = getCachedSession();
-  return isPlatformOperatorSession(session)
-    ? PLATFORM_CONSOLE_HOME
-    : TENANT_WORKSPACE_HOME;
+  if (isPlatformOperatorSession(session)) {
+    return PLATFORM_CONSOLE_HOME;
+  }
+  if (isOnboardingPending(getCachedOnboardingState())) {
+    return TENANT_ONBOARDING_HOME;
+  }
+  return TENANT_WORKSPACE_HOME;
 }
 
 /** Sync project access check using cached session — never blocks navigation on API calls. */
@@ -88,25 +93,37 @@ export function requireOnboardingPendingSync(): void {
   requireStudioSession();
   redirectPlatformOperatorFromTenantWorkspace();
 
-  const state = queryClient.getQueryData<{
-    required: boolean;
-    completed: boolean;
-    skipped: boolean;
-  }>(queryKeys.onboarding.state());
-
+  const state = getCachedOnboardingState();
   if (state && !isOnboardingPending(state)) {
-    throw redirect({ to: '/projects' });
+    throw redirect({ to: TENANT_WORKSPACE_HOME });
+  }
+}
+
+export function requireOnboardingCompleteSync(): void {
+  const state = getCachedOnboardingState();
+  if (isOnboardingPending(state)) {
+    throw redirect({ to: TENANT_ONBOARDING_HOME });
   }
 }
 
 export function isOnboardingPendingState(
-  state: {
-    required: boolean;
-    completed: boolean;
-    skipped: boolean;
-  } | undefined,
+  state: OnboardingState | undefined,
 ): boolean {
   return isOnboardingPending(state);
+}
+
+export async function ensureOnboardingState(): Promise<OnboardingState> {
+  ensureApiConfigured();
+  if (!TokenManager.getAccessToken()) {
+    throw new Error('Not authenticated');
+  }
+
+  return queryClient.fetchQuery({
+    queryKey: queryKeys.onboarding.state(),
+    queryFn: async () =>
+      parseApiResponse(await onboardingApi.getState()),
+    staleTime: ONBOARDING_STATE_STALE_MS,
+  });
 }
 
 /** Boot-time auth — used only before the router mounts. */
@@ -133,21 +150,30 @@ export async function requireAuth(): Promise<void> {
 }
 
 export async function prefetchOnboardingState(): Promise<void> {
-  ensureApiConfigured();
   if (!TokenManager.getAccessToken()) {
     return;
   }
 
-  await queryClient.prefetchQuery({
-    queryKey: queryKeys.onboarding.state(),
-    queryFn: async () =>
-      parseApiResponse(await onboardingApi.getState()),
-    staleTime: 60_000,
-  });
+  try {
+    await ensureOnboardingState();
+  } catch {
+    // Best-effort warm-up; route guards fetch authoritatively.
+  }
+}
+
+export async function requireOnboardingComplete(): Promise<void> {
+  await ensureOnboardingState();
+  requireOnboardingCompleteSync();
 }
 
 export async function requireOnboardingPending(): Promise<void> {
   await requireAuth();
-  await prefetchOnboardingState();
+  await ensureOnboardingState();
   requireOnboardingPendingSync();
+}
+
+export async function requireStudioWorkspace(): Promise<void> {
+  requireStudioSession();
+  redirectPlatformOperatorFromTenantWorkspace();
+  await requireOnboardingComplete();
 }

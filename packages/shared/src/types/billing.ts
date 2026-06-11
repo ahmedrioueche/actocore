@@ -23,6 +23,9 @@ export const APP_SUBSCRIPTION_STATUSES = [
 
 export const APP_SUBSCRIPTION_HISTORY_ACTIONS = [
   'created',
+  'trial_started',
+  'trial_ended',
+  'subscribed',
   'upgraded',
   'downgraded',
   'renewed',

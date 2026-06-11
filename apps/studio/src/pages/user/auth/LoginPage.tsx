@@ -38,7 +38,7 @@ export default function LoginPage() {
             }
           : { email: email.trim(), password },
       );
-      void navigate({ to: "/projects" });
+      void navigate({ to: '/' });
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
       setFormError(

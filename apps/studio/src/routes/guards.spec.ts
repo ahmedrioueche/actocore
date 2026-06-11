@@ -29,6 +29,7 @@ vi.mock('@/lib/query-client', () => ({
   queryClient: {
     getQueryData: vi.fn(),
     prefetchQuery: vi.fn(),
+    fetchQuery: vi.fn(),
   },
 }));
 
@@ -39,6 +40,7 @@ import {
   redirectIfAuthenticated,
   redirectPlatformOperatorFromTenantWorkspace,
   requireAuth,
+  requireOnboardingComplete,
   requireOnboardingPending,
   requireOnboardingPendingSync,
   requireProjectAccessSync,
@@ -52,39 +54,57 @@ describe('auth route guards', () => {
   });
 
   describe('redirectIfAuthenticated', () => {
-    it('redirects tenant users to projects when access token exists', () => {
+    it('redirects tenant users to projects when access token exists', async () => {
       getAccessToken.mockReturnValue('token');
-      vi.mocked(queryClient.getQueryData).mockReturnValue({
-        role: StudioRole.USER_ADMIN,
+      vi.mocked(queryClient.fetchQuery).mockResolvedValue({
+        required: true,
+        completed: true,
+        skipped: false,
       });
-      let thrown: unknown;
-      try {
-        redirectIfAuthenticated();
-      } catch (e) {
-        thrown = e;
-      }
-      expect(isRedirect(thrown)).toBe(true);
+      vi.mocked(queryClient.getQueryData).mockImplementation((key) => {
+        if (Array.isArray(key) && key[0] === 'onboarding') {
+          return { required: true, completed: true, skipped: false };
+        }
+        return { role: StudioRole.USER_ADMIN };
+      });
+      await expect(redirectIfAuthenticated()).rejects.toSatisfy(isRedirect);
       expect(resolveAuthenticatedHomePath()).toBe('/projects');
     });
 
-    it('redirects super admin to the platform console', () => {
+    it('redirects tenant users with pending onboarding to onboarding', async () => {
       getAccessToken.mockReturnValue('token');
+      vi.mocked(queryClient.fetchQuery).mockResolvedValue({
+        required: true,
+        completed: false,
+        skipped: false,
+      });
+      vi.mocked(queryClient.getQueryData).mockImplementation((key) => {
+        if (Array.isArray(key) && key[0] === 'onboarding') {
+          return { required: true, completed: false, skipped: false };
+        }
+        return { role: StudioRole.USER_ADMIN };
+      });
+      await expect(redirectIfAuthenticated()).rejects.toSatisfy(isRedirect);
+      expect(resolveAuthenticatedHomePath()).toBe('/onboarding');
+    });
+
+    it('redirects super admin to the platform console', async () => {
+      getAccessToken.mockReturnValue('token');
+      vi.mocked(queryClient.fetchQuery).mockResolvedValue({
+        required: false,
+        completed: false,
+        skipped: false,
+      });
       vi.mocked(queryClient.getQueryData).mockReturnValue({
         role: StudioRole.SUPER_ADMIN,
       });
-      let thrown: unknown;
-      try {
-        redirectIfAuthenticated();
-      } catch (e) {
-        thrown = e;
-      }
-      expect(isRedirect(thrown)).toBe(true);
+      await expect(redirectIfAuthenticated()).rejects.toSatisfy(isRedirect);
       expect(resolveAuthenticatedHomePath()).toBe('/admin');
     });
 
-    it('does nothing when no token', () => {
+    it('does nothing when no token', async () => {
       getAccessToken.mockReturnValue(null);
-      expect(() => redirectIfAuthenticated()).not.toThrow();
+      await expect(redirectIfAuthenticated()).resolves.toBeUndefined();
     });
   });
 
@@ -182,13 +202,45 @@ describe('auth route guards', () => {
         success: true,
         data: { required: true, completed: true, skipped: false },
       });
-      vi.mocked(queryClient.prefetchQuery).mockResolvedValue(undefined);
+      vi.mocked(queryClient.fetchQuery).mockResolvedValue({
+        required: true,
+        completed: true,
+        skipped: false,
+      });
       vi.mocked(queryClient.getQueryData).mockReturnValue({
         required: true,
         completed: true,
         skipped: false,
       });
       await expect(requireOnboardingPending()).rejects.toSatisfy(isRedirect);
+    });
+
+    it('requireOnboardingComplete redirects to onboarding when pending', async () => {
+      vi.mocked(queryClient.fetchQuery).mockResolvedValue({
+        required: true,
+        completed: false,
+        skipped: false,
+      });
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        required: true,
+        completed: false,
+        skipped: false,
+      });
+      await expect(requireOnboardingComplete()).rejects.toSatisfy(isRedirect);
+    });
+
+    it('requireOnboardingComplete allows through when done', async () => {
+      vi.mocked(queryClient.fetchQuery).mockResolvedValue({
+        required: true,
+        completed: true,
+        skipped: false,
+      });
+      vi.mocked(queryClient.getQueryData).mockReturnValue({
+        required: true,
+        completed: true,
+        skipped: false,
+      });
+      await expect(requireOnboardingComplete()).resolves.toBeUndefined();
     });
   });
 

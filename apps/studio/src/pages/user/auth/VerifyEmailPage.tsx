@@ -30,7 +30,7 @@ export default function VerifyEmailPage() {
       await verify.mutateAsync(value.trim());
       setAutoDone(true);
       setTimeout(() => {
-        void navigate({ to: '/projects' });
+        void navigate({ to: '/' });
       }, 1500);
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;

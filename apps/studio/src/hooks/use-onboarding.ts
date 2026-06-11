@@ -22,6 +22,7 @@ export function useOnboardingState() {
         await onboardingApi.getState(),
       ),
     retry: false,
+    staleTime: 60_000,
   });
 }
 

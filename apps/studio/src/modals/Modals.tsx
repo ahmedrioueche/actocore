@@ -54,6 +54,9 @@ const CreatePlatformManagerModal = lazy(
 const EditPlatformManagerModal = lazy(
   () => import('@/components/admin/team/EditPlatformManagerModal'),
 );
+const DeleteAccountModal = lazy(
+  () => import('@/components/settings/DeleteAccountModal'),
+);
 
 export default function Modals() {
   useModalBodyFlag();
@@ -79,6 +82,7 @@ export default function Modals() {
         <EditPlanModal />
         <CreatePlatformManagerModal />
         <EditPlatformManagerModal />
+        <DeleteAccountModal />
       </Suspense>
     </>
   );

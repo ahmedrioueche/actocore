@@ -5,18 +5,13 @@ import { useTranslation } from 'react-i18next';
 
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
+import { useAuth } from '@/context/AuthContext';
 import {
   useConfirmDeleteAccount,
   useRequestDeleteAccountOtp,
 } from '@/hooks/use-delete-account';
+import { useModalStore } from '@/stores/modal';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
-
-type DeleteAccountModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  role: StudioRole;
-  email?: string;
-};
 
 type Step = 'warning' | 'otp';
 
@@ -24,18 +19,20 @@ function isWorkspaceOwner(role: StudioRole): boolean {
   return role === StudioRole.USER_ADMIN || role === StudioRole.SUPER_ADMIN;
 }
 
-export function DeleteAccountModal({
-  isOpen,
-  onClose,
-  role,
-  email,
-}: DeleteAccountModalProps) {
+export default function DeleteAccountModal() {
   const { t } = useTranslation();
+  const { session } = useAuth();
+  const currentModal = useModalStore((state) => state.currentModal);
+  const closeModal = useModalStore((state) => state.closeModal);
   const requestOtp = useRequestDeleteAccountOtp();
   const confirmDelete = useConfirmDeleteAccount();
   const [step, setStep] = useState<Step>('warning');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const isOpen = currentModal === 'deleteAccount';
+  const role = session?.role;
+  const email = session?.user.email;
 
   useEffect(() => {
     if (!isOpen) {
@@ -44,6 +41,10 @@ export function DeleteAccountModal({
       setError(null);
     }
   }, [isOpen]);
+
+  if (!isOpen || !role) {
+    return null;
+  }
 
   const handleRequestOtp = async () => {
     setError(null);
@@ -76,7 +77,7 @@ export function DeleteAccountModal({
   return (
     <BaseModal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={closeModal}
       title={
         step === 'warning'
           ? t('settings.deleteAccount.title')
@@ -117,7 +118,7 @@ export function DeleteAccountModal({
                 setOtp('');
                 setError(null);
               }
-            : onClose,
+            : closeModal,
       }}
     >
       <div className="space-y-4">

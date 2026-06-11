@@ -1,6 +1,7 @@
 import { StudioRole } from '@ahmedrioueche/actocore-shared';
 
 export const TENANT_WORKSPACE_HOME = '/projects';
+export const TENANT_ONBOARDING_HOME = '/onboarding';
 export const PLATFORM_CONSOLE_HOME = '/admin';
 
 export function isPlatformOperatorRole(

@@ -1,6 +1,5 @@
-import { APP_DATA } from '@/constants/app';
-import { ActocoreIcon } from '@/components/ui/ActocoreIcon';
-import { cn } from '@/utils/helper';
+import { APP_DATA } from "@/constants/app";
+import { cn } from "@/utils/helper";
 
 interface AuthBrandLogoProps {
   compact?: boolean;
@@ -8,17 +7,11 @@ interface AuthBrandLogoProps {
 
 export function AuthBrandLogo({ compact = false }: AuthBrandLogoProps) {
   return (
-    <div className={cn('flex items-center', compact ? 'gap-2' : 'gap-3')}>
-      <ActocoreIcon
-        className={cn(
-          'rounded-xl shadow-sm',
-          compact ? 'h-9 w-9' : 'h-12 w-12',
-        )}
-      />
+    <div className={cn("flex items-center", compact ? "gap-2" : "gap-3")}>
       <span
         className={cn(
-          'font-semibold tracking-tight text-primary-contrast',
-          compact ? 'text-base' : 'text-xl',
+          "font-semibold tracking-tight text-primary-contrast",
+          compact ? "text-base" : "text-2xl",
         )}
       >
         <span className="font-bold">{APP_DATA.brandName}</span>

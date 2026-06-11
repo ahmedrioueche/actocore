@@ -67,7 +67,7 @@ export default function AuthCallbackPage() {
       try {
         await exchangeGoogleOAuthCode(code);
         if (!cancelled) {
-          void navigate({ to: '/projects', replace: true });
+          void navigate({ to: '/', replace: true });
         }
       } catch (err) {
         if (import.meta.env.DEV) {
