@@ -1,32 +1,28 @@
-import { TokenManager } from '@ahmedrioueche/actocore-shared';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider } from '@tanstack/react-router';
-import { I18nextProvider } from 'react-i18next';
-import { useEffect } from 'react';
+import { TokenManager } from "@ahmedrioueche/actocore-shared";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { I18nextProvider } from "react-i18next";
 
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { ThemeProvider } from '@/context/ThemeContext';
-import i18n from '@/i18n';
-import { useWindowPathname } from '@/hooks/use-window-pathname';
-import {
-  forceLogout,
-  shouldRedirectToLogin,
-} from '@/lib/auth-session';
-import { isAdminPath, isAdminPublicPath } from '@/lib/platform-session';
-import { getCachedSession } from '@/routes/guards';
-import { usePlatformMe } from '@/hooks/use-platform-auth';
-import { queryClient } from '@/lib/query-client';
-import { StudioLanguageSync } from '@/components/i18n/StudioLanguageSync';
-import Modals from '@/modals/Modals';
-import Toaster from '@/components/ui/Toaster';
-import LoadingPage from '@/pages/system/LoadingPage';
-import { prefetchOnboardingState } from '@/routes/guards';
-import { router } from '@/routes/router';
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { StudioLanguageSync } from "@/components/i18n/StudioLanguageSync";
+import Toaster from "@/components/ui/Toaster";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { usePlatformMe } from "@/hooks/use-platform-auth";
+import { useWindowPathname } from "@/hooks/use-window-pathname";
+import i18n from "@/i18n";
+import { forceLogout, shouldRedirectToLogin } from "@/lib/auth-session";
+import { isAdminPath, isAdminPublicPath } from "@/lib/platform-session";
+import { queryClient } from "@/lib/query-client";
+import Modals from "@/modals/Modals";
+import LoadingPage from "@/pages/system/LoadingPage";
+import { getCachedSession, prefetchOnboardingState } from "@/routes/guards";
+import { router } from "@/routes/router";
 
 function AdminRouter() {
   const pathname =
-    typeof window !== 'undefined' ? window.location.pathname : '';
+    typeof window !== "undefined" ? window.location.pathname : "";
   const isPublicAdmin = isAdminPublicPath(pathname);
   const hasToken = Boolean(TokenManager.getAccessToken());
   const meQuery = usePlatformMe(hasToken && !isPublicAdmin);
@@ -34,8 +30,8 @@ function AdminRouter() {
   useEffect(() => {
     if (isPublicAdmin && hasToken) {
       TokenManager.clearTokens();
-      queryClient.removeQueries({ queryKey: ['auth'] });
-      queryClient.removeQueries({ queryKey: ['platform'] });
+      queryClient.removeQueries({ queryKey: ["auth"] });
+      queryClient.removeQueries({ queryKey: ["platform"] });
     }
   }, [isPublicAdmin, hasToken]);
 

@@ -77,9 +77,8 @@
   animation-fill-mode: forwards;
 }
 
-.ac-logo-wordmark--visible {
-  opacity: 1;
-  transform: none;
+.ac-logo-wordmark-intro {
+  animation: ac-logo-wordmark-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
 }
 
 @keyframes ac-logo-mark-pulse {
@@ -97,6 +96,18 @@
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes ac-logo-wordmark-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

@@ -23,7 +23,7 @@ export default function AnimatedLogo({
 }: AnimatedLogoProps) {
   const onDark = variant === 'onDark';
   const loop = animateOnce ? 1 : 'infinite';
-  const animateWordmark = !keepWordmarkVisible;
+  const wordmarkIntroOnce = animateOnce || keepWordmarkVisible;
 
   return (
     <div
@@ -49,12 +49,12 @@ export default function AnimatedLogo({
         <div
           className={cn(
             'ac-logo-wordmark',
-            keepWordmarkVisible && 'ac-logo-wordmark--visible',
-            animateWordmark && 'ac-logo-wordmark-animate',
-            animateWordmark && animateOnce && 'ac-logo-wordmark-animate--once',
+            wordmarkIntroOnce
+              ? 'ac-logo-wordmark-intro'
+              : 'ac-logo-wordmark-animate',
           )}
           style={
-            animateWordmark ? { animationIterationCount: loop } : undefined
+            wordmarkIntroOnce ? undefined : { animationIterationCount: loop }
           }
         >
           <span
