@@ -1,0 +1,12 @@
+# Render Blueprint (optional). Set Root Directory to apps/backend in the dashboard.
+services:
+  - type: web
+    name: actocore-api
+    runtime: node
+    buildCommand: >-
+      cd ../../packages/shared && npm install && npm run build &&
+      cd ../../apps/backend && npm install --include=dev && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
