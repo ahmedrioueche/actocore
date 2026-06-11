@@ -10,7 +10,7 @@
     "sync:brand": "node ./scripts/sync-brand-assets.mjs",
     "setup:assistant": "node ./scripts/seed-studio-assistant.mjs",
     "dev": "npm run sync:brand && vite",
-    "build": "npm run sync:brand && npm run build --prefix ../../packages/shared && tsc && vite build",
+    "build": "npm run sync:brand && npm run build --prefix ../../packages/shared && npm run build --prefix ../../packages/sdk && tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
