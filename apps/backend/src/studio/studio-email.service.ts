@@ -1,6 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { StudioAuthConfig } from '../config/studio-auth.config';
+import {
+  buildDeleteAccountOtpEmail,
+  buildPasswordResetEmail,
+  buildQuotaAlertEmail,
+  buildVerificationEmail,
+} from './studio-email-templates';
 import { buildStudioAppUrl } from './utils/studio-redirect.util';
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
@@ -30,57 +36,59 @@ export class StudioEmailService {
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
     const verifyUrl = this.buildVerificationUrl(token);
-    await this.send(
-      email,
-      'Verify your ActoCore Studio email',
-      `Verify your email to activate your account:\n\n${verifyUrl}\n\nThis link expires in 24 hours.`,
-    );
+    const content = buildVerificationEmail(verifyUrl);
+    await this.send(email, 'Verify your ActoCore Studio email', content);
   }
 
   async sendDeleteAccountOtp(email: string, otp: string): Promise<void> {
-    await this.send(
-      email,
-      'Confirm ActoCore Studio account deletion',
-      `Your confirmation code to delete your Studio account is: ${otp}\n\nThis code expires in 15 minutes. If you did not request this, ignore this email.`,
-    );
+    const content = buildDeleteAccountOtpEmail(otp);
+    await this.send(email, 'Confirm ActoCore Studio account deletion', content);
   }
 
   async sendQuotaAlert(to: string, subject: string, text: string): Promise<void> {
-    await this.send(to, `ActoCore Studio — ${subject}`, text);
+    const content = buildQuotaAlertEmail(
+      subject,
+      text,
+      this.cfg().studioAppUrl,
+    );
+    await this.send(to, `ActoCore Studio — ${subject}`, content);
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
     const resetUrl = buildStudioAppUrl(this.cfg().studioAppUrl, '/auth/reset-password', {
       token,
     });
-    await this.send(
-      email,
-      'Reset your ActoCore Studio password',
-      `Reset your password using this link:\n\n${resetUrl}\n\nThis link expires in 1 hour.`,
-    );
+    const content = buildPasswordResetEmail(resetUrl);
+    await this.send(email, 'Reset your ActoCore Studio password', content);
   }
 
-  private async send(to: string, subject: string, text: string): Promise<void> {
+  private async send(
+    to: string,
+    subject: string,
+    content: { text: string; html: string },
+  ): Promise<void> {
     const cfg = this.cfg();
 
     if (cfg.resendApiKey) {
-      await this.sendViaResend(cfg, to, subject, text);
+      await this.sendViaResend(cfg, to, subject, content);
       return;
     }
 
     if (cfg.smtpHost) {
-      await this.sendViaSmtp(cfg, to, subject, text);
+      await this.sendViaSmtp(cfg, to, subject, content);
       return;
     }
 
-    this.logger.log(`[Studio email] To: ${to} | Subject: ${subject}\n${text}`);
+    this.logger.log(
+      `[Studio email] To: ${to} | Subject: ${subject}\n${content.text}`,
+    );
   }
 
   private async sendViaResend(
     cfg: StudioAuthConfig,
     to: string,
     subject: string,
-    text: string,
+    content: { text: string; html: string },
   ): Promise<void> {
     const res = await fetch(RESEND_API_URL, {
       method: 'POST',
@@ -92,7 +100,8 @@ export class StudioEmailService {
         from: cfg.emailFrom,
         to: [to],
         subject,
-        text,
+        text: content.text,
+        html: content.html,
       }),
     });
 
@@ -110,7 +119,7 @@ export class StudioEmailService {
     cfg: StudioAuthConfig,
     to: string,
     subject: string,
-    text: string,
+    content: { text: string; html: string },
   ): Promise<void> {
     const nodemailer = await import('nodemailer');
     const transport = nodemailer.createTransport({
@@ -127,7 +136,8 @@ export class StudioEmailService {
       from: cfg.emailFrom,
       to,
       subject,
-      text,
+      text: content.text,
+      html: content.html,
     });
   }
 

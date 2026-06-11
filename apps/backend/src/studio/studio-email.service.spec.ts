@@ -65,6 +65,8 @@ describe('StudioEmailService', () => {
     expect(body.from).toBe('ActoCore <noreply@actocore.pro>');
     expect(body.to).toEqual(['user@example.com']);
     expect(body.text).toContain('abc123');
+    expect(body.html).toContain('Verify email address');
+    expect(body.html).toContain('abc123');
   });
 
   it('throws when Resend API returns an error', async () => {
