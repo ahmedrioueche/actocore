@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 
 import { AnalyticsPanel } from '@/components/admin/analytics/AnalyticsPanel';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { SdkReleaseBanner } from '@/components/projects/SdkReleaseBanner';
 import { ProjectOverviewResourceCard } from '@/components/projects/overview/ProjectOverviewResourceCard';
 import { ProjectOverviewSetupChecklist } from '@/components/projects/overview/ProjectOverviewSetupChecklist';
 import { UsageMetricGrid } from '@/components/usage';
@@ -143,6 +144,8 @@ export default function ProjectOverviewPage() {
       />
 
       <div className="space-y-8">
+        {projectId ? <SdkReleaseBanner projectId={projectId} /> : null}
+
         {project ? (
           <section className="grid gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm sm:grid-cols-2">
             <div>

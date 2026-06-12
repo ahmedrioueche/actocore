@@ -9,6 +9,7 @@ import {
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { SdkUpdatesSection } from '@/components/projects/SdkUpdatesSection';
 import { DocCodeBlock } from '@/components/projects/DocCodeBlock';
 import { DocStepLink } from '@/components/projects/DocStepLink';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -132,6 +133,8 @@ export default function ProjectDocsPage() {
             </p>
           )}
         </section>
+
+        <SdkUpdatesSection />
 
         <section className="space-y-4">
           <div>

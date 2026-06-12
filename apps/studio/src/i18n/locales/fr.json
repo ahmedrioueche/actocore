@@ -327,7 +327,30 @@
       "knowledge": "Téléchargez des documents et des URL pour que l'assistant puisse répondre à partir du contenu de votre produit.",
       "actions": "Définissez les outils que l'assistant peut exécuter dans le chat. Gestionnaires de câbles dans votre application avec des noms correspondants.",
       "sdkConfig": "Personnalisez les paramètres par défaut du thème, de la copie, des paramètres régionaux et de la sécurité chargés par le SDK intégré."
+    },
+    "updates": {
+      "title": "Mises à jour du SDK",
+      "subtitle": "Dernière version publiée et comment mettre à niveau une intégration existante.",
+      "latestVersion": "Dernière version",
+      "updateLabel": "Mettre à jour vers la dernière version",
+      "verifyLabel": "Vérifier les versions installées",
+      "pinnedLabel": "Épingler une version spécifique",
+      "remoteConfigTip": {
+        "title": "Mise à jour npm vs configuration distante",
+        "npmBody": "Exécutez la commande de mise à jour lorsque vous avez besoin de nouvelles fonctionnalités SDK, de corrections de bugs ou de changements d'API dans votre application hôte.",
+        "remoteBody": "Les modifications de thème, de texte, de locale et de sécurité depuis la page de configuration SDK s'appliquent automatiquement lorsque loadRemoteConfig est activé — aucune réinstallation npm requise."
+      },
+      "changelog": {
+        "title": "Notes de version",
+        "sharedVersion": "Shared compatible : {{version}}",
+        "breakingTitle": "Changements majeurs"
+      }
     }
+  },
+  "sdkReleaseBanner": {
+    "title": "SDK v{{version}} disponible",
+    "viewUpdates": "Voir les mises à jour",
+    "dismiss": "Ignorer"
   },
   "apiKeys": {
     "neverUsed": "Jamais",

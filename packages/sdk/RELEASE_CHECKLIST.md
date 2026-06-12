@@ -12,6 +12,8 @@ Use this checklist for every `@ahmedrioueche/actocore-sdk` release.
 ## 2) Version and docs
 
 - [ ] Bump SDK version in `packages/sdk/package.json`
+- [ ] Add entry to `packages/sdk/CHANGELOG.md` (Keep a Changelog format)
+- [ ] Add matching entry to `packages/shared/src/constants/sdk-releases.ts` (include `sharedVersion`)
 - [ ] Update `packages/sdk/README.md` examples/config if API changed
 - [ ] Update `ROADMAP.md` checkboxes/status if scope changed
 
@@ -46,7 +48,8 @@ See [`../PUBLISH.md`](../PUBLISH.md).
 
 ## 6) Post-publish
 
-- [ ] Pin/record compatible `@ahmedrioueche/actocore-shared` version
+- [ ] Pin/record compatible `@ahmedrioueche/actocore-shared` version (in `sdk-releases.ts` per release)
 - [ ] Tag release and add changelog summary
 - [ ] Update playground to consume the published version when needed
+- [ ] Deploy Studio so release banner and Project Docs pick up new `sdk-releases` data
 

@@ -5,6 +5,7 @@ export * from './constants/studio-permissions';
 export * from './constants/platform-permissions';
 export * from './constants/studio-onboarding';
 export * from './constants/studio-plan-features';
+export * from './constants/sdk-releases';
 export * from './config/api';
 export * from './config/api-version';
 

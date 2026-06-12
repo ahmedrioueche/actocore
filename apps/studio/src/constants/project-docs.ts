@@ -1,6 +1,16 @@
 export const PROJECT_DOCS_INSTALL_COMMAND =
   "npm install @ahmedrioueche/actocore-sdk";
 
+export const PROJECT_DOCS_UPDATE_COMMAND =
+  "npm install @ahmedrioueche/actocore-sdk@latest";
+
+export const PROJECT_DOCS_VERIFY_COMMAND =
+  "npm ls @ahmedrioueche/actocore-sdk @ahmedrioueche/actocore-shared";
+
+export function projectDocsPinnedInstallCommand(version: string): string {
+  return `npm install @ahmedrioueche/actocore-sdk@${version}`;
+}
+
 export const PROJECT_DOCS_QUICK_START = `import { ActocoreProvider, ActoChatWidget } from '@ahmedrioueche/actocore-sdk';
 import '@ahmedrioueche/actocore-sdk/styles.css';
 

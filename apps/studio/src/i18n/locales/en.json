@@ -327,7 +327,30 @@
       "knowledge": "Upload documents and URLs so the assistant can answer from your product content.",
       "actions": "Define tools the assistant can run in chat. Wire handlers in your app with matching names.",
       "sdkConfig": "Customize theme, copy, locale, and security defaults loaded by the embedded SDK."
+    },
+    "updates": {
+      "title": "SDK updates",
+      "subtitle": "Latest published version and how to upgrade an existing integration.",
+      "latestVersion": "Latest version",
+      "updateLabel": "Update to latest",
+      "verifyLabel": "Verify installed versions",
+      "pinnedLabel": "Pin a specific version",
+      "remoteConfigTip": {
+        "title": "npm update vs remote config",
+        "npmBody": "Run the update command when you need new SDK features, bug fixes, or API changes in your host app.",
+        "remoteBody": "Theme, copy, locale, and security changes from the SDK config page apply automatically when loadRemoteConfig is enabled — no npm reinstall required."
+      },
+      "changelog": {
+        "title": "Release notes",
+        "sharedVersion": "Compatible shared: {{version}}",
+        "breakingTitle": "Breaking changes"
+      }
     }
+  },
+  "sdkReleaseBanner": {
+    "title": "SDK v{{version}} is available",
+    "viewUpdates": "View updates",
+    "dismiss": "Dismiss"
   },
   "apiKeys": {
     "neverUsed": "Never",
