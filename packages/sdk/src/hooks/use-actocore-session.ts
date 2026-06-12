@@ -56,6 +56,13 @@ async function fetchMessagePage(
   return res.data;
 }
 
+function isSessionGone(error: unknown): boolean {
+  const maybe = error as { message?: string; status?: number } | null;
+  if (maybe?.status === 404) return true;
+  const message = maybe?.message?.toLowerCase() ?? '';
+  return message.includes('404') || message.includes('not found');
+}
+
 export function useActocoreSession(
   options: UseActocoreSessionOptions = {},
 ): UseActocoreSessionResult {
@@ -68,6 +75,12 @@ export function useActocoreSession(
     persistSession = sdkConfig.persistSession,
     historyPageSize = MESSAGE_HISTORY_PAGE_SIZE,
   } = options;
+
+  const stableMetadata = useMemo(
+    () => metadata,
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stable serialized metadata
+    [metadata == null ? null : JSON.stringify(metadata)],
+  );
 
   const persistScope = useMemo<PersistedSessionScope>(
     () => ({
@@ -199,7 +212,7 @@ export function useActocoreSession(
     setHasMoreHistory(false);
 
     const id = await createSessionRecord(
-      pickCreateSessionBody({ externalUserId, metadata }),
+      pickCreateSessionBody({ externalUserId, metadata: stableMetadata }),
     );
     setSessionId(id);
     persistSessionId(id);
@@ -207,7 +220,7 @@ export function useActocoreSession(
   }, [
     createSessionRecord,
     externalUserId,
-    metadata,
+    stableMetadata,
     persistScope,
     persistSessionId,
     sessionId,
@@ -223,6 +236,10 @@ export function useActocoreSession(
       setHasMoreHistory(false);
 
       if (initialSessionId) {
+        if (!cancelled) {
+          setSessionId(initialSessionId);
+        }
+
         let page = { items: [] as SessionMessageData[], hasMore: false };
         if (loadHistory) {
           try {
@@ -241,35 +258,49 @@ export function useActocoreSession(
       }
 
       let resolvedId: string | undefined;
+      const storedId = persistSession
+        ? readPersistedSessionId(persistScope)
+        : undefined;
 
-      if (persistSession) {
-        const storedId = readPersistedSessionId(persistScope);
-        if (storedId) {
+      if (storedId) {
+        if (!cancelled) {
+          setSessionId(storedId);
+        }
+
+        if (loadHistory) {
           try {
-            const res = await sessionsApi.get(storedId);
-            if (res.success && res.data) {
-              resolvedId = storedId;
-            } else {
-              clearPersistedSessionId(persistScope);
+            const page = await loadInitialHistory(storedId);
+            if (!cancelled) {
+              setSessionId(storedId);
+              setHistory(page.items);
+              setHasMoreHistory(page.hasMore);
+              setIsInitializing(false);
             }
-          } catch {
+            return;
+          } catch (e) {
+            if (!isSessionGone(e)) {
+              if (!cancelled) setError(formatError(e));
+              return;
+            }
             clearPersistedSessionId(persistScope);
           }
+        } else if (!cancelled) {
+          setSessionId(storedId);
+          setIsInitializing(false);
+          return;
         }
       }
 
-      if (!resolvedId) {
-        try {
-          resolvedId = await createSessionRecord(
-            pickCreateSessionBody({ externalUserId, metadata }),
-          );
-          if (persistSession && resolvedId) {
-            writePersistedSessionId(persistScope, resolvedId);
-          }
-        } catch (e) {
-          if (!cancelled) setError(formatError(e));
-          return;
+      try {
+        resolvedId = await createSessionRecord(
+          pickCreateSessionBody({ externalUserId, metadata: stableMetadata }),
+        );
+        if (persistSession && resolvedId) {
+          writePersistedSessionId(persistScope, resolvedId);
         }
+      } catch (e) {
+        if (!cancelled) setError(formatError(e));
+        return;
       }
 
       if (cancelled || !resolvedId) {
@@ -305,7 +336,7 @@ export function useActocoreSession(
     initialSessionId,
     loadHistory,
     loadInitialHistory,
-    metadata,
+    stableMetadata,
     persistScope,
     persistSession,
   ]);
@@ -323,7 +354,7 @@ export function useActocoreSession(
     startNewConversation,
     createSession: async (body) => {
       const resolvedBody = {
-        ...pickCreateSessionBody({ externalUserId, metadata }),
+        ...pickCreateSessionBody({ externalUserId, metadata: stableMetadata }),
         ...(body ?? {}),
       };
       return createSession(resolvedBody);

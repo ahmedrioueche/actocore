@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { UiChatMessage } from '../../hooks/use-actocore-chat';
 import { useActocoreUiConfig } from '../../context/actocore-context';
@@ -9,7 +10,7 @@ import { ListenButton } from './ListenButton';
 import { ChatMessageContent } from './ChatMessageContent';
 import { StreamingAssistantContent } from './StreamingAssistantContent';
 
-export function MessageBubble({
+function MessageBubbleInner({
   message,
   showIntentBadge,
   showSources,
@@ -57,10 +58,7 @@ export function MessageBubble({
               )}
             >
               {message.isStreaming ? (
-                <StreamingAssistantContent
-                  content={message.content}
-                  isStreaming
-                />
+                <StreamingAssistantContent content={message.content} />
               ) : (
                 <ChatMessageContent
                   content={message.content}
@@ -92,3 +90,5 @@ export function MessageBubble({
     </div>
   );
 }
+
+export const MessageBubble = memo(MessageBubbleInner);

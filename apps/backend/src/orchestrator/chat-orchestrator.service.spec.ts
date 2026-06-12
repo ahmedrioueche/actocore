@@ -28,6 +28,7 @@ describe('ChatOrchestratorService', () => {
     resolveSessionId: jest.fn(),
     appendMessage: jest.fn(),
     listMessages: jest.fn(),
+    listRecentMessages: jest.fn(),
   };
 
   const llmMock = { complete: jest.fn(), completeStream: jest.fn() };
@@ -77,6 +78,7 @@ describe('ChatOrchestratorService', () => {
       createdAt: new Date().toISOString(),
     });
     sessionsMock.listMessages.mockResolvedValue([]);
+    sessionsMock.listRecentMessages.mockResolvedValue([]);
     llmMock.complete.mockResolvedValue({
       content: 'LLM reply',
       model: 'stub',
@@ -143,9 +145,26 @@ describe('ChatOrchestratorService', () => {
       (event) => events.push(event),
     );
 
-    expect(events.map((e) => e.type)).toEqual(['meta', 'delta', 'delta', 'done']);
+    expect(events.map((e) => e.type)).toEqual([
+      'meta',
+      'meta',
+      'delta',
+      'delta',
+      'done',
+    ]);
     expect(llmMock.completeStream).toHaveBeenCalled();
     expect(usageMock.recordChatUsage).toHaveBeenCalled();
+  });
+
+  it('builds LLM messages from bounded history without a second listMessages fetch', async () => {
+    await orchestrator.buildMessages(
+      context,
+      context.projectId,
+      '507f1f77bcf86cd799439012',
+    );
+
+    expect(sessionsMock.listRecentMessages).toHaveBeenCalledTimes(1);
+    expect(sessionsMock.listMessages).not.toHaveBeenCalled();
   });
 
   it('refuses QA questions when RAG returns no citations without calling the LLM', async () => {

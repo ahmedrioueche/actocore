@@ -119,6 +119,33 @@ export class SessionsService {
     return docs.map((doc) => this.toMessageData(doc, sessionId));
   }
 
+  /** Most recent messages in chronological order (bounded for chat prep). */
+  async listRecentMessages(
+    projectId: string,
+    sessionId: string,
+    limit: number,
+  ): Promise<SessionMessageData[]> {
+    await this.requireSession(projectId, sessionId);
+
+    const clamped = Math.min(Math.max(limit, 1), 200);
+    const sessionObjectId = new Types.ObjectId(sessionId);
+
+    const docs = await this.messageModel
+      .find(
+        withProjectId(projectId, {
+          sessionId: sessionObjectId,
+        }),
+      )
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(clamped)
+      .exec();
+
+    return docs
+      .slice()
+      .reverse()
+      .map((doc) => this.toMessageData(doc, sessionId));
+  }
+
   async listMessagesPage(
     projectId: string,
     sessionId: string,

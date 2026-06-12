@@ -134,6 +134,46 @@ export function useActocoreChat(
   const [isStreaming, setIsStreaming] = useState(false);
   const [hydratedSessionId, setHydratedSessionId] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const streamContentRef = useRef('');
+  const streamFlushRafRef = useRef(0);
+  const activeStreamingIdRef = useRef<string | null>(null);
+
+  const flushStreamingContent = useCallback(() => {
+    streamFlushRafRef.current = 0;
+    const streamingId = activeStreamingIdRef.current;
+    const content = streamContentRef.current;
+    if (!streamingId || !content) return;
+
+    setMessages((prev) => {
+      const streaming = prev.find((m) => m.id === streamingId);
+      if (!streaming) {
+        return [
+          ...prev,
+          {
+            id: streamingId,
+            role: 'assistant' as const,
+            content,
+            isStreaming: true,
+          },
+        ];
+      }
+      return prev.map((m) =>
+        m.id === streamingId ? { ...m, content, isStreaming: true } : m,
+      );
+    });
+  }, []);
+
+  const scheduleStreamingFlush = useCallback(() => {
+    if (streamFlushRafRef.current) return;
+    streamFlushRafRef.current = requestAnimationFrame(flushStreamingContent);
+  }, [flushStreamingContent]);
+
+  const cancelStreamingFlush = useCallback(() => {
+    if (streamFlushRafRef.current) {
+      cancelAnimationFrame(streamFlushRafRef.current);
+      streamFlushRafRef.current = 0;
+    }
+  }, []);
 
   const formatSendFailure = useCallback(
     (error: unknown): string => {
@@ -272,6 +312,8 @@ export function useActocoreChat(
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
       setIsStreaming(true);
+      streamContentRef.current = '';
+      activeStreamingIdRef.current = streamingId;
 
       let streamError: string | null = null;
       let shouldFallback = false;
@@ -287,30 +329,16 @@ export function useActocoreChat(
               }
 
               if (event.type === 'delta' && event.text) {
-                setMessages((prev) => {
-                  const streaming = prev.find((m) => m.id === streamingId);
-                  if (!streaming) {
-                    return [
-                      ...prev,
-                      {
-                        id: streamingId,
-                        role: 'assistant' as const,
-                        content: event.text,
-                        isStreaming: true,
-                      },
-                    ];
-                  }
-                  return prev.map((m) =>
-                    m.id === streamingId
-                      ? { ...m, content: m.content + event.text }
-                      : m,
-                  );
-                });
+                streamContentRef.current += event.text;
+                scheduleStreamingFlush();
               }
 
               if (event.type === 'done') {
+                cancelStreamingFlush();
                 const assistant = asUiMessageFromAssistant(event.message);
                 onSessionId?.(event.message.sessionId);
+                streamContentRef.current = '';
+                activeStreamingIdRef.current = null;
                 setMessages((prev) =>
                   prev.map((m) => (m.id === streamingId ? assistant : m)),
                 );
@@ -331,6 +359,9 @@ export function useActocoreChat(
         );
 
         if (shouldFallback) {
+          cancelStreamingFlush();
+          streamContentRef.current = '';
+          activeStreamingIdRef.current = null;
           setMessages((prev) => prev.filter((m) => m.id !== streamingId));
           await sendJsonMessage(trimmed, sessionId);
           return;
@@ -338,6 +369,9 @@ export function useActocoreChat(
 
         const failedMessage = streamError;
         if (failedMessage != null) {
+          cancelStreamingFlush();
+          streamContentRef.current = '';
+          activeStreamingIdRef.current = null;
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== streamingId),
             createAssistantErrorMessage(failedMessage),
@@ -346,6 +380,10 @@ export function useActocoreChat(
         }
 
         if (abortController.signal.aborted) {
+          cancelStreamingFlush();
+          flushStreamingContent();
+          streamContentRef.current = '';
+          activeStreamingIdRef.current = null;
           setMessages((prev) =>
             prev.map((m) =>
               m.id === streamingId ? { ...m, isStreaming: false } : m,
@@ -354,28 +392,39 @@ export function useActocoreChat(
         }
       } catch (e) {
         if (abortController.signal.aborted) {
+          cancelStreamingFlush();
+          flushStreamingContent();
+          streamContentRef.current = '';
+          activeStreamingIdRef.current = null;
           setMessages((prev) =>
             prev.map((m) =>
               m.id === streamingId ? { ...m, isStreaming: false } : m,
             ),
           );
         } else {
+          cancelStreamingFlush();
+          streamContentRef.current = '';
+          activeStreamingIdRef.current = null;
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== streamingId),
             createAssistantErrorMessage(formatSendFailure(e)),
           ]);
         }
       } finally {
+        cancelStreamingFlush();
         abortControllerRef.current = null;
         setIsSending(false);
         setIsStreaming(false);
       }
     },
     [
+      cancelStreamingFlush,
       config.streamResponses,
+      flushStreamingContent,
       formatSendFailure,
       isSending,
       onSessionId,
+      scheduleStreamingFlush,
       sendJsonMessage,
       sessionId,
     ],

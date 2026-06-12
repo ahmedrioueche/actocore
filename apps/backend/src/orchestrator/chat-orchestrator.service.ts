@@ -1,6 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
+  ActionData,
   ChatIntent,
   ChatMessageData,
   ChatStreamEvent,
@@ -37,15 +38,24 @@ import { estimateTokensFromText } from '../usage/utils/usage-export.util';
 
 type ChatStreamEmitter = (event: ChatStreamEvent) => void;
 
+/** Messages loaded for follow-up resolution and LLM context (bounded). */
+const PREP_HISTORY_LIMIT = 60;
+/** Max conversation messages sent to the LLM (~20 turns). */
+const LLM_HISTORY_MESSAGE_LIMIT = 40;
+
 interface PreparedIncomingMessage {
   projectId: string;
   sessionId: string;
   intent: ChatIntent;
   followUp: { actionName: string; input: Record<string, unknown> } | null;
+  history: SessionMessageData[];
+  enabledActions: ActionData[];
 }
 
 @Injectable()
 export class ChatOrchestratorService {
+  private readonly logger = new Logger(ChatOrchestratorService.name);
+
   constructor(
     private readonly sessions: SessionsService,
     private readonly actions: ActionsService,
@@ -66,21 +76,25 @@ export class ChatOrchestratorService {
     body: SendChatMessageDto,
   ): Promise<ChatMessageData> {
     const prep = await this.prepareIncomingMessage(context, body);
-    await this.sessions.appendMessage(
+    const userMessage = await this.sessions.appendMessage(
       prep.projectId,
       prep.sessionId,
       'user',
       body.message,
     );
+    const llmContext = this.withUserMessage(prep, userMessage);
 
     const startedAt = Date.now();
     const branch = prep.followUp
-      ? await this.runActionBranchFromFollowUp(prep.projectId, prep.followUp)
+      ? await this.runActionBranchFromFollowUp(
+          prep.projectId,
+          prep.followUp,
+          prep.enabledActions,
+        )
       : await this.runBranch(
           prep.intent,
           context,
-          prep.projectId,
-          prep.sessionId,
+          llmContext,
           body.message,
         );
 
@@ -100,12 +114,20 @@ export class ChatOrchestratorService {
     emit: ChatStreamEmitter,
     signal?: AbortSignal,
   ): Promise<void> {
-    const prep = await this.prepareIncomingMessage(context, body);
-    await this.sessions.appendMessage(
-      prep.projectId,
-      prep.sessionId,
-      'user',
-      body.message,
+    const streamStartedAt = Date.now();
+    const projectId = context.projectId;
+    const sessionId = await this.sessions.resolveSessionId(
+      projectId,
+      body.sessionId,
+      {},
+    );
+
+    emit({ type: 'meta', sessionId });
+
+    const prep = await this.prepareIncomingMessageForSession(
+      context,
+      body,
+      sessionId,
     );
 
     emit({
@@ -114,18 +136,30 @@ export class ChatOrchestratorService {
       intent: prep.intent,
     });
 
+    const userMessage = await this.sessions.appendMessage(
+      prep.projectId,
+      prep.sessionId,
+      'user',
+      body.message,
+    );
+    const llmContext = this.withUserMessage(prep, userMessage);
+
+    this.logger.debug(
+      `chat stream prep ${Date.now() - streamStartedAt}ms project=${projectId} session=${sessionId}`,
+    );
+
     const startedAt = Date.now();
     const branch = prep.followUp
       ? await this.runActionBranchFromFollowUpStream(
           prep.projectId,
           prep.followUp,
+          prep.enabledActions,
           emit,
         )
       : await this.runBranchStream(
           prep.intent,
           context,
-          prep.projectId,
-          prep.sessionId,
+          llmContext,
           body.message,
           emit,
           signal,
@@ -160,10 +194,27 @@ export class ChatOrchestratorService {
       body.sessionId,
       {},
     );
+    return this.prepareIncomingMessageForSession(context, body, sessionId);
+  }
 
-    const enabledActions = await this.listProjectActions(projectId);
+  private async prepareIncomingMessageForSession(
+    context: RequestContextData,
+    body: SendChatMessageDto,
+    sessionId: string,
+  ): Promise<PreparedIncomingMessage> {
+    const prepStartedAt = Date.now();
+    const projectId = context.projectId;
+
+    const [enabledActions, history] = await Promise.all([
+      this.listProjectActions(projectId),
+      this.sessions.listRecentMessages(
+        projectId,
+        sessionId,
+        PREP_HISTORY_LIMIT,
+      ),
+    ]);
+
     const enabledActionNames = enabledActions.map((a) => a.name);
-    const history = await this.sessions.listMessages(projectId, sessionId);
     const followUp = resolveActionFollowUp(
       body.message,
       history,
@@ -187,7 +238,28 @@ export class ChatOrchestratorService {
       intent = 'action';
     }
 
-    return { projectId, sessionId, intent, followUp };
+    this.logger.debug(
+      `chat prep ${Date.now() - prepStartedAt}ms project=${projectId} session=${sessionId}`,
+    );
+
+    return {
+      projectId,
+      sessionId,
+      intent,
+      followUp,
+      history,
+      enabledActions,
+    };
+  }
+
+  private withUserMessage(
+    prep: PreparedIncomingMessage,
+    userMessage: SessionMessageData,
+  ): PreparedIncomingMessage {
+    return {
+      ...prep,
+      history: [...prep.history, userMessage],
+    };
   }
 
   private resolveStreamUsage(
@@ -275,32 +347,29 @@ export class ChatOrchestratorService {
   private async runBranchStream(
     intent: ChatIntent,
     context: RequestContextData,
-    projectId: string,
-    sessionId: string,
+    prep: PreparedIncomingMessage,
     userMessage: string,
     emit: ChatStreamEmitter,
     signal?: AbortSignal,
   ): Promise<OrchestratorBranchPayload> {
     switch (intent) {
       case 'direct':
-        return this.completeWithLlmStream(
-          context,
-          projectId,
-          sessionId,
-          emit,
-          signal,
-        );
+        return this.completeWithLlmStream(context, prep, emit, signal);
       case 'qa':
         return this.runQaBranchStream(
           context,
-          projectId,
-          sessionId,
+          prep,
           userMessage,
           emit,
           signal,
         );
       case 'action':
-        return this.runActionBranchStream(projectId, userMessage, emit);
+        return this.runActionBranchStream(
+          prep.projectId,
+          userMessage,
+          prep.enabledActions,
+          emit,
+        );
       default: {
         const _exhaustive: never = intent;
         throw new Error(`Unsupported intent: ${String(_exhaustive)}`);
@@ -310,14 +379,13 @@ export class ChatOrchestratorService {
 
   private async runQaBranchStream(
     context: RequestContextData,
-    projectId: string,
-    sessionId: string,
+    prep: PreparedIncomingMessage,
     userMessage: string,
     emit: ChatStreamEmitter,
     signal?: AbortSignal,
   ): Promise<OrchestratorBranchPayload> {
     const { modeNote, citations } = await this.qaRunner.buildPromptContext(
-      projectId,
+      prep.projectId,
       userMessage,
     );
 
@@ -328,8 +396,7 @@ export class ChatOrchestratorService {
 
     const result = await this.completeWithLlmStream(
       context,
-      projectId,
-      sessionId,
+      prep,
       emit,
       signal,
       { modeNote },
@@ -344,9 +411,14 @@ export class ChatOrchestratorService {
   private async runActionBranchStream(
     projectId: string,
     userMessage: string,
+    enabledActions: ActionData[],
     emit: ChatStreamEmitter,
   ): Promise<OrchestratorBranchPayload> {
-    const branch = await this.runActionBranch(projectId, userMessage);
+    const branch = await this.runActionBranch(
+      projectId,
+      userMessage,
+      enabledActions,
+    );
     emit({ type: 'delta', text: branch.content });
     return branch;
   }
@@ -354,25 +426,29 @@ export class ChatOrchestratorService {
   private async runActionBranchFromFollowUpStream(
     projectId: string,
     followUp: { actionName: string; input: Record<string, unknown> },
+    enabledActions: ActionData[],
     emit: ChatStreamEmitter,
   ): Promise<OrchestratorBranchPayload> {
-    const branch = await this.runActionBranchFromFollowUp(projectId, followUp);
+    const branch = await this.runActionBranchFromFollowUp(
+      projectId,
+      followUp,
+      enabledActions,
+    );
     emit({ type: 'delta', text: branch.content });
     return branch;
   }
 
   private async completeWithLlmStream(
     context: RequestContextData,
-    projectId: string,
-    sessionId: string,
+    prep: PreparedIncomingMessage,
     emit: ChatStreamEmitter,
     signal?: AbortSignal,
     options?: { modeNote?: string },
   ): Promise<OrchestratorBranchPayload> {
-    const messages = await this.buildMessages(
+    const llmStartedAt = Date.now();
+    const messages = this.buildMessagesFromPrep(
       context,
-      projectId,
-      sessionId,
+      prep,
       options?.modeNote,
     );
 
@@ -382,6 +458,10 @@ export class ChatOrchestratorService {
         onDelta: (text) => emit({ type: 'delta', text }),
       },
       { signal },
+    );
+
+    this.logger.debug(
+      `chat llm stream ${Date.now() - llmStartedAt}ms project=${prep.projectId} session=${prep.sessionId}`,
     );
 
     return {
@@ -397,17 +477,20 @@ export class ChatOrchestratorService {
   private async runBranch(
     intent: ChatIntent,
     context: RequestContextData,
-    projectId: string,
-    sessionId: string,
+    prep: PreparedIncomingMessage,
     userMessage: string,
   ): Promise<OrchestratorBranchPayload> {
     switch (intent) {
       case 'direct':
-        return this.completeWithLlm(context, projectId, sessionId);
+        return this.completeWithLlm(context, prep);
       case 'qa':
-        return this.runQaBranch(context, projectId, sessionId, userMessage);
+        return this.runQaBranch(context, prep, userMessage);
       case 'action':
-        return this.runActionBranch(projectId, userMessage);
+        return this.runActionBranch(
+          prep.projectId,
+          userMessage,
+          prep.enabledActions,
+        );
       default: {
         const _exhaustive: never = intent;
         throw new Error(`Unsupported intent: ${String(_exhaustive)}`);
@@ -417,12 +500,11 @@ export class ChatOrchestratorService {
 
   private async runQaBranch(
     context: RequestContextData,
-    projectId: string,
-    sessionId: string,
+    prep: PreparedIncomingMessage,
     userMessage: string,
   ): Promise<OrchestratorBranchPayload> {
     const { modeNote, citations } = await this.qaRunner.buildPromptContext(
-      projectId,
+      prep.projectId,
       userMessage,
     );
 
@@ -430,9 +512,7 @@ export class ChatOrchestratorService {
       return { content: QA_NO_CITATIONS_REPLY };
     }
 
-    const result = await this.completeWithLlm(context, projectId, sessionId, {
-      modeNote,
-    });
+    const result = await this.completeWithLlm(context, prep, { modeNote });
 
     return {
       ...result,
@@ -449,9 +529,8 @@ export class ChatOrchestratorService {
   private async runActionBranch(
     projectId: string,
     userMessage: string,
+    enabled: ActionData[],
   ): Promise<OrchestratorBranchPayload> {
-    const enabled = await this.listProjectActions(projectId);
-
     if (enabled.length === 0) {
       return { content: this.actionRunner.formatNoActionsMessage() };
     }
@@ -478,8 +557,8 @@ export class ChatOrchestratorService {
   private async runActionBranchFromFollowUp(
     projectId: string,
     followUp: { actionName: string; input: Record<string, unknown> },
+    enabled: ActionData[],
   ): Promise<OrchestratorBranchPayload> {
-    const enabled = await this.listProjectActions(projectId);
     const action = enabled.find((a) => a.name === followUp.actionName);
 
     if (!action) {
@@ -500,14 +579,12 @@ export class ChatOrchestratorService {
 
   private async completeWithLlm(
     context: RequestContextData,
-    projectId: string,
-    sessionId: string,
+    prep: PreparedIncomingMessage,
     options?: { modeNote?: string },
   ): Promise<OrchestratorBranchPayload> {
-    const messages = await this.buildMessages(
+    const messages = this.buildMessagesFromPrep(
       context,
-      projectId,
-      sessionId,
+      prep,
       options?.modeNote,
     );
     const completion = await this.llm.complete(messages);
@@ -528,14 +605,34 @@ export class ChatOrchestratorService {
     sessionId: string,
     modeNote?: string,
   ): Promise<LlmMessage[]> {
+    const [enabledActions, history] = await Promise.all([
+      this.listProjectActions(projectId),
+      this.sessions.listRecentMessages(
+        projectId,
+        sessionId,
+        PREP_HISTORY_LIMIT,
+      ),
+    ]);
+
+    return this.buildMessagesFromPrep(
+      context,
+      { projectId, sessionId, history, enabledActions } as PreparedIncomingMessage,
+      modeNote,
+    );
+  }
+
+  private buildMessagesFromPrep(
+    context: RequestContextData,
+    prep: Pick<PreparedIncomingMessage, 'enabledActions' | 'history'>,
+    modeNote?: string,
+  ): LlmMessage[] {
     const messages: LlmMessage[] = [];
-    const enabledActions = await this.actions.listEnabled(projectId);
 
     messages.push({
       role: 'system',
       content: buildAppAssistantSystemPrompt(
         context,
-        enabledActions.map((a) => a.name),
+        prep.enabledActions.map((a) => a.name),
       ),
     });
 
@@ -543,8 +640,8 @@ export class ChatOrchestratorService {
       messages.push({ role: 'system', content: modeNote });
     }
 
-    const history = await this.sessions.listMessages(projectId, sessionId);
-    for (const entry of history) {
+    const tail = prep.history.slice(-LLM_HISTORY_MESSAGE_LIMIT);
+    for (const entry of tail) {
       messages.push(this.toLlmMessage(entry));
     }
 

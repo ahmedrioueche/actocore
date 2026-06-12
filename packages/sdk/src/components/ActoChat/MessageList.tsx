@@ -29,12 +29,29 @@ export function MessageList({
     typingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [showTypingIndicator]);
 
+  const streamScrollRafRef = useRef(0);
+
   useEffect(() => {
     if (!streamingMessage?.content) return;
-    streamingRowRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
+
+    if (streamScrollRafRef.current) {
+      cancelAnimationFrame(streamScrollRafRef.current);
+    }
+
+    streamScrollRafRef.current = requestAnimationFrame(() => {
+      streamScrollRafRef.current = 0;
+      streamingRowRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
     });
+
+    return () => {
+      if (streamScrollRafRef.current) {
+        cancelAnimationFrame(streamScrollRafRef.current);
+        streamScrollRafRef.current = 0;
+      }
+    };
   }, [streamingMessage?.content]);
 
   return (
