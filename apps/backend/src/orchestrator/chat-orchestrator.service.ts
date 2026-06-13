@@ -298,7 +298,7 @@ export class ChatOrchestratorService {
   private tryAnswerCurrentPageQuestion(
     userMessage: string,
     hostContext: HostContext | undefined,
-    appPages: AppPageManifestEntry[],
+    appPages?: AppPageManifestEntry[],
   ): string | null {
     if (!isCurrentPageQuestion(userMessage)) {
       return null;
