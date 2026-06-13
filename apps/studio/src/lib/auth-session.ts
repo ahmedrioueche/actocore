@@ -10,6 +10,7 @@ import { ensureApiConfigured } from '@/lib/configure-api';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryClient } from '@/lib/query-client';
 import { queryKeys } from '@/lib/query-keys';
+import { clearTestAccountLease } from '@/lib/test-account-lease';
 
 let logoutInProgress = false;
 let refreshInFlight: Promise<boolean> | null = null;
@@ -20,6 +21,7 @@ export function isLogoutInProgress(): boolean {
 
 export async function clearAuthSession(): Promise<void> {
   TokenManager.clearTokens();
+  clearTestAccountLease();
   queryClient.clear();
 }
 
@@ -87,7 +89,10 @@ export async function handleUnauthorized(): Promise<void> {
 }
 
 export function isUnauthorizedResponse(errorCode?: string): boolean {
-  return errorCode === ErrorCode.UNAUTHORIZED;
+  return (
+    errorCode === ErrorCode.UNAUTHORIZED ||
+    errorCode === ErrorCode.TEST_ACCOUNT_LEASE_EXPIRED
+  );
 }
 
 /** Sign out locally always; best-effort server revoke. */

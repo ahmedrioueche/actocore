@@ -1,7 +1,9 @@
 import {
   ErrorCode,
+  type ApiErrorDetails,
   type ErrorCode as ErrorCodeType,
   type PlanLimitErrorDetails,
+  type StudioTestAccountLeaseBusyDetails,
 } from '@ahmedrioueche/actocore-shared';
 import type { TFunction } from 'i18next';
 
@@ -31,14 +33,29 @@ const ERROR_I18N_KEYS: Partial<Record<ErrorCodeType, string>> = {
   [ErrorCode.INVALID_OTP]: 'errors.invalidOtp',
   [ErrorCode.DELETE_ACCOUNT_BLOCKED]: 'errors.deleteAccountBlocked',
   [ErrorCode.SEAT_SELF_DELETE_BLOCKED]: 'errors.seatSelfDeleteBlocked',
+  [ErrorCode.TEST_ACCOUNT_IN_USE]: 'errors.testAccountInUse',
+  [ErrorCode.TEST_ACCOUNT_LEASE_EXPIRED]: 'errors.testAccountLeaseExpired',
 };
 
+function isPlanLimitDetails(
+  details?: ApiErrorDetails,
+): details is PlanLimitErrorDetails {
+  return details != null && 'limit' in details;
+}
+
+function isTestAccountBusyDetails(
+  details?: ApiErrorDetails,
+): details is StudioTestAccountLeaseBusyDetails {
+  return details != null && 'retryAfterSeconds' in details;
+}
 function resolveLimit(
-  details?: PlanLimitErrorDetails,
+  details?: ApiErrorDetails,
   fallbackMessage?: string,
 ): number | undefined {
-  if (details?.limit != null) {
-    return details.limit;
+  if (isPlanLimitDetails(details)) {
+    if (details.limit != null) {
+      return details.limit;
+    }
   }
   if (!fallbackMessage) {
     return undefined;
@@ -56,7 +73,7 @@ export function getMessage(
   t: TFunction,
   errorCode?: string,
   fallbackMessage?: string,
-  details?: PlanLimitErrorDetails,
+  details?: ApiErrorDetails,
 ): string {
   if (
     errorCode &&
@@ -79,6 +96,16 @@ export function getMessage(
       ) {
         return t(key, { limit });
       }
+      if (
+        errorCode === ErrorCode.TEST_ACCOUNT_IN_USE &&
+        isTestAccountBusyDetails(details)
+      ) {
+        const minutes = Math.max(
+          1,
+          Math.ceil(details.retryAfterSeconds / 60),
+        );
+        return t(key, { minutes });
+      }
       return t(key);
     }
   }
@@ -91,7 +118,7 @@ export function getApiErrorMessage(
   response: {
     errorCode?: string;
     message?: string;
-    details?: PlanLimitErrorDetails;
+    details?: ApiErrorDetails;
   },
 ): string {
   return getMessage(
@@ -106,7 +133,7 @@ export function getUnknownApiErrorMessage(t: TFunction, err: unknown): string {
   if (err instanceof Error) {
     const apiErr = err as Error & {
       errorCode?: string;
-      details?: PlanLimitErrorDetails;
+      details?: ApiErrorDetails;
     };
     return getApiErrorMessage(t, {
       errorCode: apiErr.errorCode,
@@ -118,7 +145,7 @@ export function getUnknownApiErrorMessage(t: TFunction, err: unknown): string {
     const payload = err as {
       errorCode?: string;
       message?: string;
-      details?: PlanLimitErrorDetails;
+      details?: ApiErrorDetails;
     };
     return getApiErrorMessage(t, payload);
   }

@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
+  isStudioTestAccountEmail,
   studioAuthApi,
   TokenManager,
   type StudioLoginDto,
@@ -16,6 +17,12 @@ import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
 import { ensureApiConfigured } from '@/lib/configure-api';
 import { getCachedSession } from '@/routes/guards';
+import {
+  getStoredTestAccountLeaseHint,
+  getStoredTestAccountLeaseId,
+  persistTestAccountLease,
+} from '@/lib/test-account-lease';
+import { isStudioTestAccountsEnabled } from '@/constants/studio-test-accounts';
 
 export function useAuthMe(enabled = true) {
   ensureApiConfigured();
@@ -32,12 +39,40 @@ export function useAuthMe(enabled = true) {
   });
 }
 
+export function useAvailableTestAccount(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.auth.availableTestAccount(),
+    queryFn: async () => {
+      ensureApiConfigured();
+      const hint = getStoredTestAccountLeaseHint();
+      const res = await studioAuthApi.getAvailableTestAccount(
+        hint
+          ? { leaseEmail: hint.email, leaseId: hint.leaseId }
+          : undefined,
+      );
+      return parseApiResponse(res);
+    },
+    enabled: enabled && isStudioTestAccountsEnabled(),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+}
+
 export function useLogin() {
   return useMutation({
     mutationFn: async (body: StudioLoginDto) => {
       ensureApiConfigured();
-      const res = await studioAuthApi.login(body);
+      const email = body.email?.trim().toLowerCase();
+      const payload: StudioLoginDto = { ...body };
+      if (email && isStudioTestAccountEmail(email)) {
+        payload.testAccountLeaseId =
+          body.testAccountLeaseId ?? getStoredTestAccountLeaseId(email);
+      }
+      const res = await studioAuthApi.login(payload);
       const session = parseApiResponse(res);
+      if (email && session.testAccountLease) {
+        persistTestAccountLease(email, session.testAccountLease);
+      }
       await hydrateAuthSession(session);
       return session;
     },

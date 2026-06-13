@@ -42,6 +42,8 @@ import { StudioWebRateLimitInterceptor } from './interceptors/studio-web-rate-li
 import { StudioPlatformAuthController } from './studio-platform-auth.controller';
 import { StudioPlatformAuthService } from './studio-platform-auth.service';
 import { StudioPlatformBootstrapService } from './studio-platform-bootstrap.service';
+import { StudioTestAccountsBootstrapService } from './studio-test-accounts-bootstrap.service';
+import { StudioTestAccountLeaseService } from './studio-test-account-lease.service';
 import { StudioPlatformController } from './studio-platform.controller';
 import { StudioPlatformManagersController } from './studio-platform-managers.controller';
 import { StudioPlatformManagersService } from './studio-platform-managers.service';
@@ -137,6 +139,8 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioTeamAuditService,
     StudioPlatformService,
     StudioPlatformBootstrapService,
+    StudioTestAccountsBootstrapService,
+    StudioTestAccountLeaseService,
     StudioPlatformAuthService,
     StudioPlatformManagersService,
     StudioQuotaWebhookService,

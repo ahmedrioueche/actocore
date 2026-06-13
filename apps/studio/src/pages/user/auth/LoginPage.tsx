@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { AuthDivider } from "@/components/auth/AuthDivider";
@@ -8,8 +8,14 @@ import { AuthGlassCard } from "@/components/auth/AuthGlassCard";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { LoginCredentialsForm } from "@/components/auth/LoginCredentialsForm";
-import { useLogin } from "@/hooks/use-auth";
-import { getApiErrorMessage } from "@/utils/statusMessage";
+import { TestAccountPicker } from "@/components/auth/TestAccountPicker";
+import {
+  isStudioTestAccountsEnabled,
+  type StudioTestAccountDefinition,
+} from "@/constants/studio-test-accounts";
+import { useAvailableTestAccount, useLogin } from "@/hooks/use-auth";
+import { getUnknownApiErrorMessage } from "@/utils/statusMessage";
+import type { StudioAvailableTestAccountData } from "@ahmedrioueche/actocore-shared";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -23,30 +29,72 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [selectedTestAccount, setSelectedTestAccount] =
+    useState<StudioAvailableTestAccountData | null>(null);
+
+  const availableTestAccount = useAvailableTestAccount(!teamMode);
+
+  useEffect(() => {
+    const account = availableTestAccount.data?.account;
+    if (!account) {
+      return;
+    }
+    setSelectedTestAccount(account);
+    setEmail(account.email);
+    setPassword(account.password);
+  }, [availableTestAccount.data?.account]);
+
+  const handleLogin = async (credentials: {
+    email: string;
+    password: string;
+  }) => {
+    setFormError(null);
+    try {
+      await login.mutateAsync(credentials);
+      void navigate({ to: '/' });
+    } catch (err) {
+      setFormError(getUnknownApiErrorMessage(t, err));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (teamMode) {
+      setFormError(null);
+      try {
+        await login.mutateAsync({
+          workspaceId: workspaceId.trim(),
+          username: username.trim(),
+          password,
+        });
+        void navigate({ to: '/' });
+      } catch (err) {
+        setFormError(getUnknownApiErrorMessage(t, err));
+      }
+      return;
+    }
+
+    await handleLogin({ email: email.trim(), password });
+  };
+
+  const handleTestAccountSelect = async (
+    account: StudioTestAccountDefinition | StudioAvailableTestAccountData,
+  ) => {
+    setTeamMode(false);
+    setSelectedTestAccount(account);
+    setEmail(account.email);
+    setPassword(account.password);
     setFormError(null);
 
     try {
-      await login.mutateAsync(
-        teamMode
-          ? {
-              workspaceId: workspaceId.trim(),
-              username: username.trim(),
-              password,
-            }
-          : { email: email.trim(), password },
-      );
+      await login.mutateAsync({
+        email: account.email,
+        password: account.password,
+      });
       void navigate({ to: '/' });
     } catch (err) {
-      const code = (err as Error & { errorCode?: string }).errorCode;
-      setFormError(
-        getApiErrorMessage(t, {
-          errorCode: code,
-          message: err instanceof Error ? err.message : undefined,
-        }),
-      );
+      setFormError(getUnknownApiErrorMessage(t, err));
+      void availableTestAccount.refetch();
     }
   };
 
@@ -58,6 +106,20 @@ export default function LoginPage() {
       />
 
       <AuthGlassCard>
+        {isStudioTestAccountsEnabled() && !teamMode ? (
+          <>
+            <TestAccountPicker
+              account={availableTestAccount.data?.account}
+              loading={login.isPending}
+              loadingAvailability={availableTestAccount.isLoading}
+              retryAfterSeconds={availableTestAccount.data?.retryAfterSeconds}
+              selected={Boolean(selectedTestAccount)}
+              onSelect={(account) => void handleTestAccountSelect(account)}
+            />
+            <AuthDivider labelKey="auth.testAccounts.dividerContinue" />
+          </>
+        ) : null}
+
         <GoogleAuthButton />
         <AuthDivider labelKey="auth.login.dividerEmail" />
         <LoginCredentialsForm

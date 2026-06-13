@@ -9,6 +9,7 @@ import {
 import {
   apiError,
   ErrorCode,
+  type ApiErrorDetails,
   type PlanLimitErrorDetails,
 } from '@ahmedrioueche/actocore-shared';
 import type { Response } from 'express';
@@ -78,7 +79,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     );
   }
 
-  private extractDetails(body: unknown): PlanLimitErrorDetails | undefined {
+  private extractDetails(body: unknown): ApiErrorDetails | undefined {
     if (
       typeof body !== 'object' ||
       body === null ||
@@ -89,6 +90,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return undefined;
     }
     const raw = body.details as Record<string, unknown>;
+    if (typeof raw.retryAfterSeconds === 'number') {
+      return { retryAfterSeconds: raw.retryAfterSeconds };
+    }
     if (typeof raw.limit !== 'number') {
       return undefined;
     }

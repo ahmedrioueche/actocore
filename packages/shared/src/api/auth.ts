@@ -25,6 +25,7 @@ import type {
   StudioSessionData,
   StudioSignupResultData,
 } from '../types/studio';
+import type { StudioAvailableTestAccountResult } from '../constants/studio-test-accounts';
 import type { Paginated, PaginationQuery } from '../types/pagination';
 import { TokenManager } from './token';
 import { BaseApi } from './helper';
@@ -55,6 +56,18 @@ export class StudioAuthApi extends BaseApi {
       }
       return res;
     });
+  }
+
+  getAvailableTestAccount(params?: {
+    leaseEmail?: string;
+    leaseId?: string;
+  }): Promise<ApiResponse<StudioAvailableTestAccountResult>> {
+    return this.request(() =>
+      this.client.get<ApiResponse<StudioAvailableTestAccountResult>>(
+        apiPath('web/auth/test-accounts/available'),
+        { params },
+      ),
+    );
   }
 
   verifyEmail(

@@ -62,6 +62,17 @@ export class StudioAuthController {
   }
 
   @StudioPublic()
+  @Get('test-accounts/available')
+  async getAvailableTestAccount(
+    @Query('leaseEmail') leaseEmail?: string,
+    @Query('leaseId') leaseId?: string,
+  ) {
+    return apiSuccess(
+      await this.auth.getAvailableTestAccount({ leaseEmail, leaseId }),
+    );
+  }
+
+  @StudioPublic()
   @Post('login')
   async login(@Body() body: StudioLoginDto) {
     return apiSuccess(await this.auth.login(body));

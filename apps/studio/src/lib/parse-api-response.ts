@@ -1,6 +1,6 @@
 import type {
   ApiResponse,
-  PlanLimitErrorDetails,
+  ApiErrorDetails,
 } from '@ahmedrioueche/actocore-shared';
 
 import {
@@ -18,7 +18,7 @@ export function parseApiResponse<T>(response: ApiResponse<T>): T {
     const err = new Error(response.message ?? response.errorCode ?? 'API_ERROR');
     const apiErr = err as Error & {
       errorCode?: string;
-      details?: PlanLimitErrorDetails;
+      details?: ApiErrorDetails;
     };
     apiErr.errorCode = response.errorCode;
     if (response.details) {

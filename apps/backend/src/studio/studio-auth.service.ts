@@ -30,8 +30,15 @@ import type {
 } from '@ahmedrioueche/actocore-shared';
 import {
   ErrorCode,
+  isStudioFeatureFlagEnabled,
+  isStudioTestAccountEmail,
   resolveStudioPermissions,
   StudioRole,
+  STUDIO_TEST_ACCOUNTS,
+  type StudioAvailableTestAccountData,
+  type StudioAvailableTestAccountResult,
+  type StudioTestAccountDefinition,
+  type StudioTestAccountLeaseData,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { randomBytes } from 'crypto';
@@ -57,12 +64,15 @@ import {
   isSeatUser,
 } from './utils/studio-seat.util';
 import { maskEmail } from './utils/mask-email.util';
+import { StudioTestAccountLeaseService } from './studio-test-account-lease.service';
 
 type JwtPayload = {
   sub: string;
   aid: string;
   role: StudioRole;
   tv: number;
+  /** Test-account lease id embedded in demo sessions. */
+  tal?: string;
 };
 
 @Injectable()
@@ -84,6 +94,7 @@ export class StudioAuthService {
     private readonly projects: ProjectsService,
     @Inject(forwardRef(() => StudioSubscriptionService))
     private readonly subscriptions: StudioSubscriptionService,
+    private readonly testAccountLeases: StudioTestAccountLeaseService,
   ) {}
 
   private static readonly DELETE_OTP_TTL_MS = 15 * 60 * 1000;
@@ -211,7 +222,11 @@ export class StudioAuthService {
     }
 
     if (hasEmail) {
-      return this.loginWithEmail(body.email!.trim().toLowerCase(), body.password);
+      return this.loginWithEmail(
+        body.email!.trim().toLowerCase(),
+        body.password,
+        body.testAccountLeaseId,
+      );
     }
 
     return this.loginWithSeat(
@@ -221,9 +236,66 @@ export class StudioAuthService {
     );
   }
 
+  async getAvailableTestAccount(query?: {
+    leaseEmail?: string;
+    leaseId?: string;
+  }): Promise<StudioAvailableTestAccountResult> {
+    if (!isStudioFeatureFlagEnabled('testAccounts', process.env)) {
+      return { account: null };
+    }
+
+    const hintEmail = query?.leaseEmail?.trim().toLowerCase();
+    const hintLeaseId = query?.leaseId?.trim();
+
+    if (hintEmail && hintLeaseId && isStudioTestAccountEmail(hintEmail)) {
+      if (
+        await this.testAccountLeases.isAccountAvailable(hintEmail, hintLeaseId)
+      ) {
+        const account = STUDIO_TEST_ACCOUNTS.find(
+          (entry) => entry.email === hintEmail,
+        );
+        if (account) {
+          return { account: this.toAvailableTestAccount(account) };
+        }
+      }
+    }
+
+    let minRetry: number | undefined;
+    for (const account of STUDIO_TEST_ACCOUNTS) {
+      if (await this.testAccountLeases.isAccountAvailable(account.email)) {
+        return { account: this.toAvailableTestAccount(account) };
+      }
+      const retry = await this.testAccountLeases.getRetryAfterSeconds(
+        account.email,
+      );
+      if (retry > 0) {
+        minRetry =
+          minRetry === undefined ? retry : Math.min(minRetry, retry);
+      }
+    }
+
+    return {
+      account: null,
+      ...(minRetry !== undefined ? { retryAfterSeconds: minRetry } : {}),
+    };
+  }
+
+  private toAvailableTestAccount(
+    definition: StudioTestAccountDefinition,
+  ): StudioAvailableTestAccountData {
+    return {
+      id: definition.id,
+      email: definition.email,
+      password: definition.password,
+      displayName: definition.displayName,
+      accountName: definition.accountName,
+    };
+  }
+
   private async loginWithEmail(
     email: string,
     password: string,
+    testAccountLeaseId?: string,
   ): Promise<StudioSessionData> {
     const user = await this.userModel.findOne({ email }).exec();
     if (!user || !user.passwordHash) {
@@ -255,7 +327,18 @@ export class StudioAuthService {
       );
     }
 
-    return this.buildSessionForUser(user);
+    let testAccountLease: StudioTestAccountLeaseData | undefined;
+    if (
+      isStudioTestAccountEmail(email) &&
+      isStudioFeatureFlagEnabled('testAccounts', process.env)
+    ) {
+      testAccountLease = await this.testAccountLeases.acquire(
+        email,
+        testAccountLeaseId,
+      );
+    }
+
+    return this.buildSessionForUser(user, testAccountLease);
   }
 
   private async loginWithSeat(
@@ -528,17 +611,29 @@ export class StudioAuthService {
       );
     }
 
+    await this.assertTestAccountLeaseActive(user.email, payload.tal);
+
     const accessToken = await this.signAccessToken(
       user,
       membership.accountId.toString(),
       membership.role,
       user.tokenVersion,
+      payload.tal,
     );
 
     return { accessToken };
   }
 
   async logout(ctx: StudioRequestContext): Promise<StudioMessageData> {
+    const user = await this.userModel.findById(ctx.userId).exec();
+    if (
+      user?.email &&
+      isStudioTestAccountEmail(user.email) &&
+      isStudioFeatureFlagEnabled('testAccounts', process.env)
+    ) {
+      await this.testAccountLeases.release(user.email);
+    }
+
     await this.userModel.findByIdAndUpdate(ctx.userId, {
       $inc: { tokenVersion: 1 },
     });
@@ -893,6 +988,8 @@ export class StudioAuthService {
       membership.permissions,
     );
 
+    await this.assertTestAccountLeaseActive(user.email, payload.tal);
+
     return {
       userId: user._id.toString(),
       accountId: membership.accountId.toString(),
@@ -933,6 +1030,7 @@ export class StudioAuthService {
 
   private async buildSessionForUser(
     user: StudioUserDocument,
+    testAccountLease?: StudioTestAccountLeaseData,
   ): Promise<StudioSessionData> {
     const membership = await this.membershipModel
       .findOne({ userId: user._id })
@@ -964,6 +1062,7 @@ export class StudioAuthService {
       permissions,
       membership.projectIds ?? [],
       membership,
+      testAccountLease,
     );
   }
 
@@ -1008,12 +1107,15 @@ export class StudioAuthService {
     permissions: string[],
     projectIds: string[],
     membership?: StudioMembershipDocument,
+    testAccountLease?: StudioTestAccountLeaseData,
   ): Promise<StudioSessionData> {
+    const testAccountLeaseId = testAccountLease?.leaseId;
     const accessToken = await this.signAccessToken(
       user,
       account._id.toString(),
       role,
       user.tokenVersion,
+      testAccountLeaseId,
     );
     const refreshToken = await this.jwt.signAsync(
       {
@@ -1021,6 +1123,7 @@ export class StudioAuthService {
         aid: account._id.toString(),
         role,
         tv: user.tokenVersion,
+        ...(testAccountLeaseId ? { tal: testAccountLeaseId } : {}),
       } satisfies JwtPayload,
       {
         secret: this.getConfig().jwtRefreshSecret,
@@ -1036,6 +1139,7 @@ export class StudioAuthService {
       role,
       permissions,
       projectIds,
+      testAccountLease,
     };
   }
 
@@ -1044,6 +1148,7 @@ export class StudioAuthService {
     accountId: string,
     role: StudioRole,
     tokenVersion: number,
+    testAccountLeaseId?: string,
   ) {
     return this.jwt.signAsync(
       {
@@ -1051,6 +1156,7 @@ export class StudioAuthService {
         aid: accountId,
         role,
         tv: tokenVersion,
+        ...(testAccountLeaseId ? { tal: testAccountLeaseId } : {}),
       } satisfies JwtPayload,
       {
         secret: this.getConfig().jwtSecret,
@@ -1113,6 +1219,27 @@ export class StudioAuthService {
     await membership.save();
 
     return project.id;
+  }
+
+  private async assertTestAccountLeaseActive(
+    email: string | undefined,
+    leaseId: string | undefined,
+  ): Promise<void> {
+    if (
+      !email ||
+      !isStudioTestAccountEmail(email) ||
+      !isStudioFeatureFlagEnabled('testAccounts', process.env)
+    ) {
+      return;
+    }
+
+    const active = await this.testAccountLeases.isActive(email, leaseId);
+    if (!active) {
+      throw new StudioAuthException(
+        ErrorCode.TEST_ACCOUNT_LEASE_EXPIRED,
+        'Your demo session expired. Sign in again to continue, or try later if the account is in use.',
+      );
+    }
   }
 
   private getConfig(): StudioAuthConfig {

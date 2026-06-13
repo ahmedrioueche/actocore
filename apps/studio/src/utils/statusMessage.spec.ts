@@ -78,6 +78,23 @@ describe('statusMessage', () => {
     );
   });
 
+  it('maps demo account lease errors', () => {
+    const { result } = renderHook(() => useTranslation());
+    const t = result.current.t;
+
+    expect(
+      getApiErrorMessage(t, {
+        errorCode: 'TEST_ACCOUNT_IN_USE',
+        details: { retryAfterSeconds: 1800 },
+      }),
+    ).toBe(
+      'This demo account is in use by someone else. Try again in about 30 minute(s), or sign out from the other session first.',
+    );
+    expect(getMessage(t, 'TEST_ACCOUNT_LEASE_EXPIRED')).toBe(
+      'Your demo session expired. Sign in again to continue, or try later if the account is still in use.',
+    );
+  });
+
   it('maps unknown thrown values for billing flows', () => {
     const { result } = renderHook(() => useTranslation());
     const t = result.current.t;

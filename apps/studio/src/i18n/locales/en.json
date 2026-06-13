@@ -71,7 +71,9 @@
     "insufficientPermissions": "You do not have permission to manage the team.",
     "invalidOtp": "Invalid or expired confirmation code.",
     "deleteAccountBlocked": "Remove all team members before deleting the workspace.",
-    "seatSelfDeleteBlocked": "Team seats cannot be self-deleted. Ask your workspace admin to remove your access."
+    "seatSelfDeleteBlocked": "Team seats cannot be self-deleted. Ask your workspace admin to remove your access.",
+    "testAccountInUse": "This demo account is in use by someone else. Try again in about {{minutes}} minute(s), or sign out from the other session first.",
+    "testAccountLeaseExpired": "Your demo session expired. Sign in again to continue, or try later if the account is still in use."
   },
   "planLimits": {
     "projectReachedTitle": "Project limit reached",
@@ -139,6 +141,15 @@
       "workspaceIdHelp": "Ask your admin for the workspace ID (account ID) from Settings.",
       "username": "Username",
       "usernamePlaceholder": "e.g. jane"
+    },
+    "testAccounts": {
+      "useTestAccount": "Use a test account",
+      "signingIn": "Signing in…",
+      "selected": "Ready — click to sign in",
+      "loading": "Finding an available demo account…",
+      "noneAvailable": "All demo accounts are in use. Try again in about {{minutes}} minute(s).",
+      "noneAvailableGeneric": "All demo accounts are in use. Please try again later.",
+      "dividerContinue": "or continue with email"
     },
     "signup": {
       "title": "Create your account",

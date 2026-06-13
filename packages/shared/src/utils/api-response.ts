@@ -1,4 +1,7 @@
-import type { ApiResponse, PlanLimitErrorDetails } from '../types/api-response';
+import type {
+  ApiErrorDetails,
+  ApiResponse,
+} from '../types/api-response';
 import type { ErrorCode } from '../types/error';
 
 export function apiSuccess<T>(data: T, message?: string): ApiResponse<T> {
@@ -8,7 +11,7 @@ export function apiSuccess<T>(data: T, message?: string): ApiResponse<T> {
 export function apiError(
   errorCode: ErrorCode,
   message?: string,
-  details?: PlanLimitErrorDetails,
+  details?: ApiErrorDetails,
 ): ApiResponse<never> {
   const body: ApiResponse<never> = { success: false, errorCode };
   if (message) {

@@ -1,4 +1,7 @@
 import type { StudioRole } from '../constants/studio-permissions';
+import type { StudioTestAccountLeaseData } from '../constants/studio-test-accounts';
+
+export type { StudioTestAccountLeaseData };
 
 export interface StudioAccountData {
   id: string;
@@ -47,6 +50,8 @@ export interface StudioSessionData extends StudioAuthTokens {
   role: StudioRole;
   permissions: string[];
   projectIds: string[];
+  /** Present for shared demo logins — store client-side and send on re-login / logout. */
+  testAccountLease?: StudioTestAccountLeaseData;
 }
 
 export interface StudioSignupResultData {

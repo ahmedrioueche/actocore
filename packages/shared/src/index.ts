@@ -8,6 +8,8 @@ export * from "./constants/sdk-releases";
 export * from "./constants/studio-onboarding";
 export * from "./constants/studio-permissions";
 export * from "./constants/studio-plan-features";
+export * from "./constants/studio-test-accounts";
+export * from "./constants/studio-feature-flags";
 
 /** Response / domain shapes */
 export * from "./types";

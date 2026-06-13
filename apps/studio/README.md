@@ -36,3 +36,4 @@ Assistant knowledge sources: [`_docs/studio/assistant/`](../../_docs/studio/assi
 | `VITE_ACTOCORE_API_URL` | Core base URL (e.g. `http://localhost:3000`) |
 | `VITE_ACTOCORE_API_KEY` | Platform assistant embed key (from `npm run setup:assistant`; optional — widget hidden if unset) |
 | `VITE_ACTOCORE_ASSISTANT_PROJECT_ID` | Platform assistant project id (set by setup script) |
+| `VITE_STUDIO_FEATURE_TEST_ACCOUNTS` | One-click demo logins on sign-in (`true` / `false`; **on by default in dev**) |

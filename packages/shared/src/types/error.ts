@@ -49,6 +49,10 @@ export const ErrorCode = {
   SEAT_LIMIT_REACHED: 'SEAT_LIMIT_REACHED',
   /** Studio project action cap reached — see `details.limit`. */
   ACTION_LIMIT_REACHED: 'ACTION_LIMIT_REACHED',
+  /** Shared demo login is held by another visitor — see `details.retryAfterSeconds`. */
+  TEST_ACCOUNT_IN_USE: 'TEST_ACCOUNT_IN_USE',
+  /** Demo session lease expired — sign in again or pick another account. */
+  TEST_ACCOUNT_LEASE_EXPIRED: 'TEST_ACCOUNT_LEASE_EXPIRED',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

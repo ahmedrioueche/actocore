@@ -8,6 +8,7 @@ import type {
 export const queryKeys = {
   auth: {
     me: () => ["auth", "me"] as const,
+    availableTestAccount: () => ["auth", "available-test-account"] as const,
   },
   platform: {
     me: () => ["platform", "me"] as const,

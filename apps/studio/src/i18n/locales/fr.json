@@ -71,7 +71,9 @@
     "insufficientPermissions": "Vous n'avez pas la permission de gérer l'équipe.",
     "invalidOtp": "Code de confirmation invalide ou expiré.",
     "deleteAccountBlocked": "Supprimez tous les membres de l'équipe avant de supprimer l'espace de travail.",
-    "seatSelfDeleteBlocked": "Les sièges d'équipe ne peuvent pas être supprimés par vous-même. Demandez à l'administrateur de retirer votre accès."
+    "seatSelfDeleteBlocked": "Les sièges d'équipe ne peuvent pas être supprimés par vous-même. Demandez à l'administrateur de retirer votre accès.",
+    "testAccountInUse": "Ce compte démo est utilisé par quelqu'un d'autre. Réessayez dans environ {{minutes}} minute(s), ou déconnectez l'autre session.",
+    "testAccountLeaseExpired": "Votre session démo a expiré. Reconnectez-vous pour continuer, ou réessayez plus tard si le compte est encore occupé."
   },
   "planLimits": {
     "projectReachedTitle": "Limite du projet atteinte",
@@ -139,6 +141,15 @@
       "workspaceIdHelp": "Demandez à votre administrateur l’ID de l’espace de travail (ID de compte) dans Paramètres.",
       "username": "Nom d'utilisateur",
       "usernamePlaceholder": "par ex. Jeanne"
+    },
+    "testAccounts": {
+      "useTestAccount": "Utiliser un compte de test",
+      "signingIn": "Connexion…",
+      "selected": "Prêt — cliquez pour vous connecter",
+      "loading": "Recherche d'un compte démo disponible…",
+      "noneAvailable": "Tous les comptes démo sont utilisés. Réessayez dans environ {{minutes}} minute(s).",
+      "noneAvailableGeneric": "Tous les comptes démo sont utilisés. Veuillez réessayer plus tard.",
+      "dividerContinue": "ou continuez avec l'e-mail"
     },
     "signup": {
       "title": "Créez votre compte",

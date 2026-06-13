@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   HttpException,
   HttpStatus,
   NotFoundException,
@@ -63,6 +64,25 @@ describe('HttpExceptionFilter', () => {
       success: false,
       errorCode: ErrorCode.NOT_FOUND,
       message: 'Not Found',
+    });
+  });
+
+  it('preserves retryAfterSeconds details on conflict errors', () => {
+    const res = mockResponse();
+    filter.catch(
+      new ConflictException({
+        errorCode: ErrorCode.TEST_ACCOUNT_IN_USE,
+        message: 'This demo account is currently in use.',
+        details: { retryAfterSeconds: 900 },
+      }),
+      mockHost(res) as never,
+    );
+
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      errorCode: ErrorCode.TEST_ACCOUNT_IN_USE,
+      message: 'This demo account is currently in use.',
+      details: { retryAfterSeconds: 900 },
     });
   });
 

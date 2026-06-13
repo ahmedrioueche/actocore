@@ -23,10 +23,28 @@ vi.mock('@/hooks/use-auth', () => ({
     mutateAsync: vi.fn(),
     isPending: false,
   }),
+  useAvailableTestAccount: () => ({
+    data: {
+      account: {
+        id: 'demoUser1',
+        email: 'demo1@actocore.test',
+        password: 'Demo123!',
+        displayName: 'Demo User 1',
+        accountName: 'Demo Workspace 1',
+      },
+    },
+    isLoading: false,
+    refetch: vi.fn(),
+  }),
   useGoogleAuth: () => ({
     mutate: vi.fn(),
     isPending: false,
   }),
+}));
+
+vi.mock('@/lib/feature-flags', () => ({
+  isStudioFeatureEnabled: (flag: string) => flag === 'testAccounts',
+  STUDIO_FEATURE_FLAGS: { testAccounts: 'testAccounts' },
 }));
 
 function renderLoginPage() {
@@ -60,5 +78,16 @@ describe('LoginPage', () => {
 
     expect(screen.getByLabelText(/workspace id/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+  });
+
+  it('shows one available test account pre-selected on load', () => {
+    renderLoginPage();
+    expect(screen.getByText(/use a test account/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: /^Demo User 1 Demo Workspace 1 Ready — click to sign in$/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toHaveValue('demo1@actocore.test');
   });
 });

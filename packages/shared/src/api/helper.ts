@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { getApiClient } from '../config/api';
-import { ApiResponse } from '../types/api-response';
+import type { ApiErrorDetails, ApiResponse } from '../types/api-response';
 import { ErrorCode, HttpStatusToErrorCode } from '../types/error';
 
 export const apiClient = new Proxy({} as AxiosInstance, {
@@ -16,8 +16,9 @@ export function apiResponse<T>(
   errorCode?: string,
   data?: T,
   message?: string,
+  details?: ApiErrorDetails,
 ): ApiResponse<T> {
-  return { success, errorCode, data, message };
+  return { success, errorCode, data, message, ...(details ? { details } : {}) };
 }
 
 function errorBody(error: unknown): ApiResponse<unknown> | undefined {
@@ -43,7 +44,13 @@ export function handleApiError(error: unknown): ApiResponse<null> {
     const message =
       body?.message ?? error.message ?? 'Unexpected server error';
 
-    return apiResponse<null>(false, errorCode, null, message);
+    return apiResponse<null>(
+      false,
+      errorCode,
+      null,
+      message,
+      body?.details,
+    );
   }
 
   return apiResponse<null>(

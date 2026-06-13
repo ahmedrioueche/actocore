@@ -50,6 +50,11 @@ export class StudioLoginDto {
   @IsString()
   @MinLength(1)
   password!: string;
+
+  /** Resume a shared demo login when the browser still holds the lease id. */
+  @IsOptional()
+  @IsString()
+  testAccountLeaseId?: string;
 }
 
 export class StudioRefreshDto {
