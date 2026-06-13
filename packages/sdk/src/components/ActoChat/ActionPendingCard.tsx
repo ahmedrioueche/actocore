@@ -8,6 +8,10 @@ import {
 } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
 import { shouldBlockAction } from '../../security/action-allowlist';
+import {
+  isActionRunComplete,
+  markActionRunComplete,
+} from '../../actions/action-run-state';
 
 type LocalActionState = 'pending' | 'running' | 'success' | 'error';
 
@@ -57,7 +61,12 @@ export function ActionPendingCard({
   const isBlocked = action ? shouldBlockAction(actionName, security) : false;
   const handler = action ? handlers[action.actionName] : undefined;
 
-  const [localState, setLocalState] = useState<LocalActionState>('pending');
+  const [localState, setLocalState] = useState<LocalActionState>(() => {
+    if (sessionId && isActionRunComplete(sessionId, message.id)) {
+      return 'success';
+    }
+    return 'pending';
+  });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!action) return null;
@@ -98,6 +107,7 @@ export function ActionPendingCard({
       };
 
       await runHandler(action.input, { message: coreMessage, sessionId });
+      markActionRunComplete(sessionId, message.id);
       setLocalState('success');
     } catch (e) {
       const err = e instanceof Error ? e.message : String(e);

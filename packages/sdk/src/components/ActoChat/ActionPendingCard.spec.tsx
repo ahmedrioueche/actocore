@@ -124,5 +124,51 @@ describe('ActionPendingCard', () => {
     expect(screen.queryByRole('button', { name: 'Run action' })).toBeNull();
     expect(deleteHandler).toHaveBeenCalledOnce();
   });
+
+  it('keeps success state after remount when action already ran', async () => {
+    const deleteHandler = vi.fn().mockResolvedValue({});
+    const i18n = createActocoreI18n({ locale: 'en' });
+    const config = resolveConfig({
+      apiKey: 'sdk-key',
+      security: {
+        allowedActionNames: ['delete_user'],
+        enforceActionAllowlist: true,
+      },
+    });
+    const message = {
+      id: 'm-3',
+      role: 'assistant' as const,
+      content: 'Ready to run delete_user',
+      intent: 'action' as const,
+      action: {
+        actionId: 'a-3',
+        actionName: 'delete_user',
+        status: 'pending' as const,
+        input: { email: 'bob@demo.com' },
+      },
+    };
+
+    const tree = (
+      <I18nextProvider i18n={i18n}>
+        <ActocoreContextProvider
+          config={config}
+          actions={{ delete_user: deleteHandler }}
+        >
+          <ActionPendingCard sessionId="session-1" message={message} />
+        </ActocoreContextProvider>
+      </I18nextProvider>
+    );
+
+    const { unmount } = render(tree);
+    fireEvent.click(screen.getByRole('button', { name: 'Run action' }));
+    expect(await screen.findByText('delete_user completed')).toBeTruthy();
+
+    unmount();
+    render(tree);
+
+    expect(screen.getByText('delete_user completed')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Run action' })).toBeNull();
+    expect(deleteHandler).toHaveBeenCalledOnce();
+  });
 });
 

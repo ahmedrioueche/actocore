@@ -10,6 +10,7 @@ import type {
   SessionMessageData,
 } from '@ahmedrioueche/actocore-shared';
 import { useActocoreConfig, useActocoreHostContext } from '../context/actocore-context';
+import { clearActionRunsForSession } from '../actions/action-run-state';
 import { useActocoreSession } from './use-actocore-session';
 import { useApiErrorMessage } from './use-api-error';
 
@@ -466,6 +467,10 @@ export function useActocoreChat(
     setMessages([]);
     setHydratedSessionId(null);
 
+    if (sessionId) {
+      clearActionRunsForSession(sessionId);
+    }
+
     try {
       await startNewSession();
     } finally {
@@ -475,6 +480,7 @@ export function useActocoreChat(
   }, [
     cancelStreamingFlush,
     isStartingNewConversation,
+    sessionId,
     startNewSession,
   ]);
 

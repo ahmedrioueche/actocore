@@ -43,12 +43,17 @@ export function createStudioAssistantActions(deps: {
           project,
         );
 
-        void deps.navigate({
-          to: '/projects/$projectId',
-          params: { projectId: project.id },
-        });
+        const result = { id: project.id, name: project.name };
 
-        return { id: project.id, name: project.name };
+        // Defer navigation so the action card can show success before route changes remount UI.
+        window.setTimeout(() => {
+          void deps.navigate({
+            to: '/projects/$projectId',
+            params: { projectId: project.id },
+          });
+        }, 0);
+
+        return result;
       } catch (err) {
         throw new Error(getUnknownApiErrorMessage(deps.t, err));
       }
