@@ -1,13 +1,14 @@
 import { ActoChatWidget, ActocoreProvider } from '@ahmedrioueche/actocore-sdk';
 import '@ahmedrioueche/actocore-sdk/styles.css';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/context/AuthContext';
-import { useRouterState } from '@tanstack/react-router';
-import { useMemo } from 'react';
-
-import { resolveStudioHostContext } from '@/lib/studio-host-context';
 import { useTheme } from '@/context/ThemeContext';
+import { createStudioAssistantActions } from '@/lib/studio-assistant-actions';
+import { resolveStudioHostContext } from '@/lib/studio-host-context';
 
 const API_URL =
   import.meta.env.VITE_ACTOCORE_API_URL?.replace(/\/$/, '') ||
@@ -19,13 +20,19 @@ const API_KEY = import.meta.env.VITE_ACTOCORE_API_KEY?.trim() ?? '';
  * using a platform-owned project API key (not the tenant's project).
  */
 export function StudioAssistant() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const { session, isLoading: isAuthLoading } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const hostContext = useMemo(
     () => resolveStudioHostContext(pathname),
     [pathname],
+  );
+  const actions = useMemo(
+    () => createStudioAssistantActions({ navigate, queryClient, t }),
+    [navigate, queryClient, t],
   );
 
   if (!API_KEY) {
@@ -50,6 +57,7 @@ export function StudioAssistant() {
         persistSession
         externalUserId={session?.user.id}
         hostContext={hostContext}
+        actions={actions}
         i18n={{ locale: i18n.language }}
         theme={{ mode: theme }}
         ui={{

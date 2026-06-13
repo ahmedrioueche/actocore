@@ -16,12 +16,21 @@ export default defineConfig({
       "@ahmedrioueche/actocore-shared": fileURLToPath(
         new URL("../../packages/shared/src/index.ts", import.meta.url),
       ),
+      "@ahmedrioueche/actocore-sdk/styles.css": fileURLToPath(
+        new URL("../../packages/sdk/src/styles/styles.css", import.meta.url),
+      ),
+      "@ahmedrioueche/actocore-sdk": fileURLToPath(
+        new URL("../../packages/sdk/src/index.ts", import.meta.url),
+      ),
     },
     dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
     include: ["reflect-metadata"],
-    exclude: ["@ahmedrioueche/actocore-shared"],
+    exclude: [
+      "@ahmedrioueche/actocore-shared",
+      "@ahmedrioueche/actocore-sdk",
+    ],
   },
   server: {
     fs: {

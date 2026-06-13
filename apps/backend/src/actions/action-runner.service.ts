@@ -5,10 +5,13 @@ import type {
 } from '@ahmedrioueche/actocore-shared';
 import { ActionSchemaValidator } from './action-schema.validator';
 import {
+  effectiveInputSchema,
   formatActionValidationIssues,
   formatActionValidationSummary,
   formatClarifyingQuestion,
+  missingRequiredFieldIssues,
 } from './action-validation-message.util';
+import { isMeaningfulActionFieldValue } from './natural-language-action.util';
 import type { ActionSelection } from './action-selector.service';
 
 export type ActionPrepareResult = {
@@ -28,14 +31,33 @@ export class ActionRunnerService {
    */
   prepareExecution(selection: ActionSelection): ActionPrepareResult {
     const { action, input } = selection;
-    const validation = this.validator.validate(action.inputSchema, input);
+    const normalizedInput =
+      input !== null && typeof input === 'object' && !Array.isArray(input)
+        ? (input as Record<string, unknown>)
+        : {};
+
+    const missingIssues = missingRequiredFieldIssues(
+      action.inputSchema,
+      normalizedInput,
+      isMeaningfulActionFieldValue,
+      action.name,
+    );
+    if (missingIssues.length > 0) {
+      return {
+        content: formatClarifyingQuestion(action.name, missingIssues),
+        intentOverride: 'direct',
+      };
+    }
+
+    const validationSchema = effectiveInputSchema(
+      action.inputSchema,
+      action.name,
+    );
+    const validation = this.validator.validate(validationSchema, normalizedInput);
     const ajvErrors = this.validator.getLastErrors();
 
     if (!validation.valid) {
-      const issues = formatActionValidationIssues(
-        action.inputSchema,
-        ajvErrors,
-      );
+      const issues = formatActionValidationIssues(validationSchema, ajvErrors);
 
       if (isOnlyMissingRequired(ajvErrors) && issues.length > 0) {
         return {
@@ -46,7 +68,7 @@ export class ActionRunnerService {
 
       const summary = formatActionValidationSummary(
         action.name,
-        action.inputSchema,
+        validationSchema,
         ajvErrors,
       );
       return {

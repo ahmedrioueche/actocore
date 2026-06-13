@@ -10,7 +10,10 @@ mkdirSync(outDir, { recursive: true });
 
 const tokens = readFileSync(join(srcStyles, 'tokens.css'), 'utf8');
 const components = readFileSync(join(srcStyles, 'components.css'), 'utf8');
-const bundle = `${tokens}\n\n${components}`;
+const devBundle = readFileSync(join(srcStyles, 'styles.css'), 'utf8');
+const bundle = devBundle.includes('@import')
+  ? `${tokens}\n\n${components}`
+  : devBundle;
 
 writeFileSync(join(outDir, 'styles.css'), bundle);
 copyFileSync(join(srcStyles, 'tokens.css'), join(outDir, 'tokens.css'));

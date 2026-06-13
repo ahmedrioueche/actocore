@@ -78,11 +78,7 @@ export function ActionPendingCard({
 
     const runHandler = handlers[action.actionName];
     if (!runHandler) {
-      setErrorMessage(
-        t('action.handlerMissing', {
-          name: action.actionName,
-        }),
-      );
+      setErrorMessage(t('action.handlerMissing'));
       setLocalState('error');
       return;
     }
@@ -152,9 +148,14 @@ export function ActionPendingCard({
               {t('action.denied')}
             </p>
           ) : !handler ? (
-            <p className="ac-action-card__feedback ac-action-card__feedback--error">
-              {t('action.handlerMissing', { name: action.actionName })}
-            </p>
+            <div className="ac-action-card__handler-missing">
+              <p className="ac-action-card__feedback ac-action-card__feedback--error">
+                {t('action.handlerMissing')}
+              </p>
+              <p className="ac-action-card__desc">
+                {t('action.handlerMissingDetail', { name: action.actionName })}
+              </p>
+            </div>
           ) : null}
         </>
       ) : (

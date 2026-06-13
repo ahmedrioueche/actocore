@@ -49,7 +49,7 @@ export function ActionPicker({
         name: action.name,
         label: formatActionShortcutLabel(action.name),
         description: action.description,
-        starter: getActionPromptStarter(action.name),
+        starter: getActionPromptStarter(action),
       })),
     [visibleActions],
   );

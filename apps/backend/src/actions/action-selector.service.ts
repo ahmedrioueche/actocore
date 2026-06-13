@@ -74,7 +74,11 @@ export class ActionSelectorService {
 
       const input =
         jsonInput ??
-        extractNaturalLanguageActionInput(userMessage, action.name);
+        extractNaturalLanguageActionInput(
+          userMessage,
+          action.name,
+          action.inputSchema,
+        );
 
       return { action, input };
     }

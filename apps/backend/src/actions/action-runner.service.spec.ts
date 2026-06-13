@@ -43,20 +43,75 @@ describe('ActionRunnerService', () => {
     expect(result.content).toContain('email');
   });
 
-  it('returns error when validation fails on invalid values', () => {
-    const strict = {
+  it('asks for project name when create_project has no params', () => {
+    const createProject = {
       ...action,
+      name: 'create_project',
       inputSchema: {
         type: 'object',
-        properties: { id: { type: 'string', minLength: 3 } },
-        required: ['id'],
+        properties: {
+          name: { type: 'string', title: 'Project name' },
+        },
+        additionalProperties: false,
+      },
+    };
+    const result = runner.prepareExecution({ action: createProject, input: {} });
+    expect(result.action).toBeUndefined();
+    expect(result.intentOverride).toBe('direct');
+    expect(result.content).toContain('name the new project');
+  });
+
+  it('asks for project name when create_project schema is empty', () => {
+    const createProject = {
+      ...action,
+      name: 'create_project',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+        additionalProperties: false,
+      },
+    };
+    const result = runner.prepareExecution({ action: createProject, input: {} });
+    expect(result.action).toBeUndefined();
+    expect(result.intentOverride).toBe('direct');
+    expect(result.content).toContain('name the new project');
+  });
+
+  it('returns pending when create_project name is provided', () => {
+    const createProject = {
+      ...action,
+      name: 'create_project',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', title: 'Project name' },
+        },
         additionalProperties: false,
       },
     };
     const result = runner.prepareExecution({
-      action: strict,
-      input: { id: 'x' },
+      action: createProject,
+      input: { name: 'GymPro' },
     });
-    expect(result.action?.status).toBe('error');
+    expect(result.action?.status).toBe('pending');
+    expect(result.action?.input).toEqual({ name: 'GymPro' });
+  });
+
+  it('returns pending when create_project has empty schema but name is provided', () => {
+    const createProject = {
+      ...action,
+      name: 'create_project',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+        additionalProperties: false,
+      },
+    };
+    const result = runner.prepareExecution({
+      action: createProject,
+      input: { name: 'GymPro' },
+    });
+    expect(result.action?.status).toBe('pending');
+    expect(result.action?.input).toEqual({ name: 'GymPro' });
   });
 });

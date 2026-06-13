@@ -13,8 +13,8 @@ export function resolveAppPageIdBySlug(
 }
 
 /**
- * Actions for the current page scope: linked to the page plus global actions
- * (actions with no pageIds assignment).
+ * Actions explicitly assigned to the current app page (chat picker "This page" scope).
+ * Unassigned actions are excluded — use the "All actions" scope for those.
  */
 export function filterActionsForPageScope(
   actions: ActionData[],
@@ -22,14 +22,12 @@ export function filterActionsForPageScope(
   pages: AppPageManifestEntry[],
 ): ActionData[] {
   const pageId = resolveAppPageIdBySlug(currentPageSlug, pages);
+  if (!pageId) {
+    return [];
+  }
 
-  return actions.filter((action) => {
-    if (!action.pageIds?.length) {
-      return true;
-    }
-    if (!pageId) {
-      return false;
-    }
-    return action.pageIds.includes(pageId);
-  });
+  return actions.filter(
+    (action) =>
+      !!action.pageIds?.length && action.pageIds.includes(pageId),
+  );
 }

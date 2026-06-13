@@ -55,16 +55,13 @@ describe('filter-actions-for-page', () => {
     expect(resolveAppPageIdBySlug('unknown', pages)).toBeUndefined();
   });
 
-  it('returns page-linked and global actions for the current page', () => {
+  it('returns only actions linked to the current page', () => {
     const filtered = filterActionsForPageScope(actions, 'members', pages);
-    expect(filtered.map((action) => action.name)).toEqual([
-      'add_member',
-      'list_users',
-    ]);
+    expect(filtered.map((action) => action.name)).toEqual(['add_member']);
   });
 
-  it('returns only global actions when page context is missing', () => {
+  it('returns nothing when page context is missing', () => {
     const filtered = filterActionsForPageScope(actions, undefined, pages);
-    expect(filtered.map((action) => action.name)).toEqual(['list_users']);
+    expect(filtered).toEqual([]);
   });
 });

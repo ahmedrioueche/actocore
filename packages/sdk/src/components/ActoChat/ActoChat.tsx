@@ -65,6 +65,7 @@ export function ActoChat({
     stopGenerating,
     loadMoreHistory,
     startNewConversation,
+    isStartingNewConversation,
   } = useActocoreChat({
     sessionId,
     externalUserId: externalUserId ?? config.externalUserId,
@@ -161,7 +162,9 @@ export function ActoChat({
         launcherIcon={launcherIcon}
         onMinimize={onMinimize}
         onNewConversation={onStartNewConversation}
-        isNewConversationDisabled={isInitializing || isSending}
+        isNewConversationDisabled={
+          isInitializing || isSending || isStartingNewConversation
+        }
       />
 
       <div

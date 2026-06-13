@@ -15,6 +15,7 @@ vi.mock('../../hooks/use-actocore-chat', () => {
       isSending: false,
       isStreaming: false,
       isLoadingMoreHistory: false,
+      isStartingNewConversation: false,
       error: null,
       sendMessage,
       stopGenerating: vi.fn(),

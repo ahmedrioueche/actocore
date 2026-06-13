@@ -46,6 +46,7 @@ export interface UseActocoreChatResult {
   isSending: boolean;
   isStreaming: boolean;
   isLoadingMoreHistory: boolean;
+  isStartingNewConversation: boolean;
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
   stopGenerating: () => void;
@@ -138,6 +139,8 @@ export function useActocoreChat(
   const [isSending, setIsSending] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [hydratedSessionId, setHydratedSessionId] = useState<string | null>(null);
+  const [isStartingNewConversation, setIsStartingNewConversation] = useState(false);
+  const skipHydrationRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const streamContentRef = useRef('');
   const streamFlushRafRef = useRef(0);
@@ -203,6 +206,11 @@ export function useActocoreChat(
     if (!sessionId) {
       setMessages([]);
       setHydratedSessionId(null);
+      return;
+    }
+
+    if (skipHydrationRef.current) {
+      setMessages([]);
       return;
     }
 
@@ -443,11 +451,32 @@ export function useActocoreChat(
   );
 
   const startNewConversation = useCallback(async () => {
+    if (isStartingNewConversation) {
+      return;
+    }
+
+    setIsStartingNewConversation(true);
+    skipHydrationRef.current = true;
     abortControllerRef.current?.abort();
+    cancelStreamingFlush();
+    streamContentRef.current = '';
+    activeStreamingIdRef.current = null;
+    setIsSending(false);
+    setIsStreaming(false);
     setMessages([]);
     setHydratedSessionId(null);
-    await startNewSession();
-  }, [startNewSession]);
+
+    try {
+      await startNewSession();
+    } finally {
+      skipHydrationRef.current = false;
+      setIsStartingNewConversation(false);
+    }
+  }, [
+    cancelStreamingFlush,
+    isStartingNewConversation,
+    startNewSession,
+  ]);
 
   const isBootstrapping =
     isInitializing || (loadHistory !== false && isLoadingHistory);
@@ -460,6 +489,7 @@ export function useActocoreChat(
     isSending,
     isStreaming,
     isLoadingMoreHistory,
+    isStartingNewConversation,
     error: null,
     sendMessage,
     stopGenerating,

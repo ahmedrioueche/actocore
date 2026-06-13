@@ -21,6 +21,110 @@ function fieldLabel(
   return field.replace(/_/g, ' ');
 }
 
+/** Params implied by built-in handlers when Studio schema is empty or incomplete. */
+const KNOWN_ACTION_FIELDS: Record<
+  string,
+  Record<string, { type: string; title?: string }>
+> = {
+  create_project: {
+    name: { type: 'string', title: 'Project name' },
+  },
+};
+
+/** Schema used for validation — merges known handler params missing from Studio. */
+export function effectiveInputSchema(
+  schema: ActionInputSchema,
+  actionName?: string,
+): ActionInputSchema {
+  const known = actionName ? KNOWN_ACTION_FIELDS[actionName] : undefined;
+  if (!known) {
+    return schema;
+  }
+
+  const props =
+    schema.properties &&
+    typeof schema.properties === 'object' &&
+    !Array.isArray(schema.properties)
+      ? { ...(schema.properties as Record<string, unknown>) }
+      : {};
+
+  let changed = false;
+  for (const [field, fieldSchema] of Object.entries(known)) {
+    if (!(field in props)) {
+      props[field] = fieldSchema;
+      changed = true;
+    }
+  }
+
+  if (!changed) {
+    return schema;
+  }
+
+  const required = effectiveRequiredFields(schema, actionName);
+  return {
+    ...schema,
+    type: 'object',
+    properties: props,
+    ...(required.length > 0 ? { required } : {}),
+  };
+}
+
+/** Fields that must be present before showing the Run card. */
+export function effectiveRequiredFields(
+  schema: ActionInputSchema,
+  actionName?: string,
+): string[] {
+  if (Array.isArray(schema.required) && schema.required.length > 0) {
+    return schema.required.map(String);
+  }
+
+  const props = schema.properties;
+  if (props && typeof props === 'object' && !Array.isArray(props)) {
+    const keys = Object.keys(props as Record<string, unknown>);
+    if (keys.length === 1) {
+      return keys;
+    }
+  }
+
+  if (actionName && KNOWN_ACTION_FIELDS[actionName]) {
+    return Object.keys(KNOWN_ACTION_FIELDS[actionName]);
+  }
+
+  return [];
+}
+
+export function missingRequiredFieldIssues(
+  schema: ActionInputSchema,
+  input: Record<string, unknown>,
+  isMeaningfulValue?: (value: string) => boolean,
+  actionName?: string,
+): ActionValidationIssue[] {
+  const hasValue = (value: unknown): boolean => {
+    if (value === undefined || value === null) {
+      return false;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return false;
+      }
+      return isMeaningfulValue ? isMeaningfulValue(trimmed) : true;
+    }
+    return true;
+  };
+
+  return effectiveRequiredFields(schema, actionName)
+    .filter((field) => !hasValue(input[field]))
+    .map((field) => {
+      const label = fieldLabel(schema, field);
+      return {
+        field,
+        label,
+        message: `${label} is required`,
+      };
+    });
+}
+
 export function formatActionValidationIssues(
   schema: ActionInputSchema,
   errors: ErrorObject[],
@@ -77,6 +181,15 @@ export function formatClarifyingQuestion(
         return 'What email should I use for the new user?';
       case 'update_user':
         return 'Which user should I update? Please share their email address.';
+      default:
+        break;
+    }
+  }
+
+  if (issues.length === 1 && issues[0].field === 'name') {
+    switch (actionName) {
+      case 'create_project':
+        return 'What would you like to name the new project?';
       default:
         break;
     }

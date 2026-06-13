@@ -51,4 +51,88 @@ describe('natural-language-action.util', () => {
       email: 'bob@demo.com',
     });
   });
+
+  it('does not treat create-project intent as a project name', () => {
+    expect(
+      extractNaturalLanguageActionInput(
+        'Help me with create project',
+        'create_project',
+      ),
+    ).toEqual({});
+    expect(
+      matchesNaturalLanguageAction(
+        'Help me with create project',
+        'create_project',
+      ),
+    ).toBe(true);
+  });
+
+  it('extracts explicit project names', () => {
+    expect(
+      extractNaturalLanguageActionInput(
+        'create project called GymPro',
+        'create_project',
+      ),
+    ).toEqual({ name: 'GymPro' });
+  });
+
+  it('extracts title from delete_project starter phrases', () => {
+    const schema = {
+      type: 'object' as const,
+      properties: {
+        title: { type: 'string', title: 'Title' },
+      },
+      required: ['title'],
+    };
+
+    expect(
+      extractNaturalLanguageActionInput(
+        'delete project GymPro',
+        'delete_project',
+        schema,
+      ),
+    ).toEqual({ title: 'GymPro' });
+
+    expect(
+      extractNaturalLanguageActionInput(
+        'Help me with delete project. I need the title: konga',
+        'delete_project',
+        schema,
+      ),
+    ).toEqual({ title: 'konga' });
+
+    expect(
+      extractNaturalLanguageActionInput(
+        'Help me with delete project. I need the title My project',
+        'delete_project',
+        schema,
+      ),
+    ).toEqual({ title: 'My project' });
+
+    expect(
+      extractNaturalLanguageActionInput(
+        'Help me with delete project. I need the title: GymPro',
+        'delete_project',
+        schema,
+      ),
+    ).toEqual({ title: 'GymPro' });
+  });
+
+  it('extracts create project name from its name is phrasing', () => {
+    const schema = {
+      type: 'object' as const,
+      properties: {
+        name: { type: 'string', title: 'Project name' },
+      },
+      required: ['name'],
+    };
+
+    expect(
+      extractNaturalLanguageActionInput(
+        'Help me with create project, its name is GymPro',
+        'create_project',
+        schema,
+      ),
+    ).toEqual({ name: 'GymPro' });
+  });
 });

@@ -240,7 +240,7 @@ export class ChatOrchestratorService {
     const followUp = resolveActionFollowUp(
       body.message,
       history,
-      enabledActionNames,
+      enabledActions,
     );
 
     let intent = await this.classifier.classify({

@@ -46,6 +46,41 @@ describe('ActionPendingCard', () => {
     expect(deployHandler).not.toHaveBeenCalled();
   });
 
+  it('shows guidance when no handler is registered', () => {
+    const i18n = createActocoreI18n({ locale: 'en' });
+    const config = resolveConfig({ apiKey: 'sdk-key' });
+
+    render(
+      <I18nextProvider i18n={i18n}>
+        <ActocoreContextProvider config={config} actions={{}}>
+          <ActionPendingCard
+            sessionId="session-1"
+            message={{
+              id: 'm-0',
+              role: 'assistant',
+              content: 'Ready to run delete_user',
+              intent: 'action',
+              action: {
+                actionId: 'a-0',
+                actionName: 'delete_user',
+                status: 'pending',
+                input: { email: 'bob@demo.com' },
+              },
+            }}
+          />
+        </ActocoreContextProvider>
+      </I18nextProvider>,
+    );
+
+    expect(
+      screen.getByText('This action is not wired up in your app yet.'),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/Register a handler for "delete_user"/),
+    ).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Run action' })).toBeNull();
+  });
+
   it('hides run button and shows success feedback after handler completes', async () => {
     const deleteHandler = vi.fn();
     const i18n = createActocoreI18n({ locale: 'en' });
