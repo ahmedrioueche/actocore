@@ -58,6 +58,7 @@ export function StudioAssistant() {
         externalUserId={session?.user.id}
         hostContext={hostContext}
         actions={actions}
+        security={{ allowedActionNames: ['create_project'] }}
         i18n={{ locale: i18n.language }}
         theme={{ mode: theme }}
         ui={{

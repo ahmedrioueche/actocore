@@ -1,6 +1,7 @@
 /**
  * Bootstrap the ActoCore Studio product assistant (platform-owned SDK project).
  * Seeds knowledge from _docs/studio/assistant/*.md
+ * Registers create_project action + SDK security allowlist.
  * Run with backend up: npm run setup:assistant
  */
 import { readdir, readFile } from 'fs/promises';
@@ -9,6 +10,7 @@ import { fileURLToPath } from 'url';
 
 import { getApiKey, getBaseUrl, loadStudioEnv, writeStudioEnv } from './lib/studio-env.mjs';
 import { requestJson, setStudioAccessToken } from './lib/studio-api.mjs';
+import { STUDIO_ASSISTANT_ACTIONS } from './studio-assistant-actions-catalog.mjs';
 
 const PROJECT_NAME = 'ActoCore Studio Assistant';
 
@@ -218,6 +220,53 @@ async function ensureKnowledge(projectId) {
   }
 }
 
+async function upsertAction(projectId, action) {
+  const list = await requestJson('GET', `/v1/web/projects/${projectId}/actions`);
+  const existing = list.data?.find((a) => a.name === action.name);
+
+  if (existing) {
+    await requestJson(
+      'PATCH',
+      `/v1/web/projects/${projectId}/actions/${existing.id}`,
+      {
+        description: action.description,
+        inputSchema: action.inputSchema,
+        enabled: true,
+      },
+    );
+    console.log(`  action updated: ${action.name}`);
+    return;
+  }
+
+  await requestJson('POST', `/v1/web/projects/${projectId}/actions`, {
+    ...action,
+    enabled: true,
+  });
+  console.log(`  action created: ${action.name}`);
+}
+
+async function ensureActions(projectId) {
+  for (const action of STUDIO_ASSISTANT_ACTIONS) {
+    await upsertAction(projectId, action);
+  }
+}
+
+async function ensureSdkConfig(projectId) {
+  const current = await requestJson(
+    'GET',
+    `/v1/web/projects/${projectId}/sdk-config`,
+  );
+  const existing = current.data?.security?.allowedActionNames ?? [];
+  const allowedActionNames = [
+    ...new Set([...existing, ...STUDIO_ASSISTANT_ACTIONS.map((a) => a.name)]),
+  ];
+
+  await requestJson('PATCH', `/v1/web/projects/${projectId}/sdk-config`, {
+    security: { allowedActionNames },
+  });
+  console.log(`  sdk-config allowlist: ${allowedActionNames.join(', ')}`);
+}
+
 async function main() {
   console.log(`=== ActoCore Studio assistant setup (${baseUrl}) ===\n`);
   await ensureStudioAccessToken();
@@ -227,6 +276,8 @@ async function main() {
   const expectedTitles = new Set(articles.map((a) => a.title));
   await ensureKnowledge(projectId);
   await warnForeignKnowledge(projectId, expectedTitles);
+  await ensureActions(projectId);
+  await ensureSdkConfig(projectId);
   console.log('\nDone. Restart Studio dev server if it is already running.');
   console.log(
     'Edit knowledge in _docs/studio/assistant/*.md then re-run npm run setup:assistant to add new articles.\n',
