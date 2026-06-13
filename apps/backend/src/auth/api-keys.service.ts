@@ -1,10 +1,3 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
 import type {
   ApiKeyIssuedData,
   ApiKeyMetadata,
@@ -13,23 +6,30 @@ import type {
   PaginationQuery,
   UpdateApiKeyDto,
 } from '@ahmedrioueche/actocore-shared';
+import { ErrorCode } from '@ahmedrioueche/actocore-shared';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
   normalizePagination,
   paginate,
 } from '../common/pagination/pagination.util';
+import { ProjectsService } from '../projects/projects.service';
+import { StudioAccessService } from '../studio/studio-access.service';
+import type { StudioRequestContext } from '../studio/studio-context';
 import { ApiKeyException } from './exceptions/api-key.exception';
 import { ApiKey, ApiKeyDocument } from './schemas/api-key.schema';
 import {
   extractKeyPrefix,
   generateApiKeySecret,
-  verifyApiKey,
   hashApiKey,
+  verifyApiKey,
 } from './utils/api-key-crypto';
-import { ErrorCode } from '@ahmedrioueche/actocore-shared';
-import { ProjectsService } from '../projects/projects.service';
-import { StudioAccessService } from '../studio/studio-access.service';
-import type { StudioRequestContext } from '../studio/studio-context';
 
 export interface ValidatedApiKey {
   id: string;
@@ -41,7 +41,8 @@ export interface ValidatedApiKey {
 @Injectable()
 export class ApiKeysService {
   constructor(
-    @InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKeyDocument>,
+    @InjectModel(ApiKey.name)
+    private readonly apiKeyModel: Model<ApiKeyDocument>,
     private readonly config: ConfigService,
     private readonly projects: ProjectsService,
     private readonly studioAccess: StudioAccessService,
@@ -231,10 +232,7 @@ export class ApiKeysService {
     const doc = await this.apiKeyModel.findOne({ prefix }).exec();
 
     if (!doc) {
-      throw new ApiKeyException(
-        ErrorCode.API_KEY_INVALID,
-        'Invalid API key',
-      );
+      throw new ApiKeyException(ErrorCode.API_KEY_INVALID, 'Invalid API key');
     }
 
     if (doc.revokedAt) {
@@ -246,10 +244,7 @@ export class ApiKeysService {
 
     const valid = await verifyApiKey(rawKey, this.getPepper(), doc.keyHash);
     if (!valid) {
-      throw new ApiKeyException(
-        ErrorCode.API_KEY_INVALID,
-        'Invalid API key',
-      );
+      throw new ApiKeyException(ErrorCode.API_KEY_INVALID, 'Invalid API key');
     }
 
     return {

@@ -37,6 +37,11 @@ export class CreateActionDto {
   @IsOptional()
   @IsString()
   sectionId?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  pageIds?: string[];
 }
 
 export class UpdateActionDto {
@@ -56,6 +61,11 @@ export class UpdateActionDto {
   @IsOptional()
   @IsString()
   sectionId?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  pageIds?: string[];
 }
 
 export class CreateActionSectionDto {

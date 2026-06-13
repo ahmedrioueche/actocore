@@ -1,7 +1,7 @@
+import { ErrorCode } from '@ahmedrioueche/actocore-shared';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ErrorCode } from '@ahmedrioueche/actocore-shared';
 import { ProjectsService } from '../projects/projects.service';
 import { StudioAccessService } from '../studio/studio-access.service';
 import { ApiKeysService } from './api-keys.service';
@@ -34,23 +34,19 @@ describe('ApiKeysService', () => {
       exec: async () => store.get(prefix) ?? null,
     })),
     find: jest.fn(
-      (filter: {
-        projectId?: string;
-        revokedAt?: { $exists: boolean };
-      } = {}) => ({
+      (
+        filter: {
+          projectId?: string;
+          revokedAt?: { $exists: boolean };
+        } = {},
+      ) => ({
         sort: () => ({
           exec: async () =>
             [...store.values()].filter((item) => {
-              if (
-                filter.projectId &&
-                item.projectId !== filter.projectId
-              ) {
+              if (filter.projectId && item.projectId !== filter.projectId) {
                 return false;
               }
-              if (
-                filter.revokedAt?.$exists === false &&
-                item.revokedAt
-              ) {
+              if (filter.revokedAt?.$exists === false && item.revokedAt) {
                 return false;
               }
               return true;
@@ -81,10 +77,7 @@ describe('ApiKeysService', () => {
       ) => {
         let modifiedCount = 0;
         for (const entry of store.values()) {
-          if (
-            filter.projectId &&
-            entry.projectId !== filter.projectId
-          ) {
+          if (filter.projectId && entry.projectId !== filter.projectId) {
             continue;
           }
           if (filter.revokedAt?.$exists === false && entry.revokedAt) {
@@ -135,9 +128,7 @@ describe('ApiKeysService', () => {
     const issued = await service.issue({ projectId: 'proj-1', name: 'dev' });
     expect(issued.key.startsWith('aco_')).toBe(true);
 
-    const validated = await service.validateBearerToken(
-      `Bearer ${issued.key}`,
-    );
+    const validated = await service.validateBearerToken(`Bearer ${issued.key}`);
     expect(validated.projectId).toBe('proj-1');
   });
 

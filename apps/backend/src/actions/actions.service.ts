@@ -19,6 +19,7 @@ import { normalizePagination, paginate } from '../common/pagination/pagination.u
 import { ProjectsService } from '../projects/projects.service';
 import { StudioEntitlementsService } from '../studio-billing/studio-entitlements.service';
 import { ActionSectionsService } from './action-sections.service';
+import { AppPagesService } from './app-pages.service';
 import { ActionSchemaValidator } from './action-schema.validator';
 import {
   ProjectAction,
@@ -43,6 +44,7 @@ export class ActionsService {
     private readonly actionModel: Model<ProjectActionDocument>,
     private readonly projects: ProjectsService,
     private readonly sections: ActionSectionsService,
+    private readonly appPages: AppPagesService,
     private readonly schemaValidator: ActionSchemaValidator,
     private readonly entitlements: StudioEntitlementsService,
   ) {}
@@ -69,6 +71,8 @@ export class ActionsService {
       await this.sections.require(projectId, body.sectionId);
     }
 
+    const pageIds = await this.resolvePageIds(projectId, body.pageIds);
+
     try {
       const doc = await this.actionModel.create({
         projectId,
@@ -77,6 +81,7 @@ export class ActionsService {
         inputSchema,
         enabled: body.enabled ?? true,
         sectionId: body.sectionId ?? null,
+        pageIds,
       });
       return this.toData(doc);
     } catch (error) {
@@ -196,6 +201,9 @@ export class ActionsService {
         $set.sectionId = null;
       }
     }
+    if (body.pageIds !== undefined) {
+      $set.pageIds = await this.resolvePageIds(projectId, body.pageIds);
+    }
 
     const doc = await this.actionModel
       .findOneAndUpdate(
@@ -257,6 +265,7 @@ export class ActionsService {
       inputSchema: doc.inputSchema,
       enabled: doc.enabled,
       sectionId: doc.sectionId ?? undefined,
+      pageIds: doc.pageIds?.length ? [...doc.pageIds] : undefined,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: (doc.updatedAt ?? new Date()).toISOString(),
     };
@@ -269,5 +278,20 @@ export class ActionsService {
       'code' in error &&
       (error as { code: number }).code === 11000
     );
+  }
+
+  private async resolvePageIds(
+    projectId: string,
+    pageIds?: string[],
+  ): Promise<string[]> {
+    if (!pageIds?.length) {
+      return [];
+    }
+
+    const unique = [...new Set(pageIds)];
+    for (const pageId of unique) {
+      await this.appPages.require(projectId, pageId);
+    }
+    return unique;
   }
 }

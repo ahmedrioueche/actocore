@@ -4,12 +4,17 @@ import {
   useMemo,
   type ReactNode,
 } from 'react';
+import type { HostContext } from '@ahmedrioueche/actocore-shared';
+import type { AppPageManifestEntry } from '@ahmedrioueche/actocore-shared';
 import type { ResolvedActocoreConfig } from '../config/types';
 import type { ActionRegistry } from '../actions/types';
 
 export interface ActocoreContextValue {
   config: ResolvedActocoreConfig;
   actions: ActionRegistry;
+  appPages: AppPageManifestEntry[];
+  hostContext?: HostContext;
+  setHostContext: (context: HostContext | undefined) => void;
 }
 
 const ActocoreContext = createContext<ActocoreContextValue | null>(null);
@@ -17,15 +22,21 @@ const ActocoreContext = createContext<ActocoreContextValue | null>(null);
 export function ActocoreContextProvider({
   config,
   actions,
+  appPages,
+  hostContext,
+  setHostContext,
   children,
 }: {
   config: ResolvedActocoreConfig;
   actions: ActionRegistry;
+  appPages: AppPageManifestEntry[];
+  hostContext?: HostContext;
+  setHostContext: (context: HostContext | undefined) => void;
   children: ReactNode;
 }) {
   const value = useMemo(
-    () => ({ config, actions }),
-    [config, actions],
+    () => ({ config, actions, appPages, hostContext, setHostContext }),
+    [config, actions, appPages, hostContext, setHostContext],
   );
 
   return (
@@ -55,6 +66,11 @@ export function useActocoreVoiceConfig() {
 
 export function useActocoreSecurity() {
   return useActocoreContext().config.security;
+}
+
+export function useActocoreHostContext() {
+  const { hostContext, setHostContext, appPages } = useActocoreContext();
+  return { hostContext, setHostContext, appPages };
 }
 
 export function useActionRegistry(): ActionRegistry {

@@ -33,4 +33,37 @@ describe('buildAppAssistantSystemPrompt', () => {
     expect(prompt).toContain('Always mention the demo table');
     expect(prompt).toContain('no in-app actions configured');
   });
+
+  it('includes app sitemap and live host context when provided', () => {
+    const prompt = buildAppAssistantSystemPrompt(
+      {
+        projectId: 'p1',
+        projectName: 'Demo',
+        settings: {},
+        apiKeyId: 'k1',
+      },
+      ['add_member'],
+      {
+        appPages: [
+          {
+            id: 'members',
+            title: 'Members',
+            route: '/members',
+            description: 'Manage members',
+          },
+        ],
+        hostContext: {
+          currentPage: 'members',
+          route: '/members/42',
+          selectedEntity: { type: 'member', id: '42', label: 'Jane' },
+        },
+      },
+    );
+
+    expect(prompt).toContain('Application pages:');
+    expect(prompt).toContain('members (/members)');
+    expect(prompt).toContain('Current user context:');
+    expect(prompt).toContain('Current page id: members');
+    expect(prompt).toContain('Selected member "Jane"');
+  });
 });

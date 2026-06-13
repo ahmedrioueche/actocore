@@ -71,6 +71,15 @@ export interface ActionsSdkCodeModalProps {
   projectId: string;
 }
 
+export interface CreateAppPageModalProps {
+  projectId: string;
+}
+
+export interface EditAppPageModalProps {
+  projectId: string;
+  pageId: string;
+}
+
 export type CreateProjectModalProps = Record<string, never>;
 
 export interface InviteMemberModalProps {
@@ -113,6 +122,8 @@ export interface ModalPropsMap {
   editSection: EditSectionModalProps;
   actionCreated: ActionCreatedModalProps;
   actionsSdkCode: ActionsSdkCodeModalProps;
+  createAppPage: CreateAppPageModalProps;
+  editAppPage: EditAppPageModalProps;
   createProject: CreateProjectModalProps;
   inviteMember: InviteMemberModalProps;
   editMember: EditMemberModalProps;

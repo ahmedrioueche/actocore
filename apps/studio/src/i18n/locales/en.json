@@ -261,7 +261,8 @@
       "description": "{{completed}} of {{total}} core steps complete.",
       "apiKeys": "Create at least one API key for SDK and server requests.",
       "knowledge": "Upload documents or URLs so the assistant can answer from your content.",
-      "actions": "Define tools the assistant can propose and your app can run."
+      "actions": "Define tools the assistant can propose and your app can run.",
+      "layout": "Define your app pages and link actions so the AI knows where things live."
     }
   },
   "projectPages": {
@@ -281,6 +282,11 @@
         "title": "Actions",
         "emptyTitle": "No actions yet",
         "emptyDescription": "Define tools your assistant can call from chat and voice."
+      },
+      "layout": {
+        "title": "App layout",
+        "emptyTitle": "No app pages yet",
+        "emptyDescription": "Define your app's pages and assign actions for AI context."
       },
       "sdkConfig": {
         "title": "SDK config",
@@ -443,9 +449,69 @@
       "confirm": "Delete source"
     }
   },
+  "projectLayout": {
+    "columns": {
+      "page": "Page",
+      "route": "Route",
+      "actions": "Actions",
+      "status": "Status",
+      "updated": "Updated"
+    },
+    "create": {
+      "button": "Add page",
+      "title": "New page",
+      "subtitle": "Define a host-app screen so the assistant knows where features live.",
+      "submit": "Create page"
+    },
+    "edit": {
+      "title": "Edit page",
+      "subtitle": "Update page details and linked actions.",
+      "submit": "Save changes",
+      "saved": "Saved"
+    },
+    "delete": {
+      "title": "Delete page?",
+      "text": "“{{title}}” will be removed. Linked actions stay in your catalog but lose this page assignment.",
+      "confirm": "Delete page"
+    },
+    "fields": {
+      "slug": "Page id",
+      "slugPlaceholder": "e.g. members",
+      "slugHint": "Stable id used in hostContext.currentPage. Lowercase slug only.",
+      "slugImmutable": "Page id cannot be changed after creation.",
+      "title": "Title",
+      "titlePlaceholder": "e.g. Members",
+      "route": "Route",
+      "routePlaceholder": "e.g. /members or /members/:id",
+      "description": "Description",
+      "descriptionPlaceholder": "What users do on this page (helps the assistant answer navigation questions)",
+      "enabled": "Enabled",
+      "enablePage": "Enable page",
+      "disablePage": "Disable page"
+    },
+    "actions": {
+      "title": "Actions on this page",
+      "description": "Assign existing actions from your catalog. This does not duplicate actions.",
+      "searchPlaceholder": "Search actions…",
+      "noActions": "Create actions first, then assign them here."
+    },
+    "integration": {
+      "title": "SDK integration",
+      "description": "Send the current URL path when users navigate. ActoCore matches it against the routes above and resolves the page automatically.",
+      "tipTitle": "No per-page code",
+      "tipBody": "Define routes once in App layout. In your app, pass only route (for example location.pathname). You do not need to set currentPage for each screen.",
+      "hookLabel": "React — update on navigation",
+      "oneLinerLabel": "One-off update"
+    },
+    "errors": {
+      "invalidSlug": "Page id must be a lowercase slug (letters, numbers, hyphens, underscores).",
+      "requiredFields": "Title and route are required."
+    }
+  },
   "projectActions": {
     "columns": {
       "name": "Action",
+      "pages": "Pages",
       "status": "Status",
       "updated": "Updated"
     },
@@ -465,7 +531,10 @@
       "inputSchemaPlaceholder": "{\n  \"type\": \"object\",\n  \"properties\": {}\n}",
       "inputSchemaHint": "JSON Schema describing the arguments the assistant must provide.",
       "enabled": "Enabled",
-      "section": "Section"
+      "section": "Section",
+      "pages": "App pages",
+      "pagesHint": "Link this action to pages in App layout. Unassigned actions remain available globally.",
+      "pagesEmpty": "Not linked to a page"
     },
     "create": {
       "button": "Create action",
@@ -741,6 +810,7 @@
       "section": "Project",
       "loadingName": "Loading…",
       "overview": "Overview",
+      "layout": "App layout",
       "docs": "Docs",
       "knowledge": "Knowledge",
       "actions": "Actions",

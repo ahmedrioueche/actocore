@@ -1,18 +1,18 @@
-import { Save } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from '@tanstack/react-router';
+import { useParams } from "@tanstack/react-router";
+import { Save } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { SdkConfigForm } from '@/components/sdk-config/SdkConfigForm';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { AsyncContent } from '@/components/states';
-import Button from '@/components/ui/Button';
-import Tip from '@/components/ui/Tip';
-import { useAuth } from '@/context/AuthContext';
-import { useSdkConfig, useUpdateSdkConfig } from '@/hooks/use-sdk-config';
-import { useProject } from '@/hooks/use-projects';
-import { canWriteSdkConfig } from '@/lib/studio-permissions';
-import { toast } from '@/stores/toast';
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SdkConfigForm } from "@/components/sdk-config/SdkConfigForm";
+import { AsyncContent } from "@/components/states";
+import Button from "@/components/ui/Button";
+import Tip from "@/components/ui/Tip";
+import { useAuth } from "@/context/AuthContext";
+import { useProject } from "@/hooks/use-projects";
+import { useSdkConfig, useUpdateSdkConfig } from "@/hooks/use-sdk-config";
+import { canWriteSdkConfig } from "@/lib/studio-permissions";
+import { toast } from "@/stores/toast";
 import {
   configToFormState,
   createDefaultSdkConfigFormState,
@@ -20,10 +20,10 @@ import {
   isSdkConfigFormDirty,
   validateSdkConfigForm,
   type SdkConfigFormState,
-} from '@/utils/sdk-config-form';
-import { getApiErrorMessage } from '@/utils/statusMessage';
+} from "@/utils/sdk-config-form";
+import { getApiErrorMessage } from "@/utils/statusMessage";
 
-const FORM_ID = 'sdk-config-form';
+const FORM_ID = "sdk-config-form";
 
 export default function ProjectSdkConfigPage() {
   const { t } = useTranslation();
@@ -53,8 +53,7 @@ export default function ProjectSdkConfigPage() {
   );
 
   const isDirty =
-    savedFormState !== null &&
-    isSdkConfigFormDirty(formState, savedFormState);
+    savedFormState !== null && isSdkConfigFormDirty(formState, savedFormState);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +66,7 @@ export default function ProjectSdkConfigPage() {
 
     try {
       await updateConfig.mutateAsync(formStateToPatch(formState));
-      toast.success(t('sdkConfig.saved'));
+      toast.success(t("sdkConfig.saved"));
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
       toast.error(
@@ -82,11 +81,11 @@ export default function ProjectSdkConfigPage() {
   return (
     <>
       <PageHeader
-        title={t('sdkConfig.title')}
+        title={t("sdkConfig.title")}
         subtitle={
           projectName
-            ? t('projectPages.sectionSubtitle', { project: projectName })
-            : t('projectPages.sections.sdkConfig.emptyDescription')
+            ? t("projectPages.sectionSubtitle", { project: projectName })
+            : t("projectPages.sections.sdkConfig.emptyDescription")
         }
         actions={
           canWrite ? (
@@ -97,7 +96,7 @@ export default function ProjectSdkConfigPage() {
               loading={updateConfig.isPending}
               disabled={!isDirty}
             >
-              {t('sdkConfig.save')}
+              {t("sdkConfig.save")}
             </Button>
           ) : null
         }
@@ -111,16 +110,16 @@ export default function ProjectSdkConfigPage() {
       >
         {projectId ? (
           <div className="space-y-4">
-            <Tip title={t('sdkConfig.loadRemoteConfigTip.title')}>
-              <p>{t('sdkConfig.loadRemoteConfigTip.body')}</p>
+            <Tip title={t("sdkConfig.loadRemoteConfigTip.title")}>
+              <p>{t("sdkConfig.loadRemoteConfigTip.body")}</p>
               <pre className="overflow-x-auto rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-text-primary whitespace-pre-wrap">
-                {t('sdkConfig.loadRemoteConfigTip.codeExample')}
+                {t("sdkConfig.loadRemoteConfigTip.codeExample")}
               </pre>
             </Tip>
 
             {!canWrite ? (
-              <Tip variant="warning" title={t('sdkConfig.readOnlyTitle')}>
-                <p>{t('sdkConfig.readOnly')}</p>
+              <Tip variant="warning" title={t("sdkConfig.readOnlyTitle")}>
+                <p>{t("sdkConfig.readOnly")}</p>
               </Tip>
             ) : null}
 

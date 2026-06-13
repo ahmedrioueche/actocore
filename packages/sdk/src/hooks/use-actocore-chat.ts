@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { chatApi } from '@ahmedrioueche/actocore-shared';
+import { chatApi, enrichHostContext } from '@ahmedrioueche/actocore-shared';
 import type {
   ChatIntent,
   ChatMessageData,
@@ -9,7 +9,7 @@ import type {
   ActionExecutionResult,
   SessionMessageData,
 } from '@ahmedrioueche/actocore-shared';
-import { useActocoreConfig } from '../context/actocore-context';
+import { useActocoreConfig, useActocoreHostContext } from '../context/actocore-context';
 import { useActocoreSession } from './use-actocore-session';
 import { useApiErrorMessage } from './use-api-error';
 
@@ -109,6 +109,11 @@ export function useActocoreChat(
   } = options;
 
   const config = useActocoreConfig();
+  const { hostContext, appPages } = useActocoreHostContext();
+  const resolvedHostContext = useMemo(
+    () => enrichHostContext(hostContext, appPages),
+    [appPages, hostContext],
+  );
   const { t } = useTranslation();
   const {
     sessionId,
@@ -256,6 +261,7 @@ export function useActocoreChat(
       const res = await chatApi.sendMessage({
         message: trimmed,
         sessionId: activeSessionId,
+        ...(resolvedHostContext ? { hostContext: resolvedHostContext } : {}),
       });
 
       if (!res.success || !res.data) {
@@ -273,7 +279,7 @@ export function useActocoreChat(
         assistant,
       ]);
     },
-    [formatSendFailure, onSessionId],
+    [formatSendFailure, onSessionId, resolvedHostContext],
   );
 
   const sendMessage = useCallback(
@@ -320,7 +326,11 @@ export function useActocoreChat(
 
       try {
         await chatApi.streamMessage(
-          { message: trimmed, sessionId },
+          {
+            message: trimmed,
+            sessionId,
+            ...(resolvedHostContext ? { hostContext: resolvedHostContext } : {}),
+          },
           {
             signal: abortController.signal,
             onEvent: (event: ChatStreamEvent) => {
@@ -422,6 +432,8 @@ export function useActocoreChat(
       config.streamResponses,
       flushStreamingContent,
       formatSendFailure,
+      hostContext,
+      resolvedHostContext,
       isSending,
       onSessionId,
       scheduleStreamingFlush,

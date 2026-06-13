@@ -8,6 +8,7 @@ import {
   type ActionSchemaEditorValue,
 } from '@/components/actions/ActionSchemaEditor';
 import { ActionCreateStepProgress } from '@/components/actions/ActionCreateStepProgress';
+import { ActionPagesField } from '@/components/actions/ActionPagesField';
 import { useSectionOptions } from '@/components/actions/use-section-options';
 import BaseModal from '@/components/ui/BaseModal';
 import CustomSelect from '@/components/ui/CustomSelect';
@@ -41,6 +42,7 @@ export default function CreateActionModal() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [sectionId, setSectionId] = useState('');
+  const [pageIds, setPageIds] = useState<string[]>([]);
   const [enabled, setEnabled] = useState(true);
   const [schemaEditor, setSchemaEditor] = useState<ActionSchemaEditorValue>(
     createInitialSchemaEditorValue('no_params'),
@@ -53,6 +55,7 @@ export default function CreateActionModal() {
       setName('');
       setDescription('');
       setSectionId(props?.defaultSectionId ?? '');
+      setPageIds([]);
       setEnabled(true);
       setSchemaEditor(createInitialSchemaEditorValue('no_params'));
       setError(null);
@@ -127,6 +130,7 @@ export default function CreateActionModal() {
         inputSchema: resolved.value,
         enabled,
         sectionId: sectionId || null,
+        pageIds: pageIds.length > 0 ? pageIds : undefined,
       });
 
       const parameters = schemaEditor.advancedMode
@@ -254,6 +258,12 @@ export default function CreateActionModal() {
               selectedOption={sectionId}
               onChange={setSectionId}
               showIcon={false}
+            />
+
+            <ActionPagesField
+              projectId={projectId ?? null}
+              value={pageIds}
+              onChange={setPageIds}
             />
           </>
         ) : (

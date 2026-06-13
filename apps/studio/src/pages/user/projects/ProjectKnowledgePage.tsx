@@ -1,14 +1,14 @@
-import { UploadCloud } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from '@tanstack/react-router';
+import { useParams } from "@tanstack/react-router";
+import { UploadCloud } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { KnowledgeTable } from '@/components/knowledge/KnowledgeTable';
-import { PageHeader } from '@/components/layout/PageHeader';
-import Button from '@/components/ui/Button';
-import { useAuth } from '@/context/AuthContext';
-import { useProject } from '@/hooks/use-projects';
-import { canWriteKnowledge } from '@/lib/studio-permissions';
-import { useModalStore } from '@/stores/modal';
+import { KnowledgeTable } from "@/components/knowledge/KnowledgeTable";
+import { PageHeader } from "@/components/layout/PageHeader";
+import Button from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
+import { useProject } from "@/hooks/use-projects";
+import { canWriteKnowledge } from "@/lib/studio-permissions";
+import { useModalStore } from "@/stores/modal";
 
 export default function ProjectKnowledgePage() {
   const { t } = useTranslation();
@@ -23,19 +23,19 @@ export default function ProjectKnowledgePage() {
   return (
     <>
       <PageHeader
-        title={t('projectPages.sections.knowledge.title')}
+        title={t("projectPages.sections.knowledge.title")}
         subtitle={
           projectName
-            ? t('projectPages.sectionSubtitle', { project: projectName })
-            : t('projectPages.sections.knowledge.emptyDescription')
+            ? t("projectPages.sectionSubtitle", { project: projectName })
+            : t("projectPages.sections.knowledge.emptyDescription")
         }
         actions={
           canWrite && projectId ? (
             <Button
               icon={<UploadCloud className="h-4 w-4" />}
-              onClick={() => openModal('uploadKnowledge', { projectId })}
+              onClick={() => openModal("uploadKnowledge", { projectId })}
             >
-              {t('knowledge.upload.button')}
+              {t("knowledge.upload.button")}
             </Button>
           ) : null
         }

@@ -1,22 +1,22 @@
-import { redirect } from '@tanstack/react-router';
-import type { StudioAuthMeData } from '@ahmedrioueche/actocore-shared';
+import type { StudioAuthMeData } from "@ahmedrioueche/actocore-shared";
 import {
   onboardingApi,
   studioAuthApi,
   TokenManager,
-} from '@ahmedrioueche/actocore-shared';
+} from "@ahmedrioueche/actocore-shared";
+import { redirect } from "@tanstack/react-router";
 
-import { canAccessProject } from '@/constants/navigation';
-import { ensureApiConfigured } from '@/lib/configure-api';
+import { canAccessProject } from "@/constants/navigation";
+import { ensureApiConfigured } from "@/lib/configure-api";
+import { parseApiResponse } from "@/lib/parse-api-response";
+import { queryClient } from "@/lib/query-client";
+import { queryKeys } from "@/lib/query-keys";
 import {
   isPlatformOperatorSession,
   PLATFORM_CONSOLE_HOME,
   TENANT_ONBOARDING_HOME,
   TENANT_WORKSPACE_HOME,
-} from '@/lib/tenant-workspace';
-import { parseApiResponse } from '@/lib/parse-api-response';
-import { queryClient } from '@/lib/query-client';
-import { queryKeys } from '@/lib/query-keys';
+} from "@/lib/tenant-workspace";
 
 export type OnboardingState = {
   required: boolean;
@@ -31,7 +31,9 @@ function isOnboardingPending(state: OnboardingState | undefined): boolean {
 }
 
 export function getCachedOnboardingState(): OnboardingState | undefined {
-  return queryClient.getQueryData<OnboardingState>(queryKeys.onboarding.state());
+  return queryClient.getQueryData<OnboardingState>(
+    queryKeys.onboarding.state(),
+  );
 }
 
 export function getCachedSession(): StudioAuthMeData | undefined {
@@ -42,7 +44,7 @@ export function getCachedSession(): StudioAuthMeData | undefined {
 export function requireStudioSession(): void {
   ensureApiConfigured();
   if (!TokenManager.getAccessToken()) {
-    throw redirect({ to: '/login' });
+    throw redirect({ to: "/login" });
   }
 }
 
@@ -80,12 +82,12 @@ export function requireProjectAccessSync(projectId: string): void {
   requireStudioSession();
 
   if (!projectId) {
-    throw redirect({ to: '/projects' });
+    throw redirect({ to: "/projects" });
   }
 
   const session = getCachedSession();
   if (session && !canAccessProject(session, projectId)) {
-    throw redirect({ to: '/projects' });
+    throw redirect({ to: "/projects" });
   }
 }
 
@@ -115,13 +117,12 @@ export function isOnboardingPendingState(
 export async function ensureOnboardingState(): Promise<OnboardingState> {
   ensureApiConfigured();
   if (!TokenManager.getAccessToken()) {
-    throw new Error('Not authenticated');
+    throw new Error("Not authenticated");
   }
 
   return queryClient.fetchQuery({
     queryKey: queryKeys.onboarding.state(),
-    queryFn: async () =>
-      parseApiResponse(await onboardingApi.getState()),
+    queryFn: async () => parseApiResponse(await onboardingApi.getState()),
     staleTime: ONBOARDING_STATE_STALE_MS,
   });
 }
@@ -131,7 +132,7 @@ export async function requireAuth(): Promise<void> {
   ensureApiConfigured();
   const token = TokenManager.getAccessToken();
   if (!token) {
-    throw redirect({ to: '/login' });
+    throw redirect({ to: "/login" });
   }
 
   let me = await studioAuthApi.me();
@@ -139,12 +140,12 @@ export async function requireAuth(): Promise<void> {
     const refreshed = await studioAuthApi.refresh();
     if (!refreshed.success) {
       TokenManager.clearTokens();
-      throw redirect({ to: '/login' });
+      throw redirect({ to: "/login" });
     }
     me = await studioAuthApi.me();
     if (!me.success) {
       TokenManager.clearTokens();
-      throw redirect({ to: '/login' });
+      throw redirect({ to: "/login" });
     }
   }
 }

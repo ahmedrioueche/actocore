@@ -17,6 +17,7 @@ export type {
   ActocoreUiTextOverrides,
 } from "./config/types";
 
+export { useActocoreHostContext } from "./context/actocore-context";
 export { useActocoreActions } from "./hooks/use-actocore-actions";
 export { useActocoreChat } from "./hooks/use-actocore-chat";
 export { useActocoreRuntime } from "./hooks/use-actocore-runtime";

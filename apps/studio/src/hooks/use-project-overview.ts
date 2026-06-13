@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { resolveUsageDateRange } from '@/hooks/use-usage-date-range';
 import { useProjectActions } from '@/hooks/use-actions';
+import { useAppPages } from '@/hooks/use-app-pages';
 import { useProjectApiKeys } from '@/hooks/use-api-keys';
 import { useProjectKnowledge } from '@/hooks/use-knowledge';
 import { useProject } from '@/hooks/use-projects';
@@ -17,6 +18,7 @@ export interface ProjectOverviewCounts {
   actions: number;
   apiKeys: number;
   knowledge: number;
+  appPages: number;
 }
 
 export function useProjectOverview(projectId: string | null) {
@@ -24,6 +26,7 @@ export function useProjectOverview(projectId: string | null) {
   const actionsQuery = useProjectActions(projectId, COUNT_QUERY);
   const apiKeysQuery = useProjectApiKeys(projectId, COUNT_QUERY);
   const knowledgeQuery = useProjectKnowledge(projectId, COUNT_QUERY);
+  const appPagesQuery = useAppPages(projectId);
 
   const usageRange = useMemo(() => resolveUsageDateRange(USAGE_PRESET), []);
   const usageSummaryQuery = useProjectUsageSummary(
@@ -41,12 +44,14 @@ export function useProjectOverview(projectId: string | null) {
     actions: actionsQuery.data?.total ?? 0,
     apiKeys: apiKeysQuery.data?.total ?? 0,
     knowledge: knowledgeQuery.data?.total ?? 0,
+    appPages: appPagesQuery.data?.length ?? 0,
   };
 
   const countsLoading =
     actionsQuery.isLoading ||
     apiKeysQuery.isLoading ||
-    knowledgeQuery.isLoading;
+    knowledgeQuery.isLoading ||
+    appPagesQuery.isLoading;
 
   const usageLoading =
     usageSummaryQuery.isLoading || usageBreakdownQuery.isLoading;

@@ -3,6 +3,10 @@ import '@ahmedrioueche/actocore-sdk/styles.css';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/context/AuthContext';
+import { useRouterState } from '@tanstack/react-router';
+import { useMemo } from 'react';
+
+import { resolveStudioHostContext } from '@/lib/studio-host-context';
 import { useTheme } from '@/context/ThemeContext';
 
 const API_URL =
@@ -18,6 +22,11 @@ export function StudioAssistant() {
   const { i18n } = useTranslation();
   const { theme } = useTheme();
   const { session, isLoading: isAuthLoading } = useAuth();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const hostContext = useMemo(
+    () => resolveStudioHostContext(pathname),
+    [pathname],
+  );
 
   if (!API_KEY) {
     if (import.meta.env.DEV) {
@@ -40,6 +49,7 @@ export function StudioAssistant() {
         loadRemoteConfig
         persistSession
         externalUserId={session?.user.id}
+        hostContext={hostContext}
         i18n={{ locale: i18n.language }}
         theme={{ mode: theme }}
         ui={{

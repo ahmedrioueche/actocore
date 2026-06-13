@@ -19,7 +19,7 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
         config.security?.enforceActionAllowlist ??
         (config.security?.allowedActionNames !== undefined &&
           config.security.allowedActionNames.length > 0),
-      hostContext: config.security?.hostContext,
+      hostContext: config.hostContext ?? config.security?.hostContext,
     },
     ui: {
       showSources: config.ui?.showSources ?? true,

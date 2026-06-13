@@ -2,17 +2,21 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
   ActionData,
+  AppPageManifestEntry,
   ChatIntent,
   ChatMessageData,
   ChatStreamEvent,
+  HostContext,
   RequestContextData,
   SendChatMessageDto,
   SessionMessageData,
   TokenUsageData,
+  enrichHostContext,
 } from '@ahmedrioueche/actocore-shared';
 import { ActionRunnerService } from '../actions/action-runner.service';
 import { ActionSelectorService } from '../actions/action-selector.service';
 import { ActionsService } from '../actions/actions.service';
+import { AppPagesService } from '../actions/app-pages.service';
 import {
   QA_NO_CITATIONS_REPLY,
   QaRunnerService,
@@ -50,6 +54,9 @@ interface PreparedIncomingMessage {
   followUp: { actionName: string; input: Record<string, unknown> } | null;
   history: SessionMessageData[];
   enabledActions: ActionData[];
+  hostContext?: HostContext;
+  appPages?: AppPageManifestEntry[];
+  currentPageId?: string;
 }
 
 @Injectable()
@@ -59,6 +66,7 @@ export class ChatOrchestratorService {
   constructor(
     private readonly sessions: SessionsService,
     private readonly actions: ActionsService,
+    private readonly appPages: AppPagesService,
     private readonly actionSelector: ActionSelectorService,
     private readonly actionRunner: ActionRunnerService,
     private readonly qaRunner: QaRunnerService,
@@ -205,14 +213,24 @@ export class ChatOrchestratorService {
     const prepStartedAt = Date.now();
     const projectId = context.projectId;
 
-    const [enabledActions, history] = await Promise.all([
+    const [enabledActions, history, appPages] = await Promise.all([
       this.listProjectActions(projectId),
       this.sessions.listRecentMessages(
         projectId,
         sessionId,
         PREP_HISTORY_LIMIT,
       ),
+      this.appPages.listManifest(projectId),
     ]);
+
+    const hostContext = enrichHostContext(
+      this.normalizeHostContext(body.hostContext),
+      appPages,
+    );
+    const currentPageDoc = hostContext?.currentPage
+      ? await this.appPages.requireBySlug(projectId, hostContext.currentPage)
+      : null;
+    const currentPageId = currentPageDoc?._id.toString();
 
     const enabledActionNames = enabledActions.map((a) => a.name);
     const followUp = resolveActionFollowUp(
@@ -249,7 +267,28 @@ export class ChatOrchestratorService {
       followUp,
       history,
       enabledActions,
+      hostContext,
+      appPages,
+      currentPageId,
     };
+  }
+
+  private normalizeHostContext(
+    hostContext?: HostContext,
+  ): HostContext | undefined {
+    if (!hostContext) {
+      return undefined;
+    }
+
+    const hasValue =
+      hostContext.currentPage?.trim() ||
+      hostContext.route?.trim() ||
+      hostContext.selectedEntity ||
+      hostContext.openModal?.trim() ||
+      hostContext.userRole?.trim() ||
+      (hostContext.custom && Object.keys(hostContext.custom).length > 0);
+
+    return hasValue ? hostContext : undefined;
   }
 
   private withUserMessage(
@@ -365,9 +404,8 @@ export class ChatOrchestratorService {
         );
       case 'action':
         return this.runActionBranchStream(
-          prep.projectId,
+          prep,
           userMessage,
-          prep.enabledActions,
           emit,
         );
       default: {
@@ -409,16 +447,11 @@ export class ChatOrchestratorService {
   }
 
   private async runActionBranchStream(
-    projectId: string,
+    prep: PreparedIncomingMessage,
     userMessage: string,
-    enabledActions: ActionData[],
     emit: ChatStreamEmitter,
   ): Promise<OrchestratorBranchPayload> {
-    const branch = await this.runActionBranch(
-      projectId,
-      userMessage,
-      enabledActions,
-    );
+    const branch = await this.runActionBranch(prep, userMessage);
     emit({ type: 'delta', text: branch.content });
     return branch;
   }
@@ -487,9 +520,8 @@ export class ChatOrchestratorService {
         return this.runQaBranch(context, prep, userMessage);
       case 'action':
         return this.runActionBranch(
-          prep.projectId,
+          prep,
           userMessage,
-          prep.enabledActions,
         );
       default: {
         const _exhaustive: never = intent;
@@ -527,20 +559,23 @@ export class ChatOrchestratorService {
   }
 
   private async runActionBranch(
-    projectId: string,
+    prep: PreparedIncomingMessage,
     userMessage: string,
-    enabled: ActionData[],
   ): Promise<OrchestratorBranchPayload> {
+    const enabled = prep.enabledActions;
     if (enabled.length === 0) {
       return { content: this.actionRunner.formatNoActionsMessage() };
     }
 
-    const sectionNames = await this.actions.sectionNameMap(projectId);
-    const selection = await this.actionSelector.select(
-      userMessage,
-      enabled,
+    const [sectionNames, pageTitles] = await Promise.all([
+      this.actions.sectionNameMap(prep.projectId),
+      this.appPages.titleMap(prep.projectId),
+    ]);
+    const selection = await this.actionSelector.select(userMessage, enabled, {
       sectionNames,
-    );
+      pageTitles,
+      currentPageId: prep.currentPageId,
+    });
 
     if (!selection) {
       return { content: this.actionRunner.formatNoMatchMessage(enabled) };
@@ -623,7 +658,10 @@ export class ChatOrchestratorService {
 
   private buildMessagesFromPrep(
     context: RequestContextData,
-    prep: Pick<PreparedIncomingMessage, 'enabledActions' | 'history'>,
+    prep: Pick<
+      PreparedIncomingMessage,
+      'enabledActions' | 'history' | 'hostContext' | 'appPages'
+    >,
     modeNote?: string,
   ): LlmMessage[] {
     const messages: LlmMessage[] = [];
@@ -633,6 +671,10 @@ export class ChatOrchestratorService {
       content: buildAppAssistantSystemPrompt(
         context,
         prep.enabledActions.map((a) => a.name),
+        {
+          hostContext: prep.hostContext,
+          appPages: prep.appPages,
+        },
       ),
     });
 

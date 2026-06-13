@@ -87,8 +87,6 @@ export function canWriteBilling(
   return canAccessNavItem(session, StudioPermission.BILLING_WRITE);
 }
 
-export function canWriteTeam(
-  session: StudioAuthMeData | undefined,
-): boolean {
+export function canWriteTeam(session: StudioAuthMeData | undefined): boolean {
   return canAccessNavItem(session, StudioPermission.TEAM_WRITE);
 }

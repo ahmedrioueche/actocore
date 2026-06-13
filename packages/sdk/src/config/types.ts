@@ -1,4 +1,5 @@
 import type { i18n } from 'i18next';
+import type { HostContext } from '@ahmedrioueche/actocore-shared';
 
 /** Theme tokens map to `--ac-*` CSS variables (without the prefix). */
 export type ActocoreThemeTokens = Record<string, string>;
@@ -22,10 +23,10 @@ export interface ActocoreSecurityConfig {
   /** Block handler execution when action is not allowlisted (default true if allowlist set). */
   enforceActionAllowlist?: boolean;
   /**
-   * Optional host context forwarded to Core later (route, user id).
-   * Not sent automatically until backend supports it.
+   * Optional host context forwarded to Core on each chat message.
+   * Prefer the top-level `hostContext` prop on ActocoreProvider for reactive updates.
    */
-  hostContext?: Record<string, unknown>;
+  hostContext?: HostContext;
 }
 
 /**
@@ -140,6 +141,8 @@ export interface ActocoreSdkConfig extends ActocoreApiConfig {
   ui?: ActocoreUiConfig;
   voice?: ActocoreVoiceConfig;
   i18n?: ActocoreI18nConfig;
+  /** Live host-app context sent with each chat message. */
+  hostContext?: HostContext;
   /** Stable host user id — scopes persisted chat sessions per end user. */
   externalUserId?: string;
   /** Restore the last chat session from localStorage on mount (default true). */

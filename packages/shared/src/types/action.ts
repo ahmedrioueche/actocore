@@ -13,6 +13,8 @@ export interface ActionData {
   enabled: boolean;
   /** Owning section id, or undefined when uncategorized. */
   sectionId?: string;
+  /** App layout page ids this action is linked to. */
+  pageIds?: string[];
   createdAt: string;
   updatedAt: string;
 }

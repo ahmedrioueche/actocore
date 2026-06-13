@@ -8,6 +8,7 @@ import {
   schemaEditorValueFromInputSchema,
   type ActionSchemaEditorValue,
 } from '@/components/actions/ActionSchemaEditor';
+import { ActionPagesField } from '@/components/actions/ActionPagesField';
 import { useSectionOptions } from '@/components/actions/use-section-options';
 import BaseModal from '@/components/ui/BaseModal';
 import CustomSelect from '@/components/ui/CustomSelect';
@@ -42,6 +43,7 @@ export default function EditActionModal() {
   const [advancedLocked, setAdvancedLocked] = useState(false);
   const [enabled, setEnabled] = useState(true);
   const [sectionId, setSectionId] = useState('');
+  const [pageIds, setPageIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const seededRef = useRef(false);
 
@@ -58,6 +60,7 @@ export default function EditActionModal() {
       setAdvancedLocked(isSchemaEditorAdvancedLocked(action.inputSchema));
       setEnabled(action.enabled);
       setSectionId(action.sectionId ?? '');
+      setPageIds(action.pageIds ?? []);
       setError(null);
       seededRef.current = true;
     }
@@ -97,6 +100,7 @@ export default function EditActionModal() {
           inputSchema: resolved.value,
           enabled,
           sectionId: sectionId || null,
+          pageIds,
         },
       });
       closeModal();
@@ -162,6 +166,13 @@ export default function EditActionModal() {
           onChange={setSectionId}
           disabled={actionQuery.isLoading}
           showIcon={false}
+        />
+
+        <ActionPagesField
+          projectId={projectId}
+          value={pageIds}
+          onChange={setPageIds}
+          disabled={actionQuery.isLoading}
         />
 
         <ActionSchemaEditor

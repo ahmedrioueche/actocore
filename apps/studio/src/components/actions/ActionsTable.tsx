@@ -14,6 +14,7 @@ import {
   useProjectActions,
   useUpdateAction,
 } from '@/hooks/use-actions';
+import { useAppPages } from '@/hooks/use-app-pages';
 import { canWriteActions } from '@/lib/studio-permissions';
 import { useModalStore } from '@/stores/modal';
 import { DEFAULT_PAGE_SIZE } from '@/types/pagination';
@@ -47,6 +48,15 @@ export function ActionsTable({ projectId, sectionId }: ActionsTableProps) {
   });
   const updateAction = useUpdateAction(projectId);
   const deleteAction = useDeleteAction(projectId);
+  const pagesQuery = useAppPages(projectId);
+
+  const pageTitleById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const page of pagesQuery.data ?? []) {
+      map.set(page.id, page.title);
+    }
+    return map;
+  }, [pagesQuery.data]);
 
   const canWrite = canWriteActions(session);
   const actions = actionsQuery.data?.items ?? [];
@@ -87,6 +97,33 @@ export function ActionsTable({ projectId, sectionId }: ActionsTableProps) {
                 ) : null}
               </div>
             </div>
+          );
+        },
+      },
+      {
+        id: 'pages',
+        accessorFn: (row) => row.pageIds?.join(',') ?? '',
+        header: t('projectActions.columns.pages'),
+        meta: {
+          widthClassName: 'w-40',
+          renderSkeleton: () => (
+            <div className="h-4 w-24 animate-pulse rounded bg-surface-hover" />
+          ),
+        },
+        cell: ({ row }) => {
+          const labels =
+            row.original.pageIds
+              ?.map((id) => pageTitleById.get(id))
+              .filter((label): label is string => Boolean(label)) ?? [];
+          if (labels.length === 0) {
+            return (
+              <span className="text-sm text-text-secondary">
+                {t('projectActions.fields.pagesEmpty')}
+              </span>
+            );
+          }
+          return (
+            <span className="text-sm text-text-primary">{labels.join(', ')}</span>
           );
         },
       },
@@ -213,6 +250,7 @@ export function ActionsTable({ projectId, sectionId }: ActionsTableProps) {
     openConfirm,
     openModal,
     projectId,
+    pageTitleById,
     t,
     updateAction,
   ]);

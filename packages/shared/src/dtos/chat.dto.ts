@@ -1,4 +1,6 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { HostContextDto } from './host-context.dto';
 
 export class SendChatMessageDto {
   @IsOptional()
@@ -8,4 +10,9 @@ export class SendChatMessageDto {
   @IsString()
   @MinLength(1)
   message!: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => HostContextDto)
+  hostContext?: HostContextDto;
 }

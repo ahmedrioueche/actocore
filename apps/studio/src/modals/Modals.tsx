@@ -57,6 +57,12 @@ const EditPlatformManagerModal = lazy(
 const DeleteAccountModal = lazy(
   () => import('@/components/settings/DeleteAccountModal'),
 );
+const CreateAppPageModal = lazy(
+  () => import('@/components/app-layout/CreateAppPageModal'),
+);
+const EditAppPageModal = lazy(
+  () => import('@/components/app-layout/EditAppPageModal'),
+);
 
 export default function Modals() {
   useModalBodyFlag();
@@ -83,6 +89,8 @@ export default function Modals() {
         <CreatePlatformManagerModal />
         <EditPlatformManagerModal />
         <DeleteAccountModal />
+        <CreateAppPageModal />
+        <EditAppPageModal />
       </Suspense>
     </>
   );

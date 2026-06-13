@@ -1,7 +1,15 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { configureApi, runtimeApi } from '@ahmedrioueche/actocore-shared';
-import type { SdkRuntimeConfigData } from '@ahmedrioueche/actocore-shared';
+import {
+  configureApi,
+  enrichHostContext,
+  runtimeApi,
+} from '@ahmedrioueche/actocore-shared';
+import type {
+  AppPageManifestEntry,
+  HostContext,
+  SdkRuntimeConfigData,
+} from '@ahmedrioueche/actocore-shared';
 import type { ActocoreSdkConfig } from '../config/types';
 import { mergeRemoteSdkConfig } from '../config/merge-remote-sdk-config';
 import { resolveConfig } from '../config/resolve-config';
@@ -15,6 +23,11 @@ export interface ActocoreProviderProps extends ActocoreSdkConfig {
   /** Host-registered action handlers keyed by action name */
   actions?: ActionRegistry;
   /**
+   * Live host-app context sent with each chat message.
+   * Pass `{ route: location.pathname }` on navigation — page slug is resolved from App Layout.
+   */
+  hostContext?: HostContext;
+  /**
    * When true, fetches GET /v1/sdk/runtime and merges `sdk` config under local props.
    * Local `i18n`, `theme`, `security`, `ui`, and `voice` override dashboard values.
    */
@@ -25,31 +38,48 @@ export function ActocoreProvider({
   children,
   actions = {},
   loadRemoteConfig = false,
+  hostContext,
   ...sdkConfig
 }: ActocoreProviderProps) {
   const [remoteSdk, setRemoteSdk] = useState<SdkRuntimeConfigData | null>(null);
+  const [appPages, setAppPages] = useState<AppPageManifestEntry[]>([]);
+  const [liveHostContext, setLiveHostContext] = useState<HostContext | undefined>(
+    hostContext ?? sdkConfig.security?.hostContext,
+  );
 
   useEffect(() => {
-    if (!loadRemoteConfig) {
-      setRemoteSdk(null);
-      return;
-    }
-
     let cancelled = false;
 
-    async function load() {
+    async function loadRuntime() {
       const res = await runtimeApi.getConfig();
-      if (!cancelled && res.success) {
-        setRemoteSdk(res.data?.sdk ?? null);
+      if (cancelled || !res.success || !res.data) {
+        return;
+      }
+
+      setAppPages(res.data.pages ?? []);
+      if (loadRemoteConfig) {
+        setRemoteSdk(res.data.sdk ?? null);
       }
     }
 
-    void load();
+    void loadRuntime();
 
     return () => {
       cancelled = true;
     };
   }, [loadRemoteConfig, sdkConfig.apiKey, sdkConfig.baseURL]);
+
+  useEffect(() => {
+    const raw = hostContext ?? sdkConfig.security?.hostContext;
+    setLiveHostContext(enrichHostContext(raw, appPages));
+  }, [appPages, hostContext, sdkConfig.security?.hostContext]);
+
+  const updateHostContext = useCallback(
+    (context: HostContext | undefined) => {
+      setLiveHostContext(enrichHostContext(context, appPages));
+    },
+    [appPages],
+  );
 
   const mergedConfig = useMemo(
     () => mergeRemoteSdkConfig(sdkConfig, remoteSdk),
@@ -82,7 +112,13 @@ export function ActocoreProvider({
 
   return (
     <I18nextProvider i18n={i18n}>
-      <ActocoreContextProvider config={resolved} actions={actions}>
+      <ActocoreContextProvider
+        config={resolved}
+        actions={actions}
+        appPages={appPages}
+        hostContext={liveHostContext}
+        setHostContext={updateHostContext}
+      >
         <ActocoreThemeRoot>
           <ActocoreSystemThemeSync />
           {children}

@@ -1,11 +1,12 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ApiKey, ApiKeySchema } from '../auth/schemas/api-key.schema';
-import { AuthModule } from '../auth/auth.module';
 import {
   ProjectAction,
   ProjectActionSchema,
 } from '../actions/schemas/project-action.schema';
+import { AuthModule } from '../auth/auth.module';
+import { ApiKey, ApiKeySchema } from '../auth/schemas/api-key.schema';
+import { KnowledgeStorageService } from '../knowledge/knowledge-storage.service';
 import {
   KnowledgeChunk,
   KnowledgeChunkSchema,
@@ -14,7 +15,6 @@ import {
   KnowledgeSource,
   KnowledgeSourceSchema,
 } from '../knowledge/schemas/knowledge-source.schema';
-import { KnowledgeStorageService } from '../knowledge/knowledge-storage.service';
 import {
   ChatMessage,
   ChatMessageSchema,
@@ -23,25 +23,28 @@ import {
   ChatSession,
   ChatSessionSchema,
 } from '../sessions/schemas/chat-session.schema';
-import { UsageEvent, UsageEventSchema } from '../usage/schemas/usage-event.schema';
-import { StudioBillingModule } from '../studio-billing/studio-billing.module';
-import { StudioModule } from '../studio/studio.module';
 import { SessionsModule } from '../sessions/sessions.module';
+import { StudioBillingModule } from '../studio-billing/studio-billing.module';
 import {
   StudioMembership,
   StudioMembershipSchema,
 } from '../studio/schemas/studio-membership.schema';
+import { StudioModule } from '../studio/studio.module';
+import {
+  UsageEvent,
+  UsageEventSchema,
+} from '../usage/schemas/usage-event.schema';
+import { ProjectDeleteService } from './project-delete.service';
 import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
-import { ProjectDeleteService } from './project-delete.service';
-import { SdkConfigAuditLogger } from './sdk-config/sdk-config-audit.logger';
+import { Project, ProjectSchema } from './schemas/project.schema';
 import {
   SdkConfigAudit,
   SdkConfigAuditSchema,
 } from './schemas/sdk-config-audit.schema';
+import { SdkConfigAuditLogger } from './sdk-config/sdk-config-audit.logger';
 import { SdkConfigController } from './sdk-config/sdk-config.controller';
 import { SdkConfigService } from './sdk-config/sdk-config.service';
-import { Project, ProjectSchema } from './schemas/project.schema';
 
 @Module({
   imports: [

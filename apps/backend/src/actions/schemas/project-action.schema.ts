@@ -22,6 +22,9 @@ export class ProjectAction {
   @Prop({ type: String, default: null, index: true })
   sectionId?: string | null;
 
+  @Prop({ type: [String], default: [] })
+  pageIds!: string[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -31,3 +34,4 @@ export const ProjectActionSchema = SchemaFactory.createForClass(ProjectAction);
 
 ProjectActionSchema.index({ projectId: 1, name: 1 }, { unique: true });
 ProjectActionSchema.index({ projectId: 1, sectionId: 1 });
+ProjectActionSchema.index({ projectId: 1, pageIds: 1 });

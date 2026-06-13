@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { ActionData } from '@ahmedrioueche/actocore-shared';
+import type { ActionData, HostContext } from '@ahmedrioueche/actocore-shared';
 import { LLM_PROVIDER, type LlmProvider } from '../external/llm/llm-provider.interface';
 import {
   extractNaturalLanguageActionInput,
@@ -11,6 +11,13 @@ export interface ActionSelection {
   input: Record<string, unknown>;
 }
 
+export interface ActionSelectorOptions {
+  sectionNames?: Map<string, string>;
+  pageTitles?: Map<string, string>;
+  /** Mongo id of the current app page when hostContext.currentPage slug is set. */
+  currentPageId?: string;
+}
+
 @Injectable()
 export class ActionSelectorService {
   constructor(@Inject(LLM_PROVIDER) private readonly llm: LlmProvider) {}
@@ -18,18 +25,40 @@ export class ActionSelectorService {
   async select(
     userMessage: string,
     actions: ActionData[],
-    sectionNames?: Map<string, string>,
+    options?: ActionSelectorOptions,
   ): Promise<ActionSelection | null> {
     if (actions.length === 0) {
       return null;
     }
 
-    const heuristic = this.selectHeuristic(userMessage, actions);
+    const ranked = this.rankActions(actions, options?.currentPageId);
+    const sectionNames = options?.sectionNames;
+
+    const heuristic = this.selectHeuristic(userMessage, ranked);
     if (heuristic) {
       return heuristic;
     }
 
-    return this.selectWithLlm(userMessage, actions, sectionNames);
+    return this.selectWithLlm(userMessage, ranked, options);
+  }
+
+  private rankActions(actions: ActionData[], currentPageId?: string): ActionData[] {
+    if (!currentPageId) {
+      return actions;
+    }
+
+    const onPage: ActionData[] = [];
+    const other: ActionData[] = [];
+
+    for (const action of actions) {
+      if (action.pageIds?.includes(currentPageId)) {
+        onPage.push(action);
+      } else {
+        other.push(action);
+      }
+    }
+
+    return [...onPage, ...other];
   }
 
   private selectHeuristic(
@@ -56,9 +85,9 @@ export class ActionSelectorService {
   private async selectWithLlm(
     userMessage: string,
     actions: ActionData[],
-    sectionNames?: Map<string, string>,
+    options?: ActionSelectorOptions,
   ): Promise<ActionSelection | null> {
-    const catalog = this.buildCatalog(actions, sectionNames);
+    const catalog = this.buildCatalog(actions, options);
 
     const completion = await this.llm.complete([
       {
@@ -98,11 +127,20 @@ export class ActionSelectorService {
   /** Renders the action catalog, grouped by section name when section info is available. */
   private buildCatalog(
     actions: ActionData[],
-    sectionNames?: Map<string, string>,
+    options?: ActionSelectorOptions,
   ): string {
-    const describe = (a: ActionData) =>
-      `- ${a.name}: ${a.description ?? 'No description'}\n  schema: ${JSON.stringify(a.inputSchema)}`;
+    const pageTitles = options?.pageTitles;
+    const describe = (a: ActionData) => {
+      const pageLabels =
+        a.pageIds
+          ?.map((id) => pageTitles?.get(id))
+          .filter((label): label is string => Boolean(label)) ?? [];
+      const pagesSuffix =
+        pageLabels.length > 0 ? ` [pages: ${pageLabels.join(', ')}]` : '';
+      return `- ${a.name}: ${a.description ?? 'No description'}${pagesSuffix}\n  schema: ${JSON.stringify(a.inputSchema)}`;
+    };
 
+    const sectionNames = options?.sectionNames;
     if (!sectionNames || sectionNames.size === 0) {
       return actions.map(describe).join('\n');
     }

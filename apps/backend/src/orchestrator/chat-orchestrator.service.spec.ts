@@ -13,6 +13,7 @@ import { UsageService } from '../usage/usage.service';
 import { LLM_PROVIDER } from '../external/llm/llm-provider.interface';
 import { SessionsService } from '../sessions/sessions.service';
 import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
+import { AppPagesService } from '../actions/app-pages.service';
 import { ChatOrchestratorService } from './chat-orchestrator.service';
 import { INTENT_CLASSIFIER } from './intent-classifier.interface';
 
@@ -58,6 +59,11 @@ describe('ChatOrchestratorService', () => {
     filterEnabledActions: jest.fn(
       (_projectId: string, actions: unknown[]) => actions,
     ),
+  };
+  const appPagesMock = {
+    listManifest: jest.fn().mockResolvedValue([]),
+    requireBySlug: jest.fn().mockResolvedValue(null),
+    titleMap: jest.fn().mockResolvedValue(new Map<string, string>()),
   };
   const configServiceMock = {
     getOrThrow: jest.fn().mockReturnValue({ provider: 'stub' }),
@@ -107,6 +113,7 @@ describe('ChatOrchestratorService', () => {
         ChatResponseFormatter,
         { provide: SessionsService, useValue: sessionsMock },
         { provide: ActionsService, useValue: actionsMock },
+        { provide: AppPagesService, useValue: appPagesMock },
         { provide: ActionSelectorService, useValue: selectorMock },
         { provide: ActionRunnerService, useValue: runnerMock },
         { provide: QaRunnerService, useValue: qaRunnerMock },

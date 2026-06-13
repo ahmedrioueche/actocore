@@ -4,7 +4,9 @@
  */
 export * from './action.dto';
 export * from './api-key.dto';
+export * from './app-page.dto';
 export * from './chat.dto';
+export * from './host-context.dto';
 export * from './project.dto';
 export * from './session.dto';
 export * from './knowledge.dto';

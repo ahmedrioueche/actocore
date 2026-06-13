@@ -1,3 +1,4 @@
+import type { AppPageManifestEntry, HostContext } from '@ahmedrioueche/actocore-shared';
 import type { RequestContextData } from '@ahmedrioueche/actocore-shared';
 
 /**
@@ -7,6 +8,10 @@ import type { RequestContextData } from '@ahmedrioueche/actocore-shared';
 export function buildAppAssistantSystemPrompt(
   context: RequestContextData,
   enabledActionNames: string[],
+  options?: {
+    hostContext?: HostContext;
+    appPages?: AppPageManifestEntry[];
+  },
 ): string {
   const lines = [
     `You are the in-app assistant for "${context.projectName}".`,
@@ -16,6 +21,16 @@ export function buildAppAssistantSystemPrompt(
     'Never pretend to be a general-purpose ChatGPT-style assistant.',
     'Format replies with Markdown. For grouped features or topics, use bold section titles on their own line (e.g. **Feature area**: …) instead of bullet lists with asterisks.',
   ];
+
+  const sitemap = buildAppSitemapBlock(options?.appPages);
+  if (sitemap) {
+    lines.push('', sitemap);
+  }
+
+  const hostBlock = formatHostContextBlock(options?.hostContext);
+  if (hostBlock) {
+    lines.push('', hostBlock);
+  }
 
   if (enabledActionNames.length > 0) {
     lines.push(
@@ -43,4 +58,57 @@ export function buildAppAssistantSystemPrompt(
   }
 
   return lines.join('\n');
+}
+
+export function buildAppSitemapBlock(
+  pages?: AppPageManifestEntry[],
+): string | null {
+  if (!pages?.length) {
+    return null;
+  }
+
+  const lines = pages.map((page) => {
+    const desc = page.description?.trim();
+    return desc
+      ? `- ${page.id} (${page.route}): ${page.title} — ${desc}`
+      : `- ${page.id} (${page.route}): ${page.title}`;
+  });
+
+  return ['Application pages:', ...lines].join('\n');
+}
+
+export function formatHostContextBlock(
+  hostContext?: HostContext,
+): string | null {
+  if (!hostContext) {
+    return null;
+  }
+
+  const parts: string[] = [];
+
+  if (hostContext.currentPage?.trim()) {
+    parts.push(`Current page id: ${hostContext.currentPage.trim()}`);
+  }
+  if (hostContext.route?.trim()) {
+    parts.push(`Route: ${hostContext.route.trim()}`);
+  }
+  if (hostContext.selectedEntity) {
+    const entity = hostContext.selectedEntity;
+    const label = entity.label ? ` "${entity.label}"` : '';
+    parts.push(
+      `Selected ${entity.type}${label} (id: ${entity.id})`,
+    );
+  }
+  if (hostContext.openModal?.trim()) {
+    parts.push(`Open modal: ${hostContext.openModal.trim()}`);
+  }
+  if (hostContext.userRole?.trim()) {
+    parts.push(`User role: ${hostContext.userRole.trim()}`);
+  }
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  return ['Current user context:', ...parts.map((p) => `- ${p}`)].join('\n');
 }

@@ -9,6 +9,7 @@ import {
   FolderKanban,
   KeyRound,
   LayoutDashboard,
+  Map,
   Receipt,
   Settings,
   Settings2,
@@ -84,6 +85,7 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       exact: true,
       permission: StudioPermission.PROJECT_READ,
     },
+
     {
       path: `${base}/docs`,
       labelKey: "nav.project.docs",
@@ -105,11 +107,19 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       matchPaths: [`${base}/knowledge`],
       permission: StudioPermission.KNOWLEDGE_READ,
     },
+
     {
       path: `${base}/actions`,
       labelKey: "nav.project.actions",
       icon: Zap,
       matchPaths: [`${base}/actions`],
+      permission: StudioPermission.ACTIONS_READ,
+    },
+    {
+      path: `${base}/layout`,
+      labelKey: "nav.project.layout",
+      icon: Map,
+      matchPaths: [`${base}/layout`],
       permission: StudioPermission.ACTIONS_READ,
     },
     {
