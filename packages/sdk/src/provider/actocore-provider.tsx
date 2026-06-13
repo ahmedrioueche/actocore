@@ -43,22 +43,37 @@ export function ActocoreProvider({
 }: ActocoreProviderProps) {
   const [remoteSdk, setRemoteSdk] = useState<SdkRuntimeConfigData | null>(null);
   const [appPages, setAppPages] = useState<AppPageManifestEntry[]>([]);
+  const [presentationReady, setPresentationReady] = useState(
+    () => !loadRemoteConfig,
+  );
   const [liveHostContext, setLiveHostContext] = useState<HostContext | undefined>(
     hostContext ?? sdkConfig.security?.hostContext,
   );
 
   useEffect(() => {
+    if (!loadRemoteConfig) {
+      setPresentationReady(true);
+    } else {
+      setPresentationReady(false);
+    }
+
     let cancelled = false;
 
     async function loadRuntime() {
-      const res = await runtimeApi.getConfig();
-      if (cancelled || !res.success || !res.data) {
-        return;
-      }
+      try {
+        const res = await runtimeApi.getConfig();
+        if (cancelled || !res.success || !res.data) {
+          return;
+        }
 
-      setAppPages(res.data.pages ?? []);
-      if (loadRemoteConfig) {
-        setRemoteSdk(res.data.sdk ?? null);
+        setAppPages(res.data.pages ?? []);
+        if (loadRemoteConfig) {
+          setRemoteSdk(res.data.sdk ?? null);
+        }
+      } finally {
+        if (!cancelled && loadRemoteConfig) {
+          setPresentationReady(true);
+        }
       }
     }
 
@@ -118,6 +133,7 @@ export function ActocoreProvider({
         appPages={appPages}
         hostContext={liveHostContext}
         setHostContext={updateHostContext}
+        presentationReady={presentationReady}
       >
         <ActocoreThemeRoot>
           <ActocoreSystemThemeSync />

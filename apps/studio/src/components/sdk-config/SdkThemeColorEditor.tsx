@@ -5,41 +5,40 @@ import { HexColorField } from '@/components/sdk-config/HexColorField';
 import {
   SDK_THEME_COLOR_DEFAULTS,
   SDK_THEME_COLOR_FIELDS,
-  SDK_THEME_COLOR_VARIANTS,
   type SdkThemeColorVariant,
   type ThemeColorsByVariant,
 } from '@/constants/sdk-theme';
-import type { SdkThemeMode } from '@ahmedrioueche/actocore-shared';
+import {
+  type SdkAppThemesSupport,
+  visibleThemeColorVariants,
+} from '@/constants/sdk-app-themes';
 import { cn } from '@/utils/helper';
 
 interface SdkThemeColorEditorProps {
-  themeMode: SdkThemeMode;
+  appThemes: SdkAppThemesSupport;
   value: ThemeColorsByVariant;
   onChange: (value: ThemeColorsByVariant) => void;
   disabled?: boolean;
 }
 
-function editorVariantForThemeMode(mode: SdkThemeMode): SdkThemeColorVariant {
-  return mode === 'dark' ? 'dark' : 'light';
-}
-
 export function SdkThemeColorEditor({
-  themeMode,
+  appThemes,
   value,
   onChange,
   disabled = false,
 }: SdkThemeColorEditorProps) {
   const { t } = useTranslation();
+  const visibleVariants = visibleThemeColorVariants(appThemes);
+  const showTabs = visibleVariants.length > 1;
   const [activeVariant, setActiveVariant] = useState<SdkThemeColorVariant>(
-    editorVariantForThemeMode(themeMode),
+    visibleVariants[0],
   );
 
   useEffect(() => {
-    if (themeMode === 'system') {
-      return;
+    if (!visibleVariants.includes(activeVariant)) {
+      setActiveVariant(visibleVariants[0]);
     }
-    setActiveVariant(editorVariantForThemeMode(themeMode));
-  }, [themeMode]);
+  }, [activeVariant, visibleVariants]);
 
   const patchColor = (
     variant: SdkThemeColorVariant,
@@ -55,45 +54,55 @@ export function SdkThemeColorEditor({
     });
   };
 
+  const colorsHintKey =
+    appThemes === 'both'
+      ? 'themeColorsBothHint'
+      : appThemes === 'light'
+        ? 'themeColorsLightOnlyHint'
+        : 'themeColorsDarkOnlyHint';
+
   return (
     <div className="border-t border-border pt-4">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className={cn(
+          'mb-4 flex flex-col gap-3',
+          showTabs && 'sm:flex-row sm:items-center sm:justify-between',
+        )}
+      >
         <p className="text-sm font-medium text-text-primary">
           {t('sdkConfig.fields.colorsGroup')}
         </p>
-        <div
-          className="flex gap-1 rounded-xl bg-surface-secondary p-1"
-          role="tablist"
-          aria-label={t('sdkConfig.fields.colorPaletteTabs')}
-        >
-          {SDK_THEME_COLOR_VARIANTS.map((variant) => (
-            <button
-              key={variant}
-              type="button"
-              role="tab"
-              aria-selected={activeVariant === variant}
-              disabled={disabled}
-              onClick={() => setActiveVariant(variant)}
-              className={cn(
-                'rounded-lg px-3 py-2 text-xs font-medium transition-colors sm:text-sm',
-                activeVariant === variant
-                  ? 'bg-surface text-text-primary shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary',
-                disabled && 'cursor-not-allowed opacity-50',
-              )}
-            >
-              {t(`sdkConfig.fields.colorPalettes.${variant}`)}
-            </button>
-          ))}
-        </div>
+        {showTabs ? (
+          <div
+            className="flex gap-1 rounded-xl bg-surface-secondary p-1"
+            role="tablist"
+            aria-label={t('sdkConfig.fields.colorPaletteTabs')}
+          >
+            {visibleVariants.map((variant) => (
+              <button
+                key={variant}
+                type="button"
+                role="tab"
+                aria-selected={activeVariant === variant}
+                disabled={disabled}
+                onClick={() => setActiveVariant(variant)}
+                className={cn(
+                  'rounded-lg px-3 py-2 text-xs font-medium transition-colors sm:text-sm',
+                  activeVariant === variant
+                    ? 'bg-surface text-text-primary shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary',
+                  disabled && 'cursor-not-allowed opacity-50',
+                )}
+              >
+                {t(`sdkConfig.fields.colorPalettes.${variant}`)}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <p className="mb-4 text-xs text-text-secondary">
-        {themeMode === 'system'
-          ? t('sdkConfig.fields.themeColorsSystemHint')
-          : t('sdkConfig.fields.themeColorsModeHint', {
-              mode: t(`theme.modes.${themeMode}`),
-            })}
+        {t(`sdkConfig.fields.${colorsHintKey}`)}
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2">

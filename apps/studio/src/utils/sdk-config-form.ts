@@ -1,6 +1,12 @@
 import {
+  appThemesToSdkMode,
+  SDK_CONFIG_APP_THEMES_DEFAULT,
+  sdkModeToAppThemes,
+  visibleThemeColorVariants,
+  type SdkAppThemesSupport,
+} from '@/constants/sdk-app-themes';
+import {
   SDK_CONFIG_COMPOSER_DEFAULTS,
-  SDK_CONFIG_THEME_MODE_DEFAULT,
   SDK_CONFIG_UI_TEXT_DEFAULTS,
   SDK_CONFIG_UI_TOGGLE_DEFAULTS,
   SDK_CONFIG_WIDGET_DEFAULTS,
@@ -12,22 +18,19 @@ import {
   resolveFontPreset,
   SDK_FONT_FAMILY_TOKEN,
   SDK_THEME_COLOR_FIELDS,
-  SDK_THEME_COLOR_VARIANTS,
   themeColorStorageKey,
   type SdkThemeColorToken,
-  type SdkThemeColorVariant,
   type ThemeColorsByVariant,
 } from '@/constants/sdk-theme';
 import { isValidHexColor, normalizeHexColor } from '@/utils/hex-color';
 import type {
   SdkProjectConfigData,
-  SdkThemeMode,
   SdkWidgetPosition,
   UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
 
 export interface SdkConfigFormState {
-  themeMode: SdkThemeMode;
+  appThemes: SdkAppThemesSupport;
   themeColorsByVariant: ThemeColorsByVariant;
   fontPreset: string;
   fontCustom: string;
@@ -125,7 +128,7 @@ function uiTextFieldForPatch(
 export function createDefaultSdkConfigFormState(): SdkConfigFormState {
   const { preset, customValue } = resolveFontPreset('');
   return {
-    themeMode: SDK_CONFIG_THEME_MODE_DEFAULT,
+    appThemes: SDK_CONFIG_APP_THEMES_DEFAULT,
     themeColorsByVariant: createEmptyThemeColorsByVariant(),
     fontPreset: preset,
     fontCustom: customValue,
@@ -166,7 +169,7 @@ export function configToFormState(
   const { preset, customValue } = resolveFontPreset(fontFamily);
 
   return {
-    themeMode: config.theme?.mode ?? defaults.themeMode,
+    appThemes: sdkModeToAppThemes(config.theme?.mode),
     themeColorsByVariant,
     fontPreset: preset,
     fontCustom: customValue,
@@ -217,7 +220,7 @@ function isValidHttpUrl(value: string): boolean {
 function buildThemeTokens(state: SdkConfigFormState): Record<string, string> {
   const tokens: Record<string, string> = {};
 
-  for (const variant of SDK_THEME_COLOR_VARIANTS) {
+  for (const variant of visibleThemeColorVariants(state.appThemes)) {
     for (const field of SDK_THEME_COLOR_FIELDS) {
       const normalized = normalizeHexColor(
         state.themeColorsByVariant[variant][field.token],
@@ -283,7 +286,7 @@ export function validateSdkConfigForm(
     return 'launcherOffsetInvalid';
   }
 
-  for (const variant of SDK_THEME_COLOR_VARIANTS) {
+  for (const variant of visibleThemeColorVariants(state.appThemes)) {
     if (!validateThemeColors(state.themeColorsByVariant[variant])) {
       return 'invalidHexColor';
     }
@@ -367,7 +370,7 @@ export function formStateToPatch(
 
   return {
     theme: {
-      mode: state.themeMode,
+      mode: appThemesToSdkMode(state.appThemes),
       tokens,
     },
     ui: {

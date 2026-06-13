@@ -1,4 +1,6 @@
-import type { SdkThemeMode, SdkWidgetPosition } from '@ahmedrioueche/actocore-shared';
+import type { SdkWidgetPosition } from '@ahmedrioueche/actocore-shared';
+
+export { SDK_CONFIG_APP_THEMES_DEFAULT } from '@/constants/sdk-app-themes';
 
 /** Built-in SDK copy defaults — keep in sync with packages/sdk/src/i18n/locales/en.json */
 export const SDK_CONFIG_UI_TEXT_DEFAULTS = {
@@ -25,8 +27,6 @@ export const SDK_CONFIG_COMPOSER_DEFAULTS = {
   composerMinRows: 1,
   composerMaxRows: 6,
 } as const;
-
-export const SDK_CONFIG_THEME_MODE_DEFAULT: SdkThemeMode = 'light';
 
 export const SDK_CONFIG_WIDGET_DEFAULTS = {
   position: 'bottom-right' as SdkWidgetPosition,

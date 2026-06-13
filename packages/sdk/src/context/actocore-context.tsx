@@ -15,6 +15,8 @@ export interface ActocoreContextValue {
   appPages: AppPageManifestEntry[];
   hostContext?: HostContext;
   setHostContext: (context: HostContext | undefined) => void;
+  /** False while dashboard config is loading when `loadRemoteConfig` is enabled. */
+  presentationReady: boolean;
 }
 
 const ActocoreContext = createContext<ActocoreContextValue | null>(null);
@@ -25,6 +27,7 @@ export function ActocoreContextProvider({
   appPages,
   hostContext,
   setHostContext,
+  presentationReady = true,
   children,
 }: {
   config: ResolvedActocoreConfig;
@@ -32,11 +35,19 @@ export function ActocoreContextProvider({
   appPages: AppPageManifestEntry[];
   hostContext?: HostContext;
   setHostContext: (context: HostContext | undefined) => void;
+  presentationReady?: boolean;
   children: ReactNode;
 }) {
   const value = useMemo(
-    () => ({ config, actions, appPages, hostContext, setHostContext }),
-    [config, actions, appPages, hostContext, setHostContext],
+    () => ({
+      config,
+      actions,
+      appPages,
+      hostContext,
+      setHostContext,
+      presentationReady,
+    }),
+    [config, actions, appPages, hostContext, setHostContext, presentationReady],
   );
 
   return (

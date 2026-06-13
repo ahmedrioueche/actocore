@@ -625,7 +625,7 @@
     "sections": {
       "appearance": {
         "title": "Apparence",
-        "description": "Mode thème, couleurs de la marque et typographie pour le widget de chat intégré."
+        "description": "Indiquez les thèmes pris en charge par votre application, puis définissez les couleurs de marque et la typographie du widget de chat intégré."
       },
       "chatUi": {
         "title": "Interface utilisateur de discussion",
@@ -637,9 +637,14 @@
       }
     },
     "fields": {
-      "themeMode": "Mode thème",
-      "themeModeHint": "Applies when the host app uses loadRemoteConfig or merges dashboard settings.",
-      "themeModeDefault": "Par défaut : {{mode}}.",
+      "appThemes": "Thèmes dans votre application",
+      "appThemesHint": "Correspond à ce que votre application hôte prend en charge. Le SDK utilise la palette du thème actif.",
+      "appThemesDefault": "Par défaut : {{option}}.",
+      "appThemesOptions": {
+        "both": "Clair et sombre",
+        "light": "Clair uniquement",
+        "dark": "Sombre uniquement"
+      },
       "defaultPlaceholder": "Par défaut : {{value}}",
       "defaultOn": "Par défaut : activé",
       "defaultOff": "Par défaut : désactivé",
@@ -651,8 +656,9 @@
         "light": "Palette de lumière",
         "dark": "Palette sombre"
       },
-      "themeColorsSystemHint": "Configurez des palettes distinctes pour la lumière et l'obscurité. Le SDK sélectionne le bon ensemble dans le mode thème (y compris les préférences système).",
-      "themeColorsModeHint": "Modification de la palette {{mode}}. Changez d'onglet pour personnaliser l'autre apparence.",
+      "themeColorsBothHint": "Configurez des palettes distinctes pour le clair et le sombre. Le SDK choisit la palette qui correspond au thème actif dans votre application.",
+      "themeColorsLightOnlyHint": "Configurez les couleurs de marque pour le thème clair de votre application.",
+      "themeColorsDarkOnlyHint": "Configurez les couleurs de marque pour le thème sombre de votre application.",
       "themeColorsHint": "Laissez vide pour utiliser les valeurs par défaut du SDK pour cette palette. Choisissez un échantillon ou entrez un code hexadécimal (#RGB ou #RRGGBB).",
       "themeColors": {
         "color-primary": "Primaire",

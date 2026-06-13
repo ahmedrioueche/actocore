@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { SdkLauncherPositionPicker } from '@/components/sdk-config/SdkLauncherPositionPicker';
-import { SdkThemeModePicker } from '@/components/sdk-config/SdkThemeModePicker';
+import { SdkAppThemesPicker } from '@/components/sdk-config/SdkAppThemesPicker';
 import { SdkThemeColorEditor } from '@/components/sdk-config/SdkThemeColorEditor';
 import { SdkFontField } from '@/components/sdk-config/SdkFontField';
 import InputField from '@/components/ui/InputField';
@@ -69,14 +69,14 @@ export function SdkConfigForm({
         title={t('sdkConfig.sections.appearance.title')}
         description={t('sdkConfig.sections.appearance.description')}
       >
-        <SdkThemeModePicker
-          value={value.themeMode}
-          onChange={(themeMode) => patch({ themeMode })}
+        <SdkAppThemesPicker
+          value={value.appThemes}
+          onChange={(appThemes) => patch({ appThemes })}
           disabled={disabled}
         />
 
         <SdkThemeColorEditor
-          themeMode={value.themeMode}
+          appThemes={value.appThemes}
           value={value.themeColorsByVariant}
           onChange={(themeColorsByVariant) => patch({ themeColorsByVariant })}
           disabled={disabled}

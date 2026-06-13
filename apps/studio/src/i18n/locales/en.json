@@ -694,7 +694,7 @@
     "sections": {
       "appearance": {
         "title": "Appearance",
-        "description": "Theme mode, brand colors, and typography for the embedded chat widget."
+        "description": "Choose which themes your app uses, then set brand colors and typography for the embedded chat widget."
       },
       "chatUi": {
         "title": "Chat UI",
@@ -706,9 +706,14 @@
       }
     },
     "fields": {
-      "themeMode": "Theme mode",
-      "themeModeHint": "Applies when the host app uses loadRemoteConfig or merges dashboard settings.",
-      "themeModeDefault": "Default: {{mode}}.",
+      "appThemes": "Themes in your app",
+      "appThemesHint": "Match what your host app supports. The SDK uses the palette for the active theme.",
+      "appThemesDefault": "Default: {{option}}.",
+      "appThemesOptions": {
+        "both": "Light & dark",
+        "light": "Light only",
+        "dark": "Dark only"
+      },
       "defaultPlaceholder": "Default: {{value}}",
       "defaultOn": "Default: on",
       "defaultOff": "Default: off",
@@ -720,8 +725,9 @@
         "light": "Light palette",
         "dark": "Dark palette"
       },
-      "themeColorsSystemHint": "Configure separate palettes for light and dark. The SDK picks the right set from theme mode (including system preference).",
-      "themeColorsModeHint": "Editing the {{mode}} palette. Switch tabs to customize the other appearance.",
+      "themeColorsBothHint": "Configure separate palettes for light and dark. The SDK picks the palette that matches the active theme in your app.",
+      "themeColorsLightOnlyHint": "Configure brand colors for your app's light theme.",
+      "themeColorsDarkOnlyHint": "Configure brand colors for your app's dark theme.",
       "themeColorsHint": "Leave blank to use SDK defaults for that palette. Pick a swatch or enter a hex code (#RGB or #RRGGBB).",
       "themeColors": {
         "color-primary": "Primary",
