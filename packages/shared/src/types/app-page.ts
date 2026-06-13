@@ -19,7 +19,10 @@ export interface AppPageData {
 
 /** Slim page entry exposed on GET /v1/sdk/runtime. */
 export interface AppPageManifestEntry {
+  /** Stable page slug for hostContext.currentPage. */
   id: string;
+  /** Mongo id for linking actions to this page in Studio. */
+  pageId?: string;
   title: string;
   route: string;
   description?: string;

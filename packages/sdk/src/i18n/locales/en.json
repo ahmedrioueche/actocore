@@ -48,7 +48,12 @@
     "pickerOpen": "Action shortcuts",
     "pickerLabel": "Actions",
     "pickerTitle": "What do you want to do?",
-    "pickerHint": "Inserts a starter phrase — finish the sentence, send, then confirm the action in your app."
+    "pickerHint": "Inserts a starter phrase — finish the sentence, send, then confirm the action in your app.",
+    "pickerScopeLabel": "Action scope",
+    "pickerScopePage": "This page",
+    "pickerScopeAll": "All actions",
+    "pickerEmptyPage": "No actions are linked to this page. Switch to all actions or assign actions in App layout.",
+    "pickerEmptyNoPage": "Navigate to a page in your app, or switch to all actions."
   },
   "voice": {
     "startListening": "Start voice input",

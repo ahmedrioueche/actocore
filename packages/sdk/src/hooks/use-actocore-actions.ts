@@ -11,6 +11,14 @@ import {
 import { isActionAllowed } from '../security/action-allowlist';
 import { useApiErrorMessage } from './use-api-error';
 
+export interface UseActocoreActionsOptions {
+  /**
+   * When false, lists enabled Core actions even without a local handler.
+   * Use for UI discovery (action picker); execution still requires a handler.
+   */
+  requireHandlers?: boolean;
+}
+
 export interface UseActocoreActionsResult {
   actions: ActionData[];
   isLoading: boolean;
@@ -18,7 +26,10 @@ export interface UseActocoreActionsResult {
   usingFallback: boolean;
 }
 
-export function useActocoreActions(): UseActocoreActionsResult {
+export function useActocoreActions(
+  options: UseActocoreActionsOptions = {},
+): UseActocoreActionsResult {
+  const requireHandlers = options.requireHandlers ?? true;
   const { api } = useActocoreConfig();
   const security = useActocoreSecurity();
   const handlers = useActionRegistry();
@@ -104,13 +115,16 @@ export function useActocoreActions(): UseActocoreActionsResult {
 
   const available = useMemo(
     () =>
-      actions.filter(
-        (action) =>
-          action.enabled &&
-          isActionAllowed(action.name, security) &&
-          handlerNames.includes(action.name),
-      ),
-    [actions, handlerNames, security],
+      actions.filter((action) => {
+        if (!action.enabled || !isActionAllowed(action.name, security)) {
+          return false;
+        }
+        if (!requireHandlers) {
+          return true;
+        }
+        return handlerNames.includes(action.name);
+      }),
+    [actions, handlerNames, requireHandlers, security],
   );
 
   return { actions: available, isLoading, error, usingFallback };

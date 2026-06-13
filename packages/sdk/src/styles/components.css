@@ -1071,12 +1071,12 @@
 }
 
 [data-actocore] .ac-action-picker--composer .ac-action-picker__toggle {
-  width: var(--ac-send-button-size);
-  height: var(--ac-send-button-size);
-  min-height: 0;
+  width: var(--ac-composer-min-height);
+  height: var(--ac-composer-min-height);
+  min-height: var(--ac-composer-min-height);
   padding: 0;
   border: none;
-  border-radius: var(--ac-radius-pill);
+  border-radius: var(--ac-radius-md);
   background: transparent;
   color: var(--ac-color-text-muted);
   box-shadow: none;
@@ -1164,6 +1164,44 @@
 
 [data-actocore] .ac-action-picker__panel-heading {
   min-width: 0;
+}
+
+[data-actocore] .ac-action-picker__scope {
+  display: flex;
+  gap: var(--ac-space-xs);
+  margin-bottom: var(--ac-space-md);
+  padding: var(--ac-space-xs);
+  border-radius: var(--ac-radius-md);
+  background: var(--ac-color-surface);
+  border: var(--ac-border-width) solid var(--ac-color-border);
+}
+
+[data-actocore] .ac-action-picker__scope-btn {
+  flex: 1 1 0;
+  border: none;
+  border-radius: calc(var(--ac-radius-md) - var(--ac-space-xs));
+  background: transparent;
+  color: var(--ac-color-text-muted);
+  cursor: pointer;
+  font-family: var(--ac-font-family);
+  font-size: var(--ac-font-size-xs);
+  font-weight: 600;
+  line-height: 1.2;
+  padding: var(--ac-space-sm) var(--ac-space-md);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+[data-actocore] .ac-action-picker__scope-btn--active {
+  background: var(--ac-color-bg);
+  color: var(--ac-color-text);
+  box-shadow: var(--ac-shadow-sm);
+}
+
+[data-actocore] .ac-action-picker__scope-btn:hover:not(.ac-action-picker__scope-btn--active) {
+  color: var(--ac-color-text);
 }
 
 [data-actocore] .ac-action-picker__panel-title {

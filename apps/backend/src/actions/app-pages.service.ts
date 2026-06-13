@@ -277,6 +277,7 @@ export class AppPagesService {
   private toManifestEntry(doc: AppPageDocument): AppPageManifestEntry {
     return {
       id: doc.slug,
+      pageId: doc._id.toString(),
       title: doc.title,
       route: doc.route,
       description: doc.description,

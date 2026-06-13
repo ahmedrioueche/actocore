@@ -11,8 +11,8 @@ import type {
   SendChatMessageDto,
   SessionMessageData,
   TokenUsageData,
-  enrichHostContext,
 } from '@ahmedrioueche/actocore-shared';
+import { enrichHostContext } from '@ahmedrioueche/actocore-shared';
 import { ActionRunnerService } from '../actions/action-runner.service';
 import { ActionSelectorService } from '../actions/action-selector.service';
 import { ActionsService } from '../actions/actions.service';

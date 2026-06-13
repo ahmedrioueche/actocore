@@ -48,7 +48,12 @@
     "pickerOpen": "Raccourcis d'actions",
     "pickerLabel": "Actions",
     "pickerTitle": "Que voulez-vous faire ?",
-    "pickerHint": "Insère une phrase de départ — complétez, envoyez, puis confirmez l'action dans votre application."
+    "pickerHint": "Insère une phrase de départ — complétez, envoyez, puis confirmez l'action dans votre application.",
+    "pickerScopeLabel": "Portée des actions",
+    "pickerScopePage": "Cette page",
+    "pickerScopeAll": "Toutes les actions",
+    "pickerEmptyPage": "Aucune action n'est liée à cette page. Passez à toutes les actions ou assignez-en dans App layout.",
+    "pickerEmptyNoPage": "Naviguez vers une page de votre application, ou passez à toutes les actions."
   },
   "voice": {
     "startListening": "Démarrer la saisie vocale",

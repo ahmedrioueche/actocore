@@ -40,4 +40,5 @@ export * from "./api/usage";
 export * from "./api/voice";
 export * from "./utils/api-response";
 export * from "./utils/resolve-app-page-from-route";
+export * from "./utils/filter-actions-for-page";
 export * from "./utils/studio-plan-normalize";
