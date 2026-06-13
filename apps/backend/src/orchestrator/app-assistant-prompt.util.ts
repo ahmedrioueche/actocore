@@ -1,5 +1,6 @@
 import type { AppPageManifestEntry, HostContext } from '@ahmedrioueche/actocore-shared';
 import type { RequestContextData } from '@ahmedrioueche/actocore-shared';
+import { resolveCurrentPageTitle } from './current-page-question.util';
 
 /**
  * Base system instructions so the assistant stays scoped to the host application.
@@ -19,6 +20,7 @@ export function buildAppAssistantSystemPrompt(
     'Do NOT answer off-topic requests (general knowledge, recipes, news, homework, unrelated coding, other products, etc.).',
     'If the request is unrelated, politely decline in one or two sentences and remind the user what you can help with inside this app.',
     'Never pretend to be a general-purpose ChatGPT-style assistant.',
+    'When the user asks what page or screen they are on, answer from Current user context and Application pages — never say you lack documentation for that.',
     'Format replies with Markdown. For grouped features or topics, use bold section titles on their own line (e.g. **Feature area**: …) instead of bullet lists with asterisks.',
   ];
 
@@ -27,7 +29,7 @@ export function buildAppAssistantSystemPrompt(
     lines.push('', sitemap);
   }
 
-  const hostBlock = formatHostContextBlock(options?.hostContext);
+  const hostBlock = formatHostContextBlock(options?.hostContext, options?.appPages);
   if (hostBlock) {
     lines.push('', hostBlock);
   }
@@ -79,6 +81,7 @@ export function buildAppSitemapBlock(
 
 export function formatHostContextBlock(
   hostContext?: HostContext,
+  appPages?: AppPageManifestEntry[],
 ): string | null {
   if (!hostContext) {
     return null;
@@ -87,7 +90,12 @@ export function formatHostContextBlock(
   const parts: string[] = [];
 
   if (hostContext.currentPage?.trim()) {
-    parts.push(`Current page id: ${hostContext.currentPage.trim()}`);
+    const title = resolveCurrentPageTitle(hostContext, appPages);
+    if (title) {
+      parts.push(`Current page: ${title} (id: ${hostContext.currentPage.trim()})`);
+    } else {
+      parts.push(`Current page id: ${hostContext.currentPage.trim()}`);
+    }
   }
   if (hostContext.route?.trim()) {
     parts.push(`Route: ${hostContext.route.trim()}`);

@@ -197,4 +197,31 @@ describe('ChatOrchestratorService', () => {
     expect(response.intent).toBe('qa');
     expect(response.sources).toBeUndefined();
   });
+
+  it('answers current-page questions from hostContext without RAG', async () => {
+    classifierMock.classify.mockResolvedValue('qa');
+    qaRunnerMock.buildPromptContext.mockResolvedValue({
+      modeNote: 'No docs matched',
+      citations: [],
+    });
+    sessionsMock.appendMessage.mockResolvedValue({
+      id: 'm3',
+      sessionId: '507f1f77bcf86cd799439012',
+      role: 'assistant',
+      content: "You're on **Knowledge** (`/projects/p1/knowledge`).",
+      createdAt: new Date().toISOString(),
+    });
+
+    const response = await orchestrator.sendMessage(context, {
+      message: 'what page am I on?',
+      hostContext: {
+        currentPage: 'knowledge',
+        route: '/projects/p1/knowledge',
+      },
+    });
+
+    expect(llmMock.complete).not.toHaveBeenCalled();
+    expect(response.content).toContain('Knowledge');
+    expect(response.content).toContain('/projects/p1/knowledge');
+  });
 });

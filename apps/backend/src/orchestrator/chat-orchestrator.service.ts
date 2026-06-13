@@ -36,6 +36,10 @@ import { LLM_PROVIDER, type LlmMessage, type LlmProvider } from '../external/llm
 import { resolveActionFollowUp } from '../actions/action-follow-up.util';
 import { isLikelyActionMessage } from '../actions/natural-language-action.util';
 import { buildAppAssistantSystemPrompt } from './app-assistant-prompt.util';
+import {
+  buildCurrentPageAnswer,
+  isCurrentPageQuestion,
+} from './current-page-question.util';
 import { SessionsService } from '../sessions/sessions.service';
 import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
 import { estimateTokensFromText } from '../usage/utils/usage-export.util';
@@ -291,6 +295,17 @@ export class ChatOrchestratorService {
     return hasValue ? hostContext : undefined;
   }
 
+  private tryAnswerCurrentPageQuestion(
+    userMessage: string,
+    hostContext: HostContext | undefined,
+    appPages: AppPageManifestEntry[],
+  ): string | null {
+    if (!isCurrentPageQuestion(userMessage)) {
+      return null;
+    }
+    return buildCurrentPageAnswer(hostContext, appPages);
+  }
+
   private withUserMessage(
     prep: PreparedIncomingMessage,
     userMessage: SessionMessageData,
@@ -422,12 +437,29 @@ export class ChatOrchestratorService {
     emit: ChatStreamEmitter,
     signal?: AbortSignal,
   ): Promise<OrchestratorBranchPayload> {
+    const pageAnswer = this.tryAnswerCurrentPageQuestion(
+      userMessage,
+      prep.hostContext,
+      prep.appPages,
+    );
+    if (pageAnswer) {
+      emit({ type: 'delta', text: pageAnswer });
+      return { content: pageAnswer };
+    }
+
     const { modeNote, citations } = await this.qaRunner.buildPromptContext(
       prep.projectId,
       userMessage,
     );
 
     if (citations.length === 0) {
+      if (isCurrentPageQuestion(userMessage) && prep.hostContext) {
+        return this.completeWithLlmStream(context, prep, emit, signal, {
+          modeNote:
+            'The user is asking which page or screen they are on. Answer using ONLY Current user context and Application pages from the system prompt.',
+        });
+      }
+
       emit({ type: 'delta', text: QA_NO_CITATIONS_REPLY });
       return { content: QA_NO_CITATIONS_REPLY };
     }
@@ -535,12 +567,28 @@ export class ChatOrchestratorService {
     prep: PreparedIncomingMessage,
     userMessage: string,
   ): Promise<OrchestratorBranchPayload> {
+    const pageAnswer = this.tryAnswerCurrentPageQuestion(
+      userMessage,
+      prep.hostContext,
+      prep.appPages,
+    );
+    if (pageAnswer) {
+      return { content: pageAnswer };
+    }
+
     const { modeNote, citations } = await this.qaRunner.buildPromptContext(
       prep.projectId,
       userMessage,
     );
 
     if (citations.length === 0) {
+      if (isCurrentPageQuestion(userMessage) && prep.hostContext) {
+        return this.completeWithLlm(context, prep, {
+          modeNote:
+            'The user is asking which page or screen they are on. Answer using ONLY Current user context and Application pages from the system prompt.',
+        });
+      }
+
       return { content: QA_NO_CITATIONS_REPLY };
     }
 

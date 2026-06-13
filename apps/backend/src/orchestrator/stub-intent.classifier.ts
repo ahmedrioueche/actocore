@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { ChatIntent } from '@ahmedrioueche/actocore-shared';
 import { isLikelyActionMessage } from '../actions/natural-language-action.util';
+import { isCurrentPageQuestion } from './current-page-question.util';
 import type {
   IntentClassificationInput,
   IntentClassifier,
@@ -24,6 +25,10 @@ export class StubIntentClassifier implements IntentClassifier {
       isLikelyActionMessage(message, actionNames)
     ) {
       return 'action';
+    }
+
+    if (isCurrentPageQuestion(message)) {
+      return 'direct';
     }
 
     if (QA_PATTERN.test(message)) {

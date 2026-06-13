@@ -68,12 +68,12 @@ export function ActionPicker({
   }, [open]);
 
   useEffect(() => {
-    if (!open) {
-      setScope('page');
+    if (open) {
+      setScope(pageActions.length > 0 ? 'page' : 'all');
     }
-  }, [open]);
+  }, [open, pageActions.length]);
 
-  if (!ui.showActionPicker) {
+  if (!ui.showActionPicker || (!isLoading && actions.length === 0)) {
     return null;
   }
 

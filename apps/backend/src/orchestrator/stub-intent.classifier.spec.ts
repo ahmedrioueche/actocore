@@ -39,6 +39,12 @@ describe('StubIntentClassifier', () => {
     ).toBe('qa');
   });
 
+  it('classifies current-page questions as direct', async () => {
+    expect(
+      await classifier.classify({ ...base, message: 'what page am I on?' }),
+    ).toBe('direct');
+  });
+
   it('defaults to direct', async () => {
     expect(
       await classifier.classify({ ...base, message: 'Hello there' }),

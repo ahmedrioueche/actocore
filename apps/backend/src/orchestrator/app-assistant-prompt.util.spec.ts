@@ -63,7 +63,7 @@ describe('buildAppAssistantSystemPrompt', () => {
     expect(prompt).toContain('Application pages:');
     expect(prompt).toContain('members (/members)');
     expect(prompt).toContain('Current user context:');
-    expect(prompt).toContain('Current page id: members');
+    expect(prompt).toContain('Current page: Members (id: members)');
     expect(prompt).toContain('Selected member "Jane"');
   });
 });
