@@ -12,6 +12,15 @@ export class StubEmbeddingProvider implements EmbeddingProvider {
   readonly dimensions = DIMENSIONS;
 
   async embed(text: string): Promise<number[]> {
+    const vectors = await this.embedBatch([text]);
+    return vectors[0] ?? new Array<number>(DIMENSIONS).fill(0);
+  }
+
+  async embedBatch(texts: string[]): Promise<number[][]> {
+    return Promise.all(texts.map((text) => this.embedOne(text)));
+  }
+
+  private async embedOne(text: string): Promise<number[]> {
     const vector = new Array<number>(DIMENSIONS).fill(0);
     const tokens = tokenize(text);
 

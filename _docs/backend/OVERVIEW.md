@@ -53,6 +53,8 @@ It handles:
 - Retrieve relevant context for questions
 - Improve AI accuracy using project data
 
+**Roadmap:** [`RAG-PLAN.md`](./RAG-PLAN.md) — professionalization plan (chunking, hybrid search, vector index, Studio tools).
+
 ---
 
 ## 4. Multi-Tenant System

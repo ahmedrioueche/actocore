@@ -7,12 +7,30 @@ import {
 import {
   knowledgeApi,
   type KnowledgeSourceData,
+  type KnowledgeSourceStatus,
   type PaginationQuery,
 } from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
+
+const ACTIVE_KNOWLEDGE_STATUSES: KnowledgeSourceStatus[] = [
+  'pending',
+  'indexing',
+];
+
+const KNOWLEDGE_POLL_INTERVAL_MS = 3000;
+
+function hasActiveKnowledgeSources(
+  sources: KnowledgeSourceData[] | undefined,
+): boolean {
+  return (
+    sources?.some((source) =>
+      ACTIVE_KNOWLEDGE_STATUSES.includes(source.status),
+    ) ?? false
+  );
+}
 
 export function useProjectKnowledge(
   projectId: string | null,
@@ -25,6 +43,10 @@ export function useProjectKnowledge(
       parseApiResponse(await knowledgeApi.list(projectId!, query)),
     enabled: Boolean(projectId),
     placeholderData: keepPreviousData,
+    refetchInterval: (queryState) =>
+      hasActiveKnowledgeSources(queryState.state.data?.items)
+        ? KNOWLEDGE_POLL_INTERVAL_MS
+        : false,
   });
 }
 
@@ -142,6 +164,114 @@ export function useDeleteKnowledge(projectId: string | null) {
           queryKey: queryKeys.knowledge.lists(projectId),
         });
       }
+    },
+  });
+}
+
+export function useKnowledgeSource(
+  projectId: string | null,
+  sourceId: string | null,
+) {
+  ensureApiConfigured();
+  return useQuery({
+    queryKey: queryKeys.knowledge.detail(projectId ?? '', sourceId ?? ''),
+    queryFn: async () =>
+      parseApiResponse(await knowledgeApi.get(projectId!, sourceId!)),
+    enabled: Boolean(projectId && sourceId),
+    refetchInterval: (queryState) => {
+      const status = queryState.state.data?.status;
+      return status && ACTIVE_KNOWLEDGE_STATUSES.includes(status)
+        ? KNOWLEDGE_POLL_INTERVAL_MS
+        : false;
+    },
+  });
+}
+
+export function useKnowledgeChunks(
+  projectId: string | null,
+  sourceId: string | null,
+  query: PaginationQuery = {},
+) {
+  ensureApiConfigured();
+  return useQuery({
+    queryKey: queryKeys.knowledge.chunks(
+      projectId ?? '',
+      sourceId ?? '',
+      query,
+    ),
+    queryFn: async () =>
+      parseApiResponse(
+        await knowledgeApi.listChunks(projectId!, sourceId!, query),
+      ),
+    enabled: Boolean(projectId && sourceId),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useUpdateKnowledge(projectId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      sourceId,
+      pageIds,
+    }: {
+      sourceId: string;
+      pageIds: string[];
+    }) => {
+      ensureApiConfigured();
+      return parseApiResponse(
+        await knowledgeApi.update(projectId!, sourceId, { pageIds }),
+      );
+    },
+    onSuccess: (_data, variables) => {
+      if (projectId) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.knowledge.lists(projectId),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.knowledge.detail(projectId, variables.sourceId),
+        });
+      }
+    },
+  });
+}
+
+export function useReindexKnowledge(projectId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (sourceId: string) => {
+      ensureApiConfigured();
+      return parseApiResponse(
+        await knowledgeApi.reindex(projectId!, sourceId),
+      );
+    },
+    onSuccess: (_data, sourceId) => {
+      if (projectId) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.knowledge.lists(projectId),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.knowledge.detail(projectId, sourceId),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.knowledge.chunks(projectId, sourceId),
+        });
+      }
+    },
+  });
+}
+
+export function useRetrieveTestKnowledge(projectId: string | null) {
+  return useMutation({
+    mutationFn: async (body: {
+      query: string;
+      currentPageId?: string;
+      topK?: number;
+    }) => {
+      ensureApiConfigured();
+      return parseApiResponse(
+        await knowledgeApi.retrieveTest(projectId!, body),
+      );
     },
   });
 }

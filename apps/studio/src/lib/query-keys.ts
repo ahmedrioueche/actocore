@@ -66,6 +66,13 @@ export const queryKeys = {
     lists: (projectId: string) => ["knowledge", "list", projectId] as const,
     list: (projectId: string, params: PaginationQuery = {}) =>
       ["knowledge", "list", projectId, params] as const,
+    detail: (projectId: string, sourceId: string) =>
+      ["knowledge", "detail", projectId, sourceId] as const,
+    chunks: (
+      projectId: string,
+      sourceId: string,
+      params: PaginationQuery = {},
+    ) => ["knowledge", "chunks", projectId, sourceId, params] as const,
   },
   actions: {
     lists: (projectId: string) => ["actions", "list", projectId] as const,

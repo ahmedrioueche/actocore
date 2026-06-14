@@ -34,4 +34,20 @@ describe('DocumentTextExtractor', () => {
     );
     expect(text).toContain('Dummy PDF');
   });
+
+  it('extractDocument returns per-page text for PDFs', async () => {
+    const buffer = readFileSync(
+      join(__dirname, '../../test/fixtures/actocore-knowledge.pdf'),
+    );
+    const result = await extractor.extractDocument(
+      buffer,
+      'application/pdf',
+      'actocore-knowledge.pdf',
+    );
+
+    expect(result.text).toContain('Dummy PDF');
+    expect(result.pages).toEqual([
+      expect.objectContaining({ page: 1, text: expect.stringContaining('Dummy PDF') }),
+    ]);
+  });
 });

@@ -672,7 +672,7 @@ export class UsageService {
       chunkCountFromSources += source.chunkCount ?? 0;
       if (source.status === 'ready') {
         sourcesReady += 1;
-      } else if (source.status === 'pending') {
+      } else if (source.status === 'pending' || source.status === 'indexing') {
         sourcesPending += 1;
       } else if (source.status === 'error') {
         sourcesError += 1;
@@ -681,7 +681,12 @@ export class UsageService {
 
     const chunkAgg = await this.knowledgeChunkModel
       .aggregate<{ totalChars: number; count: number }>([
-        { $match: withProjectId(projectId) },
+        {
+          $match: {
+            ...withProjectId(projectId),
+            kind: { $ne: 'parent' },
+          },
+        },
         {
           $group: {
             _id: null,

@@ -32,7 +32,7 @@ export function resolveKnowledgeMimeType(
   }
 
   throw new UnsupportedKnowledgeFileError(
-    `Unsupported file type: ${normalized || ext || 'unknown'}. Allowed: PDF, plain text, markdown.`,
+    `Unsupported file type: ${normalized || ext || 'unknown'}. Allowed: PDF, plain text, markdown, Word (.docx), Excel (.xlsx).`,
   );
 }
 
@@ -42,6 +42,17 @@ export function isAllowedKnowledgeMime(mimeType: string): boolean {
 
 export function isPdfBuffer(buffer: Buffer): boolean {
   return buffer.length >= 4 && buffer.subarray(0, 4).toString('utf8') === '%PDF';
+}
+
+/** DOCX and XLSX are ZIP containers (PK header). */
+export function isOfficeOpenXmlBuffer(buffer: Buffer): boolean {
+  return (
+    buffer.length >= 4 &&
+    buffer[0] === 0x50 &&
+    buffer[1] === 0x4b &&
+    (buffer[2] === 0x03 || buffer[2] === 0x05 || buffer[2] === 0x07) &&
+    (buffer[3] === 0x04 || buffer[3] === 0x06 || buffer[3] === 0x08)
+  );
 }
 
 /**
@@ -69,6 +80,20 @@ export function assertSafeKnowledgeContent(
     if (!isPdfBuffer(buffer)) {
       throw new MaliciousKnowledgeContentError(
         'File is not a valid PDF (signature mismatch).',
+      );
+    }
+    return;
+  }
+
+  if (
+    mimeType ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    mimeType ===
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ) {
+    if (!isOfficeOpenXmlBuffer(buffer)) {
+      throw new MaliciousKnowledgeContentError(
+        'File is not a valid Office document (signature mismatch).',
       );
     }
     return;

@@ -411,11 +411,13 @@
     "types": {
       "document": "Document",
       "url": "URL",
-      "text": "Text"
+      "text": "Text",
+      "sitemap": "Sitemap"
     },
     "status": {
       "ready": "Ready",
       "pending": "Processing",
+      "indexing": "Indexing",
       "error": "Failed"
     },
     "columns": {
@@ -458,6 +460,52 @@
       "title": "Delete source?",
       "text": "“{{name}}” and its indexed content will be removed. This cannot be undone.",
       "confirm": "Delete source"
+    },
+    "retrieveTest": {
+      "title": "Test retrieval",
+      "subtitle": "Run a question against indexed chunks and inspect ranked matches with scores.",
+      "queryLabel": "Question",
+      "queryPlaceholder": "e.g. How do I reset my password?",
+      "pageLabel": "Simulate current page (optional)",
+      "allPages": "No page context",
+      "submit": "Run retrieval",
+      "running": "Retrieving…",
+      "candidates": "{{count}} candidates",
+      "topScore": "Top score: {{score}}",
+      "score": "Score {{score}}",
+      "noHits": "No chunks matched your question.",
+      "emptyReason": {
+        "no_chunks": "No indexed chunks in this project.",
+        "no_candidates": "No chunks passed the hybrid filter.",
+        "below_threshold": "Matches were below the citation threshold.",
+        "context_budget_exceeded": "Matches exceeded the context token budget."
+      },
+      "errors": {
+        "required": "Enter a question to test retrieval.",
+        "failed": "Retrieval test failed."
+      }
+    },
+    "detail": {
+      "title": "Knowledge source",
+      "reindex": "Re-index",
+      "reindexing": "Re-indexing…",
+      "reindexFailed": "Could not start re-index.",
+      "pagesTitle": "App page scope",
+      "pages": "Linked app pages",
+      "pagesHint": "When set, retrieval boosts chunks from this source on those pages. Leave empty for global knowledge.",
+      "pagesEmpty": "Create app pages in App layout first.",
+      "savePages": "Save page scope",
+      "savingPages": "Saving…",
+      "pagesSaveFailed": "Could not save page scope.",
+      "chunksTitle": "Indexed chunks",
+      "chunksSubtitle": "{{count}} chunks indexed",
+      "chunkColumn": "#",
+      "metaColumn": "Context",
+      "contentColumn": "Preview",
+      "chunkIndex": "chunk {{index}}",
+      "kindParent": "Section",
+      "pdfPage": "p. {{page}}",
+      "noChunks": "No chunks yet. Re-index after the source is ready."
     }
   },
   "projectLayout": {

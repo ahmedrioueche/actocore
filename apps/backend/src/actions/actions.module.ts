@@ -19,6 +19,14 @@ import {
 } from './schemas/action-section.schema';
 import { AppPage, AppPageSchema } from './schemas/app-page.schema';
 import {
+  KnowledgeChunk,
+  KnowledgeChunkSchema,
+} from '../knowledge/schemas/knowledge-chunk.schema';
+import {
+  KnowledgeSource,
+  KnowledgeSourceSchema,
+} from '../knowledge/schemas/knowledge-source.schema';
+import {
   ProjectAction,
   ProjectActionSchema,
 } from './schemas/project-action.schema';
@@ -30,6 +38,8 @@ import {
       { name: ProjectAction.name, schema: ProjectActionSchema },
       { name: ActionSection.name, schema: ActionSectionSchema },
       { name: AppPage.name, schema: AppPageSchema },
+      { name: KnowledgeSource.name, schema: KnowledgeSourceSchema },
+      { name: KnowledgeChunk.name, schema: KnowledgeChunkSchema },
     ]),
     ProjectsModule,
     forwardRef(() => StudioBillingModule),

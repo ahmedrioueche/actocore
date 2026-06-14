@@ -33,6 +33,7 @@ import ProjectAppLayoutPage from "@/pages/user/projects/ProjectAppLayoutPage";
 import ProjectActionsPage from "@/pages/user/projects/ProjectActionsPage";
 import ProjectApiKeysPage from "@/pages/user/projects/ProjectApiKeysPage";
 import ProjectDocsPage from "@/pages/user/projects/ProjectDocsPage";
+import ProjectKnowledgeDetailPage from "@/pages/user/projects/ProjectKnowledgeDetailPage";
 import ProjectKnowledgePage from "@/pages/user/projects/ProjectKnowledgePage";
 import ProjectOverviewPage from "@/pages/user/projects/ProjectOverviewPage";
 import ProjectSdkConfigPage from "@/pages/user/projects/ProjectSdkConfigPage";
@@ -167,6 +168,13 @@ const projectKnowledgeRoute = createRoute({
   path: "/projects/$projectId/knowledge",
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
   component: ProjectKnowledgePage,
+});
+
+const projectKnowledgeDetailRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: "/projects/$projectId/knowledge/$sourceId",
+  beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
+  component: ProjectKnowledgeDetailPage,
 });
 
 const projectActionsRoute = createRoute({
@@ -353,6 +361,7 @@ const routeTree = rootRoute.addChildren([
     projectLayoutRoute,
     projectDocsRoute,
     projectKnowledgeRoute,
+    projectKnowledgeDetailRoute,
     projectActionsRoute,
     projectSdkConfigRoute,
     projectApiKeysRoute,

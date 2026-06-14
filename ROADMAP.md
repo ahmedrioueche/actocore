@@ -156,6 +156,7 @@ _Implement missing rows in the table above. Order: storage + upload route → pa
 
 - [ ] Large uploads: `chunkText` size/overlap tuning
 - [x] `EMBEDDING_PROVIDER=openai` documented for production RAG ([`apps/backend/README.md`](apps/backend/README.md))
+- [ ] **RAG professionalization** — see [`_docs/backend/RAG-PLAN.md`](_docs/backend/RAG-PLAN.md) (chunking, hybrid search, rerank, vector index, async ingest, Studio eval tools)
 
 _Out of scope for this checklist:_ Studio drag-and-drop UI, SDK upload (knowledge is control-plane only).
 

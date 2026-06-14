@@ -405,11 +405,13 @@
     "types": {
       "document": "Document",
       "url": "URL",
-      "text": "Texte"
+      "text": "Texte",
+      "sitemap": "Plan du site"
     },
     "status": {
       "ready": "Prêt",
       "pending": "Traitement",
+      "indexing": "Indexation",
       "error": "Échoué"
     },
     "columns": {
@@ -452,6 +454,52 @@
       "title": "Supprimer la source ?",
       "text": "« {{name}} » et son contenu indexé seront supprimés. Cela ne peut pas être annulé.",
       "confirm": "Supprimer la source"
+    },
+    "retrieveTest": {
+      "title": "Tester la récupération",
+      "subtitle": "Posez une question aux chunks indexés et inspectez les correspondances classées avec leurs scores.",
+      "queryLabel": "Question",
+      "queryPlaceholder": "ex. Comment réinitialiser mon mot de passe ?",
+      "pageLabel": "Simuler la page actuelle (facultatif)",
+      "allPages": "Sans contexte de page",
+      "submit": "Lancer la récupération",
+      "running": "Récupération…",
+      "candidates": "{{count}} candidats",
+      "topScore": "Score max : {{score}}",
+      "score": "Score {{score}}",
+      "noHits": "Aucun chunk ne correspond à votre question.",
+      "emptyReason": {
+        "no_chunks": "Aucun chunk indexé dans ce projet.",
+        "no_candidates": "Aucun chunk n'a passé le filtre hybride.",
+        "below_threshold": "Les correspondances étaient sous le seuil de citation.",
+        "context_budget_exceeded": "Les correspondances dépassent le budget de tokens de contexte."
+      },
+      "errors": {
+        "required": "Saisissez une question pour tester la récupération.",
+        "failed": "Échec du test de récupération."
+      }
+    },
+    "detail": {
+      "title": "Source de connaissance",
+      "reindex": "Réindexer",
+      "reindexing": "Réindexation…",
+      "reindexFailed": "Impossible de lancer la réindexation.",
+      "pagesTitle": "Portée des pages de l'app",
+      "pages": "Pages de l'app liées",
+      "pagesHint": "Lorsqu'elles sont définies, la récupération favorise les chunks de cette source sur ces pages. Laissez vide pour une connaissance globale.",
+      "pagesEmpty": "Créez d'abord des pages dans App layout.",
+      "savePages": "Enregistrer la portée",
+      "savingPages": "Enregistrement…",
+      "pagesSaveFailed": "Impossible d'enregistrer la portée des pages.",
+      "chunksTitle": "Chunks indexés",
+      "chunksSubtitle": "{{count}} chunks indexés",
+      "chunkColumn": "#",
+      "metaColumn": "Contexte",
+      "contentColumn": "Aperçu",
+      "chunkIndex": "chunk {{index}}",
+      "kindParent": "Section",
+      "pdfPage": "p. {{page}}",
+      "noChunks": "Aucun chunk pour l'instant. Réindexez une fois la source prête."
     }
   },
   "projectActions": {

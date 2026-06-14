@@ -42,6 +42,12 @@ export function canWriteKnowledge(
   return canAccessNavItem(session, StudioPermission.KNOWLEDGE_WRITE);
 }
 
+export function canReadKnowledge(
+  session: StudioAuthMeData | undefined,
+): boolean {
+  return canAccessNavItem(session, StudioPermission.KNOWLEDGE_READ);
+}
+
 export function canDeleteKnowledge(
   session: StudioAuthMeData | undefined,
 ): boolean {

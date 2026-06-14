@@ -2,9 +2,10 @@ import type {
   KnowledgeSourceData,
   KnowledgeSourceStatus,
 } from '@ahmedrioueche/actocore-shared';
-import { BookOpen, FileText, Globe, Trash2, Type } from 'lucide-react';
+import { BookOpen, ChevronRight, FileText, Globe, Map, Trash2, Type } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { PaginationState } from '@tanstack/react-table';
+import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components/states';
@@ -24,6 +25,7 @@ import type { ColumnDef } from '@/types/table';
 const STATUS_STYLES: Record<KnowledgeSourceStatus, string> = {
   ready: 'bg-success/10 text-success',
   pending: 'bg-warning/10 text-warning',
+  indexing: 'bg-warning/10 text-warning',
   error: 'bg-danger/10 text-danger',
 };
 
@@ -31,6 +33,7 @@ const TYPE_ICONS = {
   document: FileText,
   url: Globe,
   text: Type,
+  sitemap: Map,
 } as const;
 
 interface KnowledgeTableProps {
@@ -82,7 +85,11 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
             source.url ??
             t(`knowledge.types.${source.type}`);
           return (
-            <div className="flex min-w-0 items-center gap-3">
+            <Link
+              to="/projects/$projectId/knowledge/$sourceId"
+              params={{ projectId, sourceId: source.id }}
+              className="flex min-w-0 items-center gap-3 rounded-lg transition-colors hover:bg-surface-hover/60"
+            >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-text-secondary">
                 <Icon className="h-4 w-4" />
               </div>
@@ -94,7 +101,8 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
                   {subtitle}
                 </p>
               </div>
-            </div>
+              <ChevronRight className="ms-auto h-4 w-4 shrink-0 text-text-secondary" />
+            </Link>
           );
         },
       },
@@ -193,7 +201,7 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
     });
 
     return cols;
-  }, [canDelete, deleteKnowledge, i18n.language, openConfirm, t]);
+  }, [canDelete, deleteKnowledge, i18n.language, openConfirm, projectId, t]);
 
   return (
     <DataTable
@@ -277,7 +285,11 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
               </>
             }
           >
-            <div className="flex items-center gap-3">
+            <Link
+              to="/projects/$projectId/knowledge/$sourceId"
+              params={{ projectId, sourceId: source.id }}
+              className="flex items-center gap-3"
+            >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-text-secondary">
                 <Icon className="h-4 w-4" />
               </div>
@@ -287,7 +299,8 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
                 </p>
                 <p className="truncate text-xs text-text-secondary">{subtitle}</p>
               </div>
-            </div>
+              <ChevronRight className="ms-auto h-4 w-4 shrink-0 text-text-secondary" />
+            </Link>
           </MobileDataCard>
         );
       }}

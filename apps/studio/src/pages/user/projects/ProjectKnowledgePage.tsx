@@ -2,12 +2,13 @@ import { useParams } from "@tanstack/react-router";
 import { UploadCloud } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { KnowledgeRetrieveTestPanel } from "@/components/knowledge/KnowledgeRetrieveTestPanel";
 import { KnowledgeTable } from "@/components/knowledge/KnowledgeTable";
 import { PageHeader } from "@/components/layout/PageHeader";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useProject } from "@/hooks/use-projects";
-import { canWriteKnowledge } from "@/lib/studio-permissions";
+import { canReadKnowledge, canWriteKnowledge } from "@/lib/studio-permissions";
 import { useModalStore } from "@/stores/modal";
 
 export default function ProjectKnowledgePage() {
@@ -18,6 +19,7 @@ export default function ProjectKnowledgePage() {
 
   const projectQuery = useProject(projectId ?? null);
   const canWrite = canWriteKnowledge(session);
+  const canRead = canReadKnowledge(session);
   const projectName = projectQuery.data?.name;
 
   return (
@@ -41,7 +43,14 @@ export default function ProjectKnowledgePage() {
         }
       />
 
-      {projectId ? <KnowledgeTable projectId={projectId} /> : null}
+      {projectId ? (
+        <div className="space-y-8">
+          {canRead ? (
+            <KnowledgeRetrieveTestPanel projectId={projectId} />
+          ) : null}
+          <KnowledgeTable projectId={projectId} />
+        </div>
+      ) : null}
     </>
   );
 }

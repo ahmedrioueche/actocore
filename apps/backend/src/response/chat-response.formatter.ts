@@ -6,12 +6,14 @@ import type {
   QaSourceCitation,
   TokenUsageData,
 } from '@ahmedrioueche/actocore-shared';
+import type { RagRetrievalLog } from '../knowledge/rag-retrieval.types';
 
 export interface OrchestratorBranchPayload {
   content: string;
   usage?: TokenUsageData;
   action?: ActionExecutionResult;
   sources?: QaSourceCitation[];
+  ragRetrieval?: RagRetrievalLog;
   intentOverride?: ChatIntent;
 }
 

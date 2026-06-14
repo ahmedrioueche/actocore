@@ -9,6 +9,8 @@ export const KNOWLEDGE_ALLOWED_MIME_TYPES = [
   'text/plain',
   'text/markdown',
   'text/x-markdown',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ] as const;
 
 export type KnowledgeAllowedMimeType =
@@ -20,4 +22,7 @@ export const KNOWLEDGE_EXTENSION_MIME: Record<string, string> = {
   '.txt': 'text/plain',
   '.md': 'text/markdown',
   '.markdown': 'text/markdown',
+  '.docx':
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 };

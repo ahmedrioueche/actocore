@@ -50,6 +50,12 @@ describe('ChatOrchestratorService', () => {
     buildPromptContext: jest.fn().mockResolvedValue({
       modeNote: 'QA context',
       citations: [],
+      retrievalLog: {
+        candidateCount: 0,
+        contextPartCount: 0,
+        emptyReason: 'no_candidates',
+        chunks: [],
+      },
     }),
   };
   const usageMock = { recordChatUsage: jest.fn().mockResolvedValue(undefined) };
@@ -179,6 +185,12 @@ describe('ChatOrchestratorService', () => {
     qaRunnerMock.buildPromptContext.mockResolvedValue({
       modeNote: 'No docs matched',
       citations: [],
+      retrievalLog: {
+        candidateCount: 0,
+        contextPartCount: 0,
+        emptyReason: 'no_candidates',
+        chunks: [],
+      },
     });
     sessionsMock.appendMessage.mockResolvedValue({
       id: 'm2',
@@ -196,6 +208,14 @@ describe('ChatOrchestratorService', () => {
     expect(response.content).toBe(QA_NO_CITATIONS_REPLY);
     expect(response.intent).toBe('qa');
     expect(response.sources).toBeUndefined();
+    expect(aiLoggerMock.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        intent: 'qa',
+        ragRetrieval: expect.objectContaining({
+          emptyReason: 'no_candidates',
+        }),
+      }),
+    );
   });
 
   it('answers current-page questions from hostContext without RAG', async () => {
@@ -203,6 +223,11 @@ describe('ChatOrchestratorService', () => {
     qaRunnerMock.buildPromptContext.mockResolvedValue({
       modeNote: 'No docs matched',
       citations: [],
+      retrievalLog: {
+        candidateCount: 0,
+        contextPartCount: 0,
+        chunks: [],
+      },
     });
     sessionsMock.appendMessage.mockResolvedValue({
       id: 'm3',

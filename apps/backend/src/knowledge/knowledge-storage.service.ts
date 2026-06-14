@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { KnowledgeResolvedConfig } from '../config/knowledge.config';
 
@@ -24,6 +24,11 @@ export class KnowledgeStorageService {
     const fullPath = join(this.cfg.storagePath, storageKey);
     await mkdir(dirname(fullPath), { recursive: true });
     await writeFile(fullPath, buffer);
+  }
+
+  async read(storageKey: string): Promise<Buffer> {
+    const fullPath = join(this.cfg.storagePath, storageKey);
+    return readFile(fullPath);
   }
 
   async remove(storageKey: string | undefined): Promise<void> {

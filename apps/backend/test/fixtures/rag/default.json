@@ -1,0 +1,13 @@
+{
+  "name": "default-rag-eval",
+  "cases": [
+    {
+      "query": "What is ActoCore?",
+      "expectedKeywords": ["ActoCore"]
+    },
+    {
+      "query": "ERR-404 workspace missing",
+      "expectedKeywords": ["ERR-404"]
+    }
+  ]
+}

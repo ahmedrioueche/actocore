@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import {
   assertSafeKnowledgeContent,
   isAllowedKnowledgeMime,
+  isOfficeOpenXmlBuffer,
   isPdfBuffer,
   MaliciousKnowledgeContentError,
   resolveKnowledgeMimeType,
@@ -15,6 +16,20 @@ describe('knowledge-mime.util', () => {
     ).toBe('application/pdf');
   });
 
+  it('resolves DOCX from extension when mime is octet-stream', () => {
+    expect(
+      resolveKnowledgeMimeType('application/octet-stream', 'guide.docx'),
+    ).toBe(
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    );
+  });
+
+  it('resolves XLSX from extension when mime is octet-stream', () => {
+    expect(
+      resolveKnowledgeMimeType('application/octet-stream', 'pricing.xlsx'),
+    ).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  });
+
   it('rejects unknown types', () => {
     expect(() =>
       resolveKnowledgeMimeType('application/zip', 'archive.zip'),
@@ -24,6 +39,13 @@ describe('knowledge-mime.util', () => {
   it('detects PDF magic bytes', () => {
     expect(isPdfBuffer(Buffer.from('%PDF-1.4'))).toBe(true);
     expect(isPdfBuffer(Buffer.from('hello'))).toBe(false);
+  });
+
+  it('detects Office Open XML zip signatures', () => {
+    expect(isOfficeOpenXmlBuffer(Buffer.from([0x50, 0x4b, 0x03, 0x04]))).toBe(
+      true,
+    );
+    expect(isOfficeOpenXmlBuffer(Buffer.from('hello'))).toBe(false);
   });
 
   it('allows known mime types', () => {
@@ -47,6 +69,24 @@ describe('knowledge-mime.util', () => {
     it('accepts plain text', () => {
       expect(() =>
         assertSafeKnowledgeContent(Buffer.from('hello world'), 'text/plain'),
+      ).not.toThrow();
+    });
+
+    it('accepts Office Open XML signatures for docx/xlsx', () => {
+      const zipHeader = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00]);
+
+      expect(() =>
+        assertSafeKnowledgeContent(
+          zipHeader,
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ),
+      ).not.toThrow();
+
+      expect(() =>
+        assertSafeKnowledgeContent(
+          zipHeader,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ),
       ).not.toThrow();
     });
 

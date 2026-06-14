@@ -139,4 +139,28 @@ describe('Knowledge / Q&A (e2e)', () => {
     expect(chat.body.data.sources?.length).toBeGreaterThan(0);
     expect(chat.body.data.sources[0].sourceTitle).toBe('PDF docs');
   });
+
+  it('reindexes a text knowledge source', async () => {
+    const server = app.getHttpServer();
+
+    const created = await request(server)
+      .post(`/v1/web/projects/${projectId}/knowledge`)
+      .send({
+        type: 'text',
+        title: 'Reindex me',
+        content: 'ActoCore supports knowledge re-index for updated chunking.',
+      })
+      .expect(201);
+
+    const sourceId = created.body.data.id as string;
+    expect(created.body.data.status).toBe('ready');
+
+    const reindexed = await request(server)
+      .post(`/v1/web/projects/${projectId}/knowledge/${sourceId}/reindex`)
+      .expect(201);
+
+    expect(reindexed.body.data.id).toBe(sourceId);
+    expect(reindexed.body.data.status).toBe('ready');
+    expect(reindexed.body.data.chunkCount).toBeGreaterThan(0);
+  });
 });

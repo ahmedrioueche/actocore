@@ -1,0 +1,45 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/backend/**'
+      - 'packages/shared/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    paths:
+      - 'apps/backend/**'
+      - 'packages/shared/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            packages/shared/package-lock.json
+            apps/backend/package-lock.json
+
+      - name: Install and build shared
+        working-directory: packages/shared
+        run: npm ci && npm run build
+
+      - name: Install backend
+        working-directory: apps/backend
+        run: npm ci
+
+      - name: Unit tests
+        working-directory: apps/backend
+        run: npm test
+
+      - name: RAG eval (stub embeddings)
+        working-directory: apps/backend
+        run: npm run test:rag-eval

@@ -20,6 +20,7 @@ import { AppPagesService } from '../actions/app-pages.service';
 import {
   QA_NO_CITATIONS_REPLY,
   QaRunnerService,
+  type QaPromptContextOptions,
 } from '../knowledge/qa-runner.service';
 import { AiDecisionLogger } from '../observability/ai-decision.logger';
 import {
@@ -39,6 +40,7 @@ import { buildAppAssistantSystemPrompt } from './app-assistant-prompt.util';
 import {
   buildCurrentPageAnswer,
   isCurrentPageQuestion,
+  resolveCurrentPageTitle,
 } from './current-page-question.util';
 import { SessionsService } from '../sessions/sessions.service';
 import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
@@ -306,6 +308,16 @@ export class ChatOrchestratorService {
     return buildCurrentPageAnswer(hostContext, appPages);
   }
 
+  private qaContextOptions(
+    prep: PreparedIncomingMessage,
+  ): QaPromptContextOptions {
+    return {
+      sessionId: prep.sessionId,
+      currentPageId: prep.currentPageId,
+      currentPageTitle: resolveCurrentPageTitle(prep.hostContext, prep.appPages),
+    };
+  }
+
   private withUserMessage(
     prep: PreparedIncomingMessage,
     userMessage: SessionMessageData,
@@ -369,6 +381,7 @@ export class ChatOrchestratorService {
       actionName: branch.action?.actionName,
       actionStatus: branch.action?.status,
       sourceCount: branch.sources?.length ?? 0,
+      ragRetrieval: branch.ragRetrieval,
     });
 
     if (branch.action?.status === 'error' && branch.action.error) {
@@ -447,10 +460,12 @@ export class ChatOrchestratorService {
       return { content: pageAnswer };
     }
 
-    const { modeNote, citations } = await this.qaRunner.buildPromptContext(
-      prep.projectId,
-      userMessage,
-    );
+    const { modeNote, citations, retrievalLog } =
+      await this.qaRunner.buildPromptContext(
+        prep.projectId,
+        userMessage,
+        this.qaContextOptions(prep),
+      );
 
     if (citations.length === 0) {
       if (isCurrentPageQuestion(userMessage) && prep.hostContext) {
@@ -461,7 +476,10 @@ export class ChatOrchestratorService {
       }
 
       emit({ type: 'delta', text: QA_NO_CITATIONS_REPLY });
-      return { content: QA_NO_CITATIONS_REPLY };
+      return {
+        content: QA_NO_CITATIONS_REPLY,
+        ragRetrieval: retrievalLog,
+      };
     }
 
     const result = await this.completeWithLlmStream(
@@ -475,6 +493,7 @@ export class ChatOrchestratorService {
     return {
       ...result,
       sources: citations,
+      ragRetrieval: retrievalLog,
     };
   }
 
@@ -576,10 +595,12 @@ export class ChatOrchestratorService {
       return { content: pageAnswer };
     }
 
-    const { modeNote, citations } = await this.qaRunner.buildPromptContext(
-      prep.projectId,
-      userMessage,
-    );
+    const { modeNote, citations, retrievalLog } =
+      await this.qaRunner.buildPromptContext(
+        prep.projectId,
+        userMessage,
+        this.qaContextOptions(prep),
+      );
 
     if (citations.length === 0) {
       if (isCurrentPageQuestion(userMessage) && prep.hostContext) {
@@ -589,7 +610,10 @@ export class ChatOrchestratorService {
         });
       }
 
-      return { content: QA_NO_CITATIONS_REPLY };
+      return {
+        content: QA_NO_CITATIONS_REPLY,
+        ragRetrieval: retrievalLog,
+      };
     }
 
     const result = await this.completeWithLlm(context, prep, { modeNote });
@@ -597,6 +621,7 @@ export class ChatOrchestratorService {
     return {
       ...result,
       sources: citations,
+      ragRetrieval: retrievalLog,
     };
   }
 

@@ -17,6 +17,14 @@ import { withProjectId } from '../common/tenant/tenant-scope';
 import { ProjectsService } from '../projects/projects.service';
 import { AppPage, AppPageDocument } from './schemas/app-page.schema';
 import {
+  KnowledgeChunk,
+  KnowledgeChunkDocument,
+} from '../knowledge/schemas/knowledge-chunk.schema';
+import {
+  KnowledgeSource,
+  KnowledgeSourceDocument,
+} from '../knowledge/schemas/knowledge-source.schema';
+import {
   ProjectAction,
   ProjectActionDocument,
 } from './schemas/project-action.schema';
@@ -28,6 +36,10 @@ export class AppPagesService {
     private readonly pageModel: Model<AppPageDocument>,
     @InjectModel(ProjectAction.name)
     private readonly actionModel: Model<ProjectActionDocument>,
+    @InjectModel(KnowledgeSource.name)
+    private readonly knowledgeSourceModel: Model<KnowledgeSourceDocument>,
+    @InjectModel(KnowledgeChunk.name)
+    private readonly knowledgeChunkModel: Model<KnowledgeChunkDocument>,
     private readonly projects: ProjectsService,
   ) {}
 
@@ -135,6 +147,18 @@ export class AppPagesService {
     await this.actionModel
       .updateMany(withProjectId(projectId, { pageIds: pageId }), {
         $pull: { pageIds: pageId },
+      })
+      .exec();
+
+    await this.knowledgeSourceModel
+      .updateMany(withProjectId(projectId, { pageIds: pageId }), {
+        $pull: { pageIds: pageId },
+      })
+      .exec();
+
+    await this.knowledgeChunkModel
+      .updateMany(withProjectId(projectId, { 'metadata.pageIds': pageId }), {
+        $pull: { 'metadata.pageIds': pageId },
       })
       .exec();
 

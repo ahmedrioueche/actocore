@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -15,6 +16,8 @@ import { memoryStorage } from 'multer';
 import {
   apiSuccess,
   CreateKnowledgeSourceDto,
+  KnowledgeRetrieveTestDto,
+  UpdateKnowledgeSourceDto,
   StudioPermission,
 } from '@ahmedrioueche/actocore-shared';
 import {
@@ -101,6 +104,22 @@ export class KnowledgeController {
     );
   }
 
+  @Post('retrieve-test')
+  @RequireStudioPermission(StudioPermission.KNOWLEDGE_READ)
+  async retrieveTest(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Body() body: KnowledgeRetrieveTestDto,
+  ) {
+    await assertStudioProjectRoute(
+      ctx,
+      projectId,
+      this.studioAccess,
+      this.projects,
+    );
+    return apiSuccess(await this.knowledge.retrieveTest(projectId, body));
+  }
+
   @Get(':sourceId')
   @RequireStudioPermission(StudioPermission.KNOWLEDGE_READ)
   async get(
@@ -117,6 +136,46 @@ export class KnowledgeController {
     return apiSuccess(await this.knowledge.findById(projectId, sourceId));
   }
 
+  @Get(':sourceId/chunks')
+  @RequireStudioPermission(StudioPermission.KNOWLEDGE_READ)
+  async listChunks(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Param('sourceId') sourceId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    await assertStudioProjectRoute(
+      ctx,
+      projectId,
+      this.studioAccess,
+      this.projects,
+    );
+    return apiSuccess(
+      await this.knowledge.listChunks(projectId, sourceId, {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+      }),
+    );
+  }
+
+  @Patch(':sourceId')
+  @RequireStudioPermission(StudioPermission.KNOWLEDGE_WRITE)
+  async update(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Param('sourceId') sourceId: string,
+    @Body() body: UpdateKnowledgeSourceDto,
+  ) {
+    await assertStudioProjectRoute(
+      ctx,
+      projectId,
+      this.studioAccess,
+      this.projects,
+    );
+    return apiSuccess(await this.knowledge.update(projectId, sourceId, body));
+  }
+
   @Delete(':sourceId')
   @RequireStudioPermission(StudioPermission.KNOWLEDGE_DELETE)
   async remove(
@@ -131,5 +190,21 @@ export class KnowledgeController {
       this.projects,
     );
     return apiSuccess(await this.knowledge.remove(projectId, sourceId));
+  }
+
+  @Post(':sourceId/reindex')
+  @RequireStudioPermission(StudioPermission.KNOWLEDGE_WRITE)
+  async reindex(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Param('sourceId') sourceId: string,
+  ) {
+    await assertStudioProjectRoute(
+      ctx,
+      projectId,
+      this.studioAccess,
+      this.projects,
+    );
+    return apiSuccess(await this.knowledge.reindex(projectId, sourceId));
   }
 }
