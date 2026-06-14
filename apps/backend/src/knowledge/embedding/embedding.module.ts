@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import type { LlmResolvedConfig } from '../../config/llm.config';
+import type { EmbeddingResolvedConfig } from '../../config/embedding.config';
 import { EMBEDDING_PROVIDER } from './embedding-provider.interface';
+import { GoogleEmbeddingProvider } from './google-embedding.provider';
 import { OpenAiEmbeddingProvider } from './openai-embedding.provider';
 import { StubEmbeddingProvider } from './stub-embedding.provider';
 
@@ -15,11 +16,26 @@ import { StubEmbeddingProvider } from './stub-embedding.provider';
         configService: ConfigService,
         stub: StubEmbeddingProvider,
       ) => {
-        const llm = configService.get<LlmResolvedConfig>('llm');
-        const provider = process.env.EMBEDDING_PROVIDER?.trim().toLowerCase();
+        const embedding =
+          configService.getOrThrow<EmbeddingResolvedConfig>('embedding');
+        const logger = new Logger('EmbeddingModule');
 
-        if (provider === 'openai' && llm?.openai) {
-          return new OpenAiEmbeddingProvider(llm.openai, llm.timeoutMs);
+        if (embedding.provider === 'openai' && embedding.openai) {
+          logger.log('Using OpenAI embedding provider');
+          return new OpenAiEmbeddingProvider(
+            embedding.openai,
+            embedding.timeoutMs,
+          );
+        }
+
+        if (embedding.provider === 'google' && embedding.google) {
+          logger.log(
+            `Using Google embedding provider (${embedding.google.model})`,
+          );
+          return new GoogleEmbeddingProvider(
+            embedding.google,
+            embedding.timeoutMs,
+          );
         }
 
         return stub;

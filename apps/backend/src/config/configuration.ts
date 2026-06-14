@@ -9,6 +9,7 @@ import { resolveAuthConfig } from './auth.config';
 import { resolveStudioAuthConfig } from './studio-auth.config';
 import { resolveHttpConfig } from './http.config';
 import { resolveLlmConfig } from './llm.config';
+import { resolveEmbeddingConfig } from './embedding.config';
 import { resolveVoiceConfig } from './voice.config';
 import { resolveKnowledgeConfig } from './knowledge.config';
 import { resolveQuotaLimits } from './quota.config';
@@ -38,6 +39,7 @@ export default () => {
     auth: resolveAuthConfig(),
     studioAuth: resolveStudioAuthConfig(),
     llm: resolveLlmConfig(),
+    embedding: resolveEmbeddingConfig(),
     voice: resolveVoiceConfig(),
     knowledge: resolveKnowledgeConfig(),
     quota: resolveQuotaLimits(),

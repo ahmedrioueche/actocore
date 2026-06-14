@@ -284,15 +284,25 @@ Sources move `pending` → `ready` \| `error` after chunking + embedding. Scanne
 
 Default: `EMBEDDING_PROVIDER=stub` (deterministic fake vectors for dev).
 
-For real retrieval quality:
+For real retrieval quality (independent of chat `LLM_PROVIDER`):
 
+**OpenAI:**
 ```env
 EMBEDDING_PROVIDER=openai
 OPENAI_API_KEY=sk-...
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 ```
 
-Also set `LLM_PROVIDER=openai` (or another provider) for answers that use retrieved context.
+**Google/Gemini (same API key as chat):**
+```env
+EMBEDDING_PROVIDER=google
+GEMINI_API_KEY=...
+GOOGLE_EMBEDDING_MODEL=text-embedding-004
+```
+
+Chat answers still use `LLM_PROVIDER` (e.g. `google` + `GEMINI_API_KEY`).
+
+Re-index all knowledge sources after switching embedding providers.
 
 Shared client: `knowledgeApi` in `@ahmedrioueche/actocore-shared`.
 
