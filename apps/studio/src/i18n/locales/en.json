@@ -461,6 +461,8 @@
       "text": "“{{name}}” and its indexed content will be removed. This cannot be undone.",
       "confirm": "Delete source"
     },
+    "viewDetails": "View details for {{name}}",
+    "viewDetailsShort": "View details",
     "retrieveTest": {
       "title": "Test retrieval",
       "subtitle": "Run a question against indexed chunks and inspect ranked matches with scores.",

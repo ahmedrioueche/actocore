@@ -207,7 +207,7 @@ export function DataTable<T>({
                     <tr
                       key={row.id}
                       onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-                      className={`transition-colors duration-200 ${onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                      className={`transition-colors duration-200 ${onRowClick ? 'group cursor-pointer hover:bg-primary/5' : ''}`}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const meta = cell.column.columnDef.meta;
@@ -244,7 +244,7 @@ export function DataTable<T>({
                     onClick={
                       onRowClick ? () => onRowClick(row.original) : undefined
                     }
-                    className={onRowClick ? 'cursor-pointer' : ''}
+                    className={onRowClick ? 'group cursor-pointer hover:bg-primary/5' : ''}
                   >
                     {renderMobileCard(row.original)}
                   </div>

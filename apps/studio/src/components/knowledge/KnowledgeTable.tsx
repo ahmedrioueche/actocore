@@ -2,12 +2,16 @@ import type {
   KnowledgeSourceData,
   KnowledgeSourceStatus,
 } from '@ahmedrioueche/actocore-shared';
-import { BookOpen, ChevronRight, FileText, Globe, Map, Trash2, Type } from 'lucide-react';
+import { BookOpen, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { PaginationState } from '@tanstack/react-table';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
+import {
+  KnowledgeSourceRowContent,
+  knowledgeSourceDetailLabel,
+} from '@/components/knowledge/KnowledgeSourceRowContent';
 import { EmptyState } from '@/components/states';
 import { DataTable } from '@/components/ui/DataTable';
 import { MobileDataCard, MobileDataRow } from '@/components/ui/MobileDataCard';
@@ -29,19 +33,13 @@ const STATUS_STYLES: Record<KnowledgeSourceStatus, string> = {
   error: 'bg-danger/10 text-danger',
 };
 
-const TYPE_ICONS = {
-  document: FileText,
-  url: Globe,
-  text: Type,
-  sitemap: Map,
-} as const;
-
 interface KnowledgeTableProps {
   projectId: string;
 }
 
 export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const { session } = useAuth();
   const openConfirm = useModalStore((state) => state.openConfirm);
 
@@ -59,6 +57,13 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
   const canDelete = canDeleteKnowledge(session);
   const sources = knowledgeQuery.data?.items ?? [];
 
+  const openSource = (source: KnowledgeSourceData) => {
+    void navigate({
+      to: '/projects/$projectId/knowledge/$sourceId',
+      params: { projectId, sourceId: source.id },
+    });
+  };
+
   const columns = useMemo<ColumnDef<KnowledgeSourceData>[]>(() => {
     const formatCreated = (value: string) =>
       new Date(value).toLocaleDateString(i18n.language, {
@@ -74,35 +79,18 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
         header: t('knowledge.columns.source'),
         meta: {
           renderSkeleton: () => (
-            <div className="h-9 w-48 animate-pulse rounded-lg bg-surface-hover" />
+            <div className="h-10 w-48 animate-pulse rounded-xl bg-surface-hover" />
           ),
         },
         cell: ({ row }) => {
           const source = row.original;
-          const Icon = TYPE_ICONS[source.type] ?? FileText;
-          const subtitle =
-            source.file?.originalFilename ??
-            source.url ??
-            t(`knowledge.types.${source.type}`);
           return (
-            <Link
-              to="/projects/$projectId/knowledge/$sourceId"
-              params={{ projectId, sourceId: source.id }}
-              className="flex min-w-0 items-center gap-3 rounded-lg transition-colors hover:bg-surface-hover/60"
+            <div
+              className="group -mx-2 rounded-xl px-2 py-1"
+              aria-label={knowledgeSourceDetailLabel(t, source)}
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-text-secondary">
-                <Icon className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate font-medium text-text-primary">
-                  {source.title}
-                </p>
-                <p className="truncate text-xs text-text-secondary">
-                  {subtitle}
-                </p>
-              </div>
-              <ChevronRight className="ms-auto h-4 w-4 shrink-0 text-text-secondary" />
-            </Link>
+              <KnowledgeSourceRowContent source={source} />
+            </div>
           );
         },
       },
@@ -179,7 +167,8 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
           <div className="flex justify-end">
             <button
               type="button"
-              onClick={() =>
+              onClick={(event) => {
+                event.stopPropagation();
                 openConfirm({
                   title: t('knowledge.delete.title'),
                   text: t('knowledge.delete.text', { name: source.title }),
@@ -188,8 +177,8 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
                   onConfirm: () => {
                     void deleteKnowledge.mutateAsync(source.id);
                   },
-                })
-              }
+                });
+              }}
               className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger-surface hover:text-danger"
               aria-label={t('knowledge.delete.confirm')}
             >
@@ -201,7 +190,7 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
     });
 
     return cols;
-  }, [canDelete, deleteKnowledge, i18n.language, openConfirm, projectId, t]);
+  }, [canDelete, deleteKnowledge, i18n.language, openConfirm, t]);
 
   return (
     <DataTable
@@ -211,6 +200,7 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
       isError={knowledgeQuery.isError}
       onRetry={() => void knowledgeQuery.refetch()}
       getRowId={(source) => source.id}
+      onRowClick={openSource}
       manualPagination
       pagination={pagination}
       onPaginationChange={setPagination}
@@ -224,11 +214,6 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
         />
       }
       renderMobileCard={(source) => {
-        const Icon = TYPE_ICONS[source.type] ?? FileText;
-        const subtitle =
-          source.file?.originalFilename ??
-          source.url ??
-          t(`knowledge.types.${source.type}`);
         const formatCreated = (value: string) =>
           new Date(value).toLocaleDateString(i18n.language, {
             month: 'short',
@@ -239,7 +224,8 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
         const actions = canDelete ? (
           <button
             type="button"
-            onClick={() =>
+            onClick={(event) => {
+              event.stopPropagation();
               openConfirm({
                 title: t('knowledge.delete.title'),
                 text: t('knowledge.delete.text', { name: source.title }),
@@ -248,8 +234,8 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
                 onConfirm: () => {
                   void deleteKnowledge.mutateAsync(source.id);
                 },
-              })
-            }
+              });
+            }}
             className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger-surface hover:text-danger"
             aria-label={t('knowledge.delete.confirm')}
           >
@@ -259,6 +245,7 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
 
         return (
           <MobileDataCard
+            className="group transition-colors hover:bg-primary/5"
             actions={actions}
             footer={
               <>
@@ -285,22 +272,9 @@ export function KnowledgeTable({ projectId }: KnowledgeTableProps) {
               </>
             }
           >
-            <Link
-              to="/projects/$projectId/knowledge/$sourceId"
-              params={{ projectId, sourceId: source.id }}
-              className="flex items-center gap-3"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-text-secondary">
-                <Icon className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate font-medium text-text-primary">
-                  {source.title}
-                </p>
-                <p className="truncate text-xs text-text-secondary">{subtitle}</p>
-              </div>
-              <ChevronRight className="ms-auto h-4 w-4 shrink-0 text-text-secondary" />
-            </Link>
+            <div aria-label={knowledgeSourceDetailLabel(t, source)}>
+              <KnowledgeSourceRowContent source={source} />
+            </div>
           </MobileDataCard>
         );
       }}

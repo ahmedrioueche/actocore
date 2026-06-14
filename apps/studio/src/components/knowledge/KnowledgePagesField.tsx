@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import Checkbox from '@/components/ui/Checkbox';
 import { useAppPages } from '@/hooks/use-app-pages';
 
 interface KnowledgePagesFieldProps {
@@ -22,11 +23,11 @@ export function KnowledgePagesField({
 
   const selected = useMemo(() => new Set(value), [value]);
 
-  const toggle = (pageId: string) => {
+  const toggle = (pageId: string, checked: boolean) => {
     if (disabled) {
       return;
     }
-    if (selected.has(pageId)) {
+    if (!checked) {
       onChange(value.filter((id) => id !== pageId));
       return;
     }
@@ -34,38 +35,33 @@ export function KnowledgePagesField({
   };
 
   return (
-    <div className="space-y-2">
-      <span className="block text-sm font-medium text-text-primary">
-        {t('knowledge.detail.pages')}
-      </span>
-      <p className="text-xs text-text-secondary">
-        {t('knowledge.detail.pagesHint')}
-      </p>
+    <div className="space-y-3">
+      <div>
+        <span className="block text-sm font-medium text-text-primary">
+          {t('knowledge.detail.pages')}
+        </span>
+        <p className="mt-1 text-xs text-text-secondary">
+          {t('knowledge.detail.pagesHint')}
+        </p>
+      </div>
       {pages.length === 0 ? (
         <p className="text-sm text-text-secondary">
           {t('knowledge.detail.pagesEmpty')}
         </p>
       ) : (
-        <ul className="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-border p-3">
+        <div className="max-h-56 space-y-2 overflow-y-auto pe-1">
           {pages.map((page) => (
-            <li key={page.id}>
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={selected.has(page.id)}
-                  onChange={() => toggle(page.id)}
-                  disabled={disabled}
-                />
-                <span>
-                  {page.title}{' '}
-                  <span className="font-mono text-xs text-text-secondary">
-                    ({page.slug})
-                  </span>
-                </span>
-              </label>
-            </li>
+            <Checkbox
+              key={page.id}
+              id={`knowledge-page-${page.id}`}
+              checked={selected.has(page.id)}
+              onChange={(checked) => toggle(page.id, checked)}
+              label={page.title}
+              description={page.slug}
+              disabled={disabled}
+            />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

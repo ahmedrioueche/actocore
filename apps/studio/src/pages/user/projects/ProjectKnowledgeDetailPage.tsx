@@ -132,9 +132,11 @@ export default function ProjectKnowledgeDetailPage() {
 
       <div className="space-y-8">
         {canWrite && projectId ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('knowledge.detail.pagesTitle')}</CardTitle>
+          <Card className="border-primary">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-text-primary">
+                {t('knowledge.detail.pagesTitle')}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <KnowledgePagesField

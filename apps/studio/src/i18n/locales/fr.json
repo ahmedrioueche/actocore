@@ -455,6 +455,8 @@
       "text": "« {{name}} » et son contenu indexé seront supprimés. Cela ne peut pas être annulé.",
       "confirm": "Supprimer la source"
     },
+    "viewDetails": "Voir les détails de {{name}}",
+    "viewDetailsShort": "Voir les détails",
     "retrieveTest": {
       "title": "Tester la récupération",
       "subtitle": "Posez une question aux chunks indexés et inspectez les correspondances classées avec leurs scores.",
