@@ -5,8 +5,10 @@ The ActoCore SDK (`@ahmedrioueche/actocore-sdk`) is a React package that embeds 
 ## Install
 
 ```bash
-npm install @ahmedrioueche/actocore-sdk
+npm install @ahmedrioueche/actocore-sdk@0.1.0
 ```
+
+Current launch release: **0.1.0** (see Project → SDK docs in Studio for release notes).
 
 Peer dependency: React 18+. Import styles once:
 

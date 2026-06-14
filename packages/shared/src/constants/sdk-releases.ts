@@ -13,6 +13,18 @@ export interface SdkReleaseEntry {
 /** Newest release first. */
 export const SDK_RELEASES: SdkReleaseEntry[] = [
   {
+    version: '0.1.0',
+    releasedAt: '2026-06-15',
+    sharedVersion: '0.0.31',
+    summary: 'Launch release of the embeddable React SDK.',
+    changes: [
+      'Recommended version for new production integrations',
+      'ActocoreProvider, ActoChatWidget, actions, i18n, and theme tokens',
+      'Remote SDK config and session history from Studio',
+      'Streaming chat with knowledge citations when Core RAG is enabled',
+    ],
+  },
+  {
     version: '0.0.2',
     releasedAt: '2026-06-01',
     sharedVersion: '0.0.31',
@@ -36,4 +48,4 @@ export const SDK_RELEASES: SdkReleaseEntry[] = [
   },
 ];
 
-export const SDK_LATEST_VERSION = SDK_RELEASES[0]?.version ?? '0.0.2';
+export const SDK_LATEST_VERSION = SDK_RELEASES[0]?.version ?? '0.1.0';

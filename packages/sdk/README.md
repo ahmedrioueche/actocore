@@ -9,8 +9,10 @@ Embeddable React chat SDK for ActoCore projects.
 Published on the **public npm registry** (no `.npmrc` required):
 
 ```bash
-npm install @ahmedrioueche/actocore-sdk
+npm install @ahmedrioueche/actocore-sdk@0.1.0
 ```
+
+Or use `@latest` after publish. Pin an exact version in production when you prefer reproducible installs.
 
 `@ahmedrioueche/actocore-shared` is installed automatically as a dependency. You only need a separate install if you import shared types/APIs directly in your app.
 
