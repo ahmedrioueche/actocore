@@ -5,6 +5,7 @@ import type {
   KnowledgeSourceType,
 } from '@ahmedrioueche/actocore-shared';
 import { Model } from 'mongoose';
+import { LlmHttpError } from '../external/llm/llm-http';
 import type { DocumentExtractionResult } from './document-extraction.types';
 import { DocumentTextExtractor } from './document-text.extractor';
 import {
@@ -185,8 +186,7 @@ export class KnowledgeIngestService {
     error: unknown,
   ): Promise<KnowledgeSourceDocument> {
     source.status = 'error';
-    source.errorMessage =
-      error instanceof Error ? error.message : 'Ingestion failed';
+    source.errorMessage = formatIngestErrorMessage(error);
     source.chunkCount = 0;
     await source.save();
     return source;
@@ -318,4 +318,38 @@ function hasChunkMetadata(metadata: {
 
 function isRetryableIngestError(error: unknown): boolean {
   return !(error instanceof BadRequestException);
+}
+
+function formatIngestErrorMessage(error: unknown): string {
+  if (error instanceof LlmHttpError) {
+    const detail = extractApiErrorDetail(error.responseBody);
+    return detail ? `${error.message}: ${detail}` : error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Ingestion failed';
+}
+
+function extractApiErrorDetail(responseBody: string): string | undefined {
+  const trimmed = responseBody.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed) as {
+      error?: { message?: string };
+    };
+    const message = parsed.error?.message?.trim();
+    if (message) {
+      return message;
+    }
+  } catch {
+    // fall through to raw snippet
+  }
+
+  return trimmed.length > 240 ? `${trimmed.slice(0, 240)}…` : trimmed;
 }

@@ -67,7 +67,7 @@ function resolveGoogleEmbeddingConfig(): GoogleLlmConfig {
     model:
       process.env.GOOGLE_EMBEDDING_MODEL?.trim() ??
       process.env.GEMINI_EMBEDDING_MODEL?.trim() ??
-      'text-embedding-004',
+      'gemini-embedding-001',
     baseUrl:
       process.env.GOOGLE_BASE_URL?.trim() ||
       'https://generativelanguage.googleapis.com/v1beta',

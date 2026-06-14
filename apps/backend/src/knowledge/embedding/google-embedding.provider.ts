@@ -11,8 +11,10 @@ interface GeminiBatchEmbedResponse {
   embeddings?: Array<{ values?: number[] }>;
 }
 
-/** Default output size for text-embedding-004 without outputDimensionality. */
+/** Default output size for gemini-embedding-001 without outputDimensionality. */
 const DEFAULT_DIMENSIONS = 768;
+
+const RETRIEVAL_DOCUMENT_TASK = 'RETRIEVAL_DOCUMENT';
 
 @Injectable()
 export class GoogleEmbeddingProvider implements EmbeddingProvider {
@@ -53,37 +55,40 @@ export class GoogleEmbeddingProvider implements EmbeddingProvider {
   }
 
   private async embedOne(text: string): Promise<number[]> {
-    const base = this.config.baseUrl.replace(/\/$/, '');
-    const model = encodeURIComponent(normalizeGoogleModelId(this.config.model));
-    const url = `${base}/models/${model}:embedContent?key=${encodeURIComponent(this.config.apiKey)}`;
+    const modelResource = toGoogleEmbeddingModelResource(this.config.model);
+    const url = `${this.config.baseUrl.replace(/\/$/, '')}/models/${toGoogleEmbeddingModelSlug(this.config.model)}:embedContent?key=${encodeURIComponent(this.config.apiKey)}`;
 
     const data = await postJson<GeminiEmbedResponse>(url, {
       headers: {},
       body: {
-        model: normalizeGoogleModelId(this.config.model),
+        model: modelResource,
         content: {
           parts: [{ text }],
         },
+        taskType: RETRIEVAL_DOCUMENT_TASK,
       },
       timeoutMs: this.timeoutMs,
     });
 
-    return readEmbeddingValues(data.embedding?.values, 'Gemini returned an empty embedding');
+    return readEmbeddingValues(
+      data.embedding?.values,
+      'Gemini returned an empty embedding',
+    );
   }
 
   private async embedMany(texts: string[]): Promise<number[][]> {
-    const base = this.config.baseUrl.replace(/\/$/, '');
-    const model = normalizeGoogleModelId(this.config.model);
-    const url = `${base}/models/${encodeURIComponent(model)}:batchEmbedContents?key=${encodeURIComponent(this.config.apiKey)}`;
+    const modelResource = toGoogleEmbeddingModelResource(this.config.model);
+    const url = `${this.config.baseUrl.replace(/\/$/, '')}/models/${toGoogleEmbeddingModelSlug(this.config.model)}:batchEmbedContents?key=${encodeURIComponent(this.config.apiKey)}`;
 
     const data = await postJson<GeminiBatchEmbedResponse>(url, {
       headers: {},
       body: {
         requests: texts.map((text) => ({
-          model,
+          model: modelResource,
           content: {
             parts: [{ text }],
           },
+          taskType: RETRIEVAL_DOCUMENT_TASK,
         })),
       },
       timeoutMs: this.timeoutMs,
@@ -109,12 +114,22 @@ export class GoogleEmbeddingProvider implements EmbeddingProvider {
   }
 }
 
-function normalizeGoogleModelId(model: string): string {
+/** Body field: `models/gemini-embedding-001`. */
+export function toGoogleEmbeddingModelResource(model: string): string {
   const trimmed = model.trim();
   return trimmed.startsWith('models/') ? trimmed : `models/${trimmed}`;
 }
 
-function readEmbeddingValues(values: number[] | undefined, message: string): number[] {
+/** URL path segment only: `gemini-embedding-001` (no `models/` prefix). */
+export function toGoogleEmbeddingModelSlug(model: string): string {
+  const resource = toGoogleEmbeddingModelResource(model);
+  return resource.slice('models/'.length);
+}
+
+function readEmbeddingValues(
+  values: number[] | undefined,
+  message: string,
+): number[] {
   if (!values?.length) {
     throw new LlmHttpError(502, message);
   }

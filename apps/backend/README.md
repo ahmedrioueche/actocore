@@ -297,7 +297,7 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 ```env
 EMBEDDING_PROVIDER=google
 GEMINI_API_KEY=...
-GOOGLE_EMBEDDING_MODEL=text-embedding-004
+GOOGLE_EMBEDDING_MODEL=gemini-embedding-001
 ```
 
 Chat answers still use `LLM_PROVIDER` (e.g. `google` + `GEMINI_API_KEY`).

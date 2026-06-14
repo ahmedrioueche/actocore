@@ -51,13 +51,13 @@ describe('resolveEmbeddingConfig', () => {
   it('resolves Google embeddings from GEMINI_API_KEY', () => {
     process.env.EMBEDDING_PROVIDER = 'google';
     process.env.GEMINI_API_KEY = 'gem-key';
-    process.env.GOOGLE_EMBEDDING_MODEL = 'text-embedding-004';
+    process.env.GOOGLE_EMBEDDING_MODEL = 'gemini-embedding-001';
 
     const config = resolveEmbeddingConfig();
     expect(config.provider).toBe('google');
     expect(config.google).toEqual({
       apiKey: 'gem-key',
-      model: 'text-embedding-004',
+      model: 'gemini-embedding-001',
       baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
     });
     expect(config.openai).toBeNull();
