@@ -36,6 +36,10 @@ jobs:
         working-directory: apps/backend
         run: npm ci
 
+      - name: Build backend
+        working-directory: apps/backend
+        run: npm run build
+
       - name: Unit tests
         working-directory: apps/backend
         run: npm test
