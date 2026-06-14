@@ -92,6 +92,7 @@ describe('QaRunnerService', () => {
       queryRewritten: false,
     });
     expect(result.modeNote).toContain('cite inline using [1], [2]');
+    expect(result.modeNote).toContain('include every matching item');
     expect(result.modeNote).toContain('--- Retrieved knowledge ---');
     expect(result.modeNote).toContain('ActoCore helps apps integrate AI.');
   });

@@ -2,6 +2,10 @@
 
 JSON files used by `npm run rag:eval`.
 
+## Sample upload (manual smoke test)
+
+Upload **`actocore-smoke-test-knowledge.md`** in Studio → Knowledge, assign page scope, wait for `ready`, then ask the suggested questions at the bottom of the file (or use the eval queries in `default.json`).
+
 ## Format
 
 ```json
