@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { json, type Request, type Response, type NextFunction } from 'express';
 import { HttpExceptionFilter } from '../filters/http-exception.filter';
+import { isCorsOriginAllowed } from '../../config/cors-origin.util';
 
 export function configureApp(app: INestApplication): void {
   const config = app.get(ConfigService);
@@ -13,8 +14,8 @@ export function configureApp(app: INestApplication): void {
   const http = config.getOrThrow<{
     bodyLimitSdk: string;
     bodyLimitWeb: string;
-    corsSdkOrigins: string[];
-    corsWebOrigins: string[];
+    corsAllowedOrigins: string[];
+    corsOriginPatterns: string[];
   }>('http');
 
   const sdkPrefix = `/${apiVersion}/sdk`;
@@ -48,11 +49,12 @@ export function configureApp(app: INestApplication): void {
         return;
       }
 
-      const allowed = new Set([
-        ...http.corsSdkOrigins,
-        ...http.corsWebOrigins,
-      ]);
-      callback(null, allowed.has(origin));
+      const allowed = isCorsOriginAllowed(
+        origin,
+        http.corsAllowedOrigins,
+        http.corsOriginPatterns,
+      );
+      callback(null, allowed);
     },
     credentials: true,
   });
