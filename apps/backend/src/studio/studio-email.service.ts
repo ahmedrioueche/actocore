@@ -5,6 +5,7 @@ import {
   buildDeleteAccountOtpEmail,
   buildPasswordResetEmail,
   buildQuotaAlertEmail,
+  buildSubscriptionEventEmail,
   buildVerificationEmail,
 } from './studio-email-templates';
 import { buildStudioAppUrl } from './utils/studio-redirect.util';
@@ -47,6 +48,19 @@ export class StudioEmailService {
 
   async sendQuotaAlert(to: string, subject: string, text: string): Promise<void> {
     const content = buildQuotaAlertEmail(
+      subject,
+      text,
+      this.cfg().studioAppUrl,
+    );
+    await this.send(to, `ActoCore Studio — ${subject}`, content);
+  }
+
+  async sendSubscriptionEvent(
+    to: string,
+    subject: string,
+    text: string,
+  ): Promise<void> {
+    const content = buildSubscriptionEventEmail(
       subject,
       text,
       this.cfg().studioAppUrl,

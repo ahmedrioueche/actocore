@@ -1,6 +1,7 @@
 import {
   buildDeleteAccountOtpEmail,
   buildPasswordResetEmail,
+  buildSubscriptionEventEmail,
   buildVerificationEmail,
 } from './studio-email-templates';
 
@@ -46,5 +47,18 @@ describe('studio-email-templates', () => {
 
     expect(html).not.toContain('<script>');
     expect(html).toContain('&quot;&gt;&lt;script&gt;');
+  });
+
+  it('builds subscription event email with billing CTA', () => {
+    const { html, text } = buildSubscriptionEventEmail(
+      'Subscription active',
+      'Your Starter plan is active.',
+      'https://studio.example',
+    );
+
+    expect(html).toContain('Subscription active');
+    expect(html).toContain('Open billing in Studio');
+    expect(html).toContain('https://studio.example/billing');
+    expect(text).toContain('Your Starter plan is active.');
   });
 });

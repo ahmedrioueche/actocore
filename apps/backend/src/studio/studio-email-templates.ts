@@ -239,12 +239,29 @@ export function buildQuotaAlertEmail(
   body: string,
   studioAppUrl: string,
 ): { html: string; text: string } {
+  return buildStudioBillingEmail(subject, subject, body, studioAppUrl);
+}
+
+export function buildSubscriptionEventEmail(
+  subject: string,
+  body: string,
+  studioAppUrl: string,
+): { html: string; text: string } {
+  return buildStudioBillingEmail(subject, subject, body, studioAppUrl);
+}
+
+function buildStudioBillingEmail(
+  preheader: string,
+  title: string,
+  body: string,
+  studioAppUrl: string,
+): { html: string; text: string } {
   const text = [body, '', `Open Studio: ${studioAppUrl}`].join('\n');
   const billingUrl = `${studioAppUrl.replace(/\/$/, '')}/billing`;
 
   const html = renderStudioEmailLayout({
-    preheader: subject,
-    title: subject,
+    preheader,
+    title,
     bodyHtml: `${plainTextToHtml(body)}
 ${renderPrimaryButton(billingUrl, 'Open billing in Studio')}`,
   });

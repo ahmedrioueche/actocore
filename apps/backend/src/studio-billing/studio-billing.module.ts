@@ -30,6 +30,7 @@ import { StudioPlansAdminController } from './studio-plans-admin.controller';
 import { StudioPayPalWebhookController } from './studio-paypal-webhook.controller';
 import { StudioPlansService } from './studio-plans.service';
 import { StudioSubscriptionService } from './studio-subscription.service';
+import { StudioSubscriptionNotificationService } from './studio-subscription-notification.service';
 import { StudioPayPalCatalogService } from './studio-paypal-catalog.service';
 import { StudioPayPalHttpService } from './studio-paypal-http.service';
 import { StudioPayPalService } from './studio-paypal.service';
@@ -68,6 +69,7 @@ import { PlatformPermissionGuard } from '../studio/guards/platform-permission.gu
   providers: [
     StudioPlansService,
     StudioSubscriptionService,
+    StudioSubscriptionNotificationService,
     StudioPayPalHttpService,
     StudioPayPalService,
     StudioPayPalCatalogService,

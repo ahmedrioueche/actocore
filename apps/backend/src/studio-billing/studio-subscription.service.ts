@@ -47,6 +47,7 @@ import {
 } from './studio-paypal.service';
 import { normalizeStudioPlanLimits } from './studio-plan-limits.util';
 import { StudioPlansService } from './studio-plans.service';
+import { StudioSubscriptionNotificationService } from './studio-subscription-notification.service';
 import { decodePayPalCustomId } from './utils/paypal-custom-id.util';
 import { isUpgrade } from './utils/plan-level.util';
 import { isMongoDuplicateKeyError } from './utils/mongo-duplicate.util';
@@ -80,6 +81,7 @@ export class StudioSubscriptionService {
     private readonly usage: UsageService,
     @Inject(forwardRef(() => StudioPayPalService))
     private readonly paypal: StudioPayPalService,
+    private readonly subscriptionNotifications: StudioSubscriptionNotificationService,
   ) {}
 
   async getAccountSubscription(accountId: string): Promise<StudioSubscription | null> {
@@ -816,6 +818,7 @@ export class StudioSubscriptionService {
         providerTransactionId: payment?.providerTransactionId,
         createdAt: new Date(),
       });
+      this.scheduleSubscriptionEmail(sub, action, details);
       return true;
     } catch (error) {
       if (payment?.providerTransactionId && isMongoDuplicateKeyError(error)) {
@@ -823,6 +826,33 @@ export class StudioSubscriptionService {
       }
       throw error;
     }
+  }
+
+  private scheduleSubscriptionEmail(
+    sub: StudioSubscriptionModel,
+    action: string,
+    details?: string,
+  ): void {
+    if (!this.subscriptionNotifications.isSubscriptionEmailAction(action)) {
+      return;
+    }
+
+    void this.subscriptionNotifications
+      .notifyAccountAdmins(sub.accountId.toString(), {
+        action,
+        planId: sub.planId,
+        billingCycle: sub.billingCycle,
+        periodEnd: sub.currentPeriodEnd,
+        pendingPlanId: sub.pendingPlanId,
+        details,
+      })
+      .catch((error) => {
+        this.logger.warn(
+          `Subscription email dispatch failed (${action}) for account ${sub.accountId}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      });
   }
 
   private toHistoryEntry(

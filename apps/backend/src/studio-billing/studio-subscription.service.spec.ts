@@ -12,6 +12,7 @@ import {
 import { StudioPayPalService } from './studio-paypal.service';
 import { StudioPlansService } from './studio-plans.service';
 import { StudioSubscriptionService } from './studio-subscription.service';
+import { StudioSubscriptionNotificationService } from './studio-subscription-notification.service';
 import { UsageService } from '../usage/usage.service';
 
 const accountId = new Types.ObjectId().toString();
@@ -153,6 +154,13 @@ describe('StudioSubscriptionService idempotency', () => {
           },
         },
         { provide: StudioPayPalService, useValue: {} },
+        {
+          provide: StudioSubscriptionNotificationService,
+          useValue: {
+            isSubscriptionEmailAction: jest.fn(() => false),
+            notifyAccountAdmins: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
