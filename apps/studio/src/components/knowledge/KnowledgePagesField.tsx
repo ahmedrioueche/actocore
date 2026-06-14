@@ -49,7 +49,7 @@ export function KnowledgePagesField({
           {t('knowledge.detail.pagesEmpty')}
         </p>
       ) : (
-        <div className="max-h-56 space-y-2 overflow-y-auto pe-1">
+        <div className="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto pe-1 md:grid-cols-2">
           {pages.map((page) => (
             <Checkbox
               key={page.id}
@@ -58,7 +58,9 @@ export function KnowledgePagesField({
               onChange={(checked) => toggle(page.id, checked)}
               label={page.title}
               description={page.slug}
+              descriptionClassName="font-mono"
               disabled={disabled}
+              className="min-w-0"
             />
           ))}
         </div>

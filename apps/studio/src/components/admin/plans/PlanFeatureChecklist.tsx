@@ -44,6 +44,7 @@ export function PlanFeatureChecklist({
             checked={features.includes(id)}
             onChange={(checked) => toggleFeature(id, checked)}
             label={t(`subscription.plans.features.${id}`)}
+            variant="inline"
           />
         ))}
       </div>
