@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { TokenManager } from '../api/token';
-import { DEFAULT_API_VERSION, setApiVersion } from './api-version';
+import { DEFAULT_API_VERSION, setApiVersion, setSdkRoutePrefix } from './api-version';
 
 export interface ApiConfig {
   baseURL?: string;
@@ -12,6 +12,8 @@ export interface ApiConfig {
   studioAccessToken?: string;
   /** API path prefix segment (default `v1`). */
   apiVersion?: string;
+  /** SDK route prefix after version (default `sdk`, marketing uses `marketing/sdk`). */
+  sdkRoutePrefix?: string;
 }
 
 let configuredBaseURL: string | null = null;
@@ -24,7 +26,7 @@ export let IS_DEV = false;
 /** Core API origin (versioned routes: `/{apiVersion}/...`). */
 export const DEFAULT_BASE_URL = 'http://localhost:3000';
 
-export { DEFAULT_API_VERSION, apiPath, getApiVersion, setApiVersion } from './api-version';
+export { DEFAULT_API_VERSION, apiPath, getApiVersion, getSdkRoutePrefix, sdkApiPath, setApiVersion, setSdkRoutePrefix } from './api-version';
 
 export const BASE_URL = (): string => configuredBaseURL ?? DEFAULT_BASE_URL;
 
@@ -53,6 +55,9 @@ export const configureApi = (config: ApiConfig): void => {
   if (config.apiVersion !== undefined) {
     setApiVersion(config.apiVersion);
   }
+  if (config.sdkRoutePrefix !== undefined) {
+    setSdkRoutePrefix(config.sdkRoutePrefix);
+  }
   apiClientInstance = null;
 };
 
@@ -65,7 +70,8 @@ function resolveRequestAuthToken(requestUrl: string): string | null {
   const path = requestUrl.includes('://')
     ? new URL(requestUrl, BASE_URL()).pathname
     : requestUrl;
-  const isSdkRoute = path.includes('/sdk/');
+  const isSdkRoute =
+    path.includes('/sdk/') || path.includes('/marketing/sdk/');
 
   if (isSdkRoute) {
     return getSdkAuthToken();

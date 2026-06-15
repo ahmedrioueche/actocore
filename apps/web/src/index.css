@@ -1,4 +1,4 @@
-@import '@actocore/brand/tokens.css';
+@import "@actocore/brand/tokens.css";
 
 @tailwind base;
 @tailwind components;
@@ -26,7 +26,7 @@
         rgb(139 92 246 / 0.06),
         transparent 50%
       );
-    background-attachment: fixed;
+    background-attachment: scroll;
   }
 }
 
@@ -56,33 +56,123 @@
   }
 
   .glass-panel {
-    background: var(--ac-glass-bg);
-    backdrop-filter: blur(16px);
+    background: var(--ac-color-surface);
     border: 1px solid var(--ac-glass-border);
   }
 
   .card-hover {
-    @apply transition-all duration-300;
+    @apply transition-[transform,border-color,background-color] duration-300;
   }
 
   .card-hover:hover {
     transform: translateY(-4px);
     border-color: color-mix(in srgb, var(--ac-color-primary) 30%, transparent);
-    background: var(--ac-glass-hover-bg);
+    background: var(--ac-color-surface-hover);
   }
 
   .mesh-gradient {
     background-color: var(--ac-color-bg);
     background-image:
-      radial-gradient(at 0% 0%, color-mix(in srgb, var(--ac-color-bg) 90%, var(--ac-brand-primary)) 0, transparent 50%),
+      radial-gradient(
+        at 0% 0%,
+        color-mix(in srgb, var(--ac-color-bg) 90%, var(--ac-brand-primary)) 0,
+        transparent 50%
+      ),
       radial-gradient(at 50% 0%, var(--ac-blob-primary) 0, transparent 50%),
       radial-gradient(at 100% 0%, var(--ac-blob-accent) 0, transparent 50%);
   }
 
   .animated-blob {
-    filter: blur(80px);
-    opacity: 0.4;
-    animation: blob-float 20s infinite alternate;
+    filter: blur(48px);
+    opacity: 0.35;
+    will-change: auto;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animated-blob {
+      animation: blob-float 20s infinite alternate;
+    }
+  }
+
+  /* Hero — page-load entrance (above the fold; not scroll-driven) */
+  @keyframes hero-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes hero-fade-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(1.5rem) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes hero-blobs-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+  }
+
+  .hero-entrance-badge {
+    animation: hero-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+  }
+
+  .hero-entrance-title {
+    animation: hero-fade-up 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+  }
+
+  .hero-entrance-subtitle {
+    animation: hero-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both;
+  }
+
+  .hero-entrance-cta {
+    animation: hero-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.38s both;
+  }
+
+  .hero-entrance-trust {
+    animation: hero-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+  }
+
+  .hero-entrance-visual {
+    animation: hero-fade-in-right 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.22s
+      both;
+  }
+
+  .hero-entrance-blobs .animated-blob {
+    animation: hero-blobs-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero-entrance-blobs .animated-blob:last-child {
+    animation-delay: 0.12s;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-entrance-blobs .animated-blob {
+      animation:
+        hero-blobs-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both,
+        blob-float 20s infinite alternate 1.1s;
+    }
+
+    .hero-entrance-blobs .animated-blob:last-child {
+      animation:
+        hero-blobs-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both,
+        blob-float 20s infinite alternate 1.22s;
+    }
   }
 
   @keyframes blob-float {
@@ -93,4 +183,174 @@
       transform: translate(20px, 40px) scale(1.1);
     }
   }
+
+  /* Scroll reveal — IntersectionObserver toggles .is-visible; opacity/transform only */
+  .scroll-reveal-section {
+    opacity: 0;
+    transform: translate3d(0, 1rem, 0);
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .scroll-reveal-section.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .scroll-reveal-section.is-instant {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-reveal-section {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .animated-blob {
+      animation: none !important;
+    }
+
+    .hero-entrance-badge,
+    .hero-entrance-title,
+    .hero-entrance-subtitle,
+    .hero-entrance-cta,
+    .hero-entrance-trust,
+    .hero-entrance-visual,
+    .hero-entrance-blobs .animated-blob {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  #how-it-works,
+  #features,
+  #architecture {
+    scroll-margin-top: 5.5rem;
+  }
+
+  .hero-chat-frame {
+    position: relative;
+    width: 100%;
+    max-width: min(100%, 24rem);
+    margin-inline: auto;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-chat-frame {
+      max-width: 26rem;
+      margin-inline: 0;
+      margin-left: auto;
+    }
+  }
+
+  .hero-chat-frame::before {
+    content: "";
+    position: absolute;
+    inset: 8% -4%;
+    z-index: 0;
+    border-radius: 1.25rem;
+    background: radial-gradient(
+      ellipse 80% 70% at 50% 45%,
+      color-mix(in srgb, var(--color-primary) 16%, transparent),
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  .hero-chat-shell {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: min(52svh, 26rem);
+    min-height: 20rem;
+    --ac-chat-max-width: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .hero-chat-shell {
+      height: min(58svh, 28rem);
+      min-height: 24rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-chat-shell {
+      height: 30rem;
+      min-height: 28rem;
+    }
+  }
+
+  .hero-chat-shell [data-actocore] {
+    display: block;
+    height: 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .hero-chat-shell [data-actocore] .ac-chat,
+  .hero-chat-shell .hero-chat-panel.ac-chat {
+    max-width: 100%;
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .hero-chat-shell .glass-panel {
+    height: 100%;
+  }
+}
+
+/* ===== Scrollbar styling (themed; use .hide-scrollbar / .no-scrollbar to suppress) ===== */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ac-scrollbar-thumb) var(--ac-scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: var(--ac-scrollbar-width);
+  height: var(--ac-scrollbar-width);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--ac-scrollbar-thumb);
+  border-radius: var(--ac-scrollbar-radius);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ac-color-primary-hover);
+}
+
+*::-webkit-scrollbar-track {
+  background-color: var(--ac-scrollbar-track);
+}
+
+/* Document shell — scrolling happens inside app regions, not on the viewport */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide native number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

@@ -1,8 +1,7 @@
-import { useTranslation } from 'react-i18next';
-
 import { useT } from '@/i18n/useT';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
+import i18n from '@/i18n';
 import { isAppLocale, routing, type AppLocale } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +12,6 @@ const LABELS: Record<AppLocale, string> = {
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const { t } = useT('nav');
-  const { i18n } = useTranslation();
   const { locale } = useParams();
   const navigate = useNavigate();
   const location = useLocation();

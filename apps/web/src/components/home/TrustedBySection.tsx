@@ -1,14 +1,28 @@
 import { useT } from '@/i18n/useT';
+import { asStringArray } from '@/i18n/as-string-array';
+
+import { ScrollReveal } from './ScrollReveal';
+
+const DEFAULT_PARTNERS = [
+  'Mercivio',
+  'DevFlow',
+  'LogicLayer',
+  'StackPoint',
+  'Aether',
+] as const;
 
 export function TrustedBySection() {
-  const { t } = useT('home.partners');
-  const partners = t('items', { returnObjects: true }) as string[];
+  const { t } = useT();
+  const partners = asStringArray(
+    t('home.partners.items', { returnObjects: true }),
+    [...DEFAULT_PARTNERS],
+  );
 
   return (
-    <section className="border-y border-border/50 bg-surface-secondary/30 py-12 backdrop-blur-sm">
+    <ScrollReveal as="section" className="border-y border-border bg-surface-secondary py-12">
       <div className="site-container">
         <p className="mb-8 text-center text-xs font-semibold uppercase tracking-widest text-muted opacity-80">
-          {t('label')}
+          {t('home.partners.label')}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-8 px-8 grayscale contrast-0 brightness-200 lg:justify-between lg:gap-16">
           {partners.map((name) => (
@@ -18,6 +32,6 @@ export function TrustedBySection() {
           ))}
         </div>
       </div>
-    </section>
+    </ScrollReveal>
   );
 }

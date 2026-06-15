@@ -1,12 +1,16 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { SiteLayout } from '@/layouts/SiteLayout';
+import { AboutPage } from '@/pages/AboutPage';
+import { CompliancePage } from '@/pages/CompliancePage';
+import { ContactPage } from '@/pages/ContactPage';
 import { DocsPage } from '@/pages/DocsPage';
 import { HomePage } from '@/pages/HomePage';
 import { LocaleGate } from '@/pages/LocaleGate';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { PricingPage } from '@/pages/PricingPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
+import { SecurityPage } from '@/pages/SecurityPage';
 import { TermsPage } from '@/pages/TermsPage';
 import { routing } from '@/i18n/routing';
 
@@ -19,8 +23,12 @@ export function App() {
           <Route index element={<HomePage />} />
           <Route path="pricing" element={<PricingPage />} />
           <Route path="docs" element={<DocsPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="contact" element={<ContactPage />} />
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="terms" element={<TermsPage />} />
+          <Route path="security" element={<SecurityPage />} />
+          <Route path="compliance" element={<CompliancePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

@@ -1,4 +1,4 @@
-import { apiPath, BASE_URL, getSdkAuthToken } from '../config/api';
+import { sdkApiPath, BASE_URL, getSdkAuthToken } from '../config/api';
 import type { SendChatMessageDto } from '../dtos/chat.dto';
 import type { ChatStreamEvent } from '../types/chat';
 import { consumeSseBuffer, parseChatStreamEvent } from './sse';
@@ -19,7 +19,7 @@ export async function streamChatMessage(
   options: StreamChatMessageOptions,
 ): Promise<void> {
   const base = (options.baseURL ?? BASE_URL()).replace(/\/$/, '');
-  const url = `${base}${apiPath('sdk/chat/stream')}`;
+  const url = `${base}${sdkApiPath('chat/stream')}`;
   const token = resolveStreamAuth(options.apiKey);
 
   const headers: Record<string, string> = {

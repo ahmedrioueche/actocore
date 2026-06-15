@@ -1,4 +1,4 @@
-import { apiPath } from '../config/api-version';
+import { sdkApiPath } from '../config/api-version';
 import type { ApiResponse } from '../types/api-response';
 import type { VoiceTranscriptionData } from '../types/voice';
 import { BaseApi } from './helper';
@@ -17,8 +17,8 @@ export class VoiceApi extends BaseApi {
     }
     const query = params.toString();
     const path = query
-      ? `${apiPath('sdk/voice/transcribe')}?${query}`
-      : apiPath('sdk/voice/transcribe');
+      ? `${sdkApiPath('voice/transcribe')}?${query}`
+      : sdkApiPath('voice/transcribe');
 
     return this.request(() =>
       this.client.post<ApiResponse<VoiceTranscriptionData>>(path, form, {

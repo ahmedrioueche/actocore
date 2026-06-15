@@ -9,7 +9,9 @@ export class ChatQuotaGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const projectId =
-      request.actocore?.context?.projectId ?? request.apiKey?.projectId;
+      request.actocore?.context?.projectId ??
+      request.apiKey?.projectId ??
+      request.marketingProjectId;
 
     if (!projectId) {
       return true;

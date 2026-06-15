@@ -15,6 +15,7 @@ export type {
   ActocoreUiClassNames,
   ActocoreUiConfig,
   ActocoreUiTextOverrides,
+  ActocoreSeedMessage,
 } from "./config/types";
 
 export { useActocoreHostContext } from "./context/actocore-context";

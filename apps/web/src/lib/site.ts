@@ -11,4 +11,14 @@ export function studioAuthPath(path: 'login' | 'signup'): string {
   return `${base}/${path}`;
 }
 
-export const SITE_PATHS = ['', '/pricing', '/docs', '/privacy', '/terms'] as const;
+export const SITE_PATHS = [
+  '',
+  '/pricing',
+  '/docs',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/security',
+  '/compliance',
+] as const;

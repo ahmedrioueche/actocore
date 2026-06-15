@@ -78,7 +78,7 @@
     "API_KEY_MISSING": "Le chat n'est pas encore configuré. Contactez l'administrateur de l'application.",
     "API_KEY_INVALID": "Le chat n'est pas configuré correctement. Contactez l'administrateur de l'application.",
     "API_KEY_REVOKED": "L'accès au chat a été révoqué. Contactez l'administrateur de l'application.",
-    "TOO_MANY_REQUESTS": "Trop de messages en peu de temps. Patientez un instant et réessayez.",
+    "TOO_MANY_REQUESTS": "Vous pourrez discuter dans une minute. Patientez un instant et réessayez.",
     "QUOTA_EXCEEDED": "Cet assistant est temporairement indisponible. Réessayez plus tard.",
     "BAD_GATEWAY": "Je n'ai pas pu répondre pour le moment. Réessayez dans un instant.",
     "GATEWAY_TIMEOUT": "Cela a pris trop de temps. Réessayez dans un instant.",

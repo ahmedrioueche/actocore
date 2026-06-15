@@ -12,6 +12,8 @@ export type AuthenticatedRequest = Request & {
     prefix: string;
     name?: string;
   };
+  /** Set by MarketingChatGuard for public marketing routes. */
+  marketingProjectId?: string;
   actocore?: {
     context: RequestContextData;
   };

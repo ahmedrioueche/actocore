@@ -78,7 +78,7 @@
     "API_KEY_MISSING": "Chat isn't configured yet. Contact the app administrator.",
     "API_KEY_INVALID": "Chat isn't configured correctly. Contact the app administrator.",
     "API_KEY_REVOKED": "Chat access was revoked. Contact the app administrator.",
-    "TOO_MANY_REQUESTS": "Too many messages in a short time. Please wait a moment and try again.",
+    "TOO_MANY_REQUESTS": "You'll be able to chat in a minute. Please wait and try again.",
     "QUOTA_EXCEEDED": "This assistant is temporarily unavailable. Please try again later.",
     "BAD_GATEWAY": "I couldn't respond right now. Please try again in a moment.",
     "GATEWAY_TIMEOUT": "That took too long. Please try again in a moment.",

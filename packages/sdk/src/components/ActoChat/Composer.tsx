@@ -13,6 +13,7 @@ export function Composer({
   onStop,
   isSending,
   isStreaming,
+  disabled: composerDisabled = false,
   minRows = 1,
   maxRows = 5,
 }: {
@@ -20,6 +21,7 @@ export function Composer({
   onStop?: () => void;
   isSending: boolean;
   isStreaming?: boolean;
+  disabled?: boolean;
   minRows?: number;
   maxRows?: number;
 }) {
@@ -52,15 +54,16 @@ export function Composer({
 
   const trimmed = useMemo(() => value.trim(), [value]);
   const showStop = Boolean(isStreaming && onStop);
-  const disabled = isSending || trimmed.length === 0;
+  const inputDisabled = composerDisabled || isSending;
+  const sendDisabled = composerDisabled || isSending || trimmed.length === 0;
 
   const submit = useCallback(async () => {
-    if (disabled) return;
+    if (sendDisabled) return;
     const content = value.trim();
     if (!content) return;
     setValue('');
     await onSend(content);
-  }, [disabled, onSend, value]);
+  }, [onSend, sendDisabled, value]);
 
   return (
     <div
@@ -73,12 +76,13 @@ export function Composer({
           ui.classNames?.composerField,
         )}
       >
-        <ActionPicker onInsertPrompt={setValue} disabled={isSending} />
+        <ActionPicker onInsertPrompt={setValue} disabled={inputDisabled} />
         <textarea
           ref={inputRef}
           className="ac-chat__input ac-scrollbar"
           value={value}
           placeholder={placeholder}
+          disabled={composerDisabled}
           onChange={(e) => setValue(e.target.value)}
           rows={1}
           aria-label={placeholder}
@@ -93,7 +97,7 @@ export function Composer({
           <VoiceInputButton
             value={value}
             onValueChange={setValue}
-            disabled={isSending}
+            disabled={inputDisabled}
           />
           <button
             type="button"
@@ -103,7 +107,7 @@ export function Composer({
               ui.classNames?.sendButton,
             )}
             onClick={() => (showStop ? onStop?.() : void submit())}
-            disabled={showStop ? false : disabled}
+            disabled={showStop ? false : sendDisabled}
             aria-label={showStop ? t('chat.stop') : sendLabel}
             title={
               showStop

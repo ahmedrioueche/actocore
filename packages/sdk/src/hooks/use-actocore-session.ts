@@ -279,7 +279,10 @@ export function useActocoreSession(
             return;
           } catch (e) {
             if (!isSessionGone(e)) {
-              if (!cancelled) setError(formatError(e));
+              if (!cancelled) {
+                setError(formatError(e));
+                setIsInitializing(false);
+              }
               return;
             }
             clearPersistedSessionId(persistScope);
@@ -299,7 +302,10 @@ export function useActocoreSession(
           writePersistedSessionId(persistScope, resolvedId);
         }
       } catch (e) {
-        if (!cancelled) setError(formatError(e));
+        if (!cancelled) {
+          setError(formatError(e));
+          setIsInitializing(false);
+        }
         return;
       }
 

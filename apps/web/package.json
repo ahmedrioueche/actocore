@@ -8,18 +8,19 @@
   },
   "scripts": {
     "dev": "vite --port 3001",
-    "build": "tsc && vite build",
+    "build": "npm run build --prefix ../../packages/shared && npm run build --prefix ../../packages/sdk && tsc && vite build",
     "preview": "vite preview --port 3001",
     "lint": "eslint src"
   },
   "dependencies": {
     "@actocore/brand": "file:../../packages/brand",
+    "@ahmedrioueche/actocore-sdk": "file:../../packages/sdk",
     "clsx": "^2.1.1",
     "i18next": "^25.5.2",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-i18next": "^15.7.3",
+    "react-i18next": "^16.6.6",
     "react-router-dom": "^7.9.1",
     "tailwind-merge": "^3.3.1"
   },

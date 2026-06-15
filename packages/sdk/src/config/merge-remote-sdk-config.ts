@@ -60,6 +60,7 @@ function mergeUi(
     showActionPicker: local?.showActionPicker ?? remote?.showActionPicker,
     composerMinRows: local?.composerMinRows ?? remote?.composerMinRows,
     composerMaxRows: local?.composerMaxRows ?? remote?.composerMaxRows,
+    seedMessages: local?.seedMessages,
     text: {
       ...(remote?.text ?? {}),
       ...(local?.text ?? {}),

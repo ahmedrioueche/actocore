@@ -4,11 +4,13 @@ import { CtaButton } from '@/components/site/CtaButton';
 import { LocaleLink } from '@/i18n/LocaleLink';
 import { studioAuthPath } from '@/lib/site';
 
+import { ScrollReveal } from './ScrollReveal';
+
 export function FinalCtaSection() {
   const { t } = useT('home.finalCta');
 
   return (
-    <section className="relative overflow-hidden py-16 lg:py-24">
+    <ScrollReveal as="section" className="relative overflow-hidden py-16 lg:py-24">
       <div className="absolute inset-0 -z-10 bg-primary-muted" aria-hidden />
       <div className="site-container mx-auto max-w-4xl text-center">
         <h2 className="mb-8 text-4xl font-extrabold leading-tight text-text-primary lg:text-5xl">
@@ -31,6 +33,6 @@ export function FinalCtaSection() {
         </div>
         <p className="mt-8 text-sm text-muted">{t('footnote')}</p>
       </div>
-    </section>
+    </ScrollReveal>
   );
 }

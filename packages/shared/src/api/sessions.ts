@@ -1,4 +1,4 @@
-import { apiPath } from '../config/api-version';
+import { sdkApiPath } from '../config/api-version';
 import {
   CreateSessionDto,
   type ListSessionMessagesQuery,
@@ -14,14 +14,14 @@ import { BaseApi } from './helper';
 export class SessionsApi extends BaseApi {
   create(body: CreateSessionDto = {}): Promise<ApiResponse<SessionData>> {
     return this.request(() =>
-      this.client.post<ApiResponse<SessionData>>(apiPath('sdk/sessions'), body),
+      this.client.post<ApiResponse<SessionData>>(sdkApiPath('sessions'), body),
     );
   }
 
   get(sessionId: string): Promise<ApiResponse<SessionData>> {
     return this.request(() =>
       this.client.get<ApiResponse<SessionData>>(
-        apiPath(`sdk/sessions/${sessionId}`),
+        sdkApiPath(`sessions/${sessionId}`),
       ),
     );
   }
@@ -29,7 +29,7 @@ export class SessionsApi extends BaseApi {
   listMessages(sessionId: string): Promise<ApiResponse<SessionMessageData[]>> {
     return this.request(() =>
       this.client.get<ApiResponse<SessionMessageData[]>>(
-        apiPath(`sdk/sessions/${sessionId}/messages`),
+        sdkApiPath(`sessions/${sessionId}/messages`),
       ),
     );
   }
@@ -40,7 +40,7 @@ export class SessionsApi extends BaseApi {
   ): Promise<ApiResponse<SessionMessagesPageData>> {
     return this.request(() =>
       this.client.get<ApiResponse<SessionMessagesPageData>>(
-        apiPath(`sdk/sessions/${sessionId}/messages`),
+        sdkApiPath(`sessions/${sessionId}/messages`),
         { params: query },
       ),
     );
@@ -49,7 +49,7 @@ export class SessionsApi extends BaseApi {
   delete(sessionId: string): Promise<ApiResponse<{ deleted: true }>> {
     return this.request(() =>
       this.client.delete<ApiResponse<{ deleted: true }>>(
-        apiPath(`sdk/sessions/${sessionId}`),
+        sdkApiPath(`sessions/${sessionId}`),
       ),
     );
   }

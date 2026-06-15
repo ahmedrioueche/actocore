@@ -28,6 +28,7 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
       showActionPicker: config.ui?.showActionPicker ?? false,
       composerMinRows: config.ui?.composerMinRows ?? 1,
       composerMaxRows: config.ui?.composerMaxRows ?? 6,
+      seedMessages: config.ui?.seedMessages,
       classNames: config.ui?.classNames,
       text: config.ui?.text,
       launcher: config.ui?.launcher,

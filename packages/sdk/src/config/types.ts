@@ -103,6 +103,12 @@ export interface ActocoreVoiceConfig {
   language?: string;
 }
 
+/** Static Q&A pinned at the top of the transcript (e.g. marketing hero demo). */
+export type ActocoreSeedMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
 /** UI feature flags — future dashboard will drive these. */
 export interface ActocoreUiConfig {
   showSources?: boolean;
@@ -116,6 +122,8 @@ export interface ActocoreUiConfig {
   showActionPicker?: boolean;
   composerMinRows?: number;
   composerMaxRows?: number;
+  /** Always-visible opener messages shown above the live transcript. */
+  seedMessages?: ActocoreSeedMessage[];
   classNames?: ActocoreUiClassNames;
   text?: ActocoreUiTextOverrides;
   launcher?: ActocoreLauncherConfig;
@@ -169,7 +177,7 @@ export interface ResolvedActocoreConfig {
       | 'composerMaxRows'
     >
   > &
-    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'launcher' | 'widget'>;
+    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'launcher' | 'widget' | 'seedMessages'>;
   i18n: Required<Pick<ActocoreI18nConfig, 'locale'>> & ActocoreI18nConfig;
   voice: Required<
     Pick<ActocoreVoiceConfig, 'input' | 'output' | 'inputMode' | 'autoSendOnFinalize'>

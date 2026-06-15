@@ -20,6 +20,8 @@ import { ActocoreThemeRoot, ActocoreSystemThemeSync } from '../theme/theme-provi
 
 export interface ActocoreProviderProps extends ActocoreSdkConfig {
   children: ReactNode;
+  /** SDK entry surface — `marketing` uses public `/v1/marketing/sdk/*` routes (no real API key). */
+  entryMode?: 'sdk' | 'marketing';
   /** Host-registered action handlers keyed by action name */
   actions?: ActionRegistry;
   /**
@@ -39,6 +41,7 @@ export function ActocoreProvider({
   actions = {},
   loadRemoteConfig = false,
   hostContext,
+  entryMode = 'sdk',
   ...sdkConfig
 }: ActocoreProviderProps) {
   const [remoteSdk, setRemoteSdk] = useState<SdkRuntimeConfigData | null>(null);
@@ -82,7 +85,7 @@ export function ActocoreProvider({
     return () => {
       cancelled = true;
     };
-  }, [loadRemoteConfig, sdkConfig.apiKey, sdkConfig.baseURL]);
+  }, [loadRemoteConfig, entryMode, sdkConfig.apiKey, sdkConfig.baseURL]);
 
   useEffect(() => {
     const raw = hostContext ?? sdkConfig.security?.hostContext;
@@ -104,13 +107,20 @@ export function ActocoreProvider({
   const resolved = useMemo(() => resolveConfig(mergedConfig), [mergedConfig]);
 
   useMemo(() => {
+    const isMarketing = entryMode === 'marketing';
     configureApi({
-      apiKey: resolved.api.apiKey,
+      apiKey: isMarketing ? 'public' : resolved.api.apiKey,
       baseURL: resolved.api.baseURL,
       apiVersion: resolved.api.apiVersion,
+      sdkRoutePrefix: isMarketing ? 'marketing/sdk' : 'sdk',
     });
     return null;
-  }, [resolved.api.apiKey, resolved.api.baseURL, resolved.api.apiVersion]);
+  }, [
+    entryMode,
+    resolved.api.apiKey,
+    resolved.api.baseURL,
+    resolved.api.apiVersion,
+  ]);
 
   const i18n = useMemo(
     () =>

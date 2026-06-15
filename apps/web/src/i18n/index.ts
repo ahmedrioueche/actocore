@@ -14,6 +14,7 @@ void i18n.use(initReactI18next).init({
     fr: { translation: fr },
   },
   interpolation: { escapeValue: false },
+  react: { useSuspense: false },
 });
 
 export default i18n;

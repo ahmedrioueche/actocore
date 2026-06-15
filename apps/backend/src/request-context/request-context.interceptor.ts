@@ -19,16 +19,16 @@ export class RequestContextInterceptor implements NestInterceptor {
   ): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
-    if (request.apiKey) {
-      const project = await this.projects.findByIdOrFail(
-        null,
-        request.apiKey.projectId,
-      );
+    const projectId =
+      request.apiKey?.projectId ?? request.marketingProjectId;
+
+    if (projectId) {
+      const project = await this.projects.findByIdOrFail(null, projectId);
       const ctx: RequestContextData = {
         projectId: project.id,
         projectName: project.name,
         settings: project.settings,
-        apiKeyId: request.apiKey.id,
+        apiKeyId: request.apiKey?.id,
       };
       request.actocore = { context: ctx };
     }

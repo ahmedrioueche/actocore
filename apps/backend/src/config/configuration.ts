@@ -16,6 +16,7 @@ import { resolveQuotaLimits } from './quota.config';
 import { isRedisEnabled, resolveRedisUrl } from './redis.config';
 import { resolvePayPalConfig } from './paypal.config';
 import { resolvePlatformAuthConfig } from './platform-auth.config';
+import { resolveMarketingChatConfig } from './marketing-chat.config';
 
 export default () => {
   const uri = resolveMongoUri();
@@ -45,5 +46,6 @@ export default () => {
     quota: resolveQuotaLimits(),
     paypal: resolvePayPalConfig(),
     platformAuth: resolvePlatformAuthConfig(),
+    marketingChat: resolveMarketingChatConfig(),
   };
 };

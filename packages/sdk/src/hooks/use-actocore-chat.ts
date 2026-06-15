@@ -186,11 +186,15 @@ export function useActocoreChat(
 
   const formatSendFailure = useCallback(
     (error: unknown): string => {
+      if (typeof error === 'string' && error.trim().length > 0) {
+        return error;
+      }
+
       const maybe = error as { errorCode?: string } | null | undefined;
       const errorCode =
         maybe && typeof maybe.errorCode === 'string' ? maybe.errorCode : undefined;
 
-      if (errorCode === 'QUOTA_EXCEEDED') {
+      if (errorCode === 'QUOTA_EXCEEDED' || errorCode === 'TOO_MANY_REQUESTS') {
         return formatError(error);
       }
 

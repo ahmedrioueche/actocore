@@ -1,4 +1,5 @@
 import { getAppEnvironment } from './mongodb.config';
+import { resolveMarketingChatConfig } from './marketing-chat.config';
 import {
   inferActocoreOriginPattern,
   splitExactOriginsAndPatterns,
@@ -22,11 +23,13 @@ export function resolveHttpConfig() {
   const nodeEnv = getAppEnvironment();
   const devOrigins = [
     'http://localhost:3000',
+    'http://localhost:3001',
     'http://localhost:5173',
     'http://localhost:5174',
   ];
   const defaultOrigins = nodeEnv === 'production' ? [] : devOrigins;
   const studioAppUrl = process.env.STUDIO_APP_URL?.trim();
+  const marketingOrigins = resolveMarketingChatConfig().allowedOrigins;
 
   const sdkOriginList = parseOrigins(process.env.CORS_SDK_ORIGINS, defaultOrigins);
   const webOriginList = uniqueOrigins(
@@ -50,6 +53,7 @@ export function resolveHttpConfig() {
       sdkSplit.exact,
       webSplit.exact,
       patternSplit.exact,
+      marketingOrigins,
     ),
     corsOriginPatterns: uniqueOrigins(
       sdkSplit.patterns,

@@ -4,9 +4,14 @@ import type { AuthenticatedRequest } from '../guards/api-key.guard';
 export const ProjectId = createParamDecorator(
   (_data: unknown, context: ExecutionContext): string => {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    if (!request.apiKey?.projectId) {
-      throw new Error('ProjectId decorator requires ApiKeyGuard');
+    const projectId =
+      request.actocore?.context?.projectId ??
+      request.apiKey?.projectId ??
+      request.marketingProjectId;
+
+    if (!projectId) {
+      throw new Error('ProjectId decorator requires authenticated project context');
     }
-    return request.apiKey.projectId;
+    return projectId;
   },
 );

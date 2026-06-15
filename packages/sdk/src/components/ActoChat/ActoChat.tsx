@@ -2,11 +2,12 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   type ReactNode,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActocoreChat } from '../../hooks/use-actocore-chat';
+import { useActocoreChat, type UiChatMessage } from '../../hooks/use-actocore-chat';
 import {
   useActocoreConfig,
   useActocoreUiConfig,
@@ -102,7 +103,20 @@ export function ActoChat({
     });
   }, [startNewConversation]);
 
-  const showEmpty = messages.length === 0;
+  const seedMessages = useMemo((): UiChatMessage[] => {
+    return (ui.seedMessages ?? []).map((message, index) => ({
+      id: `seed-${index}`,
+      role: message.role,
+      content: message.content,
+    }));
+  }, [ui.seedMessages]);
+
+  const transcriptMessages = useMemo(
+    () => [...seedMessages, ...messages],
+    [messages, seedMessages],
+  );
+
+  const showEmpty = seedMessages.length === 0 && messages.length === 0;
 
   const scrollToLatest = useCallback(() => {
     if (!isOpen) return;
@@ -134,27 +148,27 @@ export function ActoChat({
   }, [isOpen]);
 
   useEffect(() => {
-    if (wasInitializingRef.current && !isInitializing && messages.length > 0) {
+    if (wasInitializingRef.current && !isInitializing && transcriptMessages.length > 0) {
       pendingScrollRef.current = true;
     }
     wasInitializingRef.current = isInitializing;
-  }, [isInitializing, messages.length]);
+  }, [isInitializing, transcriptMessages.length]);
 
   useEffect(() => {
     if (!isOpen || isInitializing) return;
-    if (messages.length > 0 && !hadMessagesRef.current) {
+    if (transcriptMessages.length > 0 && !hadMessagesRef.current) {
       pendingScrollRef.current = true;
     }
-    hadMessagesRef.current = messages.length > 0;
-  }, [isOpen, isInitializing, messages.length]);
+    hadMessagesRef.current = transcriptMessages.length > 0;
+  }, [isOpen, isInitializing, transcriptMessages.length]);
 
   useLayoutEffect(() => {
     if (!pendingScrollRef.current) return;
-    if (!isOpen || isInitializing || messages.length === 0) return;
+    if (!isOpen || isInitializing || transcriptMessages.length === 0) return;
 
     scrollToLatest();
     pendingScrollRef.current = false;
-  }, [isOpen, isInitializing, messages.length, scrollToLatest]);
+  }, [isOpen, isInitializing, transcriptMessages.length, scrollToLatest]);
 
   return (
     <div className={mergeClassNames('ac-chat', ui.classNames?.chat, className)}>
@@ -172,7 +186,19 @@ export function ActoChat({
         className={mergeClassNames('ac-chat__body', 'ac-scrollbar')}
       >
         {isInitializing ? (
-          <ChatLoading />
+          seedMessages.length > 0 ? (
+            <>
+              <MessageList
+                messages={seedMessages}
+                showIntentBadge={ui.showIntentBadge}
+                showSources={false}
+                sessionId={resolvedSessionId}
+              />
+              <ChatLoading />
+            </>
+          ) : (
+            <ChatLoading />
+          )
         ) : (
           <>
             {hasMoreHistory ? (
@@ -193,7 +219,7 @@ export function ActoChat({
               <ChatEmpty />
             ) : (
               <MessageList
-                messages={messages}
+                messages={transcriptMessages}
                 showIntentBadge={ui.showIntentBadge}
                 showSources={ui.showSources}
                 sessionId={resolvedSessionId}
@@ -215,6 +241,7 @@ export function ActoChat({
           onStop={stopGenerating}
           isSending={isSending}
           isStreaming={isStreaming}
+          disabled={!resolvedSessionId}
           minRows={ui.composerMinRows}
           maxRows={ui.composerMaxRows}
         />

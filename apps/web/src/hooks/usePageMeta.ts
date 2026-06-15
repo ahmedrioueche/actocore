@@ -4,7 +4,16 @@ import { useParams } from 'react-router-dom';
 
 import { isAppLocale } from '@/i18n/routing';
 
-type PageMetaKey = 'home' | 'pricing' | 'docs' | 'privacy' | 'terms';
+type PageMetaKey =
+  | 'home'
+  | 'pricing'
+  | 'docs'
+  | 'about'
+  | 'contact'
+  | 'privacy'
+  | 'terms'
+  | 'security'
+  | 'compliance';
 
 export function usePageMeta(page: PageMetaKey) {
   const { t } = useT('meta');

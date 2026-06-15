@@ -35,5 +35,5 @@ export interface RequestContextData {
   projectId: string;
   projectName: string;
   settings: ProjectSettings;
-  apiKeyId: string;
+  apiKeyId?: string;
 }

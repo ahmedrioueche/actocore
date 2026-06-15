@@ -20,6 +20,22 @@
     "terms": {
       "title": "Terms of Service — ActoCore",
       "description": "Terms governing use of ActoCore products and services."
+    },
+    "about": {
+      "title": "About — ActoCore",
+      "description": "The team and mission behind the ActoCore AI integration layer."
+    },
+    "contact": {
+      "title": "Contact — ActoCore",
+      "description": "Get in touch with ActoCore for sales, support, and engineering questions."
+    },
+    "security": {
+      "title": "Security — ActoCore",
+      "description": "How ActoCore protects your data, credentials, and tenant isolation."
+    },
+    "compliance": {
+      "title": "Compliance — ActoCore",
+      "description": "GDPR posture, data processing, and compliance commitments."
     }
   },
   "site": {
@@ -27,9 +43,7 @@
     "tagline": "The intelligence layer for your application"
   },
   "nav": {
-    "platform": "Platform",
-    "architecture": "Architecture",
-    "solutions": "Solutions",
+    "howItWorks": "How it works",
     "pricing": "Pricing",
     "docs": "Docs",
     "signIn": "Sign in",
@@ -86,11 +100,55 @@
         "response": "Analyzed Salesforce data & usage logs. 1. Amazon 2. Stripe...",
         "suggestion": "Suggestion: Schedule QBR for Amazon?",
         "awaiting": "Awaiting action input..."
+      },
+      "chat": {
+        "headerTitle": "Try ActoCore",
+        "headerSubtitle": "Ask anything about the platform",
+        "emptyTitle": "Start a conversation",
+        "emptyDescription": "Ask about pricing, security, the SDK, or how to get started.",
+        "placeholder": "Ask a question...",
+        "seedUser": "What is ActoCore?",
+        "seedAssistant": "ActoCore is the secure, multi-tenant integration layer for enterprise AI. Configure knowledge, actions, and your assistant in Studio — then embed it in your app with our React SDK in minutes.",
+        "rateLimitMessage": "You'll be able to chat in a minute. Please wait and try again."
       }
+    },
+    "demoVideo": {
+      "eyebrow": "Product demo",
+      "title": "See ActoCore in action",
+      "subtitle": "Watch how teams configure knowledge, wire actions, and ship an embedded assistant in minutes.",
+      "placeholderTitle": "Demo video coming soon",
+      "placeholderHint": "Set VITE_DEMO_VIDEO_URL in apps/web/.env (YouTube, Vimeo, or direct .mp4/.webm)."
     },
     "partners": {
       "label": "Infrastructure partners for",
       "items": ["Mercivio", "DevFlow", "LogicLayer", "StackPoint", "Aether"]
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "From signup to embedded assistant in four steps.",
+      "subtitle": "No custom AI infrastructure. Configure in Studio, ship in your app with the SDK.",
+      "steps": {
+        "project": {
+          "title": "Create your project",
+          "description": "Sign up to Studio, name your product workspace, and invite teammates with the right roles.",
+          "detail": "~2 minutes"
+        },
+        "knowledge": {
+          "title": "Upload knowledge",
+          "description": "Add docs, FAQs, and product content. ActoCore chunks, embeds, and indexes them for RAG-powered answers.",
+          "detail": "Drag & drop"
+        },
+        "actions": {
+          "title": "Define actions",
+          "description": "Describe what the assistant can do in your app — navigate pages, trigger workflows, or call your APIs.",
+          "detail": "No backend rewrite"
+        },
+        "embed": {
+          "title": "Embed the SDK",
+          "description": "Install the React SDK, paste your API key, and mount the chat widget. Theme and copy load from Studio.",
+          "detail": "One npm install"
+        }
+      }
     },
     "capabilities": {
       "title": "Engineered for Reliability.",
@@ -174,21 +232,36 @@
         "priceMonthly": "$0",
         "priceYearly": "$0",
         "description": "Try ActoCore Studio",
-        "features": ["1 project", "500K tokens / month", "Knowledge & actions", "SDK embed"]
+        "features": [
+          "1 project",
+          "500K tokens / month",
+          "Knowledge & actions",
+          "SDK embed"
+        ]
       },
       "starter": {
         "name": "Starter",
         "priceMonthly": "$29",
         "priceYearly": "$290",
         "description": "For small teams shipping their first assistant",
-        "features": ["3 projects", "5M tokens / month", "5 team seats", "Email support"]
+        "features": [
+          "3 projects",
+          "5M tokens / month",
+          "5 team seats",
+          "Email support"
+        ]
       },
       "pro": {
         "name": "Pro",
         "priceMonthly": "$79",
         "priceYearly": "$790",
         "description": "For growing products with higher volume",
-        "features": ["10 projects", "50M tokens / month", "20 team seats", "Priority support"],
+        "features": [
+          "10 projects",
+          "50M tokens / month",
+          "20 team seats",
+          "Priority support"
+        ],
         "badge": "Recommended"
       },
       "business": {
@@ -196,26 +269,84 @@
         "priceMonthly": "$199",
         "priceYearly": "$1,990",
         "description": "For high-volume teams",
-        "features": ["25 projects", "200M tokens / month", "50 team seats", "Dedicated support"]
+        "features": [
+          "25 projects",
+          "200M tokens / month",
+          "50 team seats",
+          "Dedicated support"
+        ]
       }
-    }
+    },
+    "faqTitle": "Frequently asked questions",
+    "faq": {
+      "billing": {
+        "question": "How does billing work?",
+        "answer": "Paid plans are billed through PayPal on a monthly or yearly cycle. You can upgrade, downgrade, or cancel from Studio → Subscription. Invoices and payment status sync via PayPal webhooks."
+      },
+      "trial": {
+        "question": "Is there a free trial?",
+        "answer": "The Free plan includes a trial period with full Studio access. When the trial ends, your workspace keeps running on Free plan limits unless you subscribe to a paid tier."
+      },
+      "tokens": {
+        "question": "What counts toward token usage?",
+        "answer": "Token usage includes LLM input and output for chat, knowledge Q&A, and action selection across all projects in your workspace. Limits reset monthly per your plan."
+      },
+      "upgrade": {
+        "question": "Can I change plans later?",
+        "answer": "Yes. Upgrade anytime from Studio — new limits apply immediately. Downgrades take effect at the end of the current billing period."
+      },
+      "enterprise": {
+        "question": "Need more than Business?",
+        "answer": "Contact us for custom limits, dedicated support, and enterprise agreements."
+      }
+    },
+    "businessCta": "Questions about Business or enterprise?"
   },
   "docs": {
     "title": "Documentation",
     "subtitle": "Everything you need to integrate ActoCore into your application.",
-    "studio": {
-      "title": "Studio",
-      "description": "Manage projects, knowledge, actions, API keys, and SDK configuration from the web dashboard.",
-      "link": "Open Studio"
-    },
-    "sdk": {
-      "title": "React SDK",
-      "description": "Install the embeddable chat widget and wire action handlers in your React app.",
-      "link": "SDK package (monorepo)"
-    },
-    "quickstart": {
-      "title": "Quick start",
-      "description": "Create a project in Studio, add an API key, upload knowledge, and mount the SDK with loadRemoteConfig."
+    "eyebrow": "Quick start",
+    "npmLink": "View on npm",
+    "studioCta": "Open Studio",
+    "signupCta": "Create free account",
+    "sections": {
+      "install": {
+        "title": "1. Install the SDK",
+        "body": "Add the React SDK to your app. Peer dependency: React 18 or 19.",
+        "codeLabel": "Terminal",
+        "code": "npm install @ahmedrioueche/actocore-sdk@0.1.0"
+      },
+      "styles": {
+        "title": "Import styles",
+        "body": "Import the SDK stylesheet once in your app entry or root layout.",
+        "codeLabel": "TypeScript",
+        "code": "import '@ahmedrioueche/actocore-sdk/styles.css';"
+      },
+      "credentials": {
+        "title": "2. Get API credentials",
+        "body": "In Studio, open your project → API keys. Create a key and copy it immediately — it is shown only once. Set environment variables in your host app.",
+        "codeLabel": ".env",
+        "code": "VITE_ACTOCORE_API_URL=https://your-core-host.example\nVITE_ACTOCORE_API_KEY=aco_..."
+      },
+      "embed": {
+        "title": "3. Mount the chat widget",
+        "body": "Wrap your app with ActocoreProvider and add ActoChatWidget for a floating launcher. Use ActoChat for inline chat without the bubble.",
+        "codeLabel": "React",
+        "code": "import { ActocoreProvider, ActoChatWidget } from '@ahmedrioueche/actocore-sdk';\nimport '@ahmedrioueche/actocore-sdk/styles.css';\n\nexport function App() {\n  return (\n    <ActocoreProvider\n      apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}\n      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}\n    >\n      <ActoChatWidget />\n    </ActocoreProvider>\n  );\n}"
+      },
+      "studio": {
+        "title": "4. Configure in Studio",
+        "body": "Before going live: create a project, upload knowledge documents for RAG, define actions your assistant can run, and tune SDK theme and copy under Project → SDK config.",
+        "bullets": [
+          "Knowledge — upload PDFs, markdown, or text for grounded answers with citations",
+          "Actions — map natural-language intents to handlers in your app",
+          "SDK config — remote theme, locale, and security settings via loadRemoteConfig"
+        ]
+      },
+      "next": {
+        "title": "5. Next steps",
+        "body": "Pin SDK versions in production. Enable loadRemoteConfig to let product teams update copy and theme without redeploying your app."
+      }
     }
   },
   "legal": {
@@ -234,7 +365,27 @@
         },
         "share": {
           "title": "Sharing",
-          "body": "We do not sell personal data. We share information with subprocessors (such as hosting and payment providers) only as needed to deliver the service."
+          "body": "We do not sell personal data. We share information with subprocessors only as needed to deliver the service."
+        },
+        "retention": {
+          "title": "Data retention",
+          "body": "We retain account and usage data while your subscription is active and for a reasonable period afterward for legal, billing, and security purposes. You may request deletion of personal data subject to applicable law."
+        },
+        "cookies": {
+          "title": "Cookies and analytics",
+          "body": "Studio uses essential cookies for authentication and session management. We do not use third-party advertising cookies on our products. Marketing site analytics, if enabled, use aggregated usage data only."
+        },
+        "subprocessors": {
+          "title": "Subprocessors",
+          "body": "We rely on infrastructure and service providers including cloud hosting, MongoDB Atlas, email delivery (Resend), payment processing (PayPal), and LLM providers (such as Google Gemini) to operate ActoCore. Each processes data under contractual obligations."
+        },
+        "transfers": {
+          "title": "International transfers",
+          "body": "Data may be processed in the United States and other countries where our providers operate. We use appropriate safeguards for cross-border transfers where required."
+        },
+        "rights": {
+          "title": "Your rights",
+          "body": "Depending on your location, you may have rights to access, correct, delete, or export personal data, and to object to or restrict certain processing. Contact privacy@actocore.pro to exercise these rights."
         },
         "contact": {
           "title": "Contact",
@@ -259,6 +410,26 @@
           "title": "Acceptable use",
           "body": "You may not misuse the service, attempt unauthorized access, or use ActoCore in violation of applicable law or third-party rights."
         },
+        "billing": {
+          "title": "Subscriptions and billing",
+          "body": "Paid plans renew automatically on the billing cycle you select (monthly or yearly) until cancelled. Prices are listed on our pricing page and in Studio. Payment is processed by PayPal."
+        },
+        "cancellation": {
+          "title": "Cancellation and refunds",
+          "body": "You may cancel from Studio → Subscription. Cancellation stops future charges; access continues until the end of the paid period. Refunds are handled per PayPal policy and applicable law."
+        },
+        "availability": {
+          "title": "Service availability",
+          "body": "We strive for high availability but do not guarantee uninterrupted service. Planned maintenance and third-party outages may affect access. SLA terms for eligible plans are described in your agreement."
+        },
+        "ip": {
+          "title": "Intellectual property",
+          "body": "ActoCore retains rights in the platform, SDK, and documentation. You retain rights in your content, knowledge uploads, and application code. You grant us a license to process your content to provide the service."
+        },
+        "termination": {
+          "title": "Termination",
+          "body": "We may suspend or terminate accounts for breach of these terms, non-payment, or abuse. You may close your account at any time. Provisions that by nature should survive termination will remain in effect."
+        },
         "liability": {
           "title": "Limitation of liability",
           "body": "ActoCore is provided as-is to the extent permitted by law. Our liability is limited as described in your commercial agreement or standard SaaS terms."
@@ -268,6 +439,134 @@
           "body": "For questions about these terms, contact legal@actocore.pro."
         }
       }
+    },
+    "security": {
+      "title": "Security",
+      "updated": "Last updated: June 2026",
+      "intro": "ActoCore is built for multi-tenant SaaS products. This page summarizes our security practices for customers evaluating the platform.",
+      "sections": {
+        "isolation": {
+          "title": "Tenant isolation",
+          "body": "Each workspace, project, and knowledge corpus is scoped to your account. API keys are project-scoped. Cross-tenant data access is prevented at the application and database layer."
+        },
+        "encryption": {
+          "title": "Encryption",
+          "body": "Data in transit uses TLS. API keys and sensitive credentials are stored using industry-standard hashing and peppering. Secrets are not logged in plain text."
+        },
+        "apiKeys": {
+          "title": "API keys and access",
+          "body": "Create and rotate project API keys from Studio. Keys authenticate SDK and server requests. We recommend separate keys per environment and revoking unused keys promptly."
+        },
+        "audit": {
+          "title": "Audit and observability",
+          "body": "Studio provides usage metrics and chat logs for your projects. Platform operators maintain technical logs for security monitoring, abuse detection, and incident response."
+        },
+        "incident": {
+          "title": "Incident reporting",
+          "body": "If you discover a security vulnerability or suspect unauthorized access, contact security@actocore.pro. We investigate reports promptly and will coordinate disclosure responsibly."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "Security questions: security@actocore.pro"
+        }
+      }
+    },
+    "compliance": {
+      "title": "Compliance",
+      "updated": "Last updated: June 2026",
+      "intro": "ActoCore supports teams with regulatory and procurement requirements. This page describes our compliance posture at a high level.",
+      "sections": {
+        "gdpr": {
+          "title": "GDPR",
+          "body": "We process personal data as a processor for customer-uploaded content and as a controller for account billing data. We support data subject requests and provide a DPA on request for business customers."
+        },
+        "dpa": {
+          "title": "Data Processing Agreement",
+          "body": "Business and enterprise customers may request a DPA covering subprocessors, security measures, and breach notification. Contact legal@actocore.pro."
+        },
+        "soc2": {
+          "title": "SOC 2",
+          "body": "ActoCore maintains a SOC 2 Type II program. Summary reports are available to qualified prospects and customers under NDA."
+        },
+        "subprocessors": {
+          "title": "Subprocessor transparency",
+          "body": "We maintain a list of subprocessors used to deliver the service, including hosting, database, email, payments, and AI model providers. Material changes are communicated to customers."
+        },
+        "residency": {
+          "title": "Data residency",
+          "body": "Production infrastructure is hosted with major cloud providers. Specific residency requirements for enterprise deployments can be discussed with our team."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "Compliance inquiries: legal@actocore.pro"
+        }
+      }
+    }
+  },
+  "about": {
+    "eyebrow": "About us",
+    "title": "The integration layer for product AI",
+    "subtitle": "ActoCore helps teams ship in-app assistants without building RAG, orchestration, and multi-tenant infrastructure from scratch.",
+    "mission": {
+      "title": "Our mission",
+      "body": "Product teams should focus on their users — not on vector databases, prompt pipelines, and billing for LLM usage. ActoCore provides Studio for configuration, Core for reasoning and retrieval, and an embeddable SDK for your React app."
+    },
+    "audience": {
+      "title": "Who it's for",
+      "body": "SaaS companies, internal tools teams, and developers embedding AI chat with knowledge grounding and in-app actions. From first prototype on the Free plan to production scale on Business."
+    },
+    "values": {
+      "title": "What we believe",
+      "developer": {
+        "title": "Developer-first",
+        "body": "Clear APIs, a published npm SDK, and docs you can follow in one sitting."
+      },
+      "tenant": {
+        "title": "Multi-tenant by default",
+        "body": "Isolation, scoped API keys, and per-project knowledge — built in, not bolted on."
+      },
+      "production": {
+        "title": "Production-ready",
+        "body": "Streaming chat, citations, action handlers, billing, and observability — not just a demo widget."
+      }
+    },
+    "cta": "Start building for free"
+  },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "We're here to help with sales, integrations, and account questions.",
+    "general": {
+      "title": "General inquiries",
+      "body": "Questions about ActoCore, partnerships, or the platform.",
+      "email": "contact@actocore.pro"
+    },
+    "sales": {
+      "title": "Sales & Business plans",
+      "body": "Custom limits, enterprise agreements, and procurement.",
+      "email": "contact@actocore.pro"
+    },
+    "engineering": {
+      "title": "Engineering & integrations",
+      "body": "SDK integration help, architecture questions, and technical evaluations.",
+      "email": "engineering@actocore.pro"
+    },
+    "privacy": {
+      "title": "Privacy & legal",
+      "body": "Privacy requests, DPAs, and legal questions.",
+      "email": "privacy@actocore.pro"
+    },
+    "security": {
+      "title": "Security",
+      "body": "Vulnerability reports and security inquiries.",
+      "email": "security@actocore.pro"
+    },
+    "form": {
+      "title": "Send a message",
+      "name": "Your name",
+      "email": "Your email",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Open in email client"
     }
   },
   "theme": {
