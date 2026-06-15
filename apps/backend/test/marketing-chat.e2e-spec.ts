@@ -64,6 +64,7 @@ describe('Marketing chat (e2e)', () => {
       .expect((res) => {
         expect(res.body.success).toBe(true);
         expect(res.body.data.projectId).toBe(projectId);
+        expect(res.body.data.features).toContain('app-pages');
       });
   });
 

@@ -51,7 +51,7 @@ export class ActionsService {
 
   async create(projectId: string, body: CreateActionDto): Promise<ActionData> {
     const project = await this.projects.findByIdOrFail(null, projectId);
-    if (project.accountId && project.accountId !== 'legacy') {
+    if (project.accountId && !['legacy', 'playground'].includes(project.accountId)) {
       await this.entitlements.assertCanCreateAction(
         project.accountId,
         projectId,

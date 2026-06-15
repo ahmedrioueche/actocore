@@ -1,6 +1,7 @@
 import { useT } from '@/i18n/useT';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
+import CustomSelect from '@/components/ui/CustomSelect';
 import i18n from '@/i18n';
 import { isAppLocale, routing, type AppLocale } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
@@ -10,6 +11,11 @@ const LABELS: Record<AppLocale, string> = {
   fr: 'Français',
 };
 
+const FLAGS: Record<AppLocale, string> = {
+  en: '🇬🇧',
+  fr: '🇫🇷',
+};
+
 export function LanguageSwitcher({ className }: { className?: string }) {
   const { t } = useT('nav');
   const { locale } = useParams();
@@ -17,13 +23,19 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   const location = useLocation();
   const activeLocale = isAppLocale(locale) ? locale : routing.defaultLocale;
 
+  const options = routing.locales.map((code) => ({
+    value: code,
+    label: LABELS[code],
+    flag: FLAGS[code],
+  }));
+
   return (
-    <label className={cn('inline-flex items-center gap-2', className)}>
+    <div className={cn(className)}>
       <span className="sr-only">{t('language')}</span>
-      <select
-        value={activeLocale}
-        onChange={(event) => {
-          const next = event.target.value as AppLocale;
+      <CustomSelect
+        options={options}
+        selectedOption={activeLocale}
+        onChange={(next) => {
           if (!routing.locales.includes(next)) {
             return;
           }
@@ -34,14 +46,10 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           );
           navigate(`/${next}${pathWithoutLocale || ''}${location.hash}`);
         }}
-        className="h-9 rounded-xl border border-border bg-surface px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-      >
-        {routing.locales.map((code) => (
-          <option key={code} value={code}>
-            {LABELS[code]}
-          </option>
-        ))}
-      </select>
-    </label>
+        size="compact"
+        triggerClassName="min-w-[7.5rem]"
+        ariaLabel={t('language')}
+      />
+    </div>
   );
 }

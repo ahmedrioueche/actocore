@@ -10,7 +10,8 @@
     "dev": "vite --port 3001",
     "build": "npm run build --prefix ../../packages/shared && npm run build --prefix ../../packages/sdk && tsc && vite build",
     "preview": "vite preview --port 3001",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "setup:marketing-playground": "node scripts/seed-marketing-playground.mjs"
   },
   "dependencies": {
     "@actocore/brand": "file:../../packages/brand",

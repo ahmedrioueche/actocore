@@ -38,7 +38,9 @@ import { resolveActionFollowUp } from '../actions/action-follow-up.util';
 import { isLikelyActionMessage } from '../actions/natural-language-action.util';
 import { buildAppAssistantSystemPrompt } from './app-assistant-prompt.util';
 import {
+  buildAppPagesListAnswer,
   buildCurrentPageAnswer,
+  isAppPagesListQuestion,
   isCurrentPageQuestion,
   resolveCurrentPageTitle,
 } from './current-page-question.util';
@@ -219,7 +221,7 @@ export class ChatOrchestratorService {
     const prepStartedAt = Date.now();
     const projectId = context.projectId;
 
-    const [enabledActions, history, appPages] = await Promise.all([
+    const [enabledActions, history, projectAppPages] = await Promise.all([
       this.listProjectActions(projectId),
       this.sessions.listRecentMessages(
         projectId,
@@ -229,13 +231,13 @@ export class ChatOrchestratorService {
       this.appPages.listManifest(projectId),
     ]);
 
-    const hostContext = enrichHostContext(
-      this.normalizeHostContext(body.hostContext),
-      appPages,
-    );
-    const currentPageDoc = hostContext?.currentPage
-      ? await this.appPages.requireBySlug(projectId, hostContext.currentPage)
-      : null;
+    const normalizedHostContext = this.normalizeHostContext(body.hostContext);
+    const appPages = projectAppPages;
+
+    const hostContext = enrichHostContext(normalizedHostContext, appPages);
+    const currentPageDoc = !hostContext?.currentPage
+      ? null
+      : await this.appPages.requireBySlug(projectId, hostContext.currentPage);
     const currentPageId = currentPageDoc?._id.toString();
 
     const enabledActionNames = enabledActions.map((a) => a.name);
@@ -297,14 +299,19 @@ export class ChatOrchestratorService {
     return hasValue ? hostContext : undefined;
   }
 
-  private tryAnswerCurrentPageQuestion(
+  private tryAnswerAppStructureQuestion(
     userMessage: string,
     hostContext: HostContext | undefined,
     appPages?: AppPageManifestEntry[],
   ): string | null {
+    if (isAppPagesListQuestion(userMessage)) {
+      return buildAppPagesListAnswer(appPages);
+    }
+
     if (!isCurrentPageQuestion(userMessage)) {
       return null;
     }
+
     return buildCurrentPageAnswer(hostContext, appPages);
   }
 
@@ -450,7 +457,7 @@ export class ChatOrchestratorService {
     emit: ChatStreamEmitter,
     signal?: AbortSignal,
   ): Promise<OrchestratorBranchPayload> {
-    const pageAnswer = this.tryAnswerCurrentPageQuestion(
+    const pageAnswer = this.tryAnswerAppStructureQuestion(
       userMessage,
       prep.hostContext,
       prep.appPages,
@@ -586,7 +593,7 @@ export class ChatOrchestratorService {
     prep: PreparedIncomingMessage,
     userMessage: string,
   ): Promise<OrchestratorBranchPayload> {
-    const pageAnswer = this.tryAnswerCurrentPageQuestion(
+    const pageAnswer = this.tryAnswerAppStructureQuestion(
       userMessage,
       prep.hostContext,
       prep.appPages,
@@ -620,7 +627,7 @@ export class ChatOrchestratorService {
 
     return {
       ...result,
-      sources: citations,
+      sources: citations.length > 0 ? citations : undefined,
       ragRetrieval: retrievalLog,
     };
   }

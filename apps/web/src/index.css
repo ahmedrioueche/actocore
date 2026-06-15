@@ -228,7 +228,8 @@
 
   #how-it-works,
   #features,
-  #architecture {
+  #architecture,
+  #playground {
     scroll-margin-top: 5.5rem;
   }
 
@@ -302,6 +303,42 @@
   }
 
   .hero-chat-shell .glass-panel {
+    height: 100%;
+  }
+
+  .playground-chat-shell {
+    position: relative;
+    width: 100%;
+    min-height: 28rem;
+    height: min(70svh, 36rem);
+    --ac-chat-max-width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    .playground-chat-shell {
+      height: min(75svh, 40rem);
+      min-height: 32rem;
+    }
+  }
+
+  .playground-chat-shell [data-actocore] {
+    display: block;
+    height: 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .playground-chat-shell [data-actocore] .ac-chat,
+  .playground-chat-shell .playground-chat-panel.ac-chat {
+    max-width: 100%;
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .playground-chat-shell .glass-panel {
     height: 100%;
   }
 }

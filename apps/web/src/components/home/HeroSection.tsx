@@ -2,7 +2,8 @@ import { useT } from "@/i18n/useT";
 import { ArrowRight, CheckCircle } from "lucide-react";
 
 import { CtaButton } from "@/components/site/CtaButton";
-import { studioAuthPath } from "@/lib/site";
+import { LocaleLink } from "@/i18n/LocaleLink";
+import { playgroundPath, studioAuthPath } from "@/lib/site";
 
 import { AnimatedBlobs } from "./AnimatedBlobs";
 import { HeroChat } from "./HeroChat";
@@ -11,6 +12,7 @@ const TRUST_KEYS = ["gdpr", "zeroRetention", "uptime"] as const;
 
 export function HeroSection() {
   const { t } = useT("home.hero");
+  const { t: tHome } = useT("home");
 
   return (
     <section className="relative overflow-hidden py-16 lg:py-32">
@@ -36,13 +38,12 @@ export function HeroSection() {
                 {t("ctaPrimary")}
                 <ArrowRight className="h-5 w-5" aria-hidden />
               </CtaButton>
-              <CtaButton
-                href="mailto:engineering@actocore.pro"
-                variant="outline"
-                className="glass-panel px-8 py-4 text-base hover:bg-surface-hover"
+              <LocaleLink
+                href={playgroundPath()}
+                className="glass-panel inline-flex items-center justify-center gap-2 rounded-xl border border-border px-8 py-4 text-base font-semibold text-text-primary transition-colors hover:bg-surface-hover"
               >
-                {t("ctaSecondary")}
-              </CtaButton>
+                {tHome("goToPlayground")}
+              </LocaleLink>
             </div>
             <div className="hero-entrance-trust flex flex-wrap justify-center gap-8 pt-8 opacity-60 lg:justify-start">
               {TRUST_KEYS.map((key) => (

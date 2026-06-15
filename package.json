@@ -10,6 +10,7 @@
     "dev:playground": "npm run dev --prefix apps/sdk-playground",
     "playground:setup": "npm run setup --prefix apps/sdk-playground",
     "playground:config:fr": "npm run config:fr --prefix apps/sdk-playground",
-    "playground:config:allowlist": "npm run config:allowlist --prefix apps/sdk-playground"
+    "playground:config:allowlist": "npm run config:allowlist --prefix apps/sdk-playground",
+    "setup:marketing-playground": "npm run setup:marketing-playground --prefix apps/web"
   }
 }

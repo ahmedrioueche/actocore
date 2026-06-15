@@ -82,7 +82,11 @@ export class QuotaService {
       .lean()
       .exec();
 
-    if (!project?.accountId || project.accountId === 'legacy') {
+    if (
+      !project?.accountId ||
+      project.accountId === 'legacy' ||
+      project.accountId === 'playground'
+    ) {
       const limits = this.config.getOrThrow<QuotaLimits>('quota');
       const monthlyTokensUsed = await this.usage.sumChatTokensThisMonth(projectId);
       return {
@@ -143,7 +147,11 @@ export class QuotaService {
       .select('accountId')
       .lean()
       .exec();
-    if (!project?.accountId || project.accountId === 'legacy') {
+    if (
+      !project?.accountId ||
+      project.accountId === 'legacy' ||
+      project.accountId === 'playground'
+    ) {
       return;
     }
     try {
@@ -164,7 +172,11 @@ export class QuotaService {
       .select('accountId')
       .lean()
       .exec();
-    if (!project?.accountId || project.accountId === 'legacy') {
+    if (
+      !project?.accountId ||
+      project.accountId === 'legacy' ||
+      project.accountId === 'playground'
+    ) {
       return null;
     }
     return this.entitlements.resolveMonthlyTokenQuota(project.accountId);
@@ -182,7 +194,11 @@ export class QuotaService {
       .select('accountId')
       .lean()
       .exec();
-    if (!project?.accountId || project.accountId === 'legacy') {
+    if (
+      !project?.accountId ||
+      project.accountId === 'legacy' ||
+      project.accountId === 'playground'
+    ) {
       return this.assertMonthlyQuota(projectId, limit);
     }
     const tokens = await this.entitlements.countAccountMonthlyTokenUsage(

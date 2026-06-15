@@ -2,6 +2,7 @@ import { useT } from "@/i18n/useT";
 import { Code, Cpu, Sparkles } from "lucide-react";
 
 import { ScrollReveal } from "./ScrollReveal";
+import { PlaygroundCta } from "./PlaygroundCta";
 
 const LAYERS = [
   { key: "engine" as const, icon: Cpu, variant: "default" as const },
@@ -78,6 +79,11 @@ export function ArchitectureSection() {
             );
           })}
           </div>
+        </div>
+
+        <div className="mt-12 flex flex-col items-center gap-3 text-center lg:mt-16">
+          <p className="max-w-xl text-text-secondary">{t("ctaHint")}</p>
+          <PlaygroundCta variant="outline" className="px-8 py-3.5 text-base" />
         </div>
       </div>
     </ScrollReveal>

@@ -2,7 +2,7 @@ import { useT } from '@/i18n/useT';
 
 import { CtaButton } from '@/components/site/CtaButton';
 import { LocaleLink } from '@/i18n/LocaleLink';
-import { studioAuthPath } from '@/lib/site';
+import { playgroundPath, studioAuthPath } from '@/lib/site';
 
 import { ScrollReveal } from './ScrollReveal';
 
@@ -25,7 +25,7 @@ export function FinalCtaSection() {
             {t('ctaPrimary')}
           </CtaButton>
           <LocaleLink
-            href="/docs"
+            href={playgroundPath()}
             className="inline-flex w-full items-center justify-center rounded-xl border border-border bg-surface px-10 py-5 text-lg font-semibold text-text-primary transition-colors hover:bg-surface-hover sm:w-auto"
           >
             {t('ctaSecondary')}

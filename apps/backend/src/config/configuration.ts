@@ -17,6 +17,7 @@ import { isRedisEnabled, resolveRedisUrl } from './redis.config';
 import { resolvePayPalConfig } from './paypal.config';
 import { resolvePlatformAuthConfig } from './platform-auth.config';
 import { resolveMarketingChatConfig } from './marketing-chat.config';
+import { resolvePlaygroundConfig } from './playground.config';
 
 export default () => {
   const uri = resolveMongoUri();
@@ -47,5 +48,6 @@ export default () => {
     paypal: resolvePayPalConfig(),
     platformAuth: resolvePlatformAuthConfig(),
     marketingChat: resolveMarketingChatConfig(),
+    playground: resolvePlaygroundConfig(),
   };
 };

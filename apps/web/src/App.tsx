@@ -8,6 +8,7 @@ import { DocsPage } from '@/pages/DocsPage';
 import { HomePage } from '@/pages/HomePage';
 import { LocaleGate } from '@/pages/LocaleGate';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { PlaygroundPage } from '@/pages/PlaygroundPage';
 import { PricingPage } from '@/pages/PricingPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
 import { SecurityPage } from '@/pages/SecurityPage';
@@ -21,6 +22,7 @@ export function App() {
       <Route path="/:locale" element={<LocaleGate />}>
         <Route element={<SiteLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="playground" element={<PlaygroundPage />} />
           <Route path="pricing" element={<PricingPage />} />
           <Route path="docs" element={<DocsPage />} />
           <Route path="about" element={<AboutPage />} />

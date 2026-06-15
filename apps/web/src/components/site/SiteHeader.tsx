@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 import { LocaleLink } from "@/i18n/LocaleLink";
-import { studioAuthPath } from "@/lib/site";
+import { playgroundPath, studioAuthPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 import { CtaButton } from "./CtaButton";
@@ -12,6 +12,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const NAV_LINKS = [
   { href: '/#how-it-works', key: 'howItWorks' as const },
+  { href: playgroundPath(), key: 'playground' as const },
   { href: '/pricing', key: 'pricing' as const },
   { href: '/docs', key: 'docs' as const },
 ] as const;
@@ -59,6 +60,9 @@ export function SiteHeader() {
           >
             {t("signIn")}
           </a>
+          <CtaButton href={playgroundPath()} variant="outline">
+            {t("tryItNow")}
+          </CtaButton>
           <CtaButton href={studioAuthPath("signup")}>
             {t("getStarted")}
           </CtaButton>
@@ -102,6 +106,13 @@ export function SiteHeader() {
           >
             {t("signIn")}
           </a>
+          <CtaButton
+            href={playgroundPath()}
+            variant="outline"
+            className="w-full text-center"
+          >
+            {t("tryItNow")}
+          </CtaButton>
           <CtaButton
             href={studioAuthPath("signup")}
             className="w-full text-center"

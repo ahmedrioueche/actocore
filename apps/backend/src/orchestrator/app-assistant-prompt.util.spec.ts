@@ -1,4 +1,7 @@
-import { buildAppAssistantSystemPrompt } from './app-assistant-prompt.util';
+import {
+  buildAppAssistantSystemPrompt,
+  formatHostContextBlock,
+} from './app-assistant-prompt.util';
 
 describe('buildAppAssistantSystemPrompt', () => {
   it('scopes assistant to the app and declines off-topic help', () => {
@@ -17,6 +20,7 @@ describe('buildAppAssistantSystemPrompt', () => {
     expect(prompt).toContain('delete_user');
     expect(prompt).toContain('Never pretend');
     expect(prompt).toContain('**Feature area**');
+    expect(prompt).toContain('what pages, screens, or routes the app has');
   });
 
   it('appends custom project instructions', () => {
@@ -65,5 +69,15 @@ describe('buildAppAssistantSystemPrompt', () => {
     expect(prompt).toContain('Current user context:');
     expect(prompt).toContain('Current page: Members (id: members)');
     expect(prompt).toContain('Selected member "Jane"');
+  });
+
+  it('formats host context without custom playground fields', () => {
+    const block = formatHostContextBlock({
+      currentPage: 'users',
+      route: '/users',
+    });
+
+    expect(block).toContain('Current page: Users');
+    expect(block).not.toContain('Session-uploaded reference');
   });
 });

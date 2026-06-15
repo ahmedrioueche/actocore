@@ -6,6 +6,10 @@ export function getStudioUrl(): string {
   return import.meta.env.VITE_STUDIO_URL?.trim() || 'http://localhost:5174';
 }
 
+export function playgroundPath(): string {
+  return '/playground';
+}
+
 export function studioAuthPath(path: 'login' | 'signup'): string {
   const base = getStudioUrl().replace(/\/$/, '');
   return `${base}/${path}`;
@@ -13,6 +17,7 @@ export function studioAuthPath(path: 'login' | 'signup'): string {
 
 export const SITE_PATHS = [
   '',
+  '/playground',
   '/pricing',
   '/docs',
   '/about',

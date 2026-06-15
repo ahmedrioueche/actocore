@@ -20,24 +20,10 @@ export function configureApp(app: INestApplication): void {
 
   const sdkPrefix = `/${apiVersion}/sdk`;
   const webPrefix = `/${apiVersion}/web`;
+  const marketingPrefix = `/${apiVersion}/marketing`;
 
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.disable('x-powered-by');
-
-  const paypalWebhookPath = `${webPrefix}/billing/paypal/webhook`;
-  app.use(
-    paypalWebhookPath,
-    json({
-      limit: http.bodyLimitWeb,
-      verify: (req: Request & { rawBody?: Buffer }, _res, buf) => {
-        req.rawBody = buf;
-      },
-    }),
-  );
-
-  app.use(sdkPrefix, json({ limit: http.bodyLimitSdk }));
-  app.use(webPrefix, json({ limit: http.bodyLimitWeb }));
-  app.use(json({ limit: http.bodyLimitSdk }));
 
   app.enableCors({
     origin: (
@@ -57,7 +43,55 @@ export function configureApp(app: INestApplication): void {
       callback(null, allowed);
     },
     credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Origin',
+      'X-Requested-With',
+      'X-Playground-Token',
+    ],
   });
+
+  const paypalWebhookPath = `${webPrefix}/billing/paypal/webhook`;
+  app.use(
+    paypalWebhookPath,
+    json({
+      limit: http.bodyLimitWeb,
+      verify: (req: Request & { rawBody?: Buffer }, _res, buf) => {
+        req.rawBody = buf;
+      },
+    }),
+  );
+
+  app.use(sdkPrefix, json({ limit: http.bodyLimitSdk }));
+  app.use(webPrefix, json({ limit: http.bodyLimitWeb }));
+  app.use(
+    marketingPrefix,
+    json({
+      limit: http.bodyLimitSdk,
+      type: (req: Request) => {
+        const contentType = req.headers['content-type'] ?? '';
+        return (
+          contentType.includes('application/json') ||
+          contentType.includes('application/*+json')
+        );
+      },
+    }),
+  );
+  app.use(
+    json({
+      limit: http.bodyLimitSdk,
+      type: (req: Request) => {
+        const contentType = req.headers['content-type'] ?? '';
+        return (
+          contentType.includes('application/json') ||
+          contentType.includes('application/*+json')
+        );
+      },
+    }),
+  );
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     const path = req.path;
@@ -65,6 +99,8 @@ export function configureApp(app: INestApplication): void {
       res.setHeader('X-Actocore-Entry', 'sdk');
     } else if (path.startsWith(webPrefix)) {
       res.setHeader('X-Actocore-Entry', 'web');
+    } else if (path.startsWith(marketingPrefix)) {
+      res.setHeader('X-Actocore-Entry', 'marketing');
     }
     next();
   });

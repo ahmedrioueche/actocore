@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useT } from '@/i18n/useT';
 import { getDemoVideoUrl, resolveDemoVideoEmbed } from '@/lib/demo-video';
 
+import { PlaygroundCta } from './PlaygroundCta';
 import { ScrollReveal } from './ScrollReveal';
 
 export function DemoVideoSection() {
@@ -65,6 +66,11 @@ export function DemoVideoSection() {
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <PlaygroundCta className="px-8 py-3.5 text-base" />
+            <p className="text-sm text-muted">{t('ctaHint')}</p>
           </div>
         </div>
       </div>

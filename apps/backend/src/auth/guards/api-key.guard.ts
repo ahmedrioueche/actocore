@@ -14,6 +14,12 @@ export type AuthenticatedRequest = Request & {
   };
   /** Set by MarketingChatGuard for public marketing routes. */
   marketingProjectId?: string;
+  /** Set by PlaygroundGuard for playground config routes. */
+  playgroundToken?: {
+    visitorId: string;
+    projectId: string;
+    exp: number;
+  };
   actocore?: {
     context: RequestContextData;
   };

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { LocaleLink } from '@/i18n/LocaleLink';
 import { cn } from '@/lib/utils';
 
 type CtaButtonProps = {
@@ -9,6 +10,14 @@ type CtaButtonProps = {
   className?: string;
   external?: boolean;
 };
+
+function isExternalHref(href: string): boolean {
+  return (
+    href.startsWith('http://') ||
+    href.startsWith('https://') ||
+    href.startsWith('mailto:')
+  );
+}
 
 export function CtaButton({
   href,
@@ -23,16 +32,25 @@ export function CtaButton({
     variant === 'primary'
       ? 'bg-brand-gradient text-primary-contrast shadow-md hover:brightness-110'
       : 'border border-border bg-surface text-text-primary hover:bg-surface-hover';
+  const classNames = cn(base, styles, className);
+
+  if (external || isExternalHref(href)) {
+    return (
+      <a
+        href={href}
+        className={classNames}
+        {...(external
+          ? { target: '_blank', rel: 'noopener noreferrer' }
+          : undefined)}
+      >
+        {children}
+      </a>
+    );
+  }
 
   return (
-    <a
-      href={href}
-      className={cn(base, styles, className)}
-      {...(external
-        ? { target: '_blank', rel: 'noopener noreferrer' }
-        : undefined)}
-    >
+    <LocaleLink href={href} className={classNames}>
       {children}
-    </a>
+    </LocaleLink>
   );
 }

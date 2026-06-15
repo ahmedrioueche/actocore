@@ -4,6 +4,7 @@ import { FinalCtaSection } from "@/components/home/FinalCtaSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { HowItWorksSection } from "@/components/home/HowItWorksSection";
 import { PlatformCapabilitiesSection } from "@/components/home/PlatformCapabilitiesSection";
+import { PlaygroundSection } from "@/components/home/PlaygroundSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { TrustedBySection } from "@/components/home/TrustedBySection";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -16,6 +17,7 @@ export function HomePage() {
       <HeroSection />
       <TrustedBySection />
       <DemoVideoSection />
+      <PlaygroundSection />
       <HowItWorksSection />
       <PlatformCapabilitiesSection />
       <ArchitectureSection />

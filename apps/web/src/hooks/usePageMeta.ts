@@ -6,6 +6,7 @@ import { isAppLocale } from '@/i18n/routing';
 
 type PageMetaKey =
   | 'home'
+  | 'playground'
   | 'pricing'
   | 'docs'
   | 'about'

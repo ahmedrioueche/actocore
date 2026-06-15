@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { sessionsApi } from '@ahmedrioueche/actocore-shared';
 import type { SessionMessageData } from '@ahmedrioueche/actocore-shared';
 import type { CreateSessionDto } from '@ahmedrioueche/actocore-shared';
@@ -101,6 +101,8 @@ export function useActocoreSession(
   const [isLoadingMoreHistory, setIsLoadingMoreHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const formatError = useApiErrorMessage();
+  const formatErrorRef = useRef(formatError);
+  formatErrorRef.current = formatError;
 
   const persistSessionId = useCallback(
     (id: string) => {
@@ -112,12 +114,12 @@ export function useActocoreSession(
 
   const loadInitialHistory = useCallback(
     async (id: string) => {
-      const page = await fetchMessagePage(id, formatError, {
+      const page = await fetchMessagePage(id, formatErrorRef.current, {
         limit: historyPageSize,
       });
       return page;
     },
-    [formatError, historyPageSize],
+    [historyPageSize],
   );
 
   const refreshHistory = useCallback(async () => {
@@ -167,11 +169,11 @@ export function useActocoreSession(
     async (body?: Partial<CreateSessionDto>) => {
       const res = await sessionsApi.create(body ?? {});
       if (!res.success || !res.data) {
-        throw new Error(formatError(res));
+        throw new Error(formatErrorRef.current(res));
       }
       return res.data.id;
     },
-    [formatError],
+    [],
   );
 
   const createSession = useCallback(
@@ -245,7 +247,7 @@ export function useActocoreSession(
           try {
             page = await loadInitialHistory(initialSessionId);
           } catch (e) {
-            if (!cancelled) setError(formatError(e));
+            if (!cancelled) setError(formatErrorRef.current(e));
           }
         }
         if (!cancelled) {
@@ -280,7 +282,7 @@ export function useActocoreSession(
           } catch (e) {
             if (!isSessionGone(e)) {
               if (!cancelled) {
-                setError(formatError(e));
+                setError(formatErrorRef.current(e));
                 setIsInitializing(false);
               }
               return;
@@ -303,7 +305,7 @@ export function useActocoreSession(
         }
       } catch (e) {
         if (!cancelled) {
-          setError(formatError(e));
+          setError(formatErrorRef.current(e));
           setIsInitializing(false);
         }
         return;
@@ -318,7 +320,7 @@ export function useActocoreSession(
         try {
           page = await loadInitialHistory(resolvedId);
         } catch (e) {
-          if (!cancelled) setError(formatError(e));
+          if (!cancelled) setError(formatErrorRef.current(e));
         }
       }
 
@@ -338,7 +340,6 @@ export function useActocoreSession(
   }, [
     createSessionRecord,
     externalUserId,
-    formatError,
     initialSessionId,
     loadHistory,
     loadInitialHistory,

@@ -36,6 +36,10 @@
     "compliance": {
       "title": "Conformité — ActoCore",
       "description": "Posture RGPD, traitement des données et engagements de conformité."
+    },
+    "playground": {
+      "title": "Playground — ActoCore",
+      "description": "Essayez le SDK ActoCore en direct — chat, connaissances, actions et app layout sans connexion."
     }
   },
   "site": {
@@ -44,10 +48,12 @@
   },
   "nav": {
     "howItWorks": "Comment ça marche",
+    "playground": "Playground",
     "pricing": "Tarifs",
     "docs": "Docs",
     "signIn": "Connexion",
     "getStarted": "Commencer",
+    "tryItNow": "Essayer maintenant",
     "menu": "Menu",
     "theme": "Thème",
     "language": "Langue"
@@ -65,6 +71,7 @@
     "status": "Systèmes opérationnels",
     "links": {
       "sdkReference": "Référence SDK",
+      "playground": "Playground",
       "pricing": "Tarifs",
       "changelog": "Journal des modifications",
       "integrations": "Intégrations",
@@ -81,12 +88,13 @@
     }
   },
   "home": {
+    "goToPlayground": "Aller au playground",
     "hero": {
       "badge": "Certifié SOC2 Type II",
       "title": "Le cœur intelligent pour les logiciels d'entreprise.",
       "subtitle": "Arrêtez de construire une infrastructure IA from scratch. ActoCore fournit la couche d'intégration multi-tenant sécurisée pour déployer des pipelines RAG et des actions agentiques en quelques minutes.",
       "ctaPrimary": "Construire gratuitement",
-      "ctaSecondary": "Parler à l'équipe technique",
+      "ctaSecondary": "Essayer maintenant",
       "trust": {
         "gdpr": "Conforme RGPD",
         "zeroRetention": "Zéro rétention de données",
@@ -117,7 +125,33 @@
       "title": "ActoCore en action",
       "subtitle": "Découvrez comment configurer les connaissances, brancher des actions et intégrer un assistant en quelques minutes.",
       "placeholderTitle": "Vidéo de démo bientôt disponible",
-      "placeholderHint": "Définissez VITE_DEMO_VIDEO_URL dans apps/web/.env (YouTube, Vimeo ou .mp4/.webm direct)."
+      "placeholderHint": "Définissez VITE_DEMO_VIDEO_URL dans apps/web/.env (YouTube, Vimeo ou .mp4/.webm direct).",
+      "ctaHint": "Vous préférez tester ? Essayez le playground en direct — sans compte."
+    },
+    "playgroundSection": {
+      "eyebrow": "Sans compte requis",
+      "title": "Essayez la démo SDK complète — en direct dans votre navigateur",
+      "subtitle": "Explorez le chat, les connaissances, les actions in-app et l'app layout sans créer de compte Studio. C'est le même assistant embarqué que vos utilisateurs verront, alimenté par un projet démo partagé.",
+      "noSignup": "Sans inscription · Sans clé API · Gratuit",
+      "ctaSecondary": "Créer votre propre projet",
+      "features": {
+        "chat": {
+          "title": "Chat en direct",
+          "description": "Posez des questions produit et obtenez des réponses en streaming d'un vrai assistant."
+        },
+        "knowledge": {
+          "title": "Connaissances et sources",
+          "description": "Voyez le RAG en action avec des sources citées depuis la base de connaissances démo."
+        },
+        "actions": {
+          "title": "Actions in-app",
+          "description": "Ajoutez, modifiez et listez des utilisateurs mock via des actions client confirmées."
+        },
+        "layout": {
+          "title": "App layout",
+          "description": "Changez de page hôte et voyez les suggestions contextuelles se mettre à jour."
+        }
+      }
     },
     "partners": {
       "label": "Partenaires d'infrastructure pour",
@@ -127,6 +161,7 @@
       "eyebrow": "Comment ça marche",
       "title": "De l'inscription à l'assistant intégré en quatre étapes.",
       "subtitle": "Pas d'infrastructure IA sur mesure. Configurez dans Studio, déployez dans votre app avec le SDK.",
+      "ctaHint": "Vous voulez éviter l'inscription pour l'instant ? Lancez-vous dans le playground et testez tout en direct.",
       "steps": {
         "project": {
           "title": "Créez votre projet",
@@ -153,6 +188,7 @@
     "capabilities": {
       "title": "Conçu pour la fiabilité.",
       "subtitle": "Standardisez vos workflows IA avec un ensemble d'outils robustes, pensés pour aller au-delà du bac à sable.",
+      "ctaHint": "Voyez ces capacités en action — ouvrez le playground et discutez avec un projet démo configuré.",
       "observability": {
         "title": "Observabilité en temps réel",
         "description": "Tracez chaque jeton, pic de latence et tentative d'injection de prompt avec des journaux d'audit complets et un débogage visuel.",
@@ -178,6 +214,7 @@
     "architecture": {
       "title": "Un seul cœur. Une flexibilité infinie.",
       "subtitle": "Choisissez le niveau d'intégration adapté à votre stack, d'un simple SDK à un studio entièrement géré.",
+      "ctaHint": "Commencez par la couche SDK — le playground exécute l'embed complet sans configuration de votre côté.",
       "recommended": "Recommandé",
       "engine": {
         "title": "Moteur ActoCore",
@@ -197,6 +234,7 @@
     },
     "testimonials": {
       "title": "Adoré par les ingénieurs, approuvé par les CTO.",
+      "ctaHint": "Convainquez-vous par vous-même — essayez le playground avant de créer un compte Studio.",
       "items": {
         "marcus": {
           "quote": "ActoCore a transformé notre fonctionnalité IA d'une « démo sympa » en « produit prêt pour la production » en trois jours. La sécurité multi-tenant seule nous a fait gagner deux mois de développement.",
@@ -219,8 +257,115 @@
       "title": "Construisez l'avenir des applications intelligentes.",
       "subtitle": "Rejoignez plus de 500 équipes qui déploient de l'IA en production. Pas de configuration complexe, pas de carte bancaire requise.",
       "ctaPrimary": "Obtenir une clé API gratuite",
-      "ctaSecondary": "Voir le dépôt de démo",
+      "ctaSecondary": "Aller au playground",
       "footnote": "Le forfait développeur est 100 % gratuit jusqu'à 5 000 requêtes mensuelles."
+    }
+  },
+  "playground": {
+    "eyebrow": "Démo SDK live",
+    "title": "Essayez ActoCore sans connexion",
+    "subtitle": "Créez votre propre projet démo, configurez connaissances et actions, puis chattez avec un assistant live — sans compte Studio.",
+    "signupCta": "Créer le vôtre dans Studio",
+    "disabled": "Le playground public est désactivé. Définissez VITE_MARKETING_CHAT_ENABLED=true, PLAYGROUND_ENABLED=true et MARKETING_CHAT_* sur le backend.",
+    "setup": {
+      "eyebrow": "Étape 1",
+      "title": "Nommez votre projet",
+      "description": "Nous créons un vrai projet ActoCore pour cette session — le même modèle que Studio, isolé de la doc marketing ActoCore.",
+      "projectNameLabel": "Nom du projet",
+      "projectNamePlaceholder": "Mon app démo",
+      "defaultProjectName": "Mon projet playground",
+      "createProject": "Créer le projet",
+      "creating": "Création du projet…",
+      "errorGeneric": "Impossible de créer votre projet playground. Réessayez."
+    },
+    "nav": {
+      "label": "Sections du playground",
+      "app-layout": "App layout",
+      "knowledge": "Connaissances",
+      "actions": "Actions",
+      "sdk-config": "Config SDK"
+    },
+    "appLayout": {
+      "title": "App layout",
+      "description": "Modifiez pages, routes et descriptions. Les changements s'appliquent au contexte chat pour cette session navigateur.",
+      "routeLabel": "Route active",
+      "addPage": "Ajouter une page",
+      "removePage": "Supprimer la page",
+      "pageLabel": "Page {index}",
+      "localHint": "Enregistré dans votre session navigateur. Inscrivez-vous sur Studio pour persister l'app layout sur votre projet.",
+      "fields": {
+        "title": "Titre",
+        "id": "Id de page",
+        "route": "Route",
+        "description": "Description"
+      }
+    },
+    "knowledge": {
+      "uploadTitle": "Vos fichiers de connaissances",
+      "uploadDescription": "Importez jusqu'à deux fichiers .txt ou .md. Le contenu est envoyé avec chaque message pour que l'assistant puisse répondre sur vos fichiers.",
+      "uploadButton": "Choisir un fichier",
+      "uploadFull": "Deux fichiers importés",
+      "uploadHint": "Formats : .txt, .md (max 10 Mo chacun). Session uniquement — non stocké sur les serveurs ActoCore.",
+      "emptySlot": "Emplacement {index} — vide",
+      "uploadMeta": "{chars} car. · {kb} Ko",
+      "removeFile": "Supprimer le fichier",
+      "errors": {
+        "tooLarge": "Fichier trop volumineux (max 10 Mo).",
+        "unsupportedType": "Seuls les fichiers .txt et .md sont pris en charge dans le playground.",
+        "empty": "Fichier vide.",
+        "readFailed": "Impossible de lire le fichier."
+      }
+    },
+    "actionsPanel": {
+      "definitionsTitle": "Définitions d'actions",
+      "definitionsDescription": "Activez les actions et modifiez les descriptions. L'allowlist SDK contrôle ce qui apparaît dans le chat.",
+      "enabledLabel": "Activée",
+      "descriptionLabel": "Description",
+      "localHint": "Les handlers s'exécutent dans cette app mock. Studio sert à brancher vos vraies API.",
+      "promptsTitle": "Exemples de prompts",
+      "prompts": [
+        "Ajoute l'utilisateur jane@demo.com nommée Jane Doe",
+        "Supprime l'utilisateur bob@demo.com",
+        "Mets à jour alice@demo.com avec le nom Alice Kiro",
+        "Affiche tous les utilisateurs"
+      ]
+    },
+    "sdkConfig": {
+      "title": "Config SDK",
+      "description": "Comme Studio : personnalisez l'apparence, les textes, le lanceur et les options du chat. Les changements s'appliquent au panneau de chat à droite.",
+      "footnote": "Enregistré dans la config SDK de votre projet playground (mêmes champs qu'ActoCore Studio).",
+      "sections": {
+        "securityVoice": {
+          "title": "Sécurité et voix",
+          "description": "Contrôles playground pour l'allowlist d'actions et la voix."
+        }
+      },
+      "fields": {
+        "enforceAllowlist": "Appliquer l'allowlist",
+        "allowedActions": "Actions autorisées",
+        "voiceInput": "Entrée vocale",
+        "voiceOutput": "Sortie vocale"
+      }
+    },
+    "demoUsers": {
+      "title": "Utilisateurs démo (app hôte)",
+      "description": "Demandez en chat d'ajouter, modifier, supprimer ou lister des utilisateurs. Les actions mettent à jour ce tableau après confirmation.",
+      "email": "E-mail",
+      "name": "Nom",
+      "empty": "Aucun utilisateur — essayez d'en ajouter via le chat."
+    },
+    "chat": {
+      "headerTitle": "Playground ActoCore",
+      "headerSubtitle": "{projectName} — votre projet démo isolé",
+      "loadingProject": "Chargement de votre projet…",
+      "loadError": "Impossible de charger votre projet playground.",
+      "saveError": "Impossible d'enregistrer les modifications. Réessayez.",
+      "emptyTitle": "Explorez",
+      "emptyDescription": "Configurez la barre latérale — pages, fichiers, actions et SDK — puis posez vos questions ici.",
+      "placeholder": "Posez une question ou décrivez une action...",
+      "seedUser": "Que puis-je essayer dans ce playground ?",
+      "seedAssistant": "Utilisez la barre latérale pour modifier l'app layout, importer des fichiers, configurer les actions et le SDK — puis testez tout dans le chat.",
+      "rateLimitMessage": "Vous pourrez discuter dans une minute. Patientez un instant et réessayez."
     }
   },
   "pricing": {
@@ -573,6 +718,122 @@
       "subject": "Objet",
       "message": "Message",
       "submit": "Ouvrir dans le client mail"
+    }
+  },
+  "sdkConfig": {
+    "title": "Configuration du SDK",
+    "save": "Enregistrer les modifications",
+    "saved": "Paramètres du SDK enregistrés.",
+    "readOnly": "Vous pouvez afficher les paramètres du SDK, mais vous n'êtes pas autorisé à les modifier.",
+    "readOnlyTitle": "Visualisation uniquement",
+    "loadRemoteConfigTip": {
+      "title": "Appliquer les paramètres dans votre application",
+      "body": "Les paramètres enregistrés sont chargés par le SDK embarqué lorsque l'application hôte active loadRemoteConfig sur ActocoreProvider.",
+      "codeExample": "<ActocoreProvider\n  apiKey={apiKey}\n  loadRemoteConfig\n  actions={{ ... }}\n>"
+    },
+    "sections": {
+      "appearance": {
+        "title": "Apparence",
+        "description": "Indiquez les thèmes pris en charge par votre application, puis définissez les couleurs de marque et la typographie du widget de chat intégré."
+      },
+      "chatUi": {
+        "title": "Interface utilisateur de discussion",
+        "description": "Contrôlez ce qui apparaît dans l'expérience de chat."
+      },
+      "copyLauncher": {
+        "title": "Copie et lanceur",
+        "description": "Personnalisez les étiquettes et le bouton de lancement flottant."
+      }
+    },
+    "fields": {
+      "appThemes": "Thèmes dans votre application",
+      "appThemesHint": "Correspond à ce que votre application hôte prend en charge. Le SDK utilise la palette du thème actif.",
+      "appThemesDefault": "Par défaut : {{option}}.",
+      "appThemesOptions": {
+        "both": "Clair et sombre",
+        "light": "Clair uniquement",
+        "dark": "Sombre uniquement"
+      },
+      "defaultPlaceholder": "Par défaut : {{value}}",
+      "defaultOn": "Par défaut : activé",
+      "defaultOff": "Par défaut : désactivé",
+      "leaveBlankHint": "Laissez vide pour utiliser la valeur par défaut du SDK.",
+      "copyLauncherHint": "Pré-rempli avec les valeurs par défaut du SDK. Seules les valeurs personnalisées sont enregistrées.",
+      "colorsGroup": "Couleurs de la marque",
+      "colorPaletteTabs": "Palette de couleurs",
+      "colorPalettes": {
+        "light": "Palette claire",
+        "dark": "Palette sombre"
+      },
+      "themeColorsBothHint": "Configurez des palettes distinctes pour le clair et le sombre.",
+      "themeColorsLightOnlyHint": "Configurez les couleurs de marque pour le thème clair.",
+      "themeColorsDarkOnlyHint": "Configurez les couleurs de marque pour le thème sombre.",
+      "themeColorsHint": "Laissez vide pour les valeurs par défaut du SDK. Choisissez un échantillon ou entrez un code hex (#RGB ou #RRGGBB).",
+      "themeColors": {
+        "color-primary": "Primaire",
+        "color-primary-contrast": "Texte principal",
+        "color-bg": "Arrière-plan",
+        "color-text": "Texte",
+        "color-text-muted": "Texte atténué",
+        "color-border": "Bordure",
+        "color-user-bubble": "Bulle utilisateur",
+        "color-user-bubble-text": "Texte bulle utilisateur",
+        "color-assistant-bubble": "Bulle assistant",
+        "color-assistant-bubble-text": "Texte bulle assistant"
+      },
+      "fontFamily": "Police",
+      "fontFamilyHint": "Appliquée au widget de chat via le jeton font-family.",
+      "fontFamilyDefault": "Par défaut : pile système.",
+      "fontFamilyCustom": "Pile de polices personnalisée",
+      "fontFamilyCustomPlaceholder": "ex. 'DM Sans', system-ui, sans-serif",
+      "fontPresets": {
+        "systemDefault": "Système par défaut",
+        "inter": "Inter",
+        "roboto": "Roboto",
+        "openSans": "Open Sans",
+        "georgia": "Georgia (serif)",
+        "monospace": "Monospace",
+        "custom": "Personnalisé…"
+      },
+      "showSources": "Afficher les sources de connaissances",
+      "showIntentBadge": "Afficher le badge d'intention",
+      "showActionsHint": "Afficher l'indice d'actions",
+      "showActionPicker": "Afficher le sélecteur d'actions",
+      "composerMinRows": "Lignes minimales du compositeur",
+      "composerMaxRows": "Lignes maximales du compositeur",
+      "composerRowsHint": "Chaque ligne doit être entre 1 et 12. Le minimum ne peut pas dépasser le maximum.",
+      "headerTitle": "Titre de l'en-tête",
+      "headerSubtitle": "Sous-titre d'en-tête",
+      "emptyTitle": "Titre d'état vide",
+      "emptyDescription": "Description d'état vide",
+      "actionsHint": "Indice d'actions",
+      "placeholder": "Espace réservé du message",
+      "send": "Libellé du bouton Envoyer",
+      "open": "Libellé Ouvrir le chat",
+      "launcherGroup": "Lanceur",
+      "launcherPosition": "Position du lanceur",
+      "launcherPositionHint": "Coin de l'écran où apparaît le lanceur.",
+      "launcherPositions": {
+        "bottom-right": "En bas à droite",
+        "bottom-left": "En bas à gauche",
+        "top-right": "En haut à droite",
+        "top-left": "En haut à gauche"
+      },
+      "launcherOffsetX": "Décalage horizontal",
+      "launcherOffsetY": "Décalage vertical",
+      "launcherOffsetHint": "Distance du bord de l'écran (ex. 1.25rem ou 20px).",
+      "launcherIconUrl": "URL de l'icône du lanceur",
+      "launcherIconUrlDefault": "Par défaut : icône intégrée (laisser vide)",
+      "launcherAriaLabel": "Libellé aria du lanceur"
+    },
+    "errors": {
+      "composerRowsInvalid": "Les lignes du compositeur doivent être des entiers entre 1 et 12.",
+      "composerRowsOrder": "Le minimum ne peut pas dépasser le maximum.",
+      "launcherIconUrlInvalid": "L'URL de l'icône doit être http ou https valide.",
+      "launcherOffsetInvalid": "Les décalages doivent être des longueurs CSS (ex. 1.25rem).",
+      "fieldTooLong": "Un ou plusieurs champs dépassent la longueur maximale.",
+      "invalidHexColor": "Chaque couleur doit être un hex valide (#RGB ou #RRGGBB) ou vide.",
+      "fontFamilyTooLong": "La pile de polices est trop longue (max 200 caractères)."
     }
   },
   "theme": {

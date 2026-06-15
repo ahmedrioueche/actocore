@@ -36,6 +36,10 @@
     "compliance": {
       "title": "Compliance — ActoCore",
       "description": "GDPR posture, data processing, and compliance commitments."
+    },
+    "playground": {
+      "title": "Playground — ActoCore",
+      "description": "Try the ActoCore SDK live — chat, knowledge, actions, and app layout with no sign-in."
     }
   },
   "site": {
@@ -44,10 +48,12 @@
   },
   "nav": {
     "howItWorks": "How it works",
+    "playground": "Playground",
     "pricing": "Pricing",
     "docs": "Docs",
     "signIn": "Sign in",
     "getStarted": "Get started",
+    "tryItNow": "Try it now",
     "menu": "Menu",
     "theme": "Theme",
     "language": "Language"
@@ -65,6 +71,7 @@
     "status": "Systems Operational",
     "links": {
       "sdkReference": "SDK Reference",
+      "playground": "Playground",
       "pricing": "Pricing",
       "changelog": "Changelog",
       "integrations": "Integrations",
@@ -81,12 +88,13 @@
     }
   },
   "home": {
+    "goToPlayground": "Go to Playground",
     "hero": {
       "badge": "Now SOC2 Type II Certified",
       "title": "The Intelligent Core for Enterprise Software.",
       "subtitle": "Stop building AI infrastructure from scratch. ActoCore provides the secure, multi-tenant integration layer to deploy RAG pipelines and agentic actions in minutes.",
       "ctaPrimary": "Build for Free",
-      "ctaSecondary": "Talk to Engineering",
+      "ctaSecondary": "Try it now",
       "trust": {
         "gdpr": "GDPR Compliant",
         "zeroRetention": "Zero Data Retention",
@@ -117,7 +125,33 @@
       "title": "See ActoCore in action",
       "subtitle": "Watch how teams configure knowledge, wire actions, and ship an embedded assistant in minutes.",
       "placeholderTitle": "Demo video coming soon",
-      "placeholderHint": "Set VITE_DEMO_VIDEO_URL in apps/web/.env (YouTube, Vimeo, or direct .mp4/.webm)."
+      "placeholderHint": "Set VITE_DEMO_VIDEO_URL in apps/web/.env (YouTube, Vimeo, or direct .mp4/.webm).",
+      "ctaHint": "Prefer hands-on? Try the live playground — no account required."
+    },
+    "playgroundSection": {
+      "eyebrow": "No account required",
+      "title": "Try the full SDK demo — live in your browser",
+      "subtitle": "Explore chat, knowledge, in-app actions, and app layout without creating a Studio account. Each visitor gets their own isolated demo project.",
+      "noSignup": "No sign-up · Your own demo project · Free to try",
+      "ctaSecondary": "Create your own project",
+      "features": {
+        "chat": {
+          "title": "Live chat",
+          "description": "Ask product questions and get streaming answers from a real assistant."
+        },
+        "knowledge": {
+          "title": "Knowledge & sources",
+          "description": "See RAG in action with cited sources from the demo knowledge base."
+        },
+        "actions": {
+          "title": "In-app actions",
+          "description": "Add, update, and list mock users through confirmed client-side actions."
+        },
+        "layout": {
+          "title": "App layout",
+          "description": "Switch host pages and watch context-aware suggestions update instantly."
+        }
+      }
     },
     "partners": {
       "label": "Infrastructure partners for",
@@ -127,6 +161,7 @@
       "eyebrow": "How it works",
       "title": "From signup to embedded assistant in four steps.",
       "subtitle": "No custom AI infrastructure. Configure in Studio, ship in your app with the SDK.",
+      "ctaHint": "Want to skip signup for now? Jump into the playground and try everything live.",
       "steps": {
         "project": {
           "title": "Create your project",
@@ -153,6 +188,7 @@
     "capabilities": {
       "title": "Engineered for Reliability.",
       "subtitle": "Standardize your AI workflows with a robust set of tools designed to move beyond the sandbox.",
+      "ctaHint": "See these capabilities in action — open the playground and chat with a configured demo project.",
       "observability": {
         "title": "Real-time Observability",
         "description": "Trace every token, latency spike, and prompt injection attempt with full audit logs and visual debugging.",
@@ -172,6 +208,7 @@
     "architecture": {
       "title": "One Core. Endless Flexibility.",
       "subtitle": "Choose the depth of integration that fits your stack, from a simple SDK to a full-managed studio.",
+      "ctaHint": "Start with the SDK layer — the playground runs the full embed with zero setup on your side.",
       "recommended": "Recommended",
       "engine": {
         "title": "ActoCore Engine",
@@ -191,6 +228,7 @@
     },
     "testimonials": {
       "title": "Loved by Engineers, Trusted by CTOs.",
+      "ctaHint": "Convince yourself — try the playground before you commit to a Studio account.",
       "items": {
         "marcus": {
           "quote": "ActoCore took our AI feature from a 'cool demo' to a 'production-ready product' in three days. The multi-tenant security alone saved us two months of dev time.",
@@ -213,8 +251,115 @@
       "title": "Start Building the Future of Intelligent Apps.",
       "subtitle": "Join 500+ teams shipping production AI today. No complex setup, no credit card required.",
       "ctaPrimary": "Get Free API Key",
-      "ctaSecondary": "View Demo Repo",
+      "ctaSecondary": "Go to Playground",
       "footnote": "Developer tier is 100% free up to 5,000 monthly requests."
+    }
+  },
+  "playground": {
+    "eyebrow": "Live SDK demo",
+    "title": "Try ActoCore without signing in",
+    "subtitle": "Create your own demo project, configure knowledge and actions, then chat with a live assistant — no Studio account required.",
+    "signupCta": "Build your own in Studio",
+    "disabled": "Public playground is disabled. Set VITE_MARKETING_CHAT_ENABLED=true, PLAYGROUND_ENABLED=true, and MARKETING_CHAT_* on the backend.",
+    "setup": {
+      "eyebrow": "Step 1",
+      "title": "Name your project",
+      "description": "We create a real ActoCore project for this browser session — the same data model Studio uses, isolated from ActoCore marketing docs.",
+      "projectNameLabel": "Project name",
+      "projectNamePlaceholder": "My demo app",
+      "defaultProjectName": "My playground project",
+      "createProject": "Create project",
+      "creating": "Creating project…",
+      "errorGeneric": "Could not create your playground project. Try again shortly."
+    },
+    "nav": {
+      "label": "Playground sections",
+      "app-layout": "App layout",
+      "knowledge": "Knowledge",
+      "actions": "Actions",
+      "sdk-config": "SDK config"
+    },
+    "appLayout": {
+      "title": "App layout",
+      "description": "Edit pages, routes, and descriptions. Changes apply to the chat context for this browser session.",
+      "routeLabel": "Active route",
+      "addPage": "Add page",
+      "removePage": "Remove page",
+      "pageLabel": "Page {index}",
+      "localHint": "Saved to your playground project. Sign up for Studio to keep it beyond this browser session.",
+      "fields": {
+        "title": "Title",
+        "id": "Page id",
+        "route": "Route",
+        "description": "Description"
+      }
+    },
+    "knowledge": {
+      "uploadTitle": "Your knowledge files",
+      "uploadDescription": "Upload up to two .txt or .md files. They are indexed as knowledge on your playground project.",
+      "uploadButton": "Choose file",
+      "uploadFull": "Two files uploaded",
+      "uploadHint": "Supported: .txt, .md (max 10 MB each). Stored on your isolated playground project.",
+      "emptySlot": "Slot {index} — empty",
+      "sourceMeta": "{status} · {chunks} chunks",
+      "removeFile": "Remove file",
+      "errors": {
+        "tooLarge": "File is too large (max 10 MB).",
+        "unsupportedType": "Only .txt and .md files are supported in the playground.",
+        "empty": "File is empty.",
+        "readFailed": "Could not read the file."
+      }
+    },
+    "actionsPanel": {
+      "definitionsTitle": "Action definitions",
+      "definitionsDescription": "Enable actions and edit descriptions. Allowed actions sync with SDK config and control what appears in chat.",
+      "enabledLabel": "Enabled",
+      "descriptionLabel": "Description",
+      "localHint": "Handlers run in this mock app. Studio is where you wire real API integrations.",
+      "promptsTitle": "Example prompts",
+      "prompts": [
+        "Add user jane@demo.com named Jane Doe",
+        "Delete user with email bob@demo.com",
+        "Update user with email alice@demo.com, make their name Alice Kiro",
+        "Show all users"
+      ]
+    },
+    "sdkConfig": {
+      "title": "SDK config",
+      "description": "Match Studio: customize chat appearance, copy, launcher, and UI toggles. Changes apply to the chat panel on the right.",
+      "footnote": "Saved to your playground project SDK config (same fields as ActoCore Studio).",
+      "sections": {
+        "securityVoice": {
+          "title": "Security & voice",
+          "description": "Playground-only controls for action allowlists and voice (also available in project SDK config via API)."
+        }
+      },
+      "fields": {
+        "enforceAllowlist": "Enforce allowlist",
+        "allowedActions": "Allowed actions",
+        "voiceInput": "Voice input",
+        "voiceOutput": "Voice output"
+      }
+    },
+    "demoUsers": {
+      "title": "Demo users (host app)",
+      "description": "Ask in chat to add, update, delete, or list users. Actions run in this mock table after you confirm.",
+      "email": "Email",
+      "name": "Name",
+      "empty": "No users yet — try adding one via chat."
+    },
+    "chat": {
+      "headerTitle": "ActoCore Playground",
+      "headerSubtitle": "{projectName} — your isolated demo project",
+      "loadingProject": "Loading your project…",
+      "loadError": "Could not load your playground project.",
+      "saveError": "Could not save changes. Try again.",
+      "emptyTitle": "Start exploring",
+      "emptyDescription": "Configure the sidebar — app pages, uploads, actions, and SDK settings — then ask questions here.",
+      "placeholder": "Ask a question or describe an action...",
+      "seedUser": "What can I try in this playground?",
+      "seedAssistant": "Use the sidebar to edit app layout, upload knowledge files, configure actions, and tune SDK settings — then try everything in chat.",
+      "rateLimitMessage": "You'll be able to chat in a minute. Please wait and try again."
     }
   },
   "pricing": {
@@ -567,6 +712,122 @@
       "subject": "Subject",
       "message": "Message",
       "submit": "Open in email client"
+    }
+  },
+  "sdkConfig": {
+    "title": "SDK config",
+    "save": "Save changes",
+    "saved": "SDK settings saved.",
+    "readOnly": "You can view SDK settings but do not have permission to change them.",
+    "readOnlyTitle": "View only",
+    "loadRemoteConfigTip": {
+      "title": "Apply settings in your app",
+      "body": "Saved settings are loaded by the embedded SDK when the host app enables loadRemoteConfig on ActocoreProvider. Props you pass in code still override these dashboard values.",
+      "codeExample": "<ActocoreProvider\n  apiKey={apiKey}\n  loadRemoteConfig\n  actions={{ ... }}\n>"
+    },
+    "sections": {
+      "appearance": {
+        "title": "Appearance",
+        "description": "Choose which themes your app uses, then set brand colors and typography for the embedded chat widget."
+      },
+      "chatUi": {
+        "title": "Chat UI",
+        "description": "Control what appears in the chat experience."
+      },
+      "copyLauncher": {
+        "title": "Copy & launcher",
+        "description": "Customize labels and the floating launcher button."
+      }
+    },
+    "fields": {
+      "appThemes": "Themes in your app",
+      "appThemesHint": "Match what your host app supports. The SDK uses the palette for the active theme.",
+      "appThemesDefault": "Default: {{option}}.",
+      "appThemesOptions": {
+        "both": "Light & dark",
+        "light": "Light only",
+        "dark": "Dark only"
+      },
+      "defaultPlaceholder": "Default: {{value}}",
+      "defaultOn": "Default: on",
+      "defaultOff": "Default: off",
+      "leaveBlankHint": "Leave blank to use the SDK default shown as the placeholder.",
+      "copyLauncherHint": "Pre-filled with SDK defaults. Only customized values are saved to your project config.",
+      "colorsGroup": "Brand colors",
+      "colorPaletteTabs": "Color palette",
+      "colorPalettes": {
+        "light": "Light palette",
+        "dark": "Dark palette"
+      },
+      "themeColorsBothHint": "Configure separate palettes for light and dark. The SDK picks the palette that matches the active theme in your app.",
+      "themeColorsLightOnlyHint": "Configure brand colors for your app's light theme.",
+      "themeColorsDarkOnlyHint": "Configure brand colors for your app's dark theme.",
+      "themeColorsHint": "Leave blank to use SDK defaults for that palette. Pick a swatch or enter a hex code (#RGB or #RRGGBB).",
+      "themeColors": {
+        "color-primary": "Primary",
+        "color-primary-contrast": "Primary text",
+        "color-bg": "Background",
+        "color-text": "Text",
+        "color-text-muted": "Muted text",
+        "color-border": "Border",
+        "color-user-bubble": "User bubble",
+        "color-user-bubble-text": "User bubble text",
+        "color-assistant-bubble": "Assistant bubble",
+        "color-assistant-bubble-text": "Assistant bubble text"
+      },
+      "fontFamily": "Font",
+      "fontFamilyHint": "Applied to the chat widget via the font-family design token.",
+      "fontFamilyDefault": "Default: system font stack.",
+      "fontFamilyCustom": "Custom font stack",
+      "fontFamilyCustomPlaceholder": "e.g. 'DM Sans', system-ui, sans-serif",
+      "fontPresets": {
+        "systemDefault": "System default",
+        "inter": "Inter",
+        "roboto": "Roboto",
+        "openSans": "Open Sans",
+        "georgia": "Georgia (serif)",
+        "monospace": "Monospace",
+        "custom": "Custom…"
+      },
+      "showSources": "Show knowledge sources",
+      "showIntentBadge": "Show intent badge",
+      "showActionsHint": "Show actions hint",
+      "showActionPicker": "Show action picker",
+      "composerMinRows": "Composer minimum rows",
+      "composerMaxRows": "Composer maximum rows",
+      "composerRowsHint": "Each row must be between 1 and 12. Minimum cannot exceed maximum. SDK defaults: 1 minimum, 6 maximum.",
+      "headerTitle": "Header title",
+      "headerSubtitle": "Header subtitle",
+      "emptyTitle": "Empty state title",
+      "emptyDescription": "Empty state description",
+      "actionsHint": "Actions hint",
+      "placeholder": "Message placeholder",
+      "send": "Send button label",
+      "open": "Open launcher label",
+      "launcherGroup": "Launcher",
+      "launcherPosition": "Launcher position",
+      "launcherPositionHint": "Corner of the screen where the chat launcher appears.",
+      "launcherPositions": {
+        "bottom-right": "Bottom right",
+        "bottom-left": "Bottom left",
+        "top-right": "Top right",
+        "top-left": "Top left"
+      },
+      "launcherOffsetX": "Horizontal offset",
+      "launcherOffsetY": "Vertical offset",
+      "launcherOffsetHint": "Distance from the screen edge (e.g. 1.25rem or 20px).",
+      "launcherIconUrl": "Launcher icon URL",
+      "launcherIconUrlDefault": "Default: built-in icon (leave empty)",
+      "launcherAriaLabel": "Launcher aria label"
+    },
+    "errors": {
+      "composerRowsInvalid": "Composer rows must be whole numbers between 1 and 12.",
+      "composerRowsOrder": "Minimum composer rows cannot be greater than maximum.",
+      "launcherIconUrlInvalid": "Launcher icon URL must be a valid http or https URL.",
+      "launcherOffsetInvalid": "Offsets must be CSS lengths like 1.25rem or 20px.",
+      "fieldTooLong": "One or more fields exceed the maximum length.",
+      "invalidHexColor": "Each color must be a valid hex code (#RGB or #RRGGBB) or left empty.",
+      "fontFamilyTooLong": "Font stack is too long (max 200 characters)."
     }
   },
   "theme": {

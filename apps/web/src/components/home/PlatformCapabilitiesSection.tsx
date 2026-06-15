@@ -3,6 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 import { useT } from '@/i18n/useT';
 import { asStringArray } from '@/i18n/as-string-array';
 
+import { PlaygroundCta } from './PlaygroundCta';
 import { ScrollReveal } from './ScrollReveal';
 
 const CAPABILITY_CONFIG = [
@@ -96,6 +97,11 @@ export function PlatformCapabilitiesSection() {
               accent={accent}
             />
           ))}
+        </div>
+
+        <div className="mt-12 flex flex-col items-start gap-4 lg:mt-16 lg:flex-row lg:items-center lg:justify-between">
+          <p className="max-w-2xl text-text-secondary">{t('home.capabilities.ctaHint')}</p>
+          <PlaygroundCta className="shrink-0 px-8 py-3.5 text-base" />
         </div>
       </div>
     </ScrollReveal>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import {
   configureApi,
@@ -34,6 +34,13 @@ export interface ActocoreProviderProps extends ActocoreSdkConfig {
    * Local `i18n`, `theme`, `security`, `ui`, and `voice` override dashboard values.
    */
   loadRemoteConfig?: boolean;
+  /** When set, used instead of pages returned by GET /runtime. */
+  appPages?: AppPageManifestEntry[];
+  /**
+   * Increment to refetch dashboard SDK config after PATCH without remounting
+   * the provider (preserves chat session state).
+   */
+  remoteConfigVersion?: number;
 }
 
 export function ActocoreProvider({
@@ -42,13 +49,16 @@ export function ActocoreProvider({
   loadRemoteConfig = false,
   hostContext,
   entryMode = 'sdk',
+  appPages: appPagesProp,
+  remoteConfigVersion = 0,
   ...sdkConfig
 }: ActocoreProviderProps) {
   const [remoteSdk, setRemoteSdk] = useState<SdkRuntimeConfigData | null>(null);
-  const [appPages, setAppPages] = useState<AppPageManifestEntry[]>([]);
+  const [fetchedAppPages, setFetchedAppPages] = useState<AppPageManifestEntry[]>([]);
   const [presentationReady, setPresentationReady] = useState(
     () => !loadRemoteConfig,
   );
+  const hasLoadedRemoteRef = useRef(false);
   const [liveHostContext, setLiveHostContext] = useState<HostContext | undefined>(
     hostContext ?? sdkConfig.security?.hostContext,
   );
@@ -56,7 +66,11 @@ export function ActocoreProvider({
   useEffect(() => {
     if (!loadRemoteConfig) {
       setPresentationReady(true);
-    } else {
+      return;
+    }
+
+    const isInitialLoad = !hasLoadedRemoteRef.current;
+    if (isInitialLoad) {
       setPresentationReady(false);
     }
 
@@ -69,9 +83,10 @@ export function ActocoreProvider({
           return;
         }
 
-        setAppPages(res.data.pages ?? []);
+        setFetchedAppPages(res.data.pages ?? []);
         if (loadRemoteConfig) {
           setRemoteSdk(res.data.sdk ?? null);
+          hasLoadedRemoteRef.current = true;
         }
       } finally {
         if (!cancelled && loadRemoteConfig) {
@@ -85,7 +100,15 @@ export function ActocoreProvider({
     return () => {
       cancelled = true;
     };
-  }, [loadRemoteConfig, entryMode, sdkConfig.apiKey, sdkConfig.baseURL]);
+  }, [
+    loadRemoteConfig,
+    entryMode,
+    sdkConfig.apiKey,
+    sdkConfig.baseURL,
+    remoteConfigVersion,
+  ]);
+
+  const appPages = appPagesProp ?? fetchedAppPages;
 
   useEffect(() => {
     const raw = hostContext ?? sdkConfig.security?.hostContext;
@@ -122,13 +145,18 @@ export function ActocoreProvider({
     resolved.api.apiVersion,
   ]);
 
+  const i18nTranslationsKey = useMemo(
+    () => JSON.stringify(resolved.i18n.translations ?? {}),
+    [resolved.i18n.translations],
+  );
+
   const i18n = useMemo(
     () =>
       createActocoreI18n({
         locale: resolved.i18n.locale,
         translations: resolved.i18n.translations,
       }),
-    [resolved.i18n.locale, resolved.i18n.translations],
+    [resolved.i18n.locale, i18nTranslationsKey, resolved.i18n.translations],
   );
 
   useEffect(() => {

@@ -18,12 +18,13 @@ import type {
 } from '@ahmedrioueche/actocore-shared';
 import { ErrorCode, StudioRole } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
-import { ProjectDeleteService } from './project-delete.service';
+import { PLAYGROUND_ACCOUNT_ID } from '../config/playground.config';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { StudioEntitlementsService } from '../studio-billing/studio-entitlements.service';
 import { StudioAccessService } from '../studio/studio-access.service';
 import type { StudioRequestContext } from '../studio/studio-context';
+import { ProjectDeleteService } from './project-delete.service';
 import { Project, ProjectDocument } from './schemas/project.schema';
 
 @Injectable()
@@ -77,6 +78,15 @@ export class ProjectsService {
       name: body.name,
       accountId,
       settings: body.settings ?? {},
+    });
+    return this.toData(doc);
+  }
+
+  async createForPlayground(name: string): Promise<ProjectData> {
+    const doc = await this.projectModel.create({
+      name: name.trim() || 'My playground project',
+      accountId: PLAYGROUND_ACCOUNT_ID,
+      settings: {},
     });
     return this.toData(doc);
   }

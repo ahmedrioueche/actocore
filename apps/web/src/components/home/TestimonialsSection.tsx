@@ -1,5 +1,6 @@
 import { useT } from '@/i18n/useT';
 
+import { PlaygroundCta } from './PlaygroundCta';
 import { ScrollReveal } from './ScrollReveal';
 
 const TESTIMONIAL_KEYS = ['marcus', 'sarah', 'alex'] as const;
@@ -53,6 +54,11 @@ export function TestimonialsSection() {
               </article>
             );
           })}
+        </div>
+
+        <div className="mt-12 flex flex-col items-center gap-3 text-center lg:mt-16">
+          <p className="max-w-xl text-text-secondary">{t('ctaHint')}</p>
+          <PlaygroundCta className="px-8 py-3.5 text-base" />
         </div>
       </div>
     </ScrollReveal>

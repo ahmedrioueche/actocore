@@ -7,7 +7,7 @@ import { routing } from "@/i18n/routing";
 import { useT } from "@/i18n/useT";
 import {
   getActocoreApiUrl,
-  getHeroVisitorId,
+  getHeroChatExternalUserId,
   isMarketingChatEnabled,
 } from "@/lib/marketing-chat";
 
@@ -24,7 +24,7 @@ function HeroChatFrame({ children }: { children: ReactNode }) {
 export function HeroChat() {
   const { t, i18n } = useT("home.hero.chat");
   const { resolvedTheme } = useTheme();
-  const visitorId = useMemo(() => getHeroVisitorId(), []);
+  const visitorId = useMemo(() => getHeroChatExternalUserId(), []);
   const seedMessages = useMemo(
     () => [
       { role: "user" as const, content: t("seedUser") },
