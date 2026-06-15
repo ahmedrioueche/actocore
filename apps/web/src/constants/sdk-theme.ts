@@ -2,7 +2,9 @@
 export const SDK_THEME_COLOR_FIELDS = [
   { token: 'color-primary' },
   { token: 'color-primary-contrast' },
-  { token: 'color-bg' },
+  { token: 'color-chat-body-bg' },
+  { token: 'color-surface' },
+  { token: 'color-input-bg' },
   { token: 'color-text' },
   { token: 'color-text-muted' },
   { token: 'color-border' },
@@ -30,7 +32,9 @@ export const SDK_THEME_COLOR_DEFAULTS: Record<
   light: {
     'color-primary': '#4f46e5',
     'color-primary-contrast': '#ffffff',
-    'color-bg': '#ffffff',
+    'color-chat-body-bg': '#fafbfd',
+    'color-surface': '#f4f6fa',
+    'color-input-bg': '#ffffff',
     'color-text': '#0f172a',
     'color-text-muted': '#64748b',
     'color-border': '#e2e8f3',
@@ -42,7 +46,9 @@ export const SDK_THEME_COLOR_DEFAULTS: Record<
   dark: {
     'color-primary': '#6366f1',
     'color-primary-contrast': '#ffffff',
-    'color-bg': '#0f172a',
+    'color-chat-body-bg': '#0b1220',
+    'color-surface': '#1e293b',
+    'color-input-bg': '#334155',
     'color-text': '#f1f5f9',
     'color-text-muted': '#94a3b8',
     'color-border': '#334155',
@@ -54,6 +60,8 @@ export const SDK_THEME_COLOR_DEFAULTS: Record<
 };
 
 export const SDK_FONT_FAMILY_TOKEN = 'font-family';
+
+const LEGACY_COLOR_BG_TOKEN = 'color-bg';
 
 export function themeColorStorageKey(
   variant: SdkThemeColorVariant,
@@ -82,25 +90,39 @@ export function createEmptyThemeColorsForVariant(
   ) as Record<SdkThemeColorToken, string>;
 }
 
+function readLegacyColorBg(tokens: Record<string, string>): string | undefined {
+  if (typeof tokens[LEGACY_COLOR_BG_TOKEN] === 'string') {
+    return tokens[LEGACY_COLOR_BG_TOKEN];
+  }
+  return undefined;
+}
+
 /** Read stored theme tokens into light/dark editor state. */
 export function parseThemeColorsFromTokens(
   tokens: Record<string, string>,
 ): ThemeColorsByVariant {
   const colors = createEmptyThemeColorsByVariant();
+  const legacyBg = readLegacyColorBg(tokens);
 
   for (const field of SDK_THEME_COLOR_FIELDS) {
     const lightKey = themeColorStorageKey('light', field.token);
     const darkKey = themeColorStorageKey('dark', field.token);
-    const legacy = tokens[field.token];
 
     if (typeof tokens[lightKey] === 'string') {
       colors.light[field.token] = tokens[lightKey];
-    } else if (typeof legacy === 'string') {
-      colors.light[field.token] = legacy;
     }
 
     if (typeof tokens[darkKey] === 'string') {
       colors.dark[field.token] = tokens[darkKey];
+    }
+  }
+
+  if (legacyBg) {
+    if (!colors.light['color-chat-body-bg']) {
+      colors.light['color-chat-body-bg'] = legacyBg;
+    }
+    if (!colors.light['color-input-bg']) {
+      colors.light['color-input-bg'] = legacyBg;
     }
   }
 

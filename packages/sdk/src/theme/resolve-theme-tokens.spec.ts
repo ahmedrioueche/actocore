@@ -11,21 +11,21 @@ describe('resolveThemeTokensForMode', () => {
 
   it('resolves prefixed light and dark palettes independently', () => {
     const tokens = {
-      'light-color-bg': '#ffffff',
-      'dark-color-bg': '#0f172a',
+      'light-color-chat-body-bg': '#fafbfd',
+      'dark-color-chat-body-bg': '#0b1220',
       'light-color-primary': '#4f46e5',
       'dark-color-primary': '#6366f1',
       'font-family': 'Inter, sans-serif',
     };
 
     expect(resolveThemeTokensForMode(tokens, 'light')).toEqual({
-      'color-bg': '#ffffff',
+      'color-chat-body-bg': '#fafbfd',
       'color-primary': '#4f46e5',
       'font-family': 'Inter, sans-serif',
     });
 
     expect(resolveThemeTokensForMode(tokens, 'dark')).toEqual({
-      'color-bg': '#0f172a',
+      'color-chat-body-bg': '#0b1220',
       'color-primary': '#6366f1',
       'font-family': 'Inter, sans-serif',
     });
@@ -33,7 +33,7 @@ describe('resolveThemeTokensForMode', () => {
 
   it('falls back to legacy unprefixed tokens when no prefixed keys exist', () => {
     const tokens = {
-      'color-bg': '#fafafa',
+      'color-chat-body-bg': '#fafafa',
       'color-primary': '#111111',
     };
 
@@ -41,29 +41,45 @@ describe('resolveThemeTokensForMode', () => {
     expect(resolveThemeTokensForMode(tokens, 'dark')).toEqual(tokens);
   });
 
-  it('ignores legacy unprefixed color when prefixed keys exist for that token', () => {
+  it('maps legacy color-bg to chat body and input when newer keys are absent', () => {
     const tokens = {
-      'color-bg': '#legacy',
-      'light-color-bg': '#ffffff',
-      'dark-color-bg': '#0f172a',
+      'light-color-bg': '#eef2ff',
+      'dark-color-bg': '#111827',
     };
 
     expect(resolveThemeTokensForMode(tokens, 'light')).toEqual({
-      'color-bg': '#ffffff',
+      'color-chat-body-bg': '#eef2ff',
+      'color-input-bg': '#eef2ff',
     });
     expect(resolveThemeTokensForMode(tokens, 'dark')).toEqual({
-      'color-bg': '#0f172a',
+      'color-chat-body-bg': '#111827',
+      'color-input-bg': '#111827',
+    });
+  });
+
+  it('ignores legacy unprefixed color when prefixed keys exist for that token', () => {
+    const tokens = {
+      'color-chat-body-bg': '#legacy',
+      'light-color-chat-body-bg': '#fafbfd',
+      'dark-color-chat-body-bg': '#0b1220',
+    };
+
+    expect(resolveThemeTokensForMode(tokens, 'light')).toEqual({
+      'color-chat-body-bg': '#fafbfd',
+    });
+    expect(resolveThemeTokensForMode(tokens, 'dark')).toEqual({
+      'color-chat-body-bg': '#0b1220',
     });
   });
 
   it('passes through non-color custom tokens', () => {
     const tokens = {
-      'light-color-bg': '#fff',
+      'light-color-surface': '#f4f6fa',
       'custom-radius': '12px',
     };
 
     expect(resolveThemeTokensForMode(tokens, 'light')).toEqual({
-      'color-bg': '#fff',
+      'color-surface': '#f4f6fa',
       'custom-radius': '12px',
     });
   });

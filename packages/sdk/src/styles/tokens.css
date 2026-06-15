@@ -25,7 +25,8 @@
   --ac-color-surface: #f4f6fa;
   --ac-color-surface-elevated: #ffffff;
   --ac-color-chat-body-bg: #fafbfd;
-  --ac-color-header-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --ac-color-input-bg: #ffffff;
+  --ac-color-header-bg: var(--ac-color-surface);
   --ac-color-border: #e2e8f3;
   --ac-color-text: #0f172a;
   --ac-color-text-muted: #64748b;
@@ -65,7 +66,8 @@
   --ac-color-surface: #1e293b;
   --ac-color-surface-elevated: #334155;
   --ac-color-chat-body-bg: #0b1220;
-  --ac-color-header-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  --ac-color-input-bg: #334155;
+  --ac-color-header-bg: var(--ac-color-surface);
   --ac-color-border: #334155;
   --ac-color-text: #f1f5f9;
   --ac-color-text-muted: #94a3b8;

@@ -724,7 +724,9 @@
       "themeColors": {
         "color-primary": "Primaire",
         "color-primary-contrast": "Texte principal",
-        "color-bg": "Arrière-plan",
+        "color-chat-body-bg": "Arrière-plan des messages",
+        "color-surface": "Surface (en-tête et pied)",
+        "color-input-bg": "Arrière-plan du champ de saisie",
         "color-text": "Texte",
         "color-text-muted": "Texte masqué",
         "color-border": "Frontière",

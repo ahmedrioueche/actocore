@@ -793,7 +793,9 @@
       "themeColors": {
         "color-primary": "Primary",
         "color-primary-contrast": "Primary text",
-        "color-bg": "Background",
+        "color-chat-body-bg": "Messages background",
+        "color-surface": "Surface (header & footer)",
+        "color-input-bg": "Input field background",
         "color-text": "Text",
         "color-text-muted": "Muted text",
         "color-border": "Border",

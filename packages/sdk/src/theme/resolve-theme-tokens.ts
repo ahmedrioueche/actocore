@@ -4,7 +4,9 @@ import type { SdkThemeMode } from '@ahmedrioueche/actocore-shared';
 export const SDK_THEME_COLOR_TOKEN_NAMES = [
   'color-primary',
   'color-primary-contrast',
-  'color-bg',
+  'color-chat-body-bg',
+  'color-surface',
+  'color-input-bg',
   'color-text',
   'color-text-muted',
   'color-border',
@@ -14,10 +16,27 @@ export const SDK_THEME_COLOR_TOKEN_NAMES = [
   'color-assistant-bubble-text',
 ] as const;
 
+/** @deprecated Studio used to expose this as "Background"; maps to chat body + input when unset. */
+const LEGACY_COLOR_BG_TOKEN = 'color-bg';
+
 const FONT_FAMILY_TOKEN = 'font-family';
 
 function isPrefixedColorKey(key: string): boolean {
   return key.startsWith('light-') || key.startsWith('dark-');
+}
+
+function applyLegacyColorBgFallback(resolved: Record<string, string>): void {
+  const legacy = resolved[LEGACY_COLOR_BG_TOKEN];
+  if (!legacy) {
+    return;
+  }
+
+  if (!resolved['color-chat-body-bg']) {
+    resolved['color-chat-body-bg'] = legacy;
+  }
+  if (!resolved['color-input-bg']) {
+    resolved['color-input-bg'] = legacy;
+  }
 }
 
 /**
@@ -53,14 +72,38 @@ export function resolveThemeTokensForMode(
     }
   }
 
+  // Legacy unprefixed color-bg (removed from editor — was mistaken for chat body).
+  const legacyModeKey = `${modePrefix}${LEGACY_COLOR_BG_TOKEN}`;
+  if (tokens[legacyModeKey]) {
+    resolved[LEGACY_COLOR_BG_TOKEN] = tokens[legacyModeKey];
+  } else {
+    const hasLegacyLight = Boolean(tokens[`light-${LEGACY_COLOR_BG_TOKEN}`]);
+    const hasLegacyDark = Boolean(tokens[`dark-${LEGACY_COLOR_BG_TOKEN}`]);
+    if (tokens[LEGACY_COLOR_BG_TOKEN] && !hasLegacyLight && !hasLegacyDark) {
+      resolved[LEGACY_COLOR_BG_TOKEN] = tokens[LEGACY_COLOR_BG_TOKEN];
+    }
+  }
+
+  applyLegacyColorBgFallback(resolved);
+
   for (const [key, value] of Object.entries(tokens)) {
     if (key === FONT_FAMILY_TOKEN || isPrefixedColorKey(key)) {
       continue;
     }
-    if (!SDK_THEME_COLOR_TOKEN_NAMES.includes(key as (typeof SDK_THEME_COLOR_TOKEN_NAMES)[number])) {
-      resolved[key] = value;
+    if (
+      SDK_THEME_COLOR_TOKEN_NAMES.includes(
+        key as (typeof SDK_THEME_COLOR_TOKEN_NAMES)[number],
+      )
+    ) {
+      continue;
     }
+    if (key === LEGACY_COLOR_BG_TOKEN) {
+      continue;
+    }
+    resolved[key] = value;
   }
+
+  delete resolved[LEGACY_COLOR_BG_TOKEN];
 
   return Object.keys(resolved).length > 0 ? resolved : undefined;
 }

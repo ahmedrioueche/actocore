@@ -11,7 +11,7 @@
   font-size: var(--ac-font-size-md);
   line-height: var(--ac-line-height);
   color: var(--ac-color-text);
-  background: var(--ac-color-bg);
+  background: var(--ac-color-surface);
   border: var(--ac-border-width) solid var(--ac-color-border);
   border-radius: var(--ac-radius-xl);
   box-shadow: var(--ac-shadow-md);
@@ -100,7 +100,7 @@
 [data-actocore] .ac-chat__load-more {
   border: var(--ac-border-width) solid var(--ac-color-border);
   border-radius: var(--ac-radius-pill);
-  background: var(--ac-color-bg);
+  background: var(--ac-color-input-bg);
   color: var(--ac-color-text-muted);
   font-size: var(--ac-font-size-sm);
   padding: var(--ac-space-xs) var(--ac-space-md);
@@ -419,7 +419,7 @@
   padding: var(--ac-space-xs);
   border-radius: var(--ac-radius-lg);
   border: var(--ac-border-width) solid var(--ac-color-border);
-  background: var(--ac-color-bg);
+  background: var(--ac-color-input-bg);
   box-shadow: var(--ac-shadow-sm);
   transition:
     border-color 0.15s ease,
@@ -1150,7 +1150,7 @@
   padding: var(--ac-space-md);
   border-radius: var(--ac-radius-lg);
   border: var(--ac-border-width) solid var(--ac-color-border);
-  background: var(--ac-color-bg);
+  background: var(--ac-color-input-bg);
   box-shadow: var(--ac-shadow-lg);
 }
 
@@ -1195,7 +1195,7 @@
 }
 
 [data-actocore] .ac-action-picker__scope-btn--active {
-  background: var(--ac-color-bg);
+  background: var(--ac-color-input-bg);
   color: var(--ac-color-text);
   box-shadow: var(--ac-shadow-sm);
 }
@@ -1338,5 +1338,5 @@
   font-family: var(--ac-font-family);
   font-size: var(--ac-font-size-sm);
   color: var(--ac-color-text);
-  background: var(--ac-color-bg);
+  background: var(--ac-color-input-bg);
 }
