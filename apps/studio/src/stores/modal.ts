@@ -107,6 +107,16 @@ export interface EditPlatformManagerModalProps {
 
 export type DeleteAccountModalProps = Record<string, never>;
 
+export type CreateReportModalProps = Record<string, never>;
+
+export interface ViewReportModalProps {
+  reportId: string;
+}
+
+export interface EditReportModalProps {
+  reportId: string;
+}
+
 /**
  * Registry of feature modals (besides `confirm`) and the props each requires.
  * Props are passed through the store — never directly to the modal component.
@@ -132,6 +142,9 @@ export interface ModalPropsMap {
   createPlatformManager: CreatePlatformManagerModalProps;
   editPlatformManager: EditPlatformManagerModalProps;
   deleteAccount: DeleteAccountModalProps;
+  createReport: CreateReportModalProps;
+  viewReport: ViewReportModalProps;
+  editReport: EditReportModalProps;
 }
 
 export type ModalId = 'confirm' | keyof ModalPropsMap | null;

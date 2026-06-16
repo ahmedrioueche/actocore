@@ -6,6 +6,7 @@ import {
   buildDeleteAccountOtpEmail,
   buildPasswordResetEmail,
   buildQuotaAlertEmail,
+  buildStudioReportEmail,
   buildSubscriptionEventEmail,
   buildVerificationEmail,
 } from './studio-email-templates';
@@ -95,6 +96,26 @@ export class StudioEmailService {
       `[ActoCore Contact] ${subjectLine}`,
       content,
       { replyTo: input.email },
+    );
+  }
+
+  async sendStudioReportNotification(report: {
+    id: string;
+    type: string;
+    accountName: string;
+    reporterEmail?: string;
+    reporterDisplayName?: string;
+    subject?: string;
+    message: string;
+  }): Promise<void> {
+    const cfg = this.cfg();
+    const subjectLine = report.subject?.trim() || report.type;
+    const content = buildStudioReportEmail(report);
+    await this.send(
+      cfg.reportsInboxEmail,
+      `[ActoCore Report] ${report.type} — ${report.accountName}`,
+      content,
+      report.reporterEmail ? { replyTo: report.reporterEmail } : undefined,
     );
   }
 

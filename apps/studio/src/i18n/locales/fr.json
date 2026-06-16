@@ -73,6 +73,7 @@
     "deleteAccountBlocked": "Supprimez tous les membres de l'équipe avant de supprimer l'espace de travail.",
     "seatSelfDeleteBlocked": "Les sièges d'équipe ne peuvent pas être supprimés par vous-même. Demandez à l'administrateur de retirer votre accès.",
     "testAccountInUse": "Ce compte démo est utilisé par quelqu'un d'autre. Réessayez dans environ {{minutes}} minute(s), ou déconnectez l'autre session.",
+    "reportRateLimit": "Vous ne pouvez envoyer qu'un signalement par heure. Réessayez dans environ {{minutes}} minute(s).",
     "testAccountLeaseExpired": "Votre session démo a expiré. Reconnectez-vous pour continuer, ou réessayez plus tard si le compte est encore occupé."
   },
   "planLimits": {
@@ -790,6 +791,48 @@
       "fontFamilyTooLong": "La pile de polices est trop longue (200 caractères maximum)."
     }
   },
+  "reports": {
+    "title": "Signalements",
+    "subtitle": "Signalez un problème ou partagez vos retours avec l'équipe ActoCore.",
+    "newReport": "Nouveau signalement",
+    "noSubject": "(sans objet)",
+    "emptyTitle": "Aucun signalement",
+    "emptyDescription": "Soumettez votre premier signalement ou retour avec le bouton ci-dessus.",
+    "types": {
+      "issue": "Problème",
+      "feedback": "Retour"
+    },
+    "status": {
+      "open": "Ouvert",
+      "resolved": "Résolu"
+    },
+    "fields": {
+      "type": "Type",
+      "status": "Statut",
+      "subject": "Objet",
+      "message": "Message",
+      "created": "Envoyé",
+      "workspace": "Espace de travail",
+      "reporter": "Auteur"
+    },
+    "modals": {
+      "create": {
+        "title": "Nouveau signalement",
+        "subtitle": "Décrivez le problème ou le retour. Notre équipe sera notifiée par e-mail.",
+        "type": "Type",
+        "subject": "Objet (optionnel)",
+        "subjectPlaceholder": "Résumé bref",
+        "message": "Message",
+        "messagePlaceholder": "Que s'est-il passé ? Que souhaitez-vous améliorer ?",
+        "messageMin": "Le message doit contenir au moins 10 caractères.",
+        "submit": "Envoyer",
+        "success": "Signalement envoyé. Merci !"
+      },
+      "view": {
+        "title": "Détails du signalement"
+      }
+    }
+  },
   "nav": {
     "title": "Navigation",
     "projects": "Projets",
@@ -798,6 +841,7 @@
     "subscription": "Abonnement",
     "usage": "Usage",
     "billing": "Facturation",
+    "reports": "Signalements",
     "settings": "Paramètres",
     "workspace": "Espace de travail",
     "pin": "Épingler la barre latérale",
@@ -1076,7 +1120,8 @@
       "analytics": "Analytique",
       "usage": "Usage",
       "team": "Équipe",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "reports": "Signalements"
     },
     "login": {
       "title": "Administrateur de la plateforme",
@@ -1218,7 +1263,9 @@
         "projectsRead": "Voir les projets",
         "analyticsRead": "Afficher les analyses et l'utilisation",
         "teamWrite": "Gérer l'équipe de la plateforme",
-        "settingsWrite": "Gérer les paramètres d'administration"
+        "settingsWrite": "Gérer les paramètres d'administration",
+        "reportsRead": "Voir les signalements",
+        "reportsWrite": "Gérer les signalements"
       },
       "createSuccess": "Gestionnaire ajouté.",
       "updateSuccess": "Gestionnaire mis à jour.",
@@ -1285,6 +1332,26 @@
       "created": "Créé",
       "emptyTitle": "Aucun utilisateur trouvé",
       "emptyDescription": "Essayez un autre terme de recherche."
+    },
+    "reports": {
+      "title": "Signalements",
+      "subtitle": "Problèmes et retours soumis depuis les espaces de travail Studio.",
+      "searchPlaceholder": "Rechercher des signalements",
+      "emptyTitle": "Aucun signalement trouvé",
+      "emptyDescription": "Les signalements des utilisateurs apparaîtront ici.",
+      "filters": {
+        "status": "Statut",
+        "type": "Type",
+        "allStatuses": "Tous les statuts",
+        "allTypes": "Tous les types"
+      },
+      "modals": {
+        "edit": {
+          "title": "Signalement",
+          "save": "Enregistrer le statut",
+          "success": "Signalement mis à jour."
+        }
+      }
     },
     "projects": {
       "title": "Projets",

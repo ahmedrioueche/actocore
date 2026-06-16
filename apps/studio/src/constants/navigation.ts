@@ -10,6 +10,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Map,
+  MessageSquareWarning,
   Receipt,
   Settings,
   Settings2,
@@ -64,6 +65,12 @@ export const STUDIO_NAV_LINKS: StudioNavLink[] = [
     icon: Users,
     matchPaths: ["/team"],
     permission: StudioPermission.TEAM_WRITE,
+  },
+  {
+    path: "/reports",
+    labelKey: "nav.reports",
+    icon: MessageSquareWarning,
+    matchPaths: ["/reports"],
   },
   {
     path: "/settings",

@@ -1,4 +1,5 @@
 import type { StudioTestAccountLeaseBusyDetails } from '../constants/studio-test-accounts';
+import type { StudioReportRateLimitDetails } from './report';
 
 /** Optional payload on plan-limit errors (`PROJECT_LIMIT_REACHED`, `SEAT_LIMIT_REACHED`, `ACTION_LIMIT_REACHED`). */
 export interface PlanLimitErrorDetails {
@@ -8,7 +9,8 @@ export interface PlanLimitErrorDetails {
 
 export type ApiErrorDetails =
   | PlanLimitErrorDetails
-  | StudioTestAccountLeaseBusyDetails;
+  | StudioTestAccountLeaseBusyDetails
+  | StudioReportRateLimitDetails;
 
 export interface ApiResponse<T = unknown> {
   success: boolean;

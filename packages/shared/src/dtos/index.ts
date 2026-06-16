@@ -18,3 +18,4 @@ export * from './billing.dto';
 export * from './usage.dto';
 export * from './platform-auth.dto';
 export * from './contact.dto';
+export * from './report.dto';

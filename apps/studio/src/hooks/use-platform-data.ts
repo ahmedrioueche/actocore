@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   platformApi,
   platformUsageAdminApi,
   plansAdminApi,
+  type UpdateStudioReportStatusDto,
 } from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
@@ -108,5 +109,53 @@ export function usePlatformAccountSubscription(accountId: string) {
     queryFn: async () =>
       parseApiResponse(await platformApi.getAccountSubscription(accountId)),
     enabled: Boolean(accountId),
+  });
+}
+
+export function usePlatformReports(
+  search = '',
+  status = '',
+  type = '',
+  page = 1,
+  limit = DEFAULT_PAGE_SIZE,
+) {
+  ensureApiConfigured();
+  return useQuery({
+    queryKey: queryKeys.platform.reports({ search, status, type, page, limit }),
+    queryFn: async () =>
+      parseApiResponse(
+        await platformApi.listReports({ search, status, type, page, limit }),
+      ),
+  });
+}
+
+export function usePlatformReport(reportId: string | undefined) {
+  ensureApiConfigured();
+  return useQuery({
+    queryKey: queryKeys.platform.report(reportId ?? ''),
+    queryFn: async () => parseApiResponse(await platformApi.getReport(reportId!)),
+    enabled: Boolean(reportId),
+  });
+}
+
+export function useUpdateReportStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      reportId,
+      body,
+    }: {
+      reportId: string;
+      body: UpdateStudioReportStatusDto;
+    }) => {
+      ensureApiConfigured();
+      return parseApiResponse(await platformApi.updateReportStatus(reportId, body));
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ['platform', 'reports'] });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.platform.report(variables.reportId),
+      });
+    },
   });
 }

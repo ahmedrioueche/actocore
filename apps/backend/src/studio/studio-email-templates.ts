@@ -300,3 +300,46 @@ ${plainTextToHtml(input.message)}`;
 
   return { html, text };
 }
+
+export function buildStudioReportEmail(report: {
+  id: string;
+  type: string;
+  accountName: string;
+  reporterEmail?: string;
+  reporterDisplayName?: string;
+  subject?: string;
+  message: string;
+}): { html: string; text: string } {
+  const reporterLabel =
+    report.reporterDisplayName ||
+    report.reporterEmail ||
+    'Unknown reporter';
+  const subjectLine = report.subject?.trim() || '(no subject)';
+  const text = [
+    `Report ID: ${report.id}`,
+    `Type: ${report.type}`,
+    `Workspace: ${report.accountName}`,
+    `From: ${reporterLabel}${report.reporterEmail ? ` <${report.reporterEmail}>` : ''}`,
+    `Subject: ${subjectLine}`,
+    '',
+    report.message,
+  ].join('\n');
+
+  const bodyHtml = `
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 20px;">
+  <tr><td style="padding:8px 0;font-size:14px;color:${BRAND.textMuted};"><strong style="color:${BRAND.text};">Type:</strong> ${escapeHtml(report.type)}</td></tr>
+  <tr><td style="padding:8px 0;font-size:14px;color:${BRAND.textMuted};"><strong style="color:${BRAND.text};">Workspace:</strong> ${escapeHtml(report.accountName)}</td></tr>
+  <tr><td style="padding:8px 0;font-size:14px;color:${BRAND.textMuted};"><strong style="color:${BRAND.text};">From:</strong> ${escapeHtml(reporterLabel)}${report.reporterEmail ? ` &lt;${escapeHtml(report.reporterEmail)}&gt;` : ''}</td></tr>
+  <tr><td style="padding:8px 0;font-size:14px;color:${BRAND.textMuted};"><strong style="color:${BRAND.text};">Subject:</strong> ${escapeHtml(subjectLine)}</td></tr>
+</table>
+${plainTextToHtml(report.message)}`;
+
+  const html = renderStudioEmailLayout({
+    preheader: `New Studio report from ${report.accountName}`,
+    title: 'New Studio report',
+    bodyHtml,
+    footerNote: 'You received this email from an ActoCore Studio report submission.',
+  });
+
+  return { html, text };
+}

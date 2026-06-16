@@ -29,6 +29,16 @@ export const queryKeys = {
       ["platform", "usage", params] as const,
     accountSubscription: (accountId: string) =>
       ["platform", "account-subscription", accountId] as const,
+    reports: (
+      params: {
+        search?: string;
+        status?: string;
+        type?: string;
+        page?: number;
+        limit?: number;
+      } = {},
+    ) => ["platform", "reports", params] as const,
+    report: (reportId: string) => ["platform", "report", reportId] as const,
   },
   projects: {
     all: () => ["projects"] as const,
@@ -41,6 +51,12 @@ export const queryKeys = {
   },
   account: {
     settings: () => ["account", "settings"] as const,
+  },
+  reports: {
+    all: () => ["reports"] as const,
+    list: (params: { page?: number; limit?: number } = {}) =>
+      ["reports", "list", params] as const,
+    detail: (reportId: string) => ["reports", "detail", reportId] as const,
   },
   billing: {
     quota: () => ["billing", "quota"] as const,

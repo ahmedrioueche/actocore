@@ -63,6 +63,15 @@ const CreateAppPageModal = lazy(
 const EditAppPageModal = lazy(
   () => import('@/components/app-layout/EditAppPageModal'),
 );
+const CreateReportModal = lazy(
+  () => import('@/components/reports/CreateReportModal'),
+);
+const ViewReportModal = lazy(
+  () => import('@/components/reports/ViewReportModal'),
+);
+const EditReportModal = lazy(
+  () => import('@/components/reports/EditReportModal'),
+);
 
 export default function Modals() {
   useModalBodyFlag();
@@ -91,6 +100,9 @@ export default function Modals() {
         <DeleteAccountModal />
         <CreateAppPageModal />
         <EditAppPageModal />
+        <CreateReportModal />
+        <ViewReportModal />
+        <EditReportModal />
       </Suspense>
     </>
   );

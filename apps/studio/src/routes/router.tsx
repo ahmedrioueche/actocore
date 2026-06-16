@@ -15,6 +15,7 @@ import AdminDashboardPage from "@/pages/admin/dashboard/DashboardPage";
 import AdminLoginPage from "@/pages/admin/login/LoginPage";
 import AdminPlansPage from "@/pages/admin/plans/PlansPage";
 import AdminProjectsPage from "@/pages/admin/projects/ProjectsPage";
+import AdminReportsPage from "@/pages/admin/reports/ReportsPage";
 import AdminSettingsPage from "@/pages/admin/settings/SettingsPage";
 import AdminSubscriptionsPage from "@/pages/admin/subscriptions/SubscriptionsPage";
 import AdminTeamPage from "@/pages/admin/team/TeamPage";
@@ -41,6 +42,7 @@ import ProjectSettingsPage from "@/pages/user/projects/ProjectSettingsPage";
 import ProjectsPage from "@/pages/user/projects/ProjectsPage";
 import ProjectUsagePage from "@/pages/user/projects/ProjectUsagePage";
 import SettingsPage from "@/pages/user/settings/SettingsPage";
+import ReportsPage from "@/pages/user/reports/ReportsPage";
 import SubscriptionPage from "@/pages/user/subscription/SubscriptionPage";
 import TeamPage from "@/pages/user/team/TeamPage";
 import WorkspaceUsagePage from "@/pages/user/usage/WorkspaceUsagePage";
@@ -254,6 +256,12 @@ const billingRoute = createRoute({
   component: BillingPage,
 });
 
+const reportsRoute = createRoute({
+  getParentRoute: () => studioLayoutRoute,
+  path: "/reports",
+  component: ReportsPage,
+});
+
 const settingsRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: "/settings",
@@ -329,6 +337,12 @@ const adminProjectsRoute = createRoute({
   component: AdminProjectsPage,
 });
 
+const adminReportsRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: "/admin/reports",
+  component: AdminReportsPage,
+});
+
 const adminAnalyticsRoute = createRoute({
   getParentRoute: () => adminLayoutRoute,
   path: "/admin/analytics",
@@ -360,6 +374,7 @@ const routeTree = rootRoute.addChildren([
     adminSettingsRoute,
     adminSubscriptionsRoute,
     adminUsersRoute,
+    adminReportsRoute,
     adminProjectsRoute,
     adminAnalyticsRoute,
     adminUsageRoute,
@@ -380,6 +395,7 @@ const routeTree = rootRoute.addChildren([
     teamRoute,
     subscriptionRoute,
     billingRoute,
+    reportsRoute,
     settingsRoute,
   ]),
 ]);

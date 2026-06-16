@@ -60,6 +60,8 @@ import { StudioOnboardingController } from './studio-onboarding.controller';
 import { StudioOnboardingService } from './studio-onboarding.service';
 import { StudioAuthController } from './studio-auth.controller';
 import { StudioContactController } from './studio-contact.controller';
+import { StudioReportsController } from './studio-reports.controller';
+import { StudioReportsService } from './studio-reports.service';
 import { StudioEmailService } from './studio-email.service';
 import { StudioAccessService } from './studio-access.service';
 import { StudioAuthService } from './studio-auth.service';
@@ -69,6 +71,10 @@ import {
   StudioTeamAudit,
   StudioTeamAuditSchema,
 } from './schemas/studio-team-audit.schema';
+import {
+  StudioReport,
+  StudioReportSchema,
+} from './schemas/studio-report.schema';
 import { StudioAuthGuard } from './guards/studio-auth.guard';
 import { StudioPermissionsGuard } from './guards/studio-permissions.guard';
 import { StudioRoleGuard } from './guards/studio-role.guard';
@@ -90,6 +96,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
       { name: StudioUser.name, schema: StudioUserSchema },
       { name: StudioMembership.name, schema: StudioMembershipSchema },
       { name: StudioTeamAudit.name, schema: StudioTeamAuditSchema },
+      { name: StudioReport.name, schema: StudioReportSchema },
       { name: Project.name, schema: ProjectSchema },
       { name: ApiKey.name, schema: ApiKeySchema },
       { name: ProjectAction.name, schema: ProjectActionSchema },
@@ -122,6 +129,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
   controllers: [
     StudioAuthController,
     StudioContactController,
+    StudioReportsController,
     StudioAccountController,
     StudioOnboardingController,
     StudioPlatformController,
@@ -137,6 +145,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioAccountService,
     StudioOnboardingService,
     StudioEmailService,
+    StudioReportsService,
     StudioMembersService,
     StudioTeamAuditService,
     StudioPlatformService,

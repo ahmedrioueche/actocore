@@ -151,4 +151,6 @@ export const PLATFORM_PERMISSION_LABEL_KEYS: Record<PlatformPermission, string> 
     'platform.analytics.read': 'admin.team.permissionLabels.analyticsRead',
     'platform.team.write': 'admin.team.permissionLabels.teamWrite',
     'platform.settings.write': 'admin.team.permissionLabels.settingsWrite',
+    'platform.reports.read': 'admin.team.permissionLabels.reportsRead',
+    'platform.reports.write': 'admin.team.permissionLabels.reportsWrite',
   };

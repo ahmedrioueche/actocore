@@ -18,6 +18,8 @@ export type StudioAuthConfig = {
   emailFrom: string;
   /** Inbox for marketing site contact form submissions. */
   contactInboxEmail: string;
+  /** Inbox for Studio report submissions. */
+  reportsInboxEmail: string;
   /** HTTPS API — works on Render free tier (no SMTP ports). */
   resendApiKey: string | null;
   smtpHost: string | null;
@@ -84,6 +86,8 @@ export function resolveStudioAuthConfig(): StudioAuthConfig {
     emailFrom: resolveEmailFrom(),
     contactInboxEmail:
       process.env.CONTACT_INBOX_EMAIL?.trim() || 'adsrahmed@gmail.com',
+    reportsInboxEmail:
+      process.env.REPORTS_INBOX_EMAIL?.trim() || 'adsrahmed@gmail.com',
     resendApiKey: process.env.RESEND_API_KEY?.trim() || null,
     smtpHost: process.env.SMTP_HOST?.trim() || null,
     smtpPort: parseInt(process.env.SMTP_PORT ?? '587', 10),

@@ -23,3 +23,4 @@ export * from "./session";
 export * from "./studio";
 export * from "./usage";
 export * from "./voice";
+export * from "./report";

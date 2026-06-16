@@ -32,6 +32,7 @@ export * from "./api/onboarding";
 export * from "./api/platform";
 export * from "./api/platform-auth";
 export * from "./api/projects";
+export * from "./api/reports";
 export * from "./api/runtime";
 export * from "./api/sdk-actions";
 export * from "./api/sdk-config";

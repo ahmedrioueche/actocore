@@ -35,6 +35,7 @@ const ERROR_I18N_KEYS: Partial<Record<ErrorCodeType, string>> = {
   [ErrorCode.SEAT_SELF_DELETE_BLOCKED]: 'errors.seatSelfDeleteBlocked',
   [ErrorCode.TEST_ACCOUNT_IN_USE]: 'errors.testAccountInUse',
   [ErrorCode.TEST_ACCOUNT_LEASE_EXPIRED]: 'errors.testAccountLeaseExpired',
+  [ErrorCode.REPORT_RATE_LIMIT]: 'errors.reportRateLimit',
 };
 
 function isPlanLimitDetails(
@@ -46,6 +47,12 @@ function isPlanLimitDetails(
 function isTestAccountBusyDetails(
   details?: ApiErrorDetails,
 ): details is StudioTestAccountLeaseBusyDetails {
+  return details != null && 'retryAfterSeconds' in details;
+}
+
+function isRetryAfterDetails(
+  details?: ApiErrorDetails,
+): details is { retryAfterSeconds: number } {
   return details != null && 'retryAfterSeconds' in details;
 }
 function resolveLimit(
@@ -99,6 +106,16 @@ export function getMessage(
       if (
         errorCode === ErrorCode.TEST_ACCOUNT_IN_USE &&
         isTestAccountBusyDetails(details)
+      ) {
+        const minutes = Math.max(
+          1,
+          Math.ceil(details.retryAfterSeconds / 60),
+        );
+        return t(key, { minutes });
+      }
+      if (
+        errorCode === ErrorCode.REPORT_RATE_LIMIT &&
+        isRetryAfterDetails(details)
       ) {
         const minutes = Math.max(
           1,

@@ -95,6 +95,20 @@ describe('statusMessage', () => {
     );
   });
 
+  it('maps report rate limit errors', () => {
+    const { result } = renderHook(() => useTranslation());
+    const t = result.current.t;
+
+    expect(
+      getApiErrorMessage(t, {
+        errorCode: 'REPORT_RATE_LIMIT',
+        details: { retryAfterSeconds: 2700 },
+      }),
+    ).toBe(
+      'You can only submit one report per hour. Try again in about 45 minute(s).',
+    );
+  });
+
   it('maps unknown thrown values for billing flows', () => {
     const { result } = renderHook(() => useTranslation());
     const t = result.current.t;

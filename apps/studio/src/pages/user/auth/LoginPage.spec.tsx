@@ -80,14 +80,15 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
   });
 
-  it('shows one available test account pre-selected on load', () => {
+  it('shows demo account button without prefilling the login form', () => {
     renderLoginPage();
     expect(screen.getByText(/use a test account/i)).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
-        name: /^Demo User 1 Demo Workspace 1 Ready — click to sign in$/i,
+        name: /^Demo User 1 Demo Workspace 1$/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/email/i)).toHaveValue('demo1@actocore.test');
+    expect(screen.getByLabelText(/email/i)).toHaveValue('');
+    expect(screen.getByLabelText('Password')).toHaveValue('');
   });
 });

@@ -9,6 +9,7 @@ import {
   Settings,
   Shield,
   Users,
+  MessageSquareWarning,
 } from "lucide-react";
 
 import type { StudioNavLink } from "./navigation";
@@ -57,6 +58,13 @@ export const ADMIN_NAV_LINKS: StudioNavLink[] = [
     icon: Users,
     matchPaths: ["/admin/users"],
     permission: PlatformPermission.USERS_READ,
+  },
+  {
+    path: "/admin/reports",
+    labelKey: "admin.nav.reports",
+    icon: MessageSquareWarning,
+    matchPaths: ["/admin/reports"],
+    permission: PlatformPermission.REPORTS_READ,
   },
   {
     path: "/admin/projects",

@@ -53,6 +53,8 @@ export const ErrorCode = {
   TEST_ACCOUNT_IN_USE: 'TEST_ACCOUNT_IN_USE',
   /** Demo session lease expired — sign in again or pick another account. */
   TEST_ACCOUNT_LEASE_EXPIRED: 'TEST_ACCOUNT_LEASE_EXPIRED',
+  /** Studio report submission cooldown — see `details.retryAfterSeconds`. */
+  REPORT_RATE_LIMIT: 'REPORT_RATE_LIMIT',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

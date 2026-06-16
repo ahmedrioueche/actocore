@@ -9,7 +9,7 @@ interface TestAccountPickerProps {
   loading?: boolean;
   loadingAvailability?: boolean;
   retryAfterSeconds?: number;
-  selected?: boolean;
+  signingIn?: boolean;
   onSelect: (account: StudioAvailableTestAccountData) => void;
   disabled?: boolean;
 }
@@ -19,7 +19,7 @@ export function TestAccountPicker({
   loading = false,
   loadingAvailability = false,
   retryAfterSeconds,
-  selected = false,
+  signingIn = false,
   onSelect,
   disabled = false,
 }: TestAccountPickerProps) {
@@ -62,7 +62,7 @@ export function TestAccountPicker({
     );
   }
 
-  const isBusy = loading && selected;
+  const isBusy = loading && signingIn;
 
   return (
     <div className="space-y-3">
@@ -88,10 +88,6 @@ export function TestAccountPicker({
         {isBusy ? (
           <span className="mt-2 block text-xs font-medium text-primary">
             {t('auth.testAccounts.signingIn')}
-          </span>
-        ) : selected ? (
-          <span className="mt-2 block text-xs font-medium text-primary">
-            {t('auth.testAccounts.selected')}
           </span>
         ) : null}
       </button>

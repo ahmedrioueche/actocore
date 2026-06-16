@@ -7,6 +7,8 @@ export const PlatformPermission = {
   ANALYTICS_READ: 'platform.analytics.read',
   TEAM_WRITE: 'platform.team.write',
   SETTINGS_WRITE: 'platform.settings.write',
+  REPORTS_READ: 'platform.reports.read',
+  REPORTS_WRITE: 'platform.reports.write',
 } as const;
 
 export type PlatformPermission =

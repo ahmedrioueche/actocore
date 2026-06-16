@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { AuthDivider } from "@/components/auth/AuthDivider";
@@ -11,7 +11,6 @@ import { LoginCredentialsForm } from "@/components/auth/LoginCredentialsForm";
 import { TestAccountPicker } from "@/components/auth/TestAccountPicker";
 import {
   isStudioTestAccountsEnabled,
-  type StudioTestAccountDefinition,
 } from "@/constants/studio-test-accounts";
 import { useAvailableTestAccount, useLogin } from "@/hooks/use-auth";
 import { getUnknownApiErrorMessage } from "@/utils/statusMessage";
@@ -29,20 +28,9 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [selectedTestAccount, setSelectedTestAccount] =
-    useState<StudioAvailableTestAccountData | null>(null);
+  const [demoSigningIn, setDemoSigningIn] = useState(false);
 
   const availableTestAccount = useAvailableTestAccount(!teamMode);
-
-  useEffect(() => {
-    const account = availableTestAccount.data?.account;
-    if (!account) {
-      return;
-    }
-    setSelectedTestAccount(account);
-    setEmail(account.email);
-    setPassword(account.password);
-  }, [availableTestAccount.data?.account]);
 
   const handleLogin = async (credentials: {
     email: string;
@@ -78,13 +66,11 @@ export default function LoginPage() {
   };
 
   const handleTestAccountSelect = async (
-    account: StudioTestAccountDefinition | StudioAvailableTestAccountData,
+    account: StudioAvailableTestAccountData,
   ) => {
     setTeamMode(false);
-    setSelectedTestAccount(account);
-    setEmail(account.email);
-    setPassword(account.password);
     setFormError(null);
+    setDemoSigningIn(true);
 
     try {
       await login.mutateAsync({
@@ -95,6 +81,8 @@ export default function LoginPage() {
     } catch (err) {
       setFormError(getUnknownApiErrorMessage(t, err));
       void availableTestAccount.refetch();
+    } finally {
+      setDemoSigningIn(false);
     }
   };
 
@@ -113,7 +101,7 @@ export default function LoginPage() {
               loading={login.isPending}
               loadingAvailability={availableTestAccount.isLoading}
               retryAfterSeconds={availableTestAccount.data?.retryAfterSeconds}
-              selected={Boolean(selectedTestAccount)}
+              signingIn={demoSigningIn}
               onSelect={(account) => void handleTestAccountSelect(account)}
             />
             <AuthDivider labelKey="auth.testAccounts.dividerContinue" />
