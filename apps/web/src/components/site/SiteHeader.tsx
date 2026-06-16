@@ -1,8 +1,10 @@
 import { useT } from "@/i18n/useT";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { isAppLocale } from "@/i18n/routing";
 import { playgroundPath, studioAuthPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +24,27 @@ export function SiteHeader() {
   const { t } = useT("nav");
   const { t: tSite } = useT("site");
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { locale } = useParams();
+  const activeLocale = isAppLocale(locale) ? locale : "en";
+  const homePathname = `/${activeLocale}`;
+
+  const handleLogoClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    const onHome =
+      location.pathname === homePathname ||
+      location.pathname === `${homePathname}/`;
+    if (!onHome) return;
+
+    event.preventDefault();
+
+    if (location.hash) {
+      navigate(homePathname, { replace: true });
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface-secondary">
@@ -29,6 +52,7 @@ export function SiteHeader() {
         <LocaleLink
           href="/"
           className="flex items-center gap-2.5 font-semibold text-text-primary"
+          onClick={handleLogoClick}
         >
           <ActocoreLogo size={32} className="h-8 w-8" />
           <span>{tSite("name")}</span>

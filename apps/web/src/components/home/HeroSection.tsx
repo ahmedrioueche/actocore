@@ -20,10 +20,6 @@ export function HeroSection() {
       <div className="site-container relative z-10">
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-stretch lg:gap-16">
           <div className="order-1 w-full flex-1 space-y-8 text-center lg:order-1 lg:text-left">
-            <div className="hero-entrance-badge mb-4 inline-flex items-center gap-2 rounded-full border border-primary bg-primary-muted px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-              {t("badge")}
-            </div>
             <h1 className="hero-entrance-title text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               <span className="text-brand-gradient">{t("title")}</span>
             </h1>

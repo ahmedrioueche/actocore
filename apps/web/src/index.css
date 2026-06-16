@@ -319,8 +319,8 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    height: min(52svh, 26rem);
-    min-height: 20rem;
+    height: min(68svh, 32rem);
+    min-height: 26rem;
     --ac-chat-max-width: 100%;
   }
 

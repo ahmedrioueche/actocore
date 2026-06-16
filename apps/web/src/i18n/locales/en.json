@@ -136,6 +136,7 @@
       "title": "Try the full SDK demo — live in your browser",
       "subtitle": "Explore chat, knowledge, in-app actions, and app layout without creating a Studio account. Each visitor gets their own isolated demo project.",
       "noSignup": "No sign-up · Your own demo project · Free to try",
+      "noSignupMobile": "No signup — Free to try",
       "ctaSecondary": "Create your own project",
       "features": {
         "chat": {

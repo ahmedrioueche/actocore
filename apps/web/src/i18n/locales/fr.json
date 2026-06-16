@@ -136,6 +136,7 @@
       "title": "Essayez la démo SDK complète — en direct dans votre navigateur",
       "subtitle": "Explorez le chat, les connaissances, les actions in-app et l'app layout sans créer de compte Studio. C'est le même assistant embarqué que vos utilisateurs verront, alimenté par un projet démo partagé.",
       "noSignup": "Sans inscription · Sans clé API · Gratuit",
+      "noSignupMobile": "Sans inscription — Gratuit",
       "ctaSecondary": "Créer votre propre projet",
       "features": {
         "chat": {

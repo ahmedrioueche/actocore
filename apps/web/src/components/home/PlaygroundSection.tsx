@@ -68,7 +68,8 @@ export function PlaygroundSection() {
                 {t("subtitle")}
               </p>
               <p className="mb-8 inline-flex w-fit items-center rounded-full border border-primary bg-primary-muted px-4 py-1.5 text-xs font-semibold text-primary">
-                {t("noSignup")}
+                <span className="sm:hidden">{t("noSignupMobile")}</span>
+                <span className="hidden sm:inline">{t("noSignup")}</span>
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <PlaygroundCta className="px-8 py-3.5 text-base" />

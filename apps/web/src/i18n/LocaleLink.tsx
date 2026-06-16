@@ -8,7 +8,7 @@ type LocaleLinkProps = Omit<ComponentProps<typeof Link>, 'to'> & {
   href: string;
   children: ReactNode;
   className?: string;
-  onClick?: () => void;
+  onClick?: ComponentProps<typeof Link>["onClick"];
   style?: ComponentProps<typeof Link>['style'];
 };
 
