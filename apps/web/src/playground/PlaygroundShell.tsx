@@ -106,18 +106,20 @@ export function PlaygroundShell(props: PlaygroundShellProps) {
   const { activeView, onViewChange, projectName, chat, ...panelProps } = props;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[12rem_minmax(0,1fr)_minmax(18rem,22rem)] lg:items-start">
-      <PlaygroundSidebar
-        activeView={activeView}
-        onViewChange={onViewChange}
-        projectName={projectName}
-      />
+    <>
+      <div className="grid gap-6 lg:grid-cols-[12rem_minmax(0,1fr)] lg:items-start">
+        <PlaygroundSidebar
+          activeView={activeView}
+          onViewChange={onViewChange}
+          projectName={projectName}
+        />
 
-      <div className="min-w-0">
-        <PlaygroundPanel activeView={activeView} {...panelProps} />
+        <div className="min-w-0">
+          <PlaygroundPanel activeView={activeView} {...panelProps} />
+        </div>
       </div>
 
-      <div className="playground-chat-shell lg:sticky lg:top-24">{chat}</div>
-    </div>
+      {chat}
+    </>
   );
 }

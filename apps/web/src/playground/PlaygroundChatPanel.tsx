@@ -1,4 +1,4 @@
-import { ActoChat, ActocoreProvider } from '@ahmedrioueche/actocore-sdk';
+import { ActoChatWidget, ActocoreProvider } from '@ahmedrioueche/actocore-sdk';
 import type { ActocoreI18nConfig } from '@ahmedrioueche/actocore-sdk';
 import { memo, useMemo } from 'react';
 
@@ -7,10 +7,6 @@ import { getActocoreApiUrl } from '@/lib/marketing-chat';
 import { PlaygroundHostContextSync } from './PlaygroundHostContextSync';
 import type { createPlaygroundActions } from './playground-actions';
 import type { PlaygroundProjectCredentials } from './playground-project';
-
-const PLAYGROUND_CHAT_UI = {
-  classNames: { chat: 'playground-chat-panel' },
-} as const;
 
 type PlaygroundChatPanelProps = {
   credentials: PlaygroundProjectCredentials;
@@ -40,23 +36,24 @@ export const PlaygroundChatPanel = memo(function PlaygroundChatPanel({
   );
 
   return (
-    <ActocoreProvider
-      apiKey={credentials.apiKey}
-      baseURL={getActocoreApiUrl()}
-      loadRemoteConfig
-      remoteConfigVersion={remoteConfigVersion}
-      persistSession
-      externalUserId={chatUserId}
-      hostContext={hostRoute}
-      i18n={providerI18n}
-      actions={clientActions}
-      ui={PLAYGROUND_CHAT_UI}
-    >
-      <PlaygroundHostContextSync
-        currentPage={hostRoute.currentPage}
-        route={hostRoute.route}
-      />
-      <ActoChat className="playground-chat-panel" />
-    </ActocoreProvider>
+    <div className="playground-chat-widget">
+      <ActocoreProvider
+        apiKey={credentials.apiKey}
+        baseURL={getActocoreApiUrl()}
+        loadRemoteConfig
+        remoteConfigVersion={remoteConfigVersion}
+        persistSession
+        externalUserId={chatUserId}
+        hostContext={hostRoute}
+        i18n={providerI18n}
+        actions={clientActions}
+      >
+        <PlaygroundHostContextSync
+          currentPage={hostRoute.currentPage}
+          route={hostRoute.route}
+        />
+        <ActoChatWidget zIndex={60} />
+      </ActocoreProvider>
+    </div>
   );
 });
