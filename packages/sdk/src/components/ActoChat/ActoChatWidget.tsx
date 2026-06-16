@@ -3,7 +3,6 @@ import { useMobileViewport } from '../../hooks/use-mobile-viewport';
 import { useSuppressedWhenSelector } from '../../hooks/use-suppressed-when-selector';
 import { useUiText } from '../../hooks/use-ui-text';
 import {
-  useActocoreContext,
   useActocoreUiConfig,
 } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
@@ -76,7 +75,6 @@ export function ActoChatWidget({
   loadHistory,
   persistSession,
 }: ActoChatWidgetProps) {
-  const { presentationReady } = useActocoreContext();
   const ui = useActocoreUiConfig();
   const position = positionProp ?? ui.widget?.position ?? 'bottom-right';
   const offsetX =
@@ -136,7 +134,7 @@ export function ActoChatWidget({
     };
   }, [isOpen, isMobile]);
 
-  if (suppressed || !presentationReady) {
+  if (suppressed) {
     return null;
   }
 

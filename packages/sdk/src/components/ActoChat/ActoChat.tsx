@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useActocoreChat, type UiChatMessage } from '../../hooks/use-actocore-chat';
 import {
   useActocoreConfig,
+  useActocoreContext,
   useActocoreUiConfig,
 } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
@@ -45,6 +46,7 @@ export function ActoChat({
   isOpen = true,
 }: ActoChatProps) {
   const { t } = useTranslation();
+  const { presentationReady } = useActocoreContext();
   const ui = useActocoreUiConfig();
   const config = useActocoreConfig();
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -117,6 +119,8 @@ export function ActoChat({
   );
 
   const showEmpty = seedMessages.length === 0 && messages.length === 0;
+  const isComposerDisabled =
+    isInitializing || !resolvedSessionId || !presentationReady;
 
   const scrollToLatest = useCallback(() => {
     if (!isOpen) return;
@@ -235,17 +239,15 @@ export function ActoChat({
         )}
       </div>
 
-      {!isInitializing ? (
-        <Composer
-          onSend={onSend}
-          onStop={stopGenerating}
-          isSending={isSending}
-          isStreaming={isStreaming}
-          disabled={!resolvedSessionId}
-          minRows={ui.composerMinRows}
-          maxRows={ui.composerMaxRows}
-        />
-      ) : null}
+      <Composer
+        onSend={onSend}
+        onStop={stopGenerating}
+        isSending={isSending}
+        isStreaming={isStreaming}
+        disabled={isComposerDisabled}
+        minRows={ui.composerMinRows}
+        maxRows={ui.composerMaxRows}
+      />
     </div>
   );
 }

@@ -456,6 +456,20 @@
   color: var(--ac-color-text-muted);
 }
 
+[data-actocore] .ac-chat__input:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+[data-actocore] .ac-chat__composer-inner:has(.ac-chat__input:disabled) {
+  cursor: not-allowed;
+}
+
+[data-actocore] .ac-chat__composer-inner:has(.ac-chat__input:disabled):focus-within {
+  border-color: var(--ac-color-border);
+  box-shadow: none;
+}
+
 [data-actocore] .ac-icon {
   width: 1.125rem;
   height: 1.125rem;

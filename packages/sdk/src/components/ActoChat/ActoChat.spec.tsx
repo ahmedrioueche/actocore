@@ -5,13 +5,18 @@ import { ActoChat } from './ActoChat';
 
 const sendMessage = vi.fn(async () => undefined);
 
+const chatState = vi.hoisted(() => ({
+  isInitializing: false,
+  sessionId: 'session-test' as string | undefined,
+}));
+
 vi.mock('../../hooks/use-actocore-chat', () => {
   return {
     useActocoreChat: () => ({
       messages: [],
-      sessionId: 'session-test',
+      sessionId: chatState.sessionId,
       hasMoreHistory: false,
-      isInitializing: false,
+      isInitializing: chatState.isInitializing,
       isSending: false,
       isStreaming: false,
       isLoadingMoreHistory: false,
@@ -28,6 +33,8 @@ vi.mock('../../hooks/use-actocore-chat', () => {
 
 describe('ActoChat', () => {
   it('sends a message through the hook', async () => {
+    chatState.isInitializing = false;
+    chatState.sessionId = 'session-test';
     sendMessage.mockClear();
 
     render(
@@ -84,6 +91,19 @@ describe('ActoChat', () => {
       'src',
       'https://cdn.example.com/brand.svg',
     );
+  });
+
+  it('keeps the composer visible but disabled while initializing', () => {
+    chatState.isInitializing = true;
+    chatState.sessionId = undefined;
+
+    render(
+      <ActocoreProvider apiKey="sdk-key" i18n={{ locale: 'en' }}>
+        <ActoChat />
+      </ActocoreProvider>,
+    );
+
+    expect(screen.getByPlaceholderText('Type a message…')).toBeDisabled();
   });
 });
 
