@@ -1,5 +1,5 @@
-import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
+import { Link, useSearch } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AuthDivider } from '@/components/auth/AuthDivider';
@@ -13,9 +13,14 @@ import { SignupVerifyPanel } from '@/components/auth/SignupVerifyPanel';
 import { useResendVerification, useSignup } from '@/hooks/use-auth';
 import { maskEmail } from '@/utils/mask-email';
 import { getApiErrorMessage, getMessage } from '@/utils/statusMessage';
+import {
+  parseSignupPlanSearch,
+  saveSignupPlanIntent,
+} from '@/lib/signup-plan-intent';
 
 export default function SignupPage() {
   const { t } = useTranslation();
+  const search = useSearch({ from: '/signup' });
   const signup = useSignup();
   const resend = useResendVerification();
 
@@ -28,6 +33,13 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const intent = parseSignupPlanSearch(search);
+    if (intent) {
+      saveSignupPlanIntent(intent);
+    }
+  }, [search]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

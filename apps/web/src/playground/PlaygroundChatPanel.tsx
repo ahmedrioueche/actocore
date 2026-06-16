@@ -1,4 +1,5 @@
 import { ActoChat, ActocoreProvider } from '@ahmedrioueche/actocore-sdk';
+import type { ActocoreI18nConfig } from '@ahmedrioueche/actocore-sdk';
 import { memo, useMemo } from 'react';
 
 import { getActocoreApiUrl } from '@/lib/marketing-chat';
@@ -15,7 +16,7 @@ type PlaygroundChatPanelProps = {
   credentials: PlaygroundProjectCredentials;
   chatUserId: string;
   locale: string;
-  sdkTranslations: Record<string, unknown>;
+  sdkTranslations: NonNullable<ActocoreI18nConfig['translations']>;
   clientActions: ReturnType<typeof createPlaygroundActions>;
   hostRoute: { currentPage: string; route: string };
   remoteConfigVersion: number;

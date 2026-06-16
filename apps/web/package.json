@@ -16,6 +16,7 @@
   "dependencies": {
     "@actocore/brand": "file:../../packages/brand",
     "@ahmedrioueche/actocore-sdk": "file:../../packages/sdk",
+    "@ahmedrioueche/actocore-shared": "file:../../packages/shared",
     "clsx": "^2.1.1",
     "i18next": "^25.5.2",
     "lucide-react": "^0.544.0",

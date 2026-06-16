@@ -253,6 +253,11 @@
         }
       }
     },
+    "pricing": {
+      "eyebrow": "Tarifs",
+      "footnote": "Les prix proviennent de votre catalogue de forfaits en direct.",
+      "viewDetails": "Tarifs complets et FAQ"
+    },
     "finalCta": {
       "title": "Construisez l'avenir des applications intelligentes.",
       "subtitle": "Rejoignez plus de 500 équipes qui déploient de l'IA en production. Pas de configuration complexe, pas de carte bancaire requise.",
@@ -376,56 +381,51 @@
     "perMonth": "/ mois",
     "perYear": "/ an",
     "cta": "Commencer",
+    "ctaPaid": "Commencer",
+    "recommended": "Recommandé",
+    "yearDiscountDefault": "2 mois offerts",
+    "cycleLabel": "Période de facturation",
+    "loadError": "Les tarifs sont temporairement indisponibles. Actualisez la page ou contactez-nous si le problème persiste.",
+    "planLimits": {
+      "projects_one": "{{count}} projet",
+      "projects_other": "{{count}} projets",
+      "seats_one": "{{count}} siège équipe",
+      "seats_other": "{{count}} sièges équipe",
+      "chat": "{{count}} jetons / mois",
+      "actionsPerProject_one": "{{count}} action par projet",
+      "actionsPerProject_other": "{{count}} actions par projet"
+    },
+    "planFeatures": {
+      "knowledge_and_actions": "Base de connaissances et actions",
+      "sdk_embed": "Intégration SDK",
+      "everything_in_free": "Tout le forfait Gratuit",
+      "everything_in_starter": "Tout le forfait Starter",
+      "everything_in_pro": "Tout le forfait Pro",
+      "email_support": "Support par e-mail",
+      "priority_support": "Support prioritaire",
+      "dedicated_support": "Support dédié"
+    },
     "contact": "Nous contacter",
     "plans": {
       "free": {
-        "name": "Free",
-        "priceMonthly": "0 $",
-        "priceYearly": "0 $",
+        "name": "Gratuit",
         "description": "Essayez ActoCore Studio",
-        "features": [
-          "1 projet",
-          "500 K jetons / mois",
-          "Connaissances et actions",
-          "Intégration SDK"
-        ]
+        "yearDiscount": "2 mois offerts"
       },
       "starter": {
         "name": "Starter",
-        "priceMonthly": "29 $",
-        "priceYearly": "290 $",
         "description": "Pour les petites équipes qui lancent leur premier assistant",
-        "features": [
-          "3 projets",
-          "5 M jetons / mois",
-          "5 sièges équipe",
-          "Support e-mail"
-        ]
+        "yearDiscount": "2 mois offerts"
       },
       "pro": {
         "name": "Pro",
-        "priceMonthly": "79 $",
-        "priceYearly": "790 $",
         "description": "Pour les produits en croissance avec un volume plus élevé",
-        "features": [
-          "10 projets",
-          "50 M jetons / mois",
-          "20 sièges équipe",
-          "Support prioritaire"
-        ],
-        "badge": "Recommandé"
+        "yearDiscount": "2 mois offerts"
       },
       "business": {
         "name": "Business",
-        "priceMonthly": "199 $",
-        "priceYearly": "1 990 $",
         "description": "Pour les équipes à fort volume",
-        "features": [
-          "25 projets",
-          "200 M jetons / mois",
-          "50 sièges équipe",
-          "Support dédié"
-        ]
+        "yearDiscount": "2 mois offerts"
       }
     },
     "faqTitle": "Questions fréquentes",

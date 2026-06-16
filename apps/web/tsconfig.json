@@ -14,8 +14,13 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ahmedrioueche/actocore-shared": ["../../packages/shared/dist/index.d.ts"],
+      "@ahmedrioueche/actocore-shared/*": ["../../packages/shared/dist/*"],
+      "@ahmedrioueche/actocore-sdk": ["../../packages/sdk/dist/index.d.ts"],
+      "@ahmedrioueche/actocore-sdk/*": ["../../packages/sdk/dist/*"]
     }
   },
   "include": ["src"]

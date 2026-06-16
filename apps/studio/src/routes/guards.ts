@@ -17,6 +17,7 @@ import {
   TENANT_ONBOARDING_HOME,
   TENANT_WORKSPACE_HOME,
 } from "@/lib/tenant-workspace";
+import { resolveSignupPlanRedirect } from "@/lib/signup-plan-intent";
 
 export type OnboardingState = {
   required: boolean;
@@ -74,7 +75,7 @@ export function resolveAuthenticatedHomePath(): string {
   if (isOnboardingPending(getCachedOnboardingState())) {
     return TENANT_ONBOARDING_HOME;
   }
-  return TENANT_WORKSPACE_HOME;
+  return resolveSignupPlanRedirect() ?? TENANT_WORKSPACE_HOME;
 }
 
 /** Sync project access check using cached session — never blocks navigation on API calls. */

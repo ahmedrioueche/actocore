@@ -9,7 +9,7 @@ const FOOTER_SECTIONS = [
     links: [
       { href: "/playground", labelKey: "playground" as const },
       { href: "/docs", labelKey: "documentation" as const },
-      { href: "/pricing", labelKey: "pricing" as const },
+      { href: "/#pricing", labelKey: "pricing" as const },
     ],
   },
   {

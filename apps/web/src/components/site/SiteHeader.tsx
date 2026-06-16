@@ -13,7 +13,7 @@ import { ThemeToggle } from "./ThemeToggle";
 const NAV_LINKS = [
   { href: '/#how-it-works', key: 'howItWorks' as const },
   { href: playgroundPath(), key: 'playground' as const },
-  { href: '/pricing', key: 'pricing' as const },
+  { href: '/#pricing', key: 'pricing' as const },
   { href: '/docs', key: 'docs' as const },
 ] as const;
 

@@ -247,6 +247,11 @@
         }
       }
     },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "footnote": "Prices sync from your live plan catalog.",
+      "viewDetails": "Full pricing & FAQ"
+    },
     "finalCta": {
       "title": "Start Building the Future of Intelligent Apps.",
       "subtitle": "Join 500+ teams shipping production AI today. No complex setup, no credit card required.",
@@ -370,56 +375,51 @@
     "perMonth": "/ mo",
     "perYear": "/ yr",
     "cta": "Get started",
+    "ctaPaid": "Get started",
+    "recommended": "Recommended",
+    "yearDiscountDefault": "2 months free",
+    "cycleLabel": "Billing cycle",
+    "loadError": "Pricing is temporarily unavailable. Refresh the page or contact us if this persists.",
+    "planLimits": {
+      "projects_one": "{{count}} project",
+      "projects_other": "{{count}} projects",
+      "seats_one": "{{count}} team seat",
+      "seats_other": "{{count}} team seats",
+      "chat": "{{count}} tokens / month",
+      "actionsPerProject_one": "{{count}} action per project",
+      "actionsPerProject_other": "{{count}} actions per project"
+    },
+    "planFeatures": {
+      "knowledge_and_actions": "Knowledge & actions",
+      "sdk_embed": "SDK embed",
+      "everything_in_free": "Everything in Free",
+      "everything_in_starter": "Everything in Starter",
+      "everything_in_pro": "Everything in Pro",
+      "email_support": "Email support",
+      "priority_support": "Priority support",
+      "dedicated_support": "Dedicated support"
+    },
     "contact": "Contact us",
     "plans": {
       "free": {
         "name": "Free",
-        "priceMonthly": "$0",
-        "priceYearly": "$0",
         "description": "Try ActoCore Studio",
-        "features": [
-          "1 project",
-          "500K tokens / month",
-          "Knowledge & actions",
-          "SDK embed"
-        ]
+        "yearDiscount": "2 months free"
       },
       "starter": {
         "name": "Starter",
-        "priceMonthly": "$29",
-        "priceYearly": "$290",
         "description": "For small teams shipping their first assistant",
-        "features": [
-          "3 projects",
-          "5M tokens / month",
-          "5 team seats",
-          "Email support"
-        ]
+        "yearDiscount": "2 months free"
       },
       "pro": {
         "name": "Pro",
-        "priceMonthly": "$79",
-        "priceYearly": "$790",
         "description": "For growing products with higher volume",
-        "features": [
-          "10 projects",
-          "50M tokens / month",
-          "20 team seats",
-          "Priority support"
-        ],
-        "badge": "Recommended"
+        "yearDiscount": "2 months free"
       },
       "business": {
         "name": "Business",
-        "priceMonthly": "$199",
-        "priceYearly": "$1,990",
         "description": "For high-volume teams",
-        "features": [
-          "25 projects",
-          "200M tokens / month",
-          "50 team seats",
-          "Dedicated support"
-        ]
+        "yearDiscount": "2 months free"
       }
     },
     "faqTitle": "Frequently asked questions",

@@ -9,6 +9,7 @@ type LocaleLinkProps = Omit<ComponentProps<typeof Link>, 'to'> & {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
+  style?: ComponentProps<typeof Link>['style'];
 };
 
 function resolveLocalePath(href: string, locale: string): string {
@@ -29,6 +30,7 @@ export function LocaleLink({
   children,
   className,
   onClick,
+  style,
   ...rest
 }: LocaleLinkProps) {
   const { locale } = useParams();
@@ -37,14 +39,20 @@ export function LocaleLink({
 
   if (href.startsWith('http') || href.startsWith('mailto:')) {
     return (
-      <a href={href} className={cn(className)} onClick={onClick}>
+      <a href={href} className={cn(className)} onClick={onClick} style={style}>
         {children}
       </a>
     );
   }
 
   return (
-    <Link to={target} className={cn(className)} onClick={onClick} {...rest}>
+    <Link
+      to={target}
+      className={cn(className)}
+      onClick={onClick}
+      style={style}
+      {...rest}
+    >
       {children}
     </Link>
   );

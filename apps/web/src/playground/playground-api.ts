@@ -37,6 +37,10 @@ async function parseApiResponse<T>(res: Response): Promise<T> {
     throw new Error(json.message ?? `Request failed (${res.status})`);
   }
 
+  if (json.data === undefined) {
+    throw new Error(json.message ?? 'Response missing data');
+  }
+
   return json.data;
 }
 
@@ -74,6 +78,10 @@ export async function bootstrapPlaygroundProject(input: {
   };
   if (!res.ok || !json.success) {
     throw new Error(json.message ?? `Bootstrap failed (${res.status})`);
+  }
+
+  if (json.data === undefined) {
+    throw new Error(json.message ?? 'Bootstrap response missing data');
   }
 
   return json.data;

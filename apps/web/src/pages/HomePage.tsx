@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { HowItWorksSection } from "@/components/home/HowItWorksSection";
 import { PlatformCapabilitiesSection } from "@/components/home/PlatformCapabilitiesSection";
 import { PlaygroundSection } from "@/components/home/PlaygroundSection";
+import { PricingSection } from "@/components/home/PricingSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { TrustedBySection } from "@/components/home/TrustedBySection";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -20,6 +21,7 @@ export function HomePage() {
       <PlaygroundSection />
       <HowItWorksSection />
       <PlatformCapabilitiesSection />
+      <PricingSection />
       <ArchitectureSection />
       <TestimonialsSection />
       <FinalCtaSection />

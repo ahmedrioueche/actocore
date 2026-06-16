@@ -84,6 +84,10 @@ const signupRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/signup",
   beforeLoad: redirectIfAuthenticated,
+  validateSearch: (search: Record<string, unknown>) => ({
+    plan: typeof search.plan === "string" ? search.plan : undefined,
+    cycle: search.cycle === "yearly" ? ("yearly" as const) : ("monthly" as const),
+  }),
   component: SignupPage,
 });
 
