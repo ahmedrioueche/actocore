@@ -28,6 +28,10 @@ export default defineConfig({
     include: ['reflect-metadata'],
     exclude: ['@ahmedrioueche/actocore-shared', '@ahmedrioueche/actocore-sdk'],
   },
+  build: {
+    target: 'es2022',
+    chunkSizeWarningLimit: 800,
+  },
   server: {
     fs: {
       allow: [appRoot, brandRoot, sharedRoot, sdkRoot],

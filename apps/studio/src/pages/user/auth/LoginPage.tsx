@@ -149,6 +149,7 @@ export default function LoginPage() {
           {t("auth.login.noAccount")}{" "}
           <Link
             to="/signup"
+            search={{ plan: undefined, cycle: undefined }}
             className="font-semibold text-primary transition-colors hover:underline"
           >
             {t("auth.login.signupLink")}

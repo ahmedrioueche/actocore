@@ -1,0 +1,6 @@
+{
+  "installCommand": "cd ../../packages/shared && npm install && cd ../../packages/sdk && npm install && cd ../../apps/web && npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
