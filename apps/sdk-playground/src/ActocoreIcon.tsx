@@ -1,34 +1,28 @@
 import actocoreIconSrc from '@actocore/shared-assets/actocore_icon.svg';
+import actocoreIconDarkSrc from '@actocore/shared-assets/actocore_icon_dark.svg';
+import actocoreIconInverseSrc from '@actocore/shared-assets/actocore_icon_inverse.svg';
+
+export type ActocoreIconVariant = 'brand' | 'inverse' | 'dark';
+
+const ICON_SRC: Record<ActocoreIconVariant, string> = {
+  brand: actocoreIconSrc,
+  inverse: actocoreIconInverseSrc,
+  dark: actocoreIconDarkSrc,
+};
 
 interface ActocoreIconProps {
   size?: number;
+  variant?: ActocoreIconVariant;
 }
 
-export function ActocoreIcon({ size = 36 }: ActocoreIconProps) {
+export function ActocoreIcon({ size = 36, variant = 'brand' }: ActocoreIconProps) {
   return (
-    <div
-      aria-hidden
-      style={{
-        position: 'relative',
-        width: size,
-        height: size,
-        overflow: 'hidden',
-        borderRadius: 10,
-        flexShrink: 0,
-      }}
-    >
-      <img
-        src={actocoreIconSrc}
-        alt=""
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          width: '340%',
-          maxWidth: 'none',
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
-    </div>
+    <img
+      src={ICON_SRC[variant]}
+      alt=""
+      width={size}
+      height={size}
+      style={{ display: 'block', flexShrink: 0, objectFit: 'contain' }}
+    />
   );
 }

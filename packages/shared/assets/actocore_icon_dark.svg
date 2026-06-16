@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="ActoCore">
+  <defs>
+    <linearGradient id="dark-ui" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a5b4fc"/>
+      <stop offset="55%" stop-color="#c4b5fd"/>
+      <stop offset="100%" stop-color="#e9d5ff"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(100 100)">
+    <polygon points="0,-66 57.2,-33 57.2,33 0,66 -57.2,33 -57.2,-33" fill="none" stroke="url(#dark-ui)" stroke-width="3.5"/>
+    <polygon points="0,-44 38.1,-22 38.1,22 0,44 -38.1,22 -38.1,-22" fill="url(#dark-ui)" fill-opacity="0.18" stroke="url(#dark-ui)" stroke-width="2"/>
+    <circle cx="0" cy="-66" r="7" fill="url(#dark-ui)"/>
+    <circle cx="57.2" cy="-33" r="7" fill="url(#dark-ui)"/>
+    <circle cx="57.2" cy="33" r="7" fill="url(#dark-ui)"/>
+    <circle cx="0" cy="66" r="7" fill="url(#dark-ui)"/>
+    <circle cx="-57.2" cy="33" r="7" fill="url(#dark-ui)"/>
+    <circle cx="-57.2" cy="-33" r="7" fill="url(#dark-ui)"/>
+    <circle cx="0" cy="0" r="14" fill="url(#dark-ui)"/>
+    <circle cx="0" cy="0" r="7" fill="#0f172a" fill-opacity="0.92"/>
+  </g>
+</svg>

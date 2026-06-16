@@ -32,7 +32,10 @@
       "default": "./dist/constants/knowledge-upload.js"
     },
     "./assets/actocore_icon.svg": "./assets/actocore_icon.svg",
-    "./assets/actocore_logo.svg": "./assets/actocore_logo.svg"
+    "./assets/actocore_icon_inverse.svg": "./assets/actocore_icon_inverse.svg",
+    "./assets/actocore_icon_dark.svg": "./assets/actocore_icon_dark.svg",
+    "./assets/actocore_logo.svg": "./assets/actocore_logo.svg",
+    "./assets/actocore_favicon.svg": "./assets/actocore_favicon.svg"
   },
   "files": [
     "dist",

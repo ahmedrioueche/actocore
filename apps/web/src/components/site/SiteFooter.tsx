@@ -3,6 +3,8 @@ import { Globe, Mail, Terminal } from "lucide-react";
 
 import { LocaleLink } from "@/i18n/LocaleLink";
 
+import { ActocoreLogo } from "./ActocoreLogo";
+
 const FOOTER_SECTIONS = [
   {
     titleKey: "product" as const,
@@ -45,13 +47,7 @@ export function SiteFooter() {
         <div className="mb-16 grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-6">
           <div className="col-span-2">
             <div className="mb-8 flex items-center gap-2">
-              <img
-                src="/actocore_icon.svg"
-                alt=""
-                width={28}
-                height={28}
-                className="h-7 w-7"
-              />
+              <ActocoreLogo size={28} className="h-7 w-7" />
               <span className="text-xl font-bold text-text-primary">
                 {tSite("name")}
               </span>

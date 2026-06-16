@@ -7,6 +7,7 @@ import { playgroundPath, studioAuthPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 import { CtaButton } from "./CtaButton";
+import { ActocoreLogo } from "./ActocoreLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -29,13 +30,7 @@ export function SiteHeader() {
           href="/"
           className="flex items-center gap-2.5 font-semibold text-text-primary"
         >
-          <img
-            src="/actocore_icon.svg"
-            alt=""
-            width={32}
-            height={32}
-            className="h-8 w-8"
-          />
+          <ActocoreLogo size={32} className="h-8 w-8" />
           <span>{tSite("name")}</span>
         </LocaleLink>
 

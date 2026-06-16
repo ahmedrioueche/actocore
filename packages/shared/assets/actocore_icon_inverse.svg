@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="ActoCore">
+  <g transform="translate(100 100)">
+    <polygon points="0,-66 57.2,-33 57.2,33 0,66 -57.2,33 -57.2,-33" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+    <polygon points="0,-44 38.1,-22 38.1,22 0,44 -38.1,22 -38.1,-22" fill="#ffffff" fill-opacity="0.16" stroke="#ffffff" stroke-width="2"/>
+    <circle cx="0" cy="-66" r="7" fill="#ffffff"/>
+    <circle cx="57.2" cy="-33" r="7" fill="#ffffff"/>
+    <circle cx="57.2" cy="33" r="7" fill="#ffffff"/>
+    <circle cx="0" cy="66" r="7" fill="#ffffff"/>
+    <circle cx="-57.2" cy="33" r="7" fill="#ffffff"/>
+    <circle cx="-57.2" cy="-33" r="7" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="14" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="7" fill="#4f46e5"/>
+  </g>
+</svg>

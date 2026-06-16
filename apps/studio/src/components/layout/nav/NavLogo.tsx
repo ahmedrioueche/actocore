@@ -22,7 +22,7 @@ export function NavLogo({ collapsed, onNavigate, to = '/projects' }: NavLogoProp
       )}
       aria-label={APP_DATA.name}
     >
-      <ActocoreIcon className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
+      <ActocoreIcon variant="brand" className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
 
       {!collapsed ? (
         <div className="min-w-0 truncate leading-tight">
