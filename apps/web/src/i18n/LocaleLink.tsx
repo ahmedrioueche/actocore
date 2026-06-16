@@ -12,13 +12,16 @@ type LocaleLinkProps = Omit<ComponentProps<typeof Link>, 'to'> & {
   style?: ComponentProps<typeof Link>['style'];
 };
 
-function resolveLocalePath(href: string, locale: string): string {
+function resolveLocalePath(href: string, locale: string): string | { pathname: string; hash: string } {
   if (href.startsWith('http') || href.startsWith('mailto:')) {
     return href;
   }
 
   if (href.startsWith('/#')) {
-    return `/${locale}${href}`;
+    return {
+      pathname: `/${locale}`,
+      hash: href.slice(1),
+    };
   }
 
   const path = href.startsWith('/') ? href : `/${href}`;

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { UiChatMessage } from '../../hooks/use-actocore-chat';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
+import { scrollIntoViewWithinParent } from '../../utils/scroll-within-parent';
 import { MessageBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
 
@@ -25,8 +26,8 @@ export function MessageList({
   const showTypingIndicator = Boolean(isSending && !streamingMessage);
 
   useEffect(() => {
-    if (!showTypingIndicator) return;
-    typingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (!showTypingIndicator || !typingRef.current) return;
+    scrollIntoViewWithinParent(typingRef.current, { behavior: 'smooth', block: 'nearest' });
   }, [showTypingIndicator]);
 
   const streamScrollRafRef = useRef(0);
@@ -40,10 +41,12 @@ export function MessageList({
 
     streamScrollRafRef.current = requestAnimationFrame(() => {
       streamScrollRafRef.current = 0;
-      streamingRowRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      });
+      if (streamingRowRef.current) {
+        scrollIntoViewWithinParent(streamingRowRef.current, {
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
     });
 
     return () => {

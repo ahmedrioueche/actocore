@@ -126,13 +126,9 @@ export function ActoChat({
     if (!isOpen) return;
 
     const body = bodyRef.current;
-    const anchor = bottomRef.current;
     if (!body) return;
 
     const run = () => {
-      if (anchor) {
-        anchor.scrollIntoView({ block: 'end', inline: 'nearest' });
-      }
       body.scrollTop = body.scrollHeight;
     };
 
