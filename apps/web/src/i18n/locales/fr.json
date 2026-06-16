@@ -1,4 +1,7 @@
 {
+  "common": {
+    "dismiss": "Fermer"
+  },
   "meta": {
     "siteName": "ActoCore",
     "home": {
@@ -686,30 +689,11 @@
   "contact": {
     "title": "Nous contacter",
     "subtitle": "Nous sommes là pour la vente, les intégrations et les questions compte.",
-    "general": {
-      "title": "Demandes générales",
-      "body": "Questions sur ActoCore, partenariats ou la plateforme.",
-      "email": "contact@actocore.pro"
-    },
-    "sales": {
-      "title": "Vente et forfaits Business",
-      "body": "Limites personnalisées, accords entreprise et achats.",
-      "email": "contact@actocore.pro"
-    },
-    "engineering": {
-      "title": "Ingénierie et intégrations",
-      "body": "Aide SDK, questions d'architecture et évaluations techniques.",
-      "email": "engineering@actocore.pro"
-    },
-    "privacy": {
-      "title": "Confidentialité et juridique",
-      "body": "Demandes RGPD, DPA et questions légales.",
-      "email": "privacy@actocore.pro"
-    },
-    "security": {
-      "title": "Sécurité",
-      "body": "Signalement de vulnérabilités et questions sécurité.",
-      "email": "security@actocore.pro"
+    "phone": {
+      "title": "Téléphone",
+      "display": "+1 (415) 555-0142",
+      "tel": "+14155550142",
+      "hours": "Lundi–vendredi, 9h–18h (heure du Pacifique)"
     },
     "form": {
       "title": "Envoyer un message",
@@ -717,7 +701,16 @@
       "email": "Votre e-mail",
       "subject": "Objet",
       "message": "Message",
-      "submit": "Ouvrir dans le client mail"
+      "placeholders": {
+        "name": "Jean Dupont",
+        "email": "vous@entreprise.com",
+        "subject": "Comment pouvons-nous vous aider ?",
+        "message": "Parlez-nous de votre projet, délais ou questions…"
+      },
+      "submit": "Envoyer le message",
+      "submitting": "Envoi en cours…",
+      "success": "Merci — votre message a été envoyé. Nous vous répondrons bientôt.",
+      "error": "Impossible d'envoyer votre message. Réessayez ou appelez-nous."
     }
   },
   "sdkConfig": {

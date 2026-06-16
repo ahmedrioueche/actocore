@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { StudioAuthConfig } from '../config/studio-auth.config';
 import {
+  buildContactInquiryEmail,
   buildDeleteAccountOtpEmail,
   buildPasswordResetEmail,
   buildQuotaAlertEmail,
@@ -11,6 +12,10 @@ import {
 import { buildStudioAppUrl } from './utils/studio-redirect.util';
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
+
+type EmailSendOptions = {
+  replyTo?: string;
+};
 
 @Injectable()
 export class StudioEmailService {
@@ -76,20 +81,38 @@ export class StudioEmailService {
     await this.send(email, 'Reset your ActoCore Studio password', content);
   }
 
+  async sendContactInquiry(input: {
+    name: string;
+    email: string;
+    subject?: string;
+    message: string;
+  }): Promise<void> {
+    const cfg = this.cfg();
+    const subjectLine = input.subject?.trim() || 'ActoCore inquiry';
+    const content = buildContactInquiryEmail(input);
+    await this.send(
+      cfg.contactInboxEmail,
+      `[ActoCore Contact] ${subjectLine}`,
+      content,
+      { replyTo: input.email },
+    );
+  }
+
   private async send(
     to: string,
     subject: string,
     content: { text: string; html: string },
+    options?: EmailSendOptions,
   ): Promise<void> {
     const cfg = this.cfg();
 
     if (cfg.resendApiKey) {
-      await this.sendViaResend(cfg, to, subject, content);
+      await this.sendViaResend(cfg, to, subject, content, options);
       return;
     }
 
     if (cfg.smtpHost) {
-      await this.sendViaSmtp(cfg, to, subject, content);
+      await this.sendViaSmtp(cfg, to, subject, content, options);
       return;
     }
 
@@ -103,20 +126,26 @@ export class StudioEmailService {
     to: string,
     subject: string,
     content: { text: string; html: string },
+    options?: EmailSendOptions,
   ): Promise<void> {
+    const body: Record<string, unknown> = {
+      from: cfg.emailFrom,
+      to: [to],
+      subject,
+      text: content.text,
+      html: content.html,
+    };
+    if (options?.replyTo) {
+      body.reply_to = options.replyTo;
+    }
+
     const res = await fetch(RESEND_API_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${cfg.resendApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from: cfg.emailFrom,
-        to: [to],
-        subject,
-        text: content.text,
-        html: content.html,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -134,6 +163,7 @@ export class StudioEmailService {
     to: string,
     subject: string,
     content: { text: string; html: string },
+    options?: EmailSendOptions,
   ): Promise<void> {
     const nodemailer = await import('nodemailer');
     const transport = nodemailer.createTransport({
@@ -152,6 +182,7 @@ export class StudioEmailService {
       subject,
       text: content.text,
       html: content.html,
+      ...(options?.replyTo ? { replyTo: options.replyTo } : {}),
     });
   }
 

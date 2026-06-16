@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { App } from '@/App';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import Toaster from '@/components/ui/Toaster';
 import i18n from '@/i18n';
 import '@/index.css';
 
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <ThemeProvider>
           <App />
+          <Toaster />
         </ThemeProvider>
       </BrowserRouter>
     </I18nextProvider>

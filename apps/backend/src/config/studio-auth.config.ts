@@ -16,6 +16,8 @@ export type StudioAuthConfig = {
   googleClientSecret: string | null;
   googleRedirectUri: string | null;
   emailFrom: string;
+  /** Inbox for marketing site contact form submissions. */
+  contactInboxEmail: string;
   /** HTTPS API — works on Render free tier (no SMTP ports). */
   resendApiKey: string | null;
   smtpHost: string | null;
@@ -80,6 +82,8 @@ export function resolveStudioAuthConfig(): StudioAuthConfig {
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim() || null,
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI?.trim() || null,
     emailFrom: resolveEmailFrom(),
+    contactInboxEmail:
+      process.env.CONTACT_INBOX_EMAIL?.trim() || 'adsrahmed@gmail.com',
     resendApiKey: process.env.RESEND_API_KEY?.trim() || null,
     smtpHost: process.env.SMTP_HOST?.trim() || null,
     smtpPort: parseInt(process.env.SMTP_PORT ?? '587', 10),

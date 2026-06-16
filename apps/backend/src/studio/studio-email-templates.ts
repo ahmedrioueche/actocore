@@ -268,3 +268,35 @@ ${renderPrimaryButton(billingUrl, 'Open billing in Studio')}`,
 
   return { html, text };
 }
+
+export function buildContactInquiryEmail(input: {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+}): { html: string; text: string } {
+  const subjectLine = input.subject?.trim() || 'ActoCore inquiry';
+  const text = [
+    `Name: ${input.name}`,
+    `Email: ${input.email}`,
+    `Subject: ${subjectLine}`,
+    '',
+    input.message,
+  ].join('\n');
+
+  const bodyHtml = `
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 20px;">
+  <tr><td style="padding:8px 0;font-size:14px;color:${BRAND.textMuted};"><strong style="color:${BRAND.text};">From:</strong> ${escapeHtml(input.name)} &lt;${escapeHtml(input.email)}&gt;</td></tr>
+  <tr><td style="padding:8px 0;font-size:14px;color:${BRAND.textMuted};"><strong style="color:${BRAND.text};">Subject:</strong> ${escapeHtml(subjectLine)}</td></tr>
+</table>
+${plainTextToHtml(input.message)}`;
+
+  const html = renderStudioEmailLayout({
+    preheader: `New contact form message from ${input.name}`,
+    title: 'New contact form message',
+    bodyHtml,
+    footerNote: 'You received this email from the ActoCore marketing site contact form.',
+  });
+
+  return { html, text };
+}

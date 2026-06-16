@@ -59,6 +59,7 @@ import { StudioAccountService } from './studio-account.service';
 import { StudioOnboardingController } from './studio-onboarding.controller';
 import { StudioOnboardingService } from './studio-onboarding.service';
 import { StudioAuthController } from './studio-auth.controller';
+import { StudioContactController } from './studio-contact.controller';
 import { StudioEmailService } from './studio-email.service';
 import { StudioAccessService } from './studio-access.service';
 import { StudioAuthService } from './studio-auth.service';
@@ -120,6 +121,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
   ],
   controllers: [
     StudioAuthController,
+    StudioContactController,
     StudioAccountController,
     StudioOnboardingController,
     StudioPlatformController,

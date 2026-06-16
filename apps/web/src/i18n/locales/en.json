@@ -1,4 +1,7 @@
 {
+  "common": {
+    "dismiss": "Dismiss"
+  },
   "meta": {
     "siteName": "ActoCore",
     "home": {
@@ -680,30 +683,11 @@
   "contact": {
     "title": "Contact us",
     "subtitle": "We're here to help with sales, integrations, and account questions.",
-    "general": {
-      "title": "General inquiries",
-      "body": "Questions about ActoCore, partnerships, or the platform.",
-      "email": "contact@actocore.pro"
-    },
-    "sales": {
-      "title": "Sales & Business plans",
-      "body": "Custom limits, enterprise agreements, and procurement.",
-      "email": "contact@actocore.pro"
-    },
-    "engineering": {
-      "title": "Engineering & integrations",
-      "body": "SDK integration help, architecture questions, and technical evaluations.",
-      "email": "engineering@actocore.pro"
-    },
-    "privacy": {
-      "title": "Privacy & legal",
-      "body": "Privacy requests, DPAs, and legal questions.",
-      "email": "privacy@actocore.pro"
-    },
-    "security": {
-      "title": "Security",
-      "body": "Vulnerability reports and security inquiries.",
-      "email": "security@actocore.pro"
+    "phone": {
+      "title": "Call us",
+      "display": "+1 (415) 555-0142",
+      "tel": "+14155550142",
+      "hours": "Monday–Friday, 9am–6pm Pacific Time"
     },
     "form": {
       "title": "Send a message",
@@ -711,7 +695,16 @@
       "email": "Your email",
       "subject": "Subject",
       "message": "Message",
-      "submit": "Open in email client"
+      "placeholders": {
+        "name": "Jane Doe",
+        "email": "you@company.com",
+        "subject": "How can we help?",
+        "message": "Tell us about your project, timeline, or questions…"
+      },
+      "submit": "Send message",
+      "submitting": "Sending…",
+      "success": "Thanks — your message was sent. We'll get back to you soon.",
+      "error": "Could not send your message. Please try again or call us."
     }
   },
   "sdkConfig": {
