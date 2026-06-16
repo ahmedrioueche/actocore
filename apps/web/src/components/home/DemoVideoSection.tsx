@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import { useT } from '@/i18n/useT';
 import { getDemoVideoUrl, resolveDemoVideoEmbed } from '@/lib/demo-video';
+import { revealStyle } from '@/lib/reveal';
 
 import { PlaygroundCta } from './PlaygroundCta';
 import { ScrollReveal } from './ScrollReveal';
@@ -15,20 +16,25 @@ export function DemoVideoSection() {
   }, []);
 
   return (
-    <ScrollReveal as="section" id="demo" className="py-12 lg:py-16">
+    <ScrollReveal as="section" id="demo" stagger className="py-12 lg:py-16">
       <div className="site-container">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
-            {t('eyebrow')}
-          </p>
-          <h2 className="mb-3 text-3xl font-bold text-text-primary lg:text-4xl">
-            {t('title')}
-          </h2>
-          <p className="mx-auto mb-8 max-w-2xl text-lg text-text-secondary">
-            {t('subtitle')}
-          </p>
+          <div className="reveal-item" style={revealStyle(0)}>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
+              {t('eyebrow')}
+            </p>
+            <h2 className="mb-3 text-3xl font-bold text-text-primary lg:text-4xl">
+              {t('title')}
+            </h2>
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-text-secondary">
+              {t('subtitle')}
+            </p>
+          </div>
 
-          <div className="glass-panel overflow-hidden rounded-2xl border border-border shadow-2xl">
+          <div
+            className="reveal-item reveal-item-scale glass-panel overflow-hidden rounded-2xl border border-border shadow-2xl"
+            style={revealStyle(1)}
+          >
             <div className="relative aspect-video bg-surface-secondary">
               {embed?.kind === 'direct' ? (
                 <video
@@ -68,7 +74,10 @@ export function DemoVideoSection() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div
+            className="reveal-item mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+            style={revealStyle(2)}
+          >
             <PlaygroundCta className="px-8 py-3.5 text-base" />
             <p className="text-sm text-muted">{t('ctaHint')}</p>
           </div>

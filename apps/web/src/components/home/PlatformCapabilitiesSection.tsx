@@ -2,6 +2,7 @@ import { Activity, Check, GitBranch, Shield } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useT } from '@/i18n/useT';
 import { asStringArray } from '@/i18n/as-string-array';
+import { revealStyle } from '@/lib/reveal';
 
 import { PlaygroundCta } from './PlaygroundCta';
 import { ScrollReveal } from './ScrollReveal';
@@ -75,31 +76,40 @@ export function PlatformCapabilitiesSection() {
     <ScrollReveal
       as="section"
       id="features"
+      stagger
       className="relative overflow-hidden py-16 lg:py-24"
     >
       <div className="site-container relative z-10">
-        <div className="mb-16 max-w-3xl">
+        <div className="reveal-item mb-16 max-w-3xl" style={revealStyle(0)}>
           <h2 className="mb-4 text-3xl font-bold text-text-primary lg:text-4xl">
             {t('home.capabilities.title')}
           </h2>
           <p className="text-lg text-text-secondary">{t('home.capabilities.subtitle')}</p>
         </div>
         <div className="grid gap-8 md:grid-cols-3">
-          {CAPABILITY_CONFIG.map(({ key, icon, accent }) => (
-            <CapabilityCard
+          {CAPABILITY_CONFIG.map(({ key, icon, accent }, index) => (
+            <div
               key={key}
-              title={t(`home.capabilities.${key}.title`)}
-              description={t(`home.capabilities.${key}.description`)}
-              bullets={asStringArray(
-                t(`home.capabilities.${key}.bullets`, { returnObjects: true }),
-              )}
-              icon={icon}
-              accent={accent}
-            />
+              className="reveal-item reveal-item-scale"
+              style={revealStyle(index + 1)}
+            >
+              <CapabilityCard
+                title={t(`home.capabilities.${key}.title`)}
+                description={t(`home.capabilities.${key}.description`)}
+                bullets={asStringArray(
+                  t(`home.capabilities.${key}.bullets`, { returnObjects: true }),
+                )}
+                icon={icon}
+                accent={accent}
+              />
+            </div>
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-start gap-4 lg:mt-16 lg:flex-row lg:items-center lg:justify-between">
+        <div
+          className="reveal-item mt-12 flex flex-col items-start gap-4 lg:mt-16 lg:flex-row lg:items-center lg:justify-between"
+          style={revealStyle(CAPABILITY_CONFIG.length + 1)}
+        >
           <p className="max-w-2xl text-text-secondary">{t('home.capabilities.ctaHint')}</p>
           <PlaygroundCta className="shrink-0 px-8 py-3.5 text-base" />
         </div>

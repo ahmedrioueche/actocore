@@ -1,5 +1,6 @@
 import { useT } from "@/i18n/useT";
 import { Code, Cpu, Sparkles } from "lucide-react";
+import { revealStyle } from "@/lib/reveal";
 
 import { ScrollReveal } from "./ScrollReveal";
 import { PlaygroundCta } from "./PlaygroundCta";
@@ -14,9 +15,9 @@ export function ArchitectureSection() {
   const { t } = useT("home.architecture");
 
   return (
-    <ScrollReveal as="section" id="architecture" className="bg-surface-secondary py-16 lg:py-24">
+    <ScrollReveal as="section" id="architecture" stagger className="bg-surface-secondary py-16 lg:py-24">
       <div className="site-container">
-        <div className="mb-16 text-center">
+        <div className="reveal-item mb-16 text-center" style={revealStyle(0)}>
           <h2 className="mb-4 text-3xl font-bold text-text-primary lg:text-4xl">
             {t("title")}
           </h2>
@@ -29,18 +30,22 @@ export function ArchitectureSection() {
             aria-hidden
           />
           <div className="grid gap-12 lg:grid-cols-3">
-          {LAYERS.map(({ key, icon: Icon, variant }) => {
+          {LAYERS.map(({ key, icon: Icon, variant }, index) => {
             const isFeatured = variant === "featured";
 
             return (
               <div
                 key={key}
-                className={`relative flex flex-col items-center rounded-3xl p-12 text-center ${
-                  isFeatured
-                    ? "border-2 border-primary bg-surface-elevated shadow-brand lg:-translate-y-8"
-                    : "border border-border bg-background"
-                }`}
+                className={isFeatured ? "lg:-translate-y-8" : undefined}
               >
+                <div
+                  className={`reveal-item reveal-item-scale relative flex flex-col items-center rounded-3xl p-12 text-center ${
+                    isFeatured
+                      ? "border-2 border-primary bg-surface-elevated shadow-brand"
+                      : "border border-border bg-background"
+                  }`}
+                  style={revealStyle(index + 1)}
+                >
                 {isFeatured && (
                   <span className="absolute -top-4 rounded-full bg-primary px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-contrast">
                     {t("recommended")}
@@ -75,13 +80,17 @@ export function ArchitectureSection() {
                 >
                   {t(`${key}.badge`)}
                 </span>
+                </div>
               </div>
             );
           })}
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-3 text-center lg:mt-16">
+        <div
+          className="reveal-item mt-12 flex flex-col items-center gap-3 text-center lg:mt-16"
+          style={revealStyle(LAYERS.length + 1)}
+        >
           <p className="max-w-xl text-text-secondary">{t("ctaHint")}</p>
           <PlaygroundCta variant="outline" className="px-8 py-3.5 text-base" />
         </div>

@@ -10,6 +10,7 @@ import {
 import { CtaButton } from "@/components/site/CtaButton";
 import { useT } from "@/i18n/useT";
 import { studioAuthPath } from "@/lib/site";
+import { revealStyle } from "@/lib/reveal";
 
 import { PlaygroundCta } from "./PlaygroundCta";
 import { ScrollReveal } from "./ScrollReveal";
@@ -48,13 +49,14 @@ export function PlaygroundSection() {
     <ScrollReveal
       as="section"
       id="playground"
+      stagger
       className="relative overflow-hidden py-16 lg:py-24"
     >
       <div className="absolute inset-0 -z-10 bg-primary-muted/40" aria-hidden />
       <div className="site-container relative z-10">
         <div className="glass-panel overflow-hidden rounded-3xl border border-border shadow-brand">
           <div className="grid gap-10 p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:p-12">
-            <div className="flex flex-col justify-center">
+            <div className="reveal-item flex flex-col justify-center" style={revealStyle(0)}>
               <p className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
                 <Sparkles className="h-4 w-4" aria-hidden />
                 {t("eyebrow")}
@@ -81,13 +83,18 @@ export function PlaygroundSection() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {FEATURES.map(({ key, icon }) => (
-                <FeatureCard
+              {FEATURES.map(({ key, icon }, index) => (
+                <div
                   key={key}
-                  title={t(`features.${key}.title`)}
-                  description={t(`features.${key}.description`)}
-                  icon={icon}
-                />
+                  className="reveal-item reveal-item-scale"
+                  style={revealStyle(index + 1)}
+                >
+                  <FeatureCard
+                    title={t(`features.${key}.title`)}
+                    description={t(`features.${key}.description`)}
+                    icon={icon}
+                  />
+                </div>
               ))}
             </div>
           </div>

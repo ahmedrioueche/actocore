@@ -1,4 +1,5 @@
 import { useT } from '@/i18n/useT';
+import { revealStyle } from '@/lib/reveal';
 
 import { PlaygroundCta } from './PlaygroundCta';
 import { ScrollReveal } from './ScrollReveal';
@@ -27,19 +28,20 @@ export function TestimonialsSection() {
   const { t } = useT('home.testimonials');
 
   return (
-    <ScrollReveal as="section" className="py-16 lg:py-24">
+    <ScrollReveal as="section" stagger className="py-16 lg:py-24">
       <div className="site-container">
-        <div className="mb-16 text-center">
+        <div className="reveal-item mb-16 text-center" style={revealStyle(0)}>
           <h2 className="text-3xl font-bold text-text-primary lg:text-4xl">{t('title')}</h2>
         </div>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {TESTIMONIAL_KEYS.map((key) => {
+          {TESTIMONIAL_KEYS.map((key, index) => {
             const name = t(`items.${key}.name`);
 
             return (
               <article
                 key={key}
-                className="glass-panel flex h-full flex-col justify-between rounded-xl p-8"
+                className="reveal-item reveal-item-scale glass-panel flex h-full flex-col justify-between rounded-xl p-8"
+                style={revealStyle(index + 1)}
               >
                 <p className="mb-8 italic leading-relaxed text-text-primary">
                   &ldquo;{t(`items.${key}.quote`)}&rdquo;
@@ -56,7 +58,10 @@ export function TestimonialsSection() {
           })}
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-3 text-center lg:mt-16">
+        <div
+          className="reveal-item mt-12 flex flex-col items-center gap-3 text-center lg:mt-16"
+          style={revealStyle(TESTIMONIAL_KEYS.length + 1)}
+        >
           <p className="max-w-xl text-text-secondary">{t('ctaHint')}</p>
           <PlaygroundCta className="px-8 py-3.5 text-base" />
         </div>

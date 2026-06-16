@@ -2,6 +2,7 @@ import { BookOpen, Code2, FolderKanban, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { useT } from '@/i18n/useT';
+import { revealStyle } from '@/lib/reveal';
 
 import { PlaygroundCta } from './PlaygroundCta';
 import { ScrollReveal } from './ScrollReveal';
@@ -60,10 +61,14 @@ export function HowItWorksSection() {
     <ScrollReveal
       as="section"
       id="how-it-works"
+      stagger
       className="relative overflow-hidden py-16 lg:py-24"
     >
       <div className="site-container relative z-10">
-        <div className="mx-auto mb-12 max-w-2xl text-center lg:mb-16">
+        <div
+          className="reveal-item mx-auto mb-12 max-w-2xl text-center lg:mb-16"
+          style={revealStyle(0)}
+        >
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
             {t('eyebrow')}
           </p>
@@ -73,19 +78,27 @@ export function HowItWorksSection() {
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {STEPS.map(({ key, icon, accent }, index) => (
-            <StepCard
+            <div
               key={key}
-              step={index + 1}
-              title={t(`steps.${key}.title`)}
-              description={t(`steps.${key}.description`)}
-              detail={t(`steps.${key}.detail`)}
-              icon={icon}
-              accent={accent}
-            />
+              className="reveal-item reveal-item-scale"
+              style={revealStyle(index + 1)}
+            >
+              <StepCard
+                step={index + 1}
+                title={t(`steps.${key}.title`)}
+                description={t(`steps.${key}.description`)}
+                detail={t(`steps.${key}.detail`)}
+                icon={icon}
+                accent={accent}
+              />
+            </div>
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-3 text-center lg:mt-16">
+        <div
+          className="reveal-item mt-12 flex flex-col items-center gap-3 text-center lg:mt-16"
+          style={revealStyle(STEPS.length + 1)}
+        >
           <p className="max-w-xl text-text-secondary">{t('ctaHint')}</p>
           <PlaygroundCta variant="outline" className="px-8 py-3.5 text-base" />
         </div>

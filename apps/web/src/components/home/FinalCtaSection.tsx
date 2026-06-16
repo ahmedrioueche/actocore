@@ -3,6 +3,7 @@ import { useT } from '@/i18n/useT';
 import { CtaButton } from '@/components/site/CtaButton';
 import { LocaleLink } from '@/i18n/LocaleLink';
 import { playgroundPath, studioAuthPath } from '@/lib/site';
+import { revealStyle } from '@/lib/reveal';
 
 import { ScrollReveal } from './ScrollReveal';
 
@@ -10,14 +11,25 @@ export function FinalCtaSection() {
   const { t } = useT('home.finalCta');
 
   return (
-    <ScrollReveal as="section" className="relative overflow-hidden py-16 lg:py-24">
+    <ScrollReveal as="section" stagger className="relative overflow-hidden py-16 lg:py-24">
       <div className="absolute inset-0 -z-10 bg-primary-muted" aria-hidden />
       <div className="site-container mx-auto max-w-4xl text-center">
-        <h2 className="mb-8 text-4xl font-extrabold leading-tight text-text-primary lg:text-5xl">
+        <h2
+          className="reveal-item mb-8 text-4xl font-extrabold leading-tight text-text-primary lg:text-5xl"
+          style={revealStyle(0)}
+        >
           {t('title')}
         </h2>
-        <p className="mb-12 text-lg text-text-secondary">{t('subtitle')}</p>
-        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <p
+          className="reveal-item mb-12 text-lg text-text-secondary"
+          style={revealStyle(1)}
+        >
+          {t('subtitle')}
+        </p>
+        <div
+          className="reveal-item flex flex-col items-center justify-center gap-4 sm:flex-row"
+          style={revealStyle(2)}
+        >
           <CtaButton
             href={studioAuthPath('signup')}
             className="w-full px-12 py-5 text-lg sm:w-auto"
@@ -31,7 +43,9 @@ export function FinalCtaSection() {
             {t('ctaSecondary')}
           </LocaleLink>
         </div>
-        <p className="mt-8 text-sm text-muted">{t('footnote')}</p>
+        <p className="reveal-item mt-8 text-sm text-muted" style={revealStyle(3)}>
+          {t('footnote')}
+        </p>
       </div>
     </ScrollReveal>
   );
