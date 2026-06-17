@@ -314,9 +314,31 @@
   "projectDocs": {
     "subtitle": "Guide d'intégration pour {{project}}",
     "subtitleFallback": "Intégrez ActoCore dans votre application.",
+    "sidebarTitle": "Guide",
+    "learnMore": "Lire le guide complet",
     "copyCode": "Copier le code",
     "copied": "Copié",
     "viewActionCode": "Gestionnaires d'actions",
+    "nav": {
+      "overview": "Vue d'ensemble",
+      "quickStart": "Démarrage rapide",
+      "apiKeys": "Clés API",
+      "knowledge": "Connaissances",
+      "actions": "Actions",
+      "appLayout": "App layout",
+      "sdkConfig": "Config SDK",
+      "sdkUpdates": "Mises à jour SDK"
+    },
+    "contextualTips": {
+      "appLayout": {
+        "title": "Contexte de route pour l'assistant",
+        "body": "Envoyez le chemin URL actuel lors de la navigation pour qu'ActoCore puisse faire correspondre vos routes App layout."
+      },
+      "sdkConfig": {
+        "title": "Appliquer les paramètres dans votre app",
+        "body": "Les paramètres enregistrés sont chargés par le SDK intégré lorsque loadRemoteConfig est activé sur ActocoreProvider."
+      }
+    },
     "gettingStarted": {
       "title": "Commencer",
       "body": "Each project is a separate ActoCore environment. Create an API key, add knowledge, define actions, then drop the SDK into your app. Dashboard SDK settings apply automatically when loadRemoteConfig is enabled."
@@ -338,7 +360,60 @@
       "apiKeys": "Créez une clé API pour le SDK et les requêtes du serveur. Gardez-le secret : utilisez les variables d'environnement en production.",
       "knowledge": "Téléchargez des documents et des URL pour que l'assistant puisse répondre à partir du contenu de votre produit.",
       "actions": "Définissez les outils que l'assistant peut exécuter dans le chat. Gestionnaires de câbles dans votre application avec des noms correspondants.",
+      "appLayout": "Mappez les écrans et routes de votre app pour que l'assistant sache où se trouvent les utilisateurs.",
       "sdkConfig": "Personnalisez les paramètres par défaut du thème, de la copie, des paramètres régionaux et de la sécurité chargés par le SDK intégré."
+    },
+    "sections": {
+      "apiKeys": {
+        "title": "Clés API",
+        "description": "Les clés API authentifient votre SDK intégré et les requêtes serveur pour ce projet.",
+        "bullets": [
+          "Créez une clé distincte par environnement (développement, staging, production).",
+          "Stockez les clés dans des variables d'environnement — ne les committez jamais.",
+          "Révoquez immédiatement une clé exposée ; créez-en une nouvelle et redéployez.",
+          "La clé complète n'est affichée qu'une fois à la création — copiez-la avant de fermer la boîte de dialogue."
+        ]
+      },
+      "knowledge": {
+        "title": "Connaissances",
+        "description": "Les sources de connaissances alimentent les réponses Q&R à partir de votre contenu produit.",
+        "bullets": [
+          "Téléchargez des documents, collez du texte ou ajoutez des URL et sitemaps depuis la page Connaissances.",
+          "Les sources sont découpées et indexées automatiquement ; le statut indique quand le contenu est prêt.",
+          "Les réponses citent les extraits correspondants lorsque l'assistant utilise la recherche (RAG).",
+          "Mettez à jour ou supprimez des sources à tout moment — les changements s'appliquent aux nouveaux messages après indexation."
+        ]
+      },
+      "actions": {
+        "title": "Actions",
+        "description": "Les actions sont des outils que l'assistant peut proposer dans le chat ; votre app exécute la logique réelle.",
+        "bullets": [
+          "Définissez chaque action dans Studio avec un nom, une description et un schéma de paramètres.",
+          "Enregistrez un gestionnaire correspondant via la prop actions sur ActocoreProvider.",
+          "Les utilisateurs confirment avant l'exécution — les gestionnaires ne s'exécutent qu'après approbation.",
+          "Utilisez les paramètres de sécurité SDK ou allowedActionNames pour restreindre les actions exécutables dans le navigateur."
+        ]
+      },
+      "appLayout": {
+        "title": "App layout",
+        "description": "Envoyez le chemin URL actuel lors de la navigation. ActoCore le fait correspondre aux routes définies ici et résout la page automatiquement.",
+        "tipTitle": "Pas de code par page",
+        "tipBody": "Définissez les routes une fois dans App layout. Dans votre app, passez uniquement route (par ex. location.pathname). Pas besoin de définir currentPage pour chaque écran.",
+        "hookLabel": "React — mise à jour à la navigation",
+        "oneLinerLabel": "Mise à jour ponctuelle"
+      },
+      "sdkConfig": {
+        "title": "Configuration SDK",
+        "description": "Personnalisez l'apparence et le comportement du chat intégré. Les props locales sur ActocoreProvider remplacent toujours les valeurs du tableau de bord.",
+        "loadRemoteConfigTitle": "Activer la config distante",
+        "loadRemoteConfigBody": "Les paramètres enregistrés sont chargés par le SDK intégré lorsque l'app hôte active loadRemoteConfig sur ActocoreProvider.",
+        "codeLabel": "Exemple de provider",
+        "bullets": [
+          "Thème, textes, position du lanceur et locale peuvent être configurés ici.",
+          "Les listes d'autorisation d'actions et de sections s'appliquent avec loadRemoteConfig.",
+          "Les changements prennent effet dans les apps intégrées sans réinstallation npm lorsque le rafraîchissement distant est actif."
+        ]
+      }
     },
     "updates": {
       "title": "Mises à jour du SDK",

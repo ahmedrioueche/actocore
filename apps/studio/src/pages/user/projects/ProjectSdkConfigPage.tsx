@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { DocsLearnMoreLink } from "@/components/projects/docs/DocsLearnMoreLink";
 import { SdkConfigForm } from "@/components/sdk-config/SdkConfigForm";
 import { AsyncContent } from "@/components/states";
 import Button from "@/components/ui/Button";
@@ -110,11 +111,11 @@ export default function ProjectSdkConfigPage() {
       >
         {projectId ? (
           <div className="space-y-4">
-            <Tip title={t("sdkConfig.loadRemoteConfigTip.title")}>
-              <p>{t("sdkConfig.loadRemoteConfigTip.body")}</p>
-              <pre className="overflow-x-auto rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-text-primary whitespace-pre-wrap">
-                {t("sdkConfig.loadRemoteConfigTip.codeExample")}
-              </pre>
+            <Tip title={t("projectDocs.contextualTips.sdkConfig.title")}>
+              <p>
+                {t("projectDocs.contextualTips.sdkConfig.body")}{" "}
+                <DocsLearnMoreLink sectionId="sdk-config" />
+              </p>
             </Tip>
 
             {!canWrite ? (

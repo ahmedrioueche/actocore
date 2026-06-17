@@ -33,7 +33,15 @@ import OnboardingPage from "@/pages/user/onboarding/OnboardingPage";
 import ProjectAppLayoutPage from "@/pages/user/projects/ProjectAppLayoutPage";
 import ProjectActionsPage from "@/pages/user/projects/ProjectActionsPage";
 import ProjectApiKeysPage from "@/pages/user/projects/ProjectApiKeysPage";
-import ProjectDocsPage from "@/pages/user/projects/ProjectDocsPage";
+import ProjectDocsLayout from "@/components/projects/docs/ProjectDocsLayout";
+import ProjectDocsActionsPage from "@/pages/user/projects/docs/ProjectDocsActionsPage";
+import ProjectDocsApiKeysPage from "@/pages/user/projects/docs/ProjectDocsApiKeysPage";
+import ProjectDocsAppLayoutDocPage from "@/pages/user/projects/docs/ProjectDocsAppLayoutDocPage";
+import ProjectDocsKnowledgePage from "@/pages/user/projects/docs/ProjectDocsKnowledgePage";
+import ProjectDocsOverviewPage from "@/pages/user/projects/docs/ProjectDocsOverviewPage";
+import ProjectDocsQuickStartPage from "@/pages/user/projects/docs/ProjectDocsQuickStartPage";
+import ProjectDocsSdkConfigDocPage from "@/pages/user/projects/docs/ProjectDocsSdkConfigDocPage";
+import ProjectDocsSdkUpdatesPage from "@/pages/user/projects/docs/ProjectDocsSdkUpdatesPage";
 import ProjectKnowledgeDetailPage from "@/pages/user/projects/ProjectKnowledgeDetailPage";
 import ProjectKnowledgePage from "@/pages/user/projects/ProjectKnowledgePage";
 import ProjectOverviewPage from "@/pages/user/projects/ProjectOverviewPage";
@@ -167,11 +175,59 @@ const projectLayoutRoute = createRoute({
   component: ProjectAppLayoutPage,
 });
 
-const projectDocsRoute = createRoute({
+const projectDocsLayoutRoute = createRoute({
   getParentRoute: () => studioLayoutRoute,
   path: "/projects/$projectId/docs",
   beforeLoad: ({ params }) => requireProjectAccessSync(params.projectId),
-  component: ProjectDocsPage,
+  component: ProjectDocsLayout,
+});
+
+const projectDocsIndexRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/",
+  component: ProjectDocsOverviewPage,
+});
+
+const projectDocsQuickStartRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/quick-start",
+  component: ProjectDocsQuickStartPage,
+});
+
+const projectDocsApiKeysDocRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/api-keys",
+  component: ProjectDocsApiKeysPage,
+});
+
+const projectDocsKnowledgeDocRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/knowledge",
+  component: ProjectDocsKnowledgePage,
+});
+
+const projectDocsActionsDocRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/actions",
+  component: ProjectDocsActionsPage,
+});
+
+const projectDocsAppLayoutDocRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/app-layout",
+  component: ProjectDocsAppLayoutDocPage,
+});
+
+const projectDocsSdkConfigDocRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/sdk-config",
+  component: ProjectDocsSdkConfigDocPage,
+});
+
+const projectDocsSdkUpdatesRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/sdk-updates",
+  component: ProjectDocsSdkUpdatesPage,
 });
 
 const projectKnowledgeRoute = createRoute({
@@ -383,7 +439,16 @@ const routeTree = rootRoute.addChildren([
     projectsRoute,
     projectOverviewRoute,
     projectLayoutRoute,
-    projectDocsRoute,
+    projectDocsLayoutRoute.addChildren([
+      projectDocsIndexRoute,
+      projectDocsQuickStartRoute,
+      projectDocsApiKeysDocRoute,
+      projectDocsKnowledgeDocRoute,
+      projectDocsActionsDocRoute,
+      projectDocsAppLayoutDocRoute,
+      projectDocsSdkConfigDocRoute,
+      projectDocsSdkUpdatesRoute,
+    ]),
     projectKnowledgeRoute,
     projectKnowledgeDetailRoute,
     projectActionsRoute,

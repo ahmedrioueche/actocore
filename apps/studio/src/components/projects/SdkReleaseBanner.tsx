@@ -25,9 +25,8 @@ export function SdkReleaseBanner({ projectId }: SdkReleaseBannerProps) {
 
   const handleViewUpdates = () => {
     void navigate({
-      to: '/projects/$projectId/docs',
+      to: '/projects/$projectId/docs/sdk-updates',
       params: { projectId },
-      hash: 'sdk-updates',
     });
   };
 

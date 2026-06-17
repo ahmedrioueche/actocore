@@ -320,9 +320,31 @@
   "projectDocs": {
     "subtitle": "Integration guide for {{project}}",
     "subtitleFallback": "Embed ActoCore in your application.",
+    "sidebarTitle": "Guide",
+    "learnMore": "Read the full guide",
     "copyCode": "Copy code",
     "copied": "Copied",
     "viewActionCode": "Action handlers",
+    "nav": {
+      "overview": "Overview",
+      "quickStart": "Quick start",
+      "apiKeys": "API keys",
+      "knowledge": "Knowledge",
+      "actions": "Actions",
+      "appLayout": "App layout",
+      "sdkConfig": "SDK config",
+      "sdkUpdates": "SDK updates"
+    },
+    "contextualTips": {
+      "appLayout": {
+        "title": "Route context for the assistant",
+        "body": "Send the current URL path when users navigate so ActoCore can match your app layout routes."
+      },
+      "sdkConfig": {
+        "title": "Apply settings in your app",
+        "body": "Saved settings load in the embedded SDK when loadRemoteConfig is enabled on ActocoreProvider."
+      }
+    },
     "gettingStarted": {
       "title": "Getting started",
       "body": "Each project is a separate ActoCore environment. Create an API key, add knowledge, define actions, then drop the SDK into your app. Dashboard SDK settings apply automatically when loadRemoteConfig is enabled."
@@ -344,7 +366,60 @@
       "apiKeys": "Create an API key for SDK and server requests. Keep it secret — use env vars in production.",
       "knowledge": "Upload documents and URLs so the assistant can answer from your product content.",
       "actions": "Define tools the assistant can run in chat. Wire handlers in your app with matching names.",
+      "appLayout": "Map your app screens and routes so the assistant knows where users are.",
       "sdkConfig": "Customize theme, copy, locale, and security defaults loaded by the embedded SDK."
+    },
+    "sections": {
+      "apiKeys": {
+        "title": "API keys",
+        "description": "API keys authenticate your embedded SDK and server-side requests against this project.",
+        "bullets": [
+          "Create a separate key per environment (development, staging, production).",
+          "Store keys in environment variables — never commit them to source control.",
+          "Revoke a key immediately if it is exposed; create a replacement and redeploy.",
+          "The full key is shown only once when created — copy it before closing the dialog."
+        ]
+      },
+      "knowledge": {
+        "title": "Knowledge",
+        "description": "Knowledge sources power Q&A answers from your product content.",
+        "bullets": [
+          "Upload documents, paste text, or add URLs and sitemaps from the Knowledge page.",
+          "Sources are chunked and indexed automatically; status shows when content is ready.",
+          "Answers cite matching chunks when the assistant uses retrieval (RAG).",
+          "Update or remove sources anytime — changes apply to new chat messages after indexing."
+        ]
+      },
+      "actions": {
+        "title": "Actions",
+        "description": "Actions are tools the assistant can propose in chat; your app runs the real logic.",
+        "bullets": [
+          "Define each action in Studio with a name, description, and parameter schema.",
+          "Register a matching handler in your app via the actions prop on ActocoreProvider.",
+          "Users confirm before an action runs — handlers execute only after approval.",
+          "Use SDK config security settings or allowedActionNames to restrict which actions can run in the browser."
+        ]
+      },
+      "appLayout": {
+        "title": "App layout",
+        "description": "Send the current URL path when users navigate. ActoCore matches it against the routes you define here and resolves the page automatically.",
+        "tipTitle": "No per-page code",
+        "tipBody": "Define routes once in App layout. In your app, pass only route (for example location.pathname). You do not need to set currentPage for each screen.",
+        "hookLabel": "React — update on navigation",
+        "oneLinerLabel": "One-off update"
+      },
+      "sdkConfig": {
+        "title": "SDK config",
+        "description": "Customize how the embedded chat looks and behaves. Local props on ActocoreProvider still override dashboard values.",
+        "loadRemoteConfigTitle": "Enable remote config",
+        "loadRemoteConfigBody": "Saved settings are loaded by the embedded SDK when the host app enables loadRemoteConfig on ActocoreProvider.",
+        "codeLabel": "Provider example",
+        "bullets": [
+          "Theme, copy, launcher position, and locale can be configured here.",
+          "Security allowlists for actions and sections apply when loadRemoteConfig is enabled.",
+          "Changes take effect in embedded apps without an npm reinstall when remote config polling or refresh is active."
+        ]
+      }
     },
     "updates": {
       "title": "SDK updates",
