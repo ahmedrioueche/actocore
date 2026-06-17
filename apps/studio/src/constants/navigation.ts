@@ -1,3 +1,4 @@
+import type { StudioProductTourStep } from '@ahmedrioueche/actocore-shared';
 import type { StudioAuthMeData } from "@ahmedrioueche/actocore-shared";
 import { StudioPermission, StudioRole } from "@ahmedrioueche/actocore-shared";
 import type { LucideIcon } from "lucide-react";
@@ -27,6 +28,8 @@ export interface StudioNavLink {
   permission?: string;
   /** When true, active only on exact path match (not sub-routes). */
   exact?: boolean;
+  /** Product tour coachmark step anchored to this nav item. */
+  tourStep?: StudioProductTourStep;
 }
 
 export const STUDIO_NAV_LINKS: StudioNavLink[] = [
@@ -99,6 +102,7 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       icon: FileText,
       matchPaths: [`${base}/docs`],
       permission: StudioPermission.PROJECT_READ,
+      tourStep: "docs",
     },
     {
       path: `${base}/api-keys`,
@@ -106,6 +110,7 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       icon: KeyRound,
       matchPaths: [`${base}/api-keys`],
       permission: StudioPermission.API_KEYS_READ,
+      tourStep: "api_keys",
     },
     {
       path: `${base}/knowledge`,
@@ -113,6 +118,7 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       icon: BookOpen,
       matchPaths: [`${base}/knowledge`],
       permission: StudioPermission.KNOWLEDGE_READ,
+      tourStep: "knowledge",
     },
 
     {
@@ -121,6 +127,7 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       icon: Zap,
       matchPaths: [`${base}/actions`],
       permission: StudioPermission.ACTIONS_READ,
+      tourStep: "actions",
     },
     {
       path: `${base}/layout`,
@@ -128,6 +135,7 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       icon: Map,
       matchPaths: [`${base}/layout`],
       permission: StudioPermission.ACTIONS_READ,
+      tourStep: "app_layout",
     },
     {
       path: `${base}/sdk-config`,
@@ -135,6 +143,7 @@ export function getProjectNavLinks(projectId: string): StudioNavLink[] {
       icon: SlidersHorizontal,
       matchPaths: [`${base}/sdk-config`],
       permission: StudioPermission.SDK_CONFIG_READ,
+      tourStep: "sdk_config",
     },
     {
       path: `${base}/usage`,

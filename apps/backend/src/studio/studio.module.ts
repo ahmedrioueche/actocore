@@ -58,6 +58,8 @@ import { StudioAccountController } from './studio-account.controller';
 import { StudioAccountService } from './studio-account.service';
 import { StudioOnboardingController } from './studio-onboarding.controller';
 import { StudioOnboardingService } from './studio-onboarding.service';
+import { StudioProductTourController } from './studio-product-tour.controller';
+import { StudioProductTourService } from './studio-product-tour.service';
 import { StudioAuthController } from './studio-auth.controller';
 import { StudioContactController } from './studio-contact.controller';
 import { StudioReportsController } from './studio-reports.controller';
@@ -132,6 +134,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioReportsController,
     StudioAccountController,
     StudioOnboardingController,
+    StudioProductTourController,
     StudioPlatformController,
     StudioPlatformAuthController,
     StudioPlatformManagersController,
@@ -144,6 +147,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioAuthService,
     StudioAccountService,
     StudioOnboardingService,
+    StudioProductTourService,
     StudioEmailService,
     StudioReportsService,
     StudioMembersService,

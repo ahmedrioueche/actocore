@@ -14,6 +14,7 @@ export * from "./error";
 export * from "./health";
 export * from "./knowledge";
 export * from "./onboarding";
+export * from "./product-tour";
 export * from "./pagination";
 export * from "./platform";
 export * from "./project";

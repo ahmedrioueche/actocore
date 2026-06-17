@@ -73,6 +73,9 @@ export const queryKeys = {
   onboarding: {
     state: () => ["onboarding", "state"] as const,
   },
+  productTour: {
+    state: () => ["productTour", "state"] as const,
+  },
   apiKeys: {
     lists: (projectId: string) => ["apiKeys", "list", projectId] as const,
     list: (projectId: string, params: PaginationQuery = {}) =>

@@ -2,12 +2,15 @@ import { Link } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { TourAnchor } from '@/components/product-tour/TourAnchor';
+import type { StudioNavLink } from '@/constants/navigation';
 import { cn } from '@/utils/helper';
 
 export interface SidebarMenuItemLink {
   path: string;
   labelKey: string;
   icon: LucideIcon;
+  tourStep?: StudioNavLink['tourStep'];
 }
 
 interface SidebarMenuItemProps {
@@ -26,7 +29,7 @@ export function SidebarMenuItem({
   const { t } = useTranslation();
   const Icon = link.icon;
 
-  return (
+  const item = (
     <Link
       to={link.path}
       preload="intent"
@@ -52,4 +55,14 @@ export function SidebarMenuItem({
       </span>
     </Link>
   );
+
+  if (link.tourStep) {
+    return (
+      <TourAnchor step={link.tourStep} className="w-full">
+        {item}
+      </TourAnchor>
+    );
+  }
+
+  return item;
 }

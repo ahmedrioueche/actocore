@@ -2,6 +2,18 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { StudioRole } from '@ahmedrioueche/actocore-shared';
 
+@Schema({ _id: false })
+export class StudioProductTourSchema {
+  @Prop({ default: 1 })
+  version!: number;
+
+  @Prop({ default: false })
+  dismissed!: boolean;
+
+  @Prop({ type: [String], default: [] })
+  completedSteps!: string[];
+}
+
 @Schema({ collection: 'studio_memberships', timestamps: true })
 export class StudioMembership {
   @Prop({ type: Types.ObjectId, required: true, ref: 'StudioUser', index: true })
@@ -23,6 +35,16 @@ export class StudioMembership {
   /** Assigned projects for editors; empty = all projects in account (admin). */
   @Prop({ type: [String], default: [] })
   projectIds!: string[];
+
+  @Prop({
+    type: StudioProductTourSchema,
+    default: () => ({
+      version: 1,
+      dismissed: false,
+      completedSteps: [],
+    }),
+  })
+  productTour!: StudioProductTourSchema;
 
   createdAt?: Date;
   updatedAt?: Date;

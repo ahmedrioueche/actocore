@@ -1601,6 +1601,41 @@
       "system": "Système"
     }
   },
+  "productTour": {
+    "skip": "Ignorer la visite",
+    "next": "Suivant",
+    "done": "Terminé",
+    "steps": {
+      "open_project": {
+        "title": "Ouvrez votre projet",
+        "body": "Chaque projet est un environnement d'assistant distinct. Cliquez sur une carte projet pour entrer dans son espace."
+      },
+      "docs": {
+        "title": "Guide d'intégration",
+        "body": "Commencez ici pour les étapes d'installation, les extraits de code et le parcours de configuration."
+      },
+      "api_keys": {
+        "title": "Clés API",
+        "body": "Créez une clé pour authentifier le SDK intégré dans votre application."
+      },
+      "knowledge": {
+        "title": "Connaissances",
+        "body": "Téléchargez le contenu produit pour que l'assistant réponde à partir de vos documents."
+      },
+      "actions": {
+        "title": "Actions",
+        "body": "Définissez les outils que l'assistant peut proposer dans le chat — puis branchez les gestionnaires dans votre app."
+      },
+      "app_layout": {
+        "title": "App layout",
+        "body": "Mappez les routes de votre app pour que l'assistant sache sur quel écran se trouve l'utilisateur."
+      },
+      "sdk_config": {
+        "title": "Config SDK",
+        "body": "Personnalisez le thème, les textes et la sécurité chargés par le chat intégré."
+      }
+    }
+  },
   "onboarding": {
     "skip": "Passer pour l'instant",
     "setupLabel": "Installation",

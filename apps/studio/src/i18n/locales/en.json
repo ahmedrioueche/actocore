@@ -1671,6 +1671,41 @@
       "system": "System"
     }
   },
+  "productTour": {
+    "skip": "Skip tour",
+    "next": "Next",
+    "done": "Done",
+    "steps": {
+      "open_project": {
+        "title": "Open your project",
+        "body": "Each project is a separate assistant environment. Click a project card to enter its workspace."
+      },
+      "docs": {
+        "title": "Integration guide",
+        "body": "Start here for install steps, code snippets, and setup walkthroughs."
+      },
+      "api_keys": {
+        "title": "API keys",
+        "body": "Create a key to authenticate the embedded SDK in your application."
+      },
+      "knowledge": {
+        "title": "Knowledge",
+        "body": "Upload product content so the assistant can answer questions from your docs."
+      },
+      "actions": {
+        "title": "Actions",
+        "body": "Define tools the assistant can propose in chat — then wire handlers in your app."
+      },
+      "app_layout": {
+        "title": "App layout",
+        "body": "Map your app routes so the assistant knows which screen the user is on."
+      },
+      "sdk_config": {
+        "title": "SDK config",
+        "body": "Customize theme, copy, and security settings loaded by the embedded chat."
+      }
+    }
+  },
   "onboarding": {
     "skip": "Skip for now",
     "setupLabel": "Setup",
