@@ -11,6 +11,7 @@ import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryClient } from '@/lib/query-client';
 import { queryKeys } from '@/lib/query-keys';
 import { clearTestAccountLease } from '@/lib/test-account-lease';
+import { prefetchOnboardingState } from '@/routes/guards';
 
 let logoutInProgress = false;
 let refreshInFlight: Promise<boolean> | null = null;
@@ -166,9 +167,11 @@ export async function fetchAuthSession(): Promise<StudioAuthMeData> {
 
 async function refreshAuthSessionInBackground(): Promise<void> {
   try {
-    await fetchAuthSession();
+    const res = await studioAuthApi.me();
+    const session = parseApiResponse(res, { redirectOnUnauthorized: false });
+    setAuthSessionCache(session);
   } catch {
-    // Keep the login-seeded session when `/me` races logout or transient 401.
+    // Keep the login-seeded session when `/me` races or transiently fails.
   }
 }
 
@@ -177,8 +180,12 @@ export async function hydrateAuthSession(
   loginData: StudioSessionData,
 ): Promise<StudioAuthMeData> {
   const session = sessionFromLogin(loginData);
-  queryClient.resetQueries({ queryKey: queryKeys.auth.me() });
   setAuthSessionCache(session);
+  try {
+    await prefetchOnboardingState();
+  } catch {
+    // Onboarding fetch is best-effort during sign-in.
+  }
   void refreshAuthSessionInBackground();
   return session;
 }

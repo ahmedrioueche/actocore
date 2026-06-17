@@ -11,6 +11,8 @@ import {
   isLogoutInProgress,
   resolveLoginRedirect,
 } from '@/lib/auth-session';
+import { queryClient } from '@/lib/query-client';
+import { queryKeys } from '@/lib/query-keys';
 import { isAdminPath, signOutPlatform } from '@/lib/platform-session';
 
 type Axios401Error = {
@@ -51,12 +53,26 @@ function isAuthPublicUrl(url: string): boolean {
 let configured = false;
 let interceptorAttached = false;
 
+function isOnAdminRoute(): boolean {
+  return typeof window !== 'undefined' && isAdminPath(window.location.pathname);
+}
+
 async function handleUnauthorizedForUrl(requestUrl: string): Promise<void> {
   if (isLogoutInProgress()) {
     return;
   }
 
-  if (isPlatformApiUrl(requestUrl) || isAdminPath(window.location.pathname)) {
+  if (isPlatformApiUrl(requestUrl)) {
+    // Tenant sessions use studio tokens; a failed platform probe must not sign out studio.
+    if (!isOnAdminRoute()) {
+      queryClient.removeQueries({ queryKey: queryKeys.platform.me() });
+      return;
+    }
+    await signOutPlatform();
+    return;
+  }
+
+  if (isOnAdminRoute()) {
     await signOutPlatform();
     return;
   }
@@ -81,6 +97,12 @@ function attachUnauthorizedInterceptor(): void {
       }
 
       const requestUrl = axiosError.config?.url ?? '';
+
+      if (isPlatformApiUrl(requestUrl) && !isOnAdminRoute()) {
+        queryClient.removeQueries({ queryKey: queryKeys.platform.me() });
+        return Promise.reject(error);
+      }
+
       if (isAuthPublicUrl(requestUrl)) {
         await handleUnauthorizedForUrl(requestUrl);
         return Promise.reject(error);
@@ -100,7 +122,8 @@ function attachUnauthorizedInterceptor(): void {
       }
 
       const usePlatformRefresh =
-        isPlatformApiUrl(requestUrl) || isAdminPath(window.location.pathname);
+        isOnAdminRoute() &&
+        (isPlatformApiUrl(requestUrl) || isAdminPath(window.location.pathname));
       const refreshed = usePlatformRefresh
         ? await platformAuthApi.refresh()
         : await studioAuthApi.refresh();

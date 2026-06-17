@@ -10,15 +10,23 @@ import {
 } from '@ahmedrioueche/actocore-shared';
 
 import { ensureApiConfigured } from '@/lib/configure-api';
+import { isAdminPath } from '@/lib/platform-session';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
+import { useWindowPathname } from '@/hooks/use-window-pathname';
 
 export function usePlatformMe(enabled = true) {
+  const pathname = useWindowPathname();
+  const onAdminRoute = isAdminPath(pathname);
   ensureApiConfigured();
   return useQuery({
     queryKey: queryKeys.platform.me(),
-    queryFn: async () => parseApiResponse(await platformAuthApi.me()),
-    enabled: enabled && Boolean(TokenManager.getAccessToken()),
+    queryFn: async () =>
+      parseApiResponse(await platformAuthApi.me(), {
+        redirectOnUnauthorized: false,
+      }),
+    enabled:
+      enabled && onAdminRoute && Boolean(TokenManager.getAccessToken()),
     retry: false,
   });
 }

@@ -1,13 +1,15 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { studioAuthApi } from '@ahmedrioueche/actocore-shared';
 
 import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import Loading from '@/components/ui/Loading';
+import { hydrateAuthSession } from '@/lib/auth-session';
 import { ensureApiConfigured } from '@/lib/configure-api';
 import { parseApiResponse } from '@/lib/parse-api-response';
+import { resolveAuthenticatedHomePath } from '@/routes/guards';
 
 const exchangePromises = new Map<string, Promise<void>>();
 
@@ -33,7 +35,8 @@ async function exchangeGoogleOAuthCode(code: string): Promise<void> {
   const promise = (async () => {
     ensureApiConfigured();
     const res = await studioAuthApi.completeGoogleAuth({ code });
-    parseApiResponse(res);
+    const session = parseApiResponse(res);
+    await hydrateAuthSession(session);
   })();
 
   exchangePromises.set(code, promise);
@@ -49,6 +52,7 @@ export default function AuthCallbackPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [failed, setFailed] = useState(false);
+  const exchangeStartedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,10 +68,15 @@ export default function AuthCallbackPage() {
         return;
       }
 
+      if (exchangeStartedRef.current) {
+        return;
+      }
+      exchangeStartedRef.current = true;
+
       try {
         await exchangeGoogleOAuthCode(code);
         if (!cancelled) {
-          void navigate({ to: '/', replace: true });
+          void navigate({ to: resolveAuthenticatedHomePath(), replace: true });
         }
       } catch (err) {
         if (import.meta.env.DEV) {

@@ -41,10 +41,10 @@ export default function EditReportModal() {
   const currentModal = useModalStore((state) => state.currentModal);
   const modalProps = useModalStore((state) => state.modalProps);
   const closeModal = useModalStore((state) => state.closeModal);
-  const session = usePlatformMe().data;
+  const isOpen = currentModal === 'editReport';
+  const session = usePlatformMe(isOpen).data;
   const updateStatus = useUpdateReportStatus();
 
-  const isOpen = currentModal === 'editReport';
   const reportId = (modalProps as EditReportModalProps | null)?.reportId;
   const reportQuery = usePlatformReport(isOpen ? reportId : undefined);
   const canWrite = canAccessPlatform(session, PlatformPermission.REPORTS_WRITE);

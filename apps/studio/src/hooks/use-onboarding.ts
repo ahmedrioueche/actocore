@@ -3,6 +3,7 @@ import {
   accountApi,
   onboardingApi,
   projectsApi,
+  type StudioAuthMeData,
   type StudioOnboardingStateData,
   type StudioOnboardingStep,
   type UpdateStudioAccountDto,
@@ -78,8 +79,25 @@ export function useUpdateWorkspaceSettings() {
       ensureApiConfigured();
       return parseApiResponse(await accountApi.updateAccount(body));
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+    onSuccess: (data) => {
+      queryClient.setQueryData<StudioAuthMeData | undefined>(
+        queryKeys.auth.me(),
+        (current) => {
+          if (!current) {
+            return current;
+          }
+          return {
+            ...current,
+            account: {
+              ...current.account,
+              name: data.name,
+              billingEmail: data.billingEmail,
+              timezone: data.timezone,
+              defaultLocale: data.defaultLocale,
+            },
+          };
+        },
+      );
     },
   });
 }

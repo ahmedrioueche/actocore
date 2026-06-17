@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AuthCard } from '@/components/auth/AuthCard';
@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import InputField from '@/components/ui/InputField';
 import Loading from '@/components/ui/Loading';
 import { useVerifyEmail } from '@/hooks/use-auth';
+import { TENANT_ONBOARDING_HOME } from '@/lib/tenant-workspace';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
@@ -23,14 +24,13 @@ export default function VerifyEmailPage() {
 
   const [token, setToken] = useState(search.token ?? '');
   const [autoDone, setAutoDone] = useState(false);
+  const autoVerifyStartedRef = useRef(false);
 
   const runVerify = async (value: string) => {
     try {
       await verify.mutateAsync(value.trim());
       setAutoDone(true);
-      setTimeout(() => {
-        void navigate({ to: '/' });
-      }, 1500);
+      void navigate({ to: TENANT_ONBOARDING_HOME, replace: true });
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
       toast.error(
@@ -43,9 +43,11 @@ export default function VerifyEmailPage() {
   };
 
   useEffect(() => {
-    if (search.token && !autoDone && !verify.isPending) {
-      void runVerify(search.token);
+    if (!search.token || autoVerifyStartedRef.current) {
+      return;
     }
+    autoVerifyStartedRef.current = true;
+    void runVerify(search.token);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- auto-verify once from URL
   }, [search.token]);
 

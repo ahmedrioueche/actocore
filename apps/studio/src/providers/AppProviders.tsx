@@ -12,7 +12,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { usePlatformMe } from "@/hooks/use-platform-auth";
 import { useWindowPathname } from "@/hooks/use-window-pathname";
 import i18n from "@/i18n";
-import { forceLogout, shouldRedirectToLogin } from "@/lib/auth-session";
+import { forceLogout, isPublicAppPath, shouldRedirectToLogin } from "@/lib/auth-session";
 import { isAdminPath, isAdminPublicPath } from "@/lib/platform-session";
 import { queryClient } from "@/lib/query-client";
 import Modals from "@/modals/Modals";
@@ -65,7 +65,9 @@ function StudioRouter() {
       return;
     }
     if (hasToken && isError && !resolvedSession) {
-      void forceLogout();
+      if (!isPublicAppPath(pathname)) {
+        void forceLogout();
+      }
       return;
     }
     if (shouldRedirectToLogin()) {

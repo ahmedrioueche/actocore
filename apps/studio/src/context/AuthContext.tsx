@@ -10,7 +10,7 @@ import {
 
 import { useAuthMe } from '@/hooks/use-auth';
 import { useWindowPathname } from '@/hooks/use-window-pathname';
-import { clearAuthSession } from '@/lib/auth-session';
+import { clearAuthSession, isPublicAppPath } from '@/lib/auth-session';
 import { isAdminPath } from '@/lib/platform-session';
 import { getCachedSession } from '@/routes/guards';
 
@@ -36,10 +36,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!hasToken || !meQuery.isError) {
       return;
     }
-    if (!TokenManager.getRefreshToken()) {
+    if (!TokenManager.getRefreshToken() && !isPublicAppPath(pathname)) {
       void clearAuthSession();
     }
-  }, [hasToken, meQuery.isError]);
+  }, [hasToken, meQuery.isError, pathname]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

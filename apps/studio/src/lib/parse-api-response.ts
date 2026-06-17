@@ -10,9 +10,16 @@ import {
 } from '@/lib/auth-session';
 
 /** Use inside TanStack Query `queryFn` / `mutationFn` — types come from shared only. */
-export function parseApiResponse<T>(response: ApiResponse<T>): T {
+export function parseApiResponse<T>(
+  response: ApiResponse<T>,
+  options?: { redirectOnUnauthorized?: boolean },
+): T {
   if (!response.success) {
-    if (isUnauthorizedResponse(response.errorCode) && !isLogoutInProgress()) {
+    if (
+      options?.redirectOnUnauthorized !== false &&
+      isUnauthorizedResponse(response.errorCode) &&
+      !isLogoutInProgress()
+    ) {
       void handleUnauthorized();
     }
     const err = new Error(response.message ?? response.errorCode ?? 'API_ERROR');
