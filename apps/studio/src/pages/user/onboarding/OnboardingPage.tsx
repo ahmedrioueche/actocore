@@ -27,17 +27,7 @@ import {
   useUpdateWorkspaceSettings,
 } from '@/hooks/use-onboarding';
 import { getApiErrorMessage } from '@/utils/statusMessage';
-
-function OnboardingError({ message }: { message: string }) {
-  return (
-    <p
-      className="rounded-lg border border-danger/15 bg-danger-surface/80 px-3.5 py-2.5 text-sm text-danger"
-      role="alert"
-    >
-      {message}
-    </p>
-  );
-}
+import { toast } from '@/stores/toast';
 
 export default function OnboardingPage() {
   const { t, i18n } = useTranslation();
@@ -59,7 +49,6 @@ export default function OnboardingPage() {
   const [uiLanguage, setUiLanguage] = useState<StudioLanguage>('en');
   const [projectName, setProjectName] = useState('');
   const [existingProjectId, setExistingProjectId] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.account.name) {
@@ -106,7 +95,7 @@ export default function OnboardingPage() {
 
   const handleError = (err: unknown) => {
     const code = (err as Error & { errorCode?: string }).errorCode;
-    setFormError(
+    toast.error(
       getApiErrorMessage(t, {
         errorCode: code,
         message: err instanceof Error ? err.message : undefined,
@@ -115,7 +104,6 @@ export default function OnboardingPage() {
   };
 
   const finishWelcome = async () => {
-    setFormError(null);
     try {
       await completeStep.mutateAsync('welcome');
     } catch (err) {
@@ -125,10 +113,9 @@ export default function OnboardingPage() {
 
   const finishWorkspace = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
     const name = workspaceName.trim();
     if (!name) {
-      setFormError(t('onboarding.workspace.nameRequired'));
+      toast.error(t('onboarding.workspace.nameRequired'));
       return;
     }
     try {
@@ -147,10 +134,9 @@ export default function OnboardingPage() {
 
   const finishProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
     const name = projectName.trim();
     if (!name) {
-      setFormError(t('onboarding.project.nameRequired'));
+      toast.error(t('onboarding.project.nameRequired'));
       return;
     }
     try {
@@ -167,7 +153,6 @@ export default function OnboardingPage() {
   };
 
   const handleSkip = async () => {
-    setFormError(null);
     try {
       await skipOnboarding.mutateAsync();
       goToProjects();
@@ -216,7 +201,6 @@ export default function OnboardingPage() {
         >
           <div className="space-y-6">
             <OnboardingWelcomeFeatures />
-            {formError ? <OnboardingError message={formError} /> : null}
             <AuthPrimaryButton
               type="button"
               loading={isBusy}
@@ -251,7 +235,6 @@ export default function OnboardingPage() {
               value={uiLanguage}
               onChange={setUiLanguage}
             />
-            {formError ? <OnboardingError message={formError} /> : null}
             <AuthPrimaryButton type="submit" loading={isBusy}>
               {t('common.continue')}
             </AuthPrimaryButton>
@@ -276,7 +259,6 @@ export default function OnboardingPage() {
               placeholder={t('onboarding.project.namePlaceholder')}
               required
             />
-            {formError ? <OnboardingError message={formError} /> : null}
             <AuthPrimaryButton type="submit" loading={isBusy}>
               {existingProjectId
                 ? t('onboarding.project.ctaRename')

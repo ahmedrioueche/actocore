@@ -7,6 +7,7 @@ import { AuthLayout } from '@/components/auth/AuthLayout';
 import Button from '@/components/ui/Button';
 import InputField from '@/components/ui/InputField';
 import { useForgotPassword } from '@/hooks/use-auth';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function ForgotPasswordPage() {
@@ -15,17 +16,15 @@ export default function ForgotPasswordPage() {
 
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
     try {
       await forgot.mutateAsync(email.trim());
       setSubmitted(true);
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setFormError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -78,11 +77,6 @@ export default function ForgotPasswordPage() {
             autoComplete="email"
             required
           />
-          {formError && (
-            <p className="text-sm text-danger" role="alert">
-              {formError}
-            </p>
-          )}
           <Button type="submit" fullWidth loading={forgot.isPending}>
             {t('auth.forgot.submit')}
           </Button>

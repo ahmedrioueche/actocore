@@ -7,6 +7,7 @@ import InputField from '@/components/ui/InputField';
 import { getRandomApiKeyName } from '@/constants/api-keys';
 import { useCreateApiKey } from '@/hooks/use-api-keys';
 import { useModalStore, type CreateApiKeyModalProps } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateApiKeyModal() {
@@ -22,12 +23,10 @@ export default function CreateApiKeyModal() {
   const createKey = useCreateApiKey(projectId ?? null);
 
   const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setName(getRandomApiKeyName());
-      setError(null);
     }
   }, [isOpen]);
 
@@ -41,13 +40,12 @@ export default function CreateApiKeyModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     try {
       const issued = await createKey.mutateAsync(name.trim() || undefined);
       openModal('issuedApiKey', { apiKey: issued.key });
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -96,11 +94,6 @@ export default function CreateApiKeyModal() {
             </button>
           }
         />
-        {error ? (
-          <p className="mt-3 text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
       </form>
     </BaseModal>
   );

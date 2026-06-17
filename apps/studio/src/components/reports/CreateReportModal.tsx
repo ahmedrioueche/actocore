@@ -1,7 +1,7 @@
 import { MessageSquarePlus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StudioReportType, ErrorCode } from '@ahmedrioueche/actocore-shared';
+import { StudioReportType } from '@ahmedrioueche/actocore-shared';
 
 import BaseModal from '@/components/ui/BaseModal';
 import CustomSelect from '@/components/ui/CustomSelect';
@@ -27,7 +27,6 @@ export default function CreateReportModal() {
   const [type, setType] = useState<StudioReportType>(StudioReportType.ISSUE);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState<string | null>(null);
 
   const typeOptions = useMemo(
     () =>
@@ -43,7 +42,6 @@ export default function CreateReportModal() {
     setType(StudioReportType.ISSUE);
     setSubject('');
     setMessage('');
-    setError(null);
   }, [isOpen]);
 
   if (!isOpen) {
@@ -52,11 +50,10 @@ export default function CreateReportModal() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError(null);
 
     const trimmedMessage = message.trim();
     if (trimmedMessage.length < 10) {
-      setError(t('reports.modals.create.messageMin'));
+      toast.error(t('reports.modals.create.messageMin'));
       return;
     }
 
@@ -69,20 +66,7 @@ export default function CreateReportModal() {
       toast.success(t('reports.modals.create.success'));
       closeModal();
     } catch (err) {
-      const message = getUnknownApiErrorMessage(t, err);
-      const errorCode =
-        err instanceof Error
-          ? (err as Error & { errorCode?: string }).errorCode
-          : err && typeof err === 'object'
-            ? (err as { errorCode?: string }).errorCode
-            : undefined;
-
-      if (errorCode === ErrorCode.REPORT_RATE_LIMIT) {
-        toast.error(message);
-        return;
-      }
-
-      setError(message);
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -103,12 +87,6 @@ export default function CreateReportModal() {
       }}
     >
       <form id="create-report-form" onSubmit={handleSubmit} className="space-y-4">
-        {error ? (
-          <p className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">
-            {error}
-          </p>
-        ) : null}
-
         <CustomSelect
           title={t('reports.modals.create.type')}
           options={typeOptions}

@@ -13,6 +13,7 @@ import {
   useUpdateActionSection,
 } from '@/hooks/use-action-sections';
 import { useModalStore, type EditSectionModalProps } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditSectionModal() {
@@ -34,7 +35,6 @@ export default function EditSectionModal() {
   const [description, setDescription] = useState('');
   const [color, setColor] = useState<string>(DEFAULT_SECTION_COLOR);
   const [enabled, setEnabled] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const seededRef = useRef(false);
 
   useEffect(() => {
@@ -49,7 +49,6 @@ export default function EditSectionModal() {
       setDescription(section.description ?? '');
       setColor(section.color ?? DEFAULT_SECTION_COLOR);
       setEnabled(section.enabled);
-      setError(null);
       seededRef.current = true;
     }
   }, [isOpen, section]);
@@ -66,11 +65,10 @@ export default function EditSectionModal() {
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setError(t('projectActions.sections.errors.nameRequired'));
+      toast.error(t('projectActions.sections.errors.nameRequired'));
       return;
     }
 
-    setError(null);
     try {
       await updateSection.mutateAsync({
         sectionId,
@@ -84,7 +82,7 @@ export default function EditSectionModal() {
       closeModal();
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -150,11 +148,6 @@ export default function EditSectionModal() {
         <p className="text-xs text-text-secondary">
           {t('projectActions.sections.fields.enabledHint')}
         </p>
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
       </form>
     </BaseModal>
   );

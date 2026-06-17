@@ -53,15 +53,9 @@ export function AccountLocaleSelect({
         placeholder={t(placeholderKey)}
         showIcon
       />
-      {error ? (
-        <p className="text-sm text-danger" role="alert">
-          {error}
-        </p>
-      ) : (
-        <p className="text-xs leading-relaxed text-text-secondary">
-          {t(hintKey)}
-        </p>
-      )}
+      <p className="text-xs leading-relaxed text-text-secondary">
+        {t(hintKey)}
+      </p>
     </div>
   );
 }

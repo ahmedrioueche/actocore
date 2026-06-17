@@ -17,6 +17,7 @@ import {
   useUpdateAccountSettings,
 } from "@/hooks/use-account";
 import { useModalStore } from "@/stores/modal";
+import { toast } from "@/stores/toast";
 import { getUnknownApiErrorMessage } from "@/utils/statusMessage";
 
 function isWorkspaceAdmin(role: StudioRole | undefined): boolean {
@@ -37,9 +38,6 @@ export default function SettingsPage() {
   const [failureAlertEmails, setFailureAlertEmails] = useState(true);
   const [quotaWarningEmails, setQuotaWarningEmails] = useState(true);
   const [quotaExhaustedEmails, setQuotaExhaustedEmails] = useState(true);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
-
   const isAdmin = isWorkspaceAdmin(session?.role);
   const canSelfDelete = Boolean(session?.user.email);
 
@@ -89,12 +87,9 @@ export default function SettingsPage() {
   const isDirty = workspaceDirty || preferencesDirty;
 
   const handleSave = async () => {
-    setFormError(null);
-    setSaved(false);
-
     const trimmedName = name.trim();
     if (workspaceDirty && !trimmedName) {
-      setFormError(t("settings.nameRequired"));
+      toast.error(t("settings.nameRequired"));
       return;
     }
 
@@ -119,9 +114,9 @@ export default function SettingsPage() {
         );
       }
       await Promise.all(tasks);
-      setSaved(true);
+      toast.success(t("settings.saved"));
     } catch (err) {
-      setFormError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -236,20 +231,6 @@ export default function SettingsPage() {
               placeholder={t("settings.timezonePlaceholder")}
             />
 
-            {formError ? (
-              <p
-                className="rounded-lg border border-danger/15 bg-danger-surface/80 px-3.5 py-2.5 text-sm text-danger"
-                role="alert"
-              >
-                {formError}
-              </p>
-            ) : null}
-
-            {saved && !isDirty ? (
-              <p className="text-sm font-medium text-success" role="status">
-                {t("settings.saved")}
-              </p>
-            ) : null}
           </section>
 
           <section className="space-y-4 rounded-2xl border border-danger bg-surface p-6 shadow-sm md:p-8">

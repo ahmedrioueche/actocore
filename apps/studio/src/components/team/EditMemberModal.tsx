@@ -24,8 +24,6 @@ export default function EditMemberModal() {
   const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
   const [projectIds, setProjectIds] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [projectsError, setProjectsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !member) {
@@ -35,8 +33,6 @@ export default function EditMemberModal() {
     setDisplayName(member.displayName ?? '');
     setPassword('');
     setProjectIds(member.projectIds);
-    setError(null);
-    setProjectsError(null);
   }, [isOpen, member]);
 
   if (!isOpen || !member) {
@@ -45,16 +41,14 @@ export default function EditMemberModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setProjectsError(null);
 
     const trimmedUsername = username.trim();
     if (!trimmedUsername) {
-      setError(t('team.invite.usernameRequired'));
+      toast.error(t('team.invite.usernameRequired'));
       return;
     }
     if (projectIds.length === 0) {
-      setProjectsError(t('team.invite.projectsRequired'));
+      toast.error(t('team.invite.projectsRequired'));
       return;
     }
 
@@ -76,7 +70,7 @@ export default function EditMemberModal() {
     }
     if (password.length > 0) {
       if (password.length < 8) {
-        setError(t('team.invite.passwordRequired'));
+        toast.error(t('team.invite.passwordRequired'));
         return;
       }
       body.password = password;
@@ -90,7 +84,7 @@ export default function EditMemberModal() {
       toast.success(t('team.edit.success'));
       closeModal();
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -144,14 +138,7 @@ export default function EditMemberModal() {
         <ProjectAccessPicker
           selectedIds={projectIds}
           onChange={setProjectIds}
-          error={projectsError}
         />
-
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
       </form>
     </BaseModal>
   );

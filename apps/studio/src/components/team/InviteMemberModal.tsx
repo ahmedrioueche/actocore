@@ -27,8 +27,6 @@ export default function InviteMemberModal() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [projectIds, setProjectIds] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [projectsError, setProjectsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -37,8 +35,6 @@ export default function InviteMemberModal() {
     setUsername('');
     setPassword('');
     setDisplayName('');
-    setError(null);
-    setProjectsError(null);
     const projects = projectsQuery.data ?? [];
     setProjectIds(projects.map((project) => project.id));
   }, [isOpen, projectsQuery.data]);
@@ -49,20 +45,18 @@ export default function InviteMemberModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setProjectsError(null);
 
     const trimmedUsername = username.trim();
     if (!trimmedUsername) {
-      setError(t('team.invite.usernameRequired'));
+      toast.error(t('team.invite.usernameRequired'));
       return;
     }
     if (password.length < 8) {
-      setError(t('team.invite.passwordRequired'));
+      toast.error(t('team.invite.passwordRequired'));
       return;
     }
     if (projectIds.length === 0) {
-      setProjectsError(t('team.invite.projectsRequired'));
+      toast.error(t('team.invite.projectsRequired'));
       return;
     }
 
@@ -76,7 +70,7 @@ export default function InviteMemberModal() {
       toast.success(t('team.invite.success'));
       closeModal();
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -139,14 +133,7 @@ export default function InviteMemberModal() {
         <ProjectAccessPicker
           selectedIds={projectIds}
           onChange={setProjectIds}
-          error={projectsError}
         />
-
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
       </form>
     </BaseModal>
   );

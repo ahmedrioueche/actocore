@@ -27,13 +27,11 @@ export default function CreatePlatformManagerModal() {
     defaultPlatformManagerFormState(),
   );
   const [fieldErrors, setFieldErrors] = useState<PlatformManagerFieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setForm(defaultPlatformManagerFormState());
       setFieldErrors({});
-      setFormError(null);
     }
   }, [isOpen]);
 
@@ -49,9 +47,6 @@ export default function CreatePlatformManagerModal() {
     if (fieldErrors.password && next.password !== form.password) {
       setFieldErrors((current) => ({ ...current, password: undefined }));
     }
-    if (formError) {
-      setFormError(null);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,7 +54,6 @@ export default function CreatePlatformManagerModal() {
 
     const validation = validatePlatformManagerForm(form, t);
     setFieldErrors(validation.fieldErrors);
-    setFormError(validation.formError ?? null);
     if (validation.formError || Object.keys(validation.fieldErrors).length > 0) {
       const validationMessage =
         validation.fieldErrors.username ??
@@ -72,7 +66,6 @@ export default function CreatePlatformManagerModal() {
     }
 
     setFieldErrors({});
-    setFormError(null);
     try {
       await createManager.mutateAsync({
         username: normalizePlatformUsername(form.username),
@@ -86,7 +79,6 @@ export default function CreatePlatformManagerModal() {
       const resolved = resolvePlatformManagerApiError(err, t);
       toast.error(resolved.toastMessage);
       setFieldErrors(resolved.fieldErrors);
-      setFormError(resolved.formError ?? null);
     }
   };
 
@@ -119,7 +111,6 @@ export default function CreatePlatformManagerModal() {
           form={form}
           onChange={handleFormChange}
           fieldErrors={fieldErrors}
-          formError={formError}
         />
       </form>
     </BaseModal>

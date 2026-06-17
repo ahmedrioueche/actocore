@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 import InputField from '@/components/ui/InputField';
 import { usePlatformLogin } from '@/hooks/use-platform-auth';
 import { getDefaultAdminPath } from '@/lib/platform-permissions';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function LoginPage() {
@@ -20,11 +21,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
     try {
       const session = await login.mutateAsync(
         masterMode
@@ -40,7 +39,7 @@ export default function LoginPage() {
         }),
       });
     } catch (err) {
-      setFormError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -98,11 +97,6 @@ export default function LoginPage() {
             placeholder={t('admin.login.passwordPlaceholder')}
             autoComplete="current-password"
           />
-          {formError ? (
-            <p className="text-sm text-danger" role="alert">
-              {formError}
-            </p>
-          ) : null}
           <Button type="submit" className="w-full" loading={login.isPending}>
             {t('admin.login.submit')}
           </Button>

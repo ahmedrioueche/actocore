@@ -9,6 +9,7 @@ import TextArea from '@/components/ui/TextArea';
 import { DEFAULT_SECTION_COLOR } from '@/constants/actions';
 import { useCreateActionSection } from '@/hooks/use-action-sections';
 import { useModalStore, type CreateSectionModalProps } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateSectionModal() {
@@ -25,14 +26,12 @@ export default function CreateSectionModal() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState<string>(DEFAULT_SECTION_COLOR);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setName('');
       setDescription('');
       setColor(DEFAULT_SECTION_COLOR);
-      setError(null);
     }
   }, [isOpen]);
 
@@ -45,11 +44,10 @@ export default function CreateSectionModal() {
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setError(t('projectActions.sections.errors.nameRequired'));
+      toast.error(t('projectActions.sections.errors.nameRequired'));
       return;
     }
 
-    setError(null);
     try {
       await createSection.mutateAsync({
         name: trimmedName,
@@ -59,7 +57,7 @@ export default function CreateSectionModal() {
       closeModal();
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -115,11 +113,6 @@ export default function CreateSectionModal() {
           value={color}
           onChange={setColor}
         />
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
       </form>
     </BaseModal>
   );

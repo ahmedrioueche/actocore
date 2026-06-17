@@ -17,6 +17,7 @@ import {
 } from '@/hooks/use-knowledge';
 import { useProject } from '@/hooks/use-projects';
 import { canWriteKnowledge } from '@/lib/studio-permissions';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function ProjectKnowledgeDetailPage() {
@@ -35,8 +36,6 @@ export default function ProjectKnowledgeDetailPage() {
 
   const [pageIds, setPageIds] = useState<string[]>([]);
   const [pagesDirty, setPagesDirty] = useState(false);
-  const [pagesError, setPagesError] = useState<string | null>(null);
-  const [reindexError, setReindexError] = useState<string | null>(null);
   const seededRef = useRef(false);
 
   useEffect(() => {
@@ -47,7 +46,6 @@ export default function ProjectKnowledgeDetailPage() {
     if (source && !seededRef.current) {
       setPageIds(source.pageIds ?? []);
       setPagesDirty(false);
-      setPagesError(null);
       seededRef.current = true;
     }
   }, [source]);
@@ -56,12 +54,11 @@ export default function ProjectKnowledgeDetailPage() {
     if (!sourceId) {
       return;
     }
-    setPagesError(null);
     try {
       await updateKnowledge.mutateAsync({ sourceId, pageIds });
       setPagesDirty(false);
     } catch (err) {
-      setPagesError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -69,11 +66,10 @@ export default function ProjectKnowledgeDetailPage() {
     if (!sourceId) {
       return;
     }
-    setReindexError(null);
     try {
       await reindexKnowledge.mutateAsync(sourceId);
     } catch (err) {
-      setReindexError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -126,9 +122,6 @@ export default function ProjectKnowledgeDetailPage() {
       {source?.errorMessage ? (
         <p className="mb-4 text-sm text-danger">{source.errorMessage}</p>
       ) : null}
-      {reindexError ? (
-        <p className="mb-4 text-sm text-danger">{reindexError}</p>
-      ) : null}
 
       <div className="space-y-8">
         {canWrite && projectId ? (
@@ -148,9 +141,6 @@ export default function ProjectKnowledgeDetailPage() {
                 }}
                 disabled={updateKnowledge.isPending}
               />
-              {pagesError ? (
-                <p className="text-sm text-danger">{pagesError}</p>
-              ) : null}
               <Button
                 disabled={!pagesDirty || updateKnowledge.isPending}
                 onClick={() => void handleSavePages()}

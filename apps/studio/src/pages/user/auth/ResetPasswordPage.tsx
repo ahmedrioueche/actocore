@@ -7,6 +7,7 @@ import { AuthLayout } from '@/components/auth/AuthLayout';
 import Button from '@/components/ui/Button';
 import InputField from '@/components/ui/InputField';
 import { useResetPassword } from '@/hooks/use-auth';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 type ResetSearch = {
@@ -21,17 +22,15 @@ export default function ResetPasswordPage() {
 
   const [password, setPassword] = useState('');
   const [done, setDone] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const token = search.token?.trim() ?? '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
-      setFormError(t('auth.reset.missingToken'));
+      toast.error(t('auth.reset.missingToken'));
       return;
     }
-    setFormError(null);
     try {
       await reset.mutateAsync({ token, password });
       setDone(true);
@@ -40,7 +39,7 @@ export default function ResetPasswordPage() {
       }, 2000);
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setFormError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -97,11 +96,6 @@ export default function ResetPasswordPage() {
             minLength={8}
             disabled={!token}
           />
-          {formError && (
-            <p className="text-sm text-danger" role="alert">
-              {formError}
-            </p>
-          )}
           <Button
             type="submit"
             fullWidth

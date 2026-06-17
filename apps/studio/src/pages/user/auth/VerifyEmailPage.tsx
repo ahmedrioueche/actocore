@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import InputField from '@/components/ui/InputField';
 import Loading from '@/components/ui/Loading';
 import { useVerifyEmail } from '@/hooks/use-auth';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 type VerifySearch = {
@@ -21,11 +22,9 @@ export default function VerifyEmailPage() {
   const verify = useVerifyEmail();
 
   const [token, setToken] = useState(search.token ?? '');
-  const [formError, setFormError] = useState<string | null>(null);
   const [autoDone, setAutoDone] = useState(false);
 
   const runVerify = async (value: string) => {
-    setFormError(null);
     try {
       await verify.mutateAsync(value.trim());
       setAutoDone(true);
@@ -34,7 +33,7 @@ export default function VerifyEmailPage() {
       }, 1500);
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setFormError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -53,7 +52,7 @@ export default function VerifyEmailPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!token.trim()) {
-      setFormError(t('auth.verify.missingToken'));
+      toast.error(t('auth.verify.missingToken'));
       return;
     }
     void runVerify(token);
@@ -106,11 +105,6 @@ export default function VerifyEmailPage() {
             value={token}
             onChange={(e) => setToken(e.target.value)}
           />
-          {formError && (
-            <p className="text-sm text-danger" role="alert">
-              {formError}
-            </p>
-          )}
           <Button type="submit" fullWidth loading={verify.isPending}>
             {t('auth.verify.submit')}
           </Button>

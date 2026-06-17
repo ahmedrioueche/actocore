@@ -37,8 +37,7 @@ export default function UploadKnowledgeModal() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
-  const [title, setTitle] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{
@@ -49,8 +48,7 @@ export default function UploadKnowledgeModal() {
   useEffect(() => {
     if (isOpen) {
       setFiles([]);
-      setTitle('');
-      setError(null);
+      setTitle('');
       setFileErrors({});
       setIsDragging(false);
       setUploadProgress(null);
@@ -92,7 +90,7 @@ export default function UploadKnowledgeModal() {
 
     const combined = [...files, ...accepted];
     if (combined.length > KNOWLEDGE_BULK_UPLOAD_MAX_FILES) {
-      setError(
+      toast.error(
         t('knowledge.upload.errors.tooMany', {
           max: KNOWLEDGE_BULK_UPLOAD_MAX_FILES,
         }),
@@ -101,8 +99,7 @@ export default function UploadKnowledgeModal() {
       setFileErrors(nextErrors);
       return;
     }
-
-    setError(null);
+
     setFileErrors(nextErrors);
     setFiles(combined);
   };
@@ -135,11 +132,10 @@ export default function UploadKnowledgeModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (files.length === 0) {
-      setError(t('knowledge.upload.errors.required'));
+      toast.error(t('knowledge.upload.errors.required'));
       return;
     }
-
-    setError(null);
+
     setUploadProgress({ current: 0, total: files.length });
 
     try {
@@ -168,7 +164,7 @@ export default function UploadKnowledgeModal() {
         }
         setFileErrors(failureMap);
         setFiles(result.failures.map((failure) => failure.file));
-        setError(
+        toast.error(
           t('knowledge.upload.errors.partial', { count: result.failures.length }),
         );
         return;
@@ -176,7 +172,7 @@ export default function UploadKnowledgeModal() {
 
       closeModal();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+      toast.error(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setUploadProgress(null);
     }
@@ -342,12 +338,7 @@ export default function UploadKnowledgeModal() {
             {t('knowledge.upload.titleBulkHint')}
           </p>
         ) : null}
-
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
+
       </form>
     </BaseModal>
   );

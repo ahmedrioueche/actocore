@@ -14,6 +14,7 @@ import {
   useUpdatePlatformPlan,
 } from '@/hooks/use-platform-plans';
 import { useModalStore, type EditPlanModalProps } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditPlanModal() {
@@ -30,12 +31,10 @@ export default function EditPlanModal() {
   const planId = plan?.id;
 
   const [form, setForm] = useState<PlanFormState | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && plan) {
       setForm(planToFormState(plan));
-      setError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, planId]);
@@ -48,11 +47,10 @@ export default function EditPlanModal() {
     e.preventDefault();
 
     if (!form.name.trim()) {
-      setError(t('admin.plans.errors.nameRequired'));
+      toast.error(t('admin.plans.errors.nameRequired'));
       return;
     }
 
-    setError(null);
     try {
       await updatePlan.mutateAsync({
         id: plan.id,
@@ -60,7 +58,7 @@ export default function EditPlanModal() {
       });
       closeModal();
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -90,7 +88,6 @@ export default function EditPlanModal() {
           form={form}
           onChange={setForm}
           mode="edit"
-          error={error}
         />
         {plan.level !== 'free' ? (
           <div className="mt-4 border-t border-border pt-4">
@@ -99,11 +96,10 @@ export default function EditPlanModal() {
               className="text-sm font-medium text-primary hover:underline disabled:opacity-60"
               disabled={syncPayPal.isPending}
               onClick={() => {
-                setError(null);
                 void syncPayPal
                   .mutateAsync(plan.id)
                   .catch((err) =>
-                    setError(getUnknownApiErrorMessage(t, err)),
+                    toast.error(getUnknownApiErrorMessage(t, err)),
                   );
               }}
             >

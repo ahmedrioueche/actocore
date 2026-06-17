@@ -8,14 +8,12 @@ interface ProjectAccessPickerProps {
   selectedIds: string[];
   onChange: (projectIds: string[]) => void;
   disabled?: boolean;
-  error?: string | null;
 }
 
 export function ProjectAccessPicker({
   selectedIds,
   onChange,
   disabled = false,
-  error,
 }: ProjectAccessPickerProps) {
   const { t } = useTranslation();
   const projectsQuery = useProjectsList();
@@ -64,11 +62,6 @@ export function ProjectAccessPicker({
           />
         ))}
       </div>
-      {error ? (
-        <p className="text-sm text-danger" role="alert">
-          {error}
-        </p>
-      ) : null}
     </div>
   );
 }

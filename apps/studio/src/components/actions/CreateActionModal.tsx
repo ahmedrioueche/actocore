@@ -22,6 +22,7 @@ import {
   resolveInputSchema,
   suggestActionNameFromDescription,
 } from '@/utils/action-schema-builder';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateActionModal() {
@@ -46,8 +47,7 @@ export default function CreateActionModal() {
   const [enabled, setEnabled] = useState(true);
   const [schemaEditor, setSchemaEditor] = useState<ActionSchemaEditorValue>(
     createInitialSchemaEditorValue('no_params'),
-  );
-  const [error, setError] = useState<string | null>(null);
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -57,8 +57,7 @@ export default function CreateActionModal() {
       setSectionId(props?.defaultSectionId ?? '');
       setPageIds([]);
       setEnabled(true);
-      setSchemaEditor(createInitialSchemaEditorValue('no_params'));
-      setError(null);
+      setSchemaEditor(createInitialSchemaEditorValue('no_params'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
@@ -77,10 +76,9 @@ export default function CreateActionModal() {
   const validateStep1 = (): boolean => {
     const trimmedName = name.trim();
     if (!ACTION_NAME_PATTERN.test(trimmedName)) {
-      setError(t('projectActions.errors.invalidName'));
+      toast.error(t('projectActions.errors.invalidName'));
       return false;
-    }
-    setError(null);
+    }
     return true;
   };
 
@@ -114,15 +112,14 @@ export default function CreateActionModal() {
     });
 
     if (!resolved.ok) {
-      setError(
+      toast.error(
         resolved.error === 'invalidSchema'
           ? t('projectActions.errors.invalidSchema')
           : t(`projectActions.parameters.errors.${resolved.error}`),
       );
       return;
     }
-
-    setError(null);
+
     try {
       await createAction.mutateAsync({
         name: name.trim(),
@@ -148,7 +145,7 @@ export default function CreateActionModal() {
       });
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -183,8 +180,7 @@ export default function CreateActionModal() {
         step === 2
           ? {
               label: t('projectActions.create.back'),
-              onClick: () => {
-                setError(null);
+              onClick: () => {
                 setStep(1);
               },
               variant: 'ghost',
@@ -280,12 +276,7 @@ export default function CreateActionModal() {
             />
           </>
         )}
-
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
+
       </form>
     </BaseModal>
   );

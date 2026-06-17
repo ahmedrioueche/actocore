@@ -11,6 +11,7 @@ import {
   useRequestDeleteAccountOtp,
 } from '@/hooks/use-delete-account';
 import { useModalStore } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 type Step = 'warning' | 'otp';
@@ -27,8 +28,7 @@ export default function DeleteAccountModal() {
   const requestOtp = useRequestDeleteAccountOtp();
   const confirmDelete = useConfirmDeleteAccount();
   const [step, setStep] = useState<Step>('warning');
-  const [otp, setOtp] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [otp, setOtp] = useState('');
 
   const isOpen = currentModal === 'deleteAccount';
   const role = session?.role;
@@ -37,8 +37,7 @@ export default function DeleteAccountModal() {
   useEffect(() => {
     if (!isOpen) {
       setStep('warning');
-      setOtp('');
-      setError(null);
+      setOtp('');
     }
   }, [isOpen]);
 
@@ -46,28 +45,26 @@ export default function DeleteAccountModal() {
     return null;
   }
 
-  const handleRequestOtp = async () => {
-    setError(null);
+  const handleRequestOtp = async () => {
     try {
       await requestOtp.mutateAsync();
       setStep('otp');
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
-  const handleConfirmDelete = async () => {
-    setError(null);
+  const handleConfirmDelete = async () => {
     const trimmed = otp.trim();
     if (trimmed.length < 6) {
-      setError(t('settings.deleteAccount.otpRequired'));
+      toast.error(t('settings.deleteAccount.otpRequired'));
       return;
     }
 
     try {
       await confirmDelete.mutateAsync(trimmed);
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -115,8 +112,7 @@ export default function DeleteAccountModal() {
           step === 'otp'
             ? () => {
                 setStep('warning');
-                setOtp('');
-                setError(null);
+                setOtp('');
               }
             : closeModal,
       }}
@@ -192,15 +188,7 @@ export default function DeleteAccountModal() {
             </button>
           </>
         )}
-
-        {error ? (
-          <p
-            className="rounded-lg border border-danger/15 bg-danger-surface/80 px-3.5 py-2.5 text-sm text-danger"
-            role="alert"
-          >
-            {error}
-          </p>
-        ) : null}
+
       </div>
     </BaseModal>
   );

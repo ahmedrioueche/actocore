@@ -13,7 +13,6 @@ export interface LoginCredentialsFormProps {
   workspaceId: string;
   username: string;
   rememberMe: boolean;
-  formError: string | null;
   loading: boolean;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
@@ -31,7 +30,6 @@ export function LoginCredentialsForm({
   workspaceId,
   username,
   rememberMe,
-  formError,
   loading,
   onEmailChange,
   onPasswordChange,
@@ -144,12 +142,6 @@ export function LoginCredentialsForm({
           />
         </>
       )}
-
-      {formError ? (
-        <p className="text-sm text-danger" role="alert">
-          {formError}
-        </p>
-      ) : null}
 
       <AuthPrimaryButton loading={loading} disabled={loading}>
         {loading ? t('auth.login.submitting') : t('auth.login.submit')}

@@ -8,7 +8,6 @@ import Button from '@/components/ui/Button';
 interface SignupVerifyPanelProps {
   maskedEmail: string;
   devVerificationUrl?: string | null;
-  resendMessage: string | null;
   resendPending: boolean;
   onResend: () => void;
 }
@@ -16,7 +15,6 @@ interface SignupVerifyPanelProps {
 export function SignupVerifyPanel({
   maskedEmail,
   devVerificationUrl,
-  resendMessage,
   resendPending,
   onResend,
 }: SignupVerifyPanelProps) {
@@ -51,11 +49,6 @@ export function SignupVerifyPanel({
         <p className="mb-6 text-sm text-text-secondary">
           {t('auth.signup.verifyInstructions')}
         </p>
-        {resendMessage ? (
-          <p className="mb-4 text-sm text-success" role="status">
-            {resendMessage}
-          </p>
-        ) : null}
         <div className="space-y-3">
           <Button
             type="button"

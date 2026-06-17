@@ -18,6 +18,7 @@ import ToggleSwitch from '@/components/ui/ToggleSwitch';
 import { useAction, useUpdateAction } from '@/hooks/use-actions';
 import { useModalStore, type EditActionModalProps } from '@/stores/modal';
 import { resolveInputSchema } from '@/utils/action-schema-builder';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditActionModal() {
@@ -43,8 +44,7 @@ export default function EditActionModal() {
   const [advancedLocked, setAdvancedLocked] = useState(false);
   const [enabled, setEnabled] = useState(true);
   const [sectionId, setSectionId] = useState('');
-  const [pageIds, setPageIds] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [pageIds, setPageIds] = useState<string[]>([]);
   const seededRef = useRef(false);
 
   useEffect(() => {
@@ -60,8 +60,7 @@ export default function EditActionModal() {
       setAdvancedLocked(isSchemaEditorAdvancedLocked(action.inputSchema));
       setEnabled(action.enabled);
       setSectionId(action.sectionId ?? '');
-      setPageIds(action.pageIds ?? []);
-      setError(null);
+      setPageIds(action.pageIds ?? []);
       seededRef.current = true;
     }
   }, [isOpen, action]);
@@ -83,15 +82,14 @@ export default function EditActionModal() {
     });
 
     if (!resolved.ok) {
-      setError(
+      toast.error(
         resolved.error === 'invalidSchema'
           ? t('projectActions.errors.invalidSchema')
           : t(`projectActions.parameters.errors.${resolved.error}`),
       );
       return;
     }
-
-    setError(null);
+
     try {
       await updateAction.mutateAsync({
         actionId,
@@ -106,7 +104,7 @@ export default function EditActionModal() {
       closeModal();
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -188,12 +186,7 @@ export default function EditActionModal() {
           disabled={actionQuery.isLoading}
           label={t('projectActions.fields.enabled')}
         />
-
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
+
       </form>
     </BaseModal>
   );

@@ -29,13 +29,11 @@ export default function EditPlatformManagerModal() {
 
   const [form, setForm] = useState<PlatformManagerFormState | null>(null);
   const [fieldErrors, setFieldErrors] = useState<PlatformManagerFieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && manager) {
       setForm(managerToFormState(manager));
       setFieldErrors({});
-      setFormError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, managerId]);
@@ -49,9 +47,6 @@ export default function EditPlatformManagerModal() {
     if (fieldErrors.password && next.password !== form.password) {
       setFieldErrors((current) => ({ ...current, password: undefined }));
     }
-    if (formError) {
-      setFormError(null);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,7 +54,6 @@ export default function EditPlatformManagerModal() {
 
     const validation = validatePlatformManagerEditForm(form, t);
     setFieldErrors(validation.fieldErrors);
-    setFormError(validation.formError ?? null);
     if (validation.formError || Object.keys(validation.fieldErrors).length > 0) {
       const validationMessage =
         validation.fieldErrors.password ?? validation.formError;
@@ -82,7 +76,6 @@ export default function EditPlatformManagerModal() {
     }
 
     setFieldErrors({});
-    setFormError(null);
     try {
       await updateManager.mutateAsync({
         userId: manager.userId,
@@ -94,7 +87,6 @@ export default function EditPlatformManagerModal() {
       const resolved = resolvePlatformManagerApiError(err, t, 'update');
       toast.error(resolved.toastMessage);
       setFieldErrors(resolved.fieldErrors);
-      setFormError(resolved.formError ?? null);
     }
   };
 
@@ -128,7 +120,6 @@ export default function EditPlatformManagerModal() {
           onChange={handleFormChange}
           mode="edit"
           fieldErrors={fieldErrors}
-          formError={formError}
         />
       </form>
     </BaseModal>

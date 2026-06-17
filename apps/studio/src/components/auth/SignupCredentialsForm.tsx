@@ -8,7 +8,6 @@ export interface SignupCredentialsFormProps {
   fullName: string;
   email: string;
   password: string;
-  formError: string | null;
   loading: boolean;
   onFullNameChange: (value: string) => void;
   onEmailChange: (value: string) => void;
@@ -20,7 +19,6 @@ export function SignupCredentialsForm({
   fullName,
   email,
   password,
-  formError,
   loading,
   onFullNameChange,
   onEmailChange,
@@ -67,12 +65,6 @@ export function SignupCredentialsForm({
         className={authInputClass}
       />
       <p className="text-xs text-text-secondary">{t('auth.signup.passwordHint')}</p>
-
-      {formError ? (
-        <p className="text-sm text-danger" role="alert">
-          {formError}
-        </p>
-      ) : null}
 
       <AuthPrimaryButton loading={loading} disabled={loading}>
         {loading ? t('auth.signup.submitting') : t('auth.signup.submit')}

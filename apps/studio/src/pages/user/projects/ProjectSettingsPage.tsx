@@ -38,8 +38,6 @@ export default function ProjectSettingsPage() {
   const canDelete = canDeleteProject(session);
 
   const [name, setName] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
 
   const project = projectQuery.data;
 
@@ -70,21 +68,17 @@ export default function ProjectSettingsPage() {
       return;
     }
 
-    setFormError(null);
-    setSaved(false);
-
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setFormError(t("projectSettings.nameRequired"));
+      toast.error(t("projectSettings.nameRequired"));
       return;
     }
 
     try {
       await updateProject.mutateAsync({ name: trimmedName });
-      setSaved(true);
       toast.success(t("projectSettings.saved"));
     } catch (err) {
-      setFormError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -187,20 +181,6 @@ export default function ProjectSettingsPage() {
                   disabled
                 />
 
-                {formError ? (
-                  <p
-                    className="rounded-lg border border-danger/15 bg-danger-surface/80 px-3.5 py-2.5 text-sm text-danger"
-                    role="alert"
-                  >
-                    {formError}
-                  </p>
-                ) : null}
-
-                {saved && !isDirty ? (
-                  <p className="text-sm font-medium text-success" role="status">
-                    {t("projectSettings.saved")}
-                  </p>
-                ) : null}
               </section>
             </form>
 

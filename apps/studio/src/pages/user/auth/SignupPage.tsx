@@ -12,11 +12,12 @@ import { SignupCredentialsForm } from '@/components/auth/SignupCredentialsForm';
 import { SignupVerifyPanel } from '@/components/auth/SignupVerifyPanel';
 import { useResendVerification, useSignup } from '@/hooks/use-auth';
 import { maskEmail } from '@/utils/mask-email';
-import { getApiErrorMessage, getMessage } from '@/utils/statusMessage';
 import {
   parseSignupPlanSearch,
   saveSignupPlanIntent,
 } from '@/lib/signup-plan-intent';
+import { toast } from '@/stores/toast';
+import { getApiErrorMessage, getMessage } from '@/utils/statusMessage';
 
 export default function SignupPage() {
   const { t } = useTranslation();
@@ -31,8 +32,6 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
-  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const intent = parseSignupPlanSearch(search);
@@ -43,10 +42,9 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
     const name = fullName.trim();
     if (!name) {
-      setFormError(t('auth.signup.fullNameRequired'));
+      toast.error(t('auth.signup.fullNameRequired'));
       return;
     }
     try {
@@ -60,7 +58,7 @@ export default function SignupPage() {
       setDevVerificationUrl(result.devVerificationUrl ?? null);
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setFormError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -71,16 +69,15 @@ export default function SignupPage() {
 
   const handleResend = async () => {
     if (!successEmail) return;
-    setResendMessage(null);
     try {
       const result = await resend.mutateAsync(successEmail);
-      setResendMessage(t('auth.signup.resendSuccess'));
+      toast.success(t('auth.signup.resendSuccess'));
       if (result.devVerificationUrl) {
         setDevVerificationUrl(result.devVerificationUrl);
       }
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setResendMessage(
+      toast.error(
         getMessage(
           t,
           code,
@@ -96,7 +93,6 @@ export default function SignupPage() {
         <SignupVerifyPanel
           maskedEmail={maskEmail(successEmail)}
           devVerificationUrl={devVerificationUrl}
-          resendMessage={resendMessage}
           resendPending={resend.isPending}
           onResend={handleResend}
         />
@@ -118,7 +114,6 @@ export default function SignupPage() {
           fullName={fullName}
           email={email}
           password={password}
-          formError={formError}
           loading={signup.isPending}
           onFullNameChange={setFullName}
           onEmailChange={setEmail}

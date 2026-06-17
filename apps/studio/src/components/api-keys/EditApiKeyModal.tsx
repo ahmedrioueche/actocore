@@ -6,6 +6,7 @@ import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { useUpdateApiKey } from '@/hooks/use-api-keys';
 import { useModalStore, type EditApiKeyModalProps } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditApiKeyModal() {
@@ -22,12 +23,10 @@ export default function EditApiKeyModal() {
   const updateKey = useUpdateApiKey(projectId ?? null);
 
   const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setName(props?.currentName ?? '');
-      setError(null);
     }
     // Only re-seed when the modal opens or targets a different key.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -45,17 +44,16 @@ export default function EditApiKeyModal() {
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setError(t('apiKeys.edit.nameRequired'));
+      toast.error(t('apiKeys.edit.nameRequired'));
       return;
     }
 
-    setError(null);
     try {
       await updateKey.mutateAsync({ keyId, name: trimmedName });
       closeModal();
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -93,11 +91,6 @@ export default function EditApiKeyModal() {
           placeholder={t('apiKeys.fields.namePlaceholder')}
           autoFocus
         />
-        {error ? (
-          <p className="mt-3 text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
       </form>
     </BaseModal>
   );

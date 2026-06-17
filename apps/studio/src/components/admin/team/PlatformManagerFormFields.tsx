@@ -17,7 +17,6 @@ interface PlatformManagerFormFieldsProps {
   onChange: (form: PlatformManagerFormState) => void;
   mode?: 'create' | 'edit';
   fieldErrors?: PlatformManagerFieldErrors;
-  formError?: string | null;
 }
 
 export function PlatformManagerFormFields({
@@ -25,7 +24,6 @@ export function PlatformManagerFormFields({
   onChange,
   mode = 'create',
   fieldErrors,
-  formError,
 }: PlatformManagerFormFieldsProps) {
   const { t } = useTranslation();
 
@@ -102,12 +100,6 @@ export function PlatformManagerFormFields({
           ))}
         </div>
       </div>
-
-      {formError ? (
-        <p className="text-sm text-danger" role="alert">
-          {formError}
-        </p>
-      ) : null}
     </div>
   );
 }

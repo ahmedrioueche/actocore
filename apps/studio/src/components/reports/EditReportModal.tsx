@@ -50,7 +50,6 @@ export default function EditReportModal() {
   const canWrite = canAccessPlatform(session, PlatformPermission.REPORTS_WRITE);
 
   const [status, setStatus] = useState<StudioReportStatus>(StudioReportStatus.OPEN);
-  const [error, setError] = useState<string | null>(null);
 
   const statusOptions = useMemo(
     () =>
@@ -64,7 +63,6 @@ export default function EditReportModal() {
   useEffect(() => {
     if (!isOpen || !reportQuery.data) return;
     setStatus(reportQuery.data.status);
-    setError(null);
   }, [isOpen, reportQuery.data]);
 
   if (!isOpen) {
@@ -74,7 +72,6 @@ export default function EditReportModal() {
   const handleSave = async () => {
     if (!reportId || !canWrite || !reportQuery.data) return;
     if (status === reportQuery.data.status) return;
-    setError(null);
 
     try {
       await updateStatus.mutateAsync({
@@ -84,7 +81,7 @@ export default function EditReportModal() {
       toast.success(t('admin.reports.modals.edit.success'));
       closeModal();
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -118,12 +115,6 @@ export default function EditReportModal() {
         <Error onRetry={() => void reportQuery.refetch()} />
       ) : reportQuery.data ? (
         <div className="space-y-4">
-          {error ? (
-            <p className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">
-              {error}
-            </p>
-          ) : null}
-
           <div className="grid gap-4 sm:grid-cols-2">
             <DetailRow
               label={t('reports.fields.type')}

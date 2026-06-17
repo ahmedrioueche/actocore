@@ -13,6 +13,7 @@ import {
   isStudioTestAccountsEnabled,
 } from "@/constants/studio-test-accounts";
 import { useAvailableTestAccount, useLogin } from "@/hooks/use-auth";
+import { toast } from "@/stores/toast";
 import { getUnknownApiErrorMessage } from "@/utils/statusMessage";
 import type { StudioAvailableTestAccountData } from "@ahmedrioueche/actocore-shared";
 
@@ -27,7 +28,6 @@ export default function LoginPage() {
   const [workspaceId, setWorkspaceId] = useState("");
   const [username, setUsername] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [demoSigningIn, setDemoSigningIn] = useState(false);
 
   const availableTestAccount = useAvailableTestAccount(!teamMode);
@@ -36,19 +36,17 @@ export default function LoginPage() {
     email: string;
     password: string;
   }) => {
-    setFormError(null);
     try {
       await login.mutateAsync(credentials);
       void navigate({ to: '/' });
     } catch (err) {
-      setFormError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (teamMode) {
-      setFormError(null);
       try {
         await login.mutateAsync({
           workspaceId: workspaceId.trim(),
@@ -57,7 +55,7 @@ export default function LoginPage() {
         });
         void navigate({ to: '/' });
       } catch (err) {
-        setFormError(getUnknownApiErrorMessage(t, err));
+        toast.error(getUnknownApiErrorMessage(t, err));
       }
       return;
     }
@@ -69,7 +67,6 @@ export default function LoginPage() {
     account: StudioAvailableTestAccountData,
   ) => {
     setTeamMode(false);
-    setFormError(null);
     setDemoSigningIn(true);
 
     try {
@@ -79,7 +76,7 @@ export default function LoginPage() {
       });
       void navigate({ to: '/' });
     } catch (err) {
-      setFormError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
       void availableTestAccount.refetch();
     } finally {
       setDemoSigningIn(false);
@@ -117,17 +114,13 @@ export default function LoginPage() {
           workspaceId={workspaceId}
           username={username}
           rememberMe={rememberMe}
-          formError={formError}
           loading={login.isPending}
           onEmailChange={setEmail}
           onPasswordChange={setPassword}
           onWorkspaceIdChange={setWorkspaceId}
           onUsernameChange={setUsername}
           onRememberMeChange={setRememberMe}
-          onTeamModeToggle={() => {
-            setTeamMode((v) => !v);
-            setFormError(null);
-          }}
+          onTeamModeToggle={() => setTeamMode((v) => !v)}
           onSubmit={handleSubmit}
         />
       </AuthGlassCard>

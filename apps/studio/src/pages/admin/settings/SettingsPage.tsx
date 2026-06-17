@@ -13,6 +13,7 @@ import {
   usePlatformMe,
   useUpdatePlatformProfile,
 } from '@/hooks/use-platform-auth';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function SettingsPage() {
@@ -24,9 +25,6 @@ export default function SettingsPage() {
   const [displayName, setDisplayName] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
-
   const user = meQuery.data?.user;
   const isMaster = meQuery.data?.isPlatformMaster;
 
@@ -53,16 +51,13 @@ export default function SettingsPage() {
   const isDirty = profileDirty || passwordDirty;
 
   const handleSave = async () => {
-    setFormError(null);
-    setSaved(false);
-
     if (passwordDirty) {
       if (!currentPassword) {
-        setFormError(t('admin.settings.currentPasswordRequired'));
+        toast.error(t('admin.settings.currentPasswordRequired'));
         return;
       }
       if (newPassword.length < 8) {
-        setFormError(t('admin.settings.passwordRequired'));
+        toast.error(t('admin.settings.passwordRequired'));
         return;
       }
     }
@@ -87,9 +82,9 @@ export default function SettingsPage() {
       await Promise.all(tasks);
       setCurrentPassword('');
       setNewPassword('');
-      setSaved(true);
+      toast.success(t('admin.settings.saved'));
     } catch (err) {
-      setFormError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -224,20 +219,6 @@ export default function SettingsPage() {
               </>
             )}
 
-            {formError ? (
-              <p
-                className="rounded-lg border border-danger/15 bg-danger-surface/80 px-3.5 py-2.5 text-sm text-danger"
-                role="alert"
-              >
-                {formError}
-              </p>
-            ) : null}
-
-            {saved && !isDirty ? (
-              <p className="text-sm font-medium text-success" role="status">
-                {t('admin.settings.saved')}
-              </p>
-            ) : null}
           </section>
         </form>
       </AsyncContent>

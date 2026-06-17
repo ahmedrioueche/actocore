@@ -11,6 +11,7 @@ import {
 import BaseModal from '@/components/ui/BaseModal';
 import { useCreatePlatformPlan } from '@/hooks/use-platform-plans';
 import { useModalStore } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreatePlanModal() {
@@ -21,12 +22,10 @@ export default function CreatePlanModal() {
 
   const isOpen = currentModal === 'createPlan';
   const [form, setForm] = useState<PlanFormState>(defaultPlanFormState);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setForm(defaultPlanFormState());
-      setError(null);
     }
   }, [isOpen]);
 
@@ -38,20 +37,19 @@ export default function CreatePlanModal() {
     e.preventDefault();
 
     if (!form.planId.trim()) {
-      setError(t('admin.plans.errors.planIdRequired'));
+      toast.error(t('admin.plans.errors.planIdRequired'));
       return;
     }
     if (!form.name.trim()) {
-      setError(t('admin.plans.errors.nameRequired'));
+      toast.error(t('admin.plans.errors.nameRequired'));
       return;
     }
 
-    setError(null);
     try {
       await createPlan.mutateAsync(formStateToCreateDto(form));
       closeModal();
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -81,7 +79,6 @@ export default function CreatePlanModal() {
           form={form}
           onChange={setForm}
           mode="create"
-          error={error}
         />
       </form>
     </BaseModal>

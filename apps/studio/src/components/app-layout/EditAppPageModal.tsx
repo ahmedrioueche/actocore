@@ -15,6 +15,7 @@ import {
   useUpdateAppPage,
 } from '@/hooks/use-app-pages';
 import { useModalStore, type EditAppPageModalProps } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditAppPageModal() {
@@ -42,8 +43,7 @@ export default function EditAppPageModal() {
   const [route, setRoute] = useState('');
   const [description, setDescription] = useState('');
   const [enabled, setEnabled] = useState(true);
-  const [selectedActionIds, setSelectedActionIds] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedActionIds, setSelectedActionIds] = useState<string[]>([]);
   const seededRef = useRef(false);
   const actionsSeededRef = useRef(false);
 
@@ -59,8 +59,7 @@ export default function EditAppPageModal() {
       setTitle(page.title);
       setRoute(page.route);
       setDescription(page.description ?? '');
-      setEnabled(page.enabled);
-      setError(null);
+      setEnabled(page.enabled);
       seededRef.current = true;
     }
   }, [isOpen, page]);
@@ -94,11 +93,10 @@ export default function EditAppPageModal() {
     const trimmedTitle = title.trim();
     const trimmedRoute = route.trim();
     if (!trimmedTitle || !trimmedRoute) {
-      setError(t('projectLayout.errors.requiredFields'));
+      toast.error(t('projectLayout.errors.requiredFields'));
       return;
     }
-
-    setError(null);
+
     try {
       await updatePage.mutateAsync({
         pageId,
@@ -116,7 +114,7 @@ export default function EditAppPageModal() {
       closeModal();
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
-      setError(
+      toast.error(
         getApiErrorMessage(t, {
           errorCode: code,
           message: err instanceof Error ? err.message : undefined,
@@ -198,12 +196,7 @@ export default function EditAppPageModal() {
           onChange={setSelectedActionIds}
           disabled={pagesQuery.isLoading || actionsQuery.isLoading}
         />
-
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
+
       </form>
     </BaseModal>
   );

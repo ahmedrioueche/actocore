@@ -9,6 +9,7 @@ import InputField from '@/components/ui/InputField';
 import Button from '@/components/ui/Button';
 import { useAppPages } from '@/hooks/use-app-pages';
 import { useRetrieveTestKnowledge } from '@/hooks/use-knowledge';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 interface KnowledgeRetrieveTestPanelProps {
@@ -23,8 +24,7 @@ export function KnowledgeRetrieveTestPanel({
   const [currentPageId, setCurrentPageId] = useState('');
   const [result, setResult] = useState<KnowledgeRetrieveTestResult | null>(
     null,
-  );
-  const [error, setError] = useState<string | null>(null);
+  );
 
   const pagesQuery = useAppPages(projectId);
   const retrieveTest = useRetrieveTestKnowledge(projectId);
@@ -49,11 +49,10 @@ export function KnowledgeRetrieveTestPanel({
     event.preventDefault();
     const trimmed = query.trim();
     if (!trimmed) {
-      setError(t('knowledge.retrieveTest.errors.required'));
+      toast.error(t('knowledge.retrieveTest.errors.required'));
       return;
     }
-
-    setError(null);
+
     try {
       const data = await retrieveTest.mutateAsync({
         query: trimmed,
@@ -62,7 +61,7 @@ export function KnowledgeRetrieveTestPanel({
       setResult(data);
     } catch (err) {
       setResult(null);
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -88,10 +87,7 @@ export function KnowledgeRetrieveTestPanel({
             selectedOption={currentPageId}
             onChange={setCurrentPageId}
             showIcon={false}
-          />
-          {error ? (
-            <p className="text-sm text-danger">{error}</p>
-          ) : null}
+          />
           <Button
             type="submit"
             icon={<Search className="h-4 w-4" />}

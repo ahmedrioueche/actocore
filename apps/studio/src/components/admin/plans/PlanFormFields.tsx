@@ -13,14 +13,12 @@ interface PlanFormFieldsProps {
   form: PlanFormState;
   onChange: (form: PlanFormState) => void;
   mode: 'create' | 'edit';
-  error?: string | null;
 }
 
 export function PlanFormFields({
   form,
   onChange,
   mode,
-  error,
 }: PlanFormFieldsProps) {
   const { t } = useTranslation();
 
@@ -198,12 +196,6 @@ export function PlanFormFields({
           onChange={(features) => onChange({ ...form, features })}
         />
       </PlanFormSection>
-
-      {error ? (
-        <p className="text-sm text-danger" role="alert">
-          {error}
-        </p>
-      ) : null}
     </div>
   );
 }

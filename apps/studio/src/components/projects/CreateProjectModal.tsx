@@ -7,6 +7,7 @@ import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { useCreateProject } from '@/hooks/use-projects';
 import { useModalStore } from '@/stores/modal';
+import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateProjectModal() {
@@ -19,12 +20,10 @@ export default function CreateProjectModal() {
   const createProject = useCreateProject();
 
   const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setName('');
-      setError(null);
     }
   }, [isOpen]);
 
@@ -37,11 +36,10 @@ export default function CreateProjectModal() {
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setError(t('projects.create.nameRequired'));
+      toast.error(t('projects.create.nameRequired'));
       return;
     }
 
-    setError(null);
     try {
       const project = await createProject.mutateAsync(trimmedName);
       closeModal();
@@ -50,7 +48,7 @@ export default function CreateProjectModal() {
         params: { projectId: project.id },
       });
     } catch (err) {
-      setError(getUnknownApiErrorMessage(t, err));
+      toast.error(getUnknownApiErrorMessage(t, err));
     }
   };
 
@@ -87,11 +85,6 @@ export default function CreateProjectModal() {
           placeholder={t('projects.create.namePlaceholder')}
           autoFocus
         />
-        {error ? (
-          <p className="text-sm text-danger" role="alert">
-            {error}
-          </p>
-        ) : null}
       </form>
     </BaseModal>
   );
