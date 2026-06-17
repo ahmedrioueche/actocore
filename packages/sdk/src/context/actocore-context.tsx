@@ -17,6 +17,11 @@ export interface ActocoreContextValue {
   setHostContext: (context: HostContext | undefined) => void;
   /** False while dashboard config is loading when `loadRemoteConfig` is enabled. */
   presentationReady: boolean;
+  /**
+   * Bumps when remote project data changes (sdk config, pages, actions, knowledge).
+   * Used to refresh action lists without remounting the provider.
+   */
+  projectDataVersion: number;
 }
 
 const ActocoreContext = createContext<ActocoreContextValue | null>(null);
@@ -28,6 +33,7 @@ export function ActocoreContextProvider({
   hostContext,
   setHostContext,
   presentationReady = true,
+  projectDataVersion = 0,
   children,
 }: {
   config: ResolvedActocoreConfig;
@@ -36,6 +42,7 @@ export function ActocoreContextProvider({
   hostContext?: HostContext;
   setHostContext: (context: HostContext | undefined) => void;
   presentationReady?: boolean;
+  projectDataVersion?: number;
   children: ReactNode;
 }) {
   const value = useMemo(
@@ -46,8 +53,17 @@ export function ActocoreContextProvider({
       hostContext,
       setHostContext,
       presentationReady,
+      projectDataVersion,
     }),
-    [config, actions, appPages, hostContext, setHostContext, presentationReady],
+    [
+      config,
+      actions,
+      appPages,
+      hostContext,
+      setHostContext,
+      presentationReady,
+      projectDataVersion,
+    ],
   );
 
   return (

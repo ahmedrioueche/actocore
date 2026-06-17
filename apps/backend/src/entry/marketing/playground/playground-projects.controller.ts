@@ -58,9 +58,10 @@ export class PlaygroundProjectsController {
   ) {
     await this.playground.assertProjectAccess(projectId, token);
     const voice = this.config.get<VoiceResolvedConfig>('voice');
-    const [sdk, pages] = await Promise.all([
+    const [sdk, pages, dataRevision] = await Promise.all([
       this.sdkConfig.getConfig(projectId),
       this.appPages.listManifest(projectId),
+      this.appPages.getProjectDataRevision(projectId),
     ]);
 
     const payload: RuntimeConfigData = {
@@ -73,6 +74,7 @@ export class PlaygroundProjectsController {
       },
       sdk,
       pages: pages.length > 0 ? pages : undefined,
+      dataRevision,
     };
 
     return apiSuccess(payload);

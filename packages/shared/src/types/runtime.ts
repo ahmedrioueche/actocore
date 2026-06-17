@@ -12,4 +12,9 @@ export interface RuntimeConfigData {
   sdk?: SdkRuntimeConfigData;
   /** Enabled app pages for host route mapping and AI context. */
   pages?: AppPageManifestEntry[];
+  /**
+   * Opaque fingerprint — changes when sdk config, app layout, actions, or
+   * knowledge change. Embed polls this to refresh without a full page reload.
+   */
+  dataRevision?: string;
 }

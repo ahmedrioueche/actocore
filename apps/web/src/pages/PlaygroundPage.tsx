@@ -151,6 +151,10 @@ function PlaygroundExperience({ credentials }: PlaygroundExperienceProps) {
     [api, tSdk],
   );
 
+  const bumpChatConfig = useCallback(() => {
+    setConfigRevision((value) => value + 1);
+  }, []);
+
   const handleAppPagesChange = useCallback(
     async (nextPages: PlaygroundAppPage[]) => {
       const previous = appPages;
@@ -203,12 +207,13 @@ function PlaygroundExperience({ credentials }: PlaygroundExperienceProps) {
         }
 
         setAppPages(synced);
+        bumpChatConfig();
       } catch (err) {
         setAppPages(previous);
         setError(err instanceof Error ? err.message : t('saveError'));
       }
     },
-    [api, appPages, t],
+    [api, appPages, bumpChatConfig, t],
   );
 
   const handleActionsChange = useCallback(
@@ -306,13 +311,14 @@ function PlaygroundExperience({ credentials }: PlaygroundExperienceProps) {
       try {
         await api.uploadKnowledge(file, file.name);
         setKnowledge(await api.listKnowledge());
+        bumpChatConfig();
       } catch (err) {
         setError(err instanceof Error ? err.message : t('saveError'));
       } finally {
         setKnowledgeBusy(false);
       }
     },
-    [api, t],
+    [api, bumpChatConfig, t],
   );
 
   const handleKnowledgeRemove = useCallback(
@@ -321,13 +327,14 @@ function PlaygroundExperience({ credentials }: PlaygroundExperienceProps) {
       try {
         await api.deleteKnowledge(sourceId);
         setKnowledge(await api.listKnowledge());
+        bumpChatConfig();
       } catch (err) {
         setError(err instanceof Error ? err.message : t('saveError'));
       } finally {
         setKnowledgeBusy(false);
       }
     },
-    [api, t],
+    [api, bumpChatConfig, t],
   );
 
   if (loading) {

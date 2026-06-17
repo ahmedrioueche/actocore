@@ -21,9 +21,10 @@ export class MarketingRuntimeController {
   @Get()
   async getConfig(@ProjectId() projectId: string) {
     const voice = this.config.get<VoiceResolvedConfig>('voice');
-    const [sdk, pages] = await Promise.all([
+    const [sdk, pages, dataRevision] = await Promise.all([
       this.sdkConfig.getConfig(projectId),
       this.appPages.listManifest(projectId),
+      this.appPages.getProjectDataRevision(projectId),
     ]);
 
     const payload: RuntimeConfigData = {
@@ -36,6 +37,7 @@ export class MarketingRuntimeController {
       },
       sdk,
       pages: pages.length > 0 ? pages : undefined,
+      dataRevision,
     };
     return apiSuccess(payload);
   }

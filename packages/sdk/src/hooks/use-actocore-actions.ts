@@ -6,6 +6,7 @@ import { buildFallbackActions } from '../actions/demo-action-catalog';
 import {
   useActionRegistry,
   useActocoreConfig,
+  useActocoreContext,
   useActocoreSecurity,
 } from '../context/actocore-context';
 import { isActionAllowed } from '../security/action-allowlist';
@@ -31,6 +32,7 @@ export function useActocoreActions(
 ): UseActocoreActionsResult {
   const requireHandlers = options.requireHandlers ?? true;
   const { api } = useActocoreConfig();
+  const { projectDataVersion } = useActocoreContext();
   const security = useActocoreSecurity();
   const handlers = useActionRegistry();
   const formatError = useApiErrorMessage();
@@ -111,6 +113,7 @@ export function useActocoreActions(
     api.baseURL,
     formatError,
     handlerNames,
+    projectDataVersion,
   ]);
 
   const available = useMemo(

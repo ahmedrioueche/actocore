@@ -8,6 +8,7 @@ import {
 import type {
   AppPageManifestEntry,
   HostContext,
+  RuntimeConfigData,
   SdkRuntimeConfigData,
 } from '@ahmedrioueche/actocore-shared';
 import type { ActocoreSdkConfig } from '../config/types';
@@ -17,6 +18,8 @@ import { createActocoreI18n } from '../i18n/create-i18n';
 import type { ActionRegistry } from '../actions/types';
 import { ActocoreContextProvider } from '../context/actocore-context';
 import { ActocoreThemeRoot, ActocoreSystemThemeSync } from '../theme/theme-provider';
+
+const DEFAULT_REMOTE_CONFIG_POLL_MS = 5000;
 
 export interface ActocoreProviderProps extends ActocoreSdkConfig {
   children: ReactNode;
@@ -41,6 +44,25 @@ export interface ActocoreProviderProps extends ActocoreSdkConfig {
    * the provider (preserves chat session state).
    */
   remoteConfigVersion?: number;
+  /**
+   * Poll interval (ms) for project data changes when `loadRemoteConfig` is true.
+   * Set to `0` to disable polling (manual refresh via `remoteConfigVersion` only).
+   * Default `5000`.
+   */
+  remoteConfigPollIntervalMs?: number;
+}
+
+function applyRuntimePayload(
+  data: RuntimeConfigData,
+  loadRemoteConfig: boolean,
+): {
+  pages: AppPageManifestEntry[];
+  sdk: SdkRuntimeConfigData | null;
+} {
+  return {
+    pages: data.pages ?? [],
+    sdk: loadRemoteConfig ? (data.sdk ?? null) : null,
+  };
 }
 
 export function ActocoreProvider({
@@ -51,6 +73,7 @@ export function ActocoreProvider({
   entryMode = 'sdk',
   appPages: appPagesProp,
   remoteConfigVersion = 0,
+  remoteConfigPollIntervalMs = DEFAULT_REMOTE_CONFIG_POLL_MS,
   ...sdkConfig
 }: ActocoreProviderProps) {
   const [remoteSdk, setRemoteSdk] = useState<SdkRuntimeConfigData | null>(null);
@@ -58,9 +81,35 @@ export function ActocoreProvider({
   const [presentationReady, setPresentationReady] = useState(
     () => !loadRemoteConfig,
   );
+  const [internalDataVersion, setInternalDataVersion] = useState(0);
   const hasLoadedRemoteRef = useRef(false);
+  const lastDataRevisionRef = useRef<string | undefined>(undefined);
   const [liveHostContext, setLiveHostContext] = useState<HostContext | undefined>(
     hostContext ?? sdkConfig.security?.hostContext,
+  );
+
+  const projectDataVersion = remoteConfigVersion + internalDataVersion;
+
+  const applyRuntimeData = useCallback(
+    (data: RuntimeConfigData) => {
+      const { pages, sdk } = applyRuntimePayload(data, loadRemoteConfig);
+      setFetchedAppPages(pages);
+      if (loadRemoteConfig) {
+        setRemoteSdk(sdk);
+        hasLoadedRemoteRef.current = true;
+      }
+
+      const revision = data.dataRevision;
+      if (revision !== undefined) {
+        if (revision !== lastDataRevisionRef.current) {
+          lastDataRevisionRef.current = revision;
+          setInternalDataVersion((value) => value + 1);
+        }
+      } else {
+        setInternalDataVersion((value) => value + 1);
+      }
+    },
+    [loadRemoteConfig],
   );
 
   useEffect(() => {
@@ -83,11 +132,7 @@ export function ActocoreProvider({
           return;
         }
 
-        setFetchedAppPages(res.data.pages ?? []);
-        if (loadRemoteConfig) {
-          setRemoteSdk(res.data.sdk ?? null);
-          hasLoadedRemoteRef.current = true;
-        }
+        applyRuntimeData(res.data);
       } finally {
         if (!cancelled && loadRemoteConfig) {
           setPresentationReady(true);
@@ -101,11 +146,48 @@ export function ActocoreProvider({
       cancelled = true;
     };
   }, [
+    applyRuntimeData,
     loadRemoteConfig,
     entryMode,
     sdkConfig.apiKey,
     sdkConfig.baseURL,
     remoteConfigVersion,
+  ]);
+
+  useEffect(() => {
+    if (!loadRemoteConfig || remoteConfigPollIntervalMs <= 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function pollRuntime() {
+      try {
+        const res = await runtimeApi.getConfig();
+        if (cancelled || !res.success || !res.data) {
+          return;
+        }
+        applyRuntimeData(res.data);
+      } catch {
+        // Ignore transient poll errors — next interval retries.
+      }
+    }
+
+    const id = window.setInterval(() => {
+      void pollRuntime();
+    }, remoteConfigPollIntervalMs);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [
+    applyRuntimeData,
+    loadRemoteConfig,
+    remoteConfigPollIntervalMs,
+    sdkConfig.apiKey,
+    sdkConfig.baseURL,
+    entryMode,
   ]);
 
   const appPages = appPagesProp ?? fetchedAppPages;
@@ -172,6 +254,7 @@ export function ActocoreProvider({
         hostContext={liveHostContext}
         setHostContext={updateHostContext}
         presentationReady={presentationReady}
+        projectDataVersion={projectDataVersion}
       >
         <ActocoreThemeRoot>
           <ActocoreSystemThemeSync />

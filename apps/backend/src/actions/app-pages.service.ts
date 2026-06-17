@@ -15,6 +15,7 @@ import type {
 import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import { ProjectsService } from '../projects/projects.service';
+import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
 import { AppPage, AppPageDocument } from './schemas/app-page.schema';
 import {
   KnowledgeChunk,
@@ -41,7 +42,61 @@ export class AppPagesService {
     @InjectModel(KnowledgeChunk.name)
     private readonly knowledgeChunkModel: Model<KnowledgeChunkDocument>,
     private readonly projects: ProjectsService,
+    private readonly sdkConfig: SdkConfigService,
   ) {}
+
+  /**
+   * Fingerprint for SDK polling — bumps when sdk config, pages, actions, or
+   * knowledge sources change for the project.
+   */
+  async getProjectDataRevision(projectId: string): Promise<string> {
+    const filter = withProjectId(projectId);
+    const [
+      sdk,
+      pageCount,
+      latestPage,
+      actionCount,
+      latestAction,
+      knowledgeCount,
+      latestKnowledge,
+    ] = await Promise.all([
+      this.sdkConfig.getConfig(projectId),
+      this.pageModel.countDocuments(filter),
+      this.pageModel
+        .findOne(filter)
+        .sort({ updatedAt: -1 })
+        .select('updatedAt')
+        .lean()
+        .exec(),
+      this.actionModel.countDocuments(filter),
+      this.actionModel
+        .findOne(filter)
+        .sort({ updatedAt: -1 })
+        .select('updatedAt')
+        .lean()
+        .exec(),
+      this.knowledgeSourceModel.countDocuments(filter),
+      this.knowledgeSourceModel
+        .findOne(filter)
+        .sort({ updatedAt: -1 })
+        .select('updatedAt')
+        .lean()
+        .exec(),
+    ]);
+
+    const ts = (doc: { updatedAt?: Date } | null) =>
+      doc?.updatedAt?.getTime() ?? 0;
+
+    return [
+      sdk.sdkConfigVersion,
+      pageCount,
+      ts(latestPage),
+      actionCount,
+      ts(latestAction),
+      knowledgeCount,
+      ts(latestKnowledge),
+    ].join(':');
+  }
 
   async list(projectId: string): Promise<AppPageData[]> {
     await this.projects.assertExists(projectId);

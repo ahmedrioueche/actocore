@@ -1,5 +1,3 @@
-import { useTranslation } from "react-i18next";
-
 import { PageHeader } from "@/components/layout/PageHeader";
 import CustomSelect from "@/components/ui/CustomSelect";
 import Error from "@/components/ui/Error";
@@ -11,6 +9,7 @@ import {
   StudioReportType,
 } from "@ahmedrioueche/actocore-shared";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { AdminReportsTable } from "./ReportsTable";
 
