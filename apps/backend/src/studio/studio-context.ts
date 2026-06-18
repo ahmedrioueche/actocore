@@ -9,4 +9,6 @@ export type StudioRequestContext = {
   role: StudioRole;
   permissions: string[];
   projectIds: string[];
+  /** JWT `tal` claim — present for shared demo account sessions. */
+  testAccountLeaseId?: string;
 };

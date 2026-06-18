@@ -12,6 +12,7 @@ import type {
 } from '@ahmedrioueche/actocore-shared';
 import {
   ErrorCode,
+  isStudioTestAccountEmail,
   resolveOnboardingCurrentStep,
   STUDIO_ONBOARDING_STEPS,
   StudioRole,
@@ -34,6 +35,10 @@ export class StudioOnboardingService {
   async getState(ctx: StudioRequestContext): Promise<StudioOnboardingStateData> {
     if (!this.isOnboardingRequired(ctx.role)) {
       return this.editorSkippedState();
+    }
+
+    if (ctx.email && isStudioTestAccountEmail(ctx.email)) {
+      return this.demoSkippedState();
     }
 
     const account = await this.requireAccount(ctx.accountId);
@@ -173,6 +178,16 @@ export class StudioOnboardingService {
   private editorSkippedState(): StudioOnboardingStateData {
     return {
       required: false,
+      completed: true,
+      skipped: false,
+      currentStep: 'done',
+      completedSteps: [...STUDIO_ONBOARDING_STEPS],
+    };
+  }
+
+  private demoSkippedState(): StudioOnboardingStateData {
+    return {
+      required: true,
       completed: true,
       skipped: false,
       currentStep: 'done',

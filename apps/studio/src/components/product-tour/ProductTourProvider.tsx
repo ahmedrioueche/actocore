@@ -10,9 +10,13 @@ import {
 } from 'react';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import type { StudioProductTourStep } from '@ahmedrioueche/actocore-shared';
-import { getProductTourStepsToAutoComplete } from '@ahmedrioueche/actocore-shared';
+import {
+  getProductTourStepsToAutoComplete,
+  isStudioTestAccountEmail,
+} from '@ahmedrioueche/actocore-shared';
 
 import { useAuth } from '@/context/AuthContext';
+import { markDemoProductTourSeen } from '@/lib/demo-product-tour';
 import {
   useProductTourState,
   useUpdateProductTour,
@@ -68,6 +72,12 @@ export function ProductTourProvider({ children }: ProductTourProviderProps) {
   const prevActiveStepRef = useRef<StudioProductTourStep | null>(null);
 
   const permissions = session?.permissions ?? [];
+  const demoEmail = session?.user.email;
+  const isDemoSession = Boolean(
+    demoEmail &&
+      isStudioTestAccountEmail(demoEmail) &&
+      session?.testAccountLease,
+  );
   const tourState = tourQuery.data;
   const activeStep = tourState?.activeStep ?? null;
 
@@ -99,8 +109,11 @@ export function ProductTourProvider({ children }: ProductTourProviderProps) {
   );
 
   const dismissTour = useCallback(() => {
+    if (isDemoSession && demoEmail) {
+      markDemoProductTourSeen(demoEmail);
+    }
     void updateTour.mutateAsync({ dismiss: true });
-  }, [updateTour]);
+  }, [demoEmail, isDemoSession, updateTour]);
 
   useEffect(() => {
     if (!tourState?.eligible || tourState.dismissed) {
@@ -203,6 +216,10 @@ export function ProductTourProvider({ children }: ProductTourProviderProps) {
       return;
     }
 
+    if (isDemoSession && demoEmail) {
+      markDemoProductTourSeen(demoEmail);
+    }
+
     const projectId =
       parseProjectIdFromPath(pathname) ?? session?.projectIds[0] ?? null;
     if (!projectId) {
@@ -212,6 +229,8 @@ export function ProductTourProvider({ children }: ProductTourProviderProps) {
     void navigate({ to: '/projects/$projectId', params: { projectId } });
   }, [
     activeStep,
+    demoEmail,
+    isDemoSession,
     navigate,
     pathname,
     session?.projectIds,

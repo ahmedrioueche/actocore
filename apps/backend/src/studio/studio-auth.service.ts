@@ -998,6 +998,7 @@ export class StudioAuthService {
       role: membership.role,
       permissions,
       projectIds: membership.projectIds ?? [],
+      testAccountLeaseId: payload.tal,
     };
   }
 
