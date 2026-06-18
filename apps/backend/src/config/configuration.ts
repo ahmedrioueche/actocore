@@ -18,6 +18,7 @@ import { resolvePayPalConfig } from './paypal.config';
 import { resolvePlatformAuthConfig } from './platform-auth.config';
 import { resolveMarketingChatConfig } from './marketing-chat.config';
 import { resolvePlaygroundConfig } from './playground.config';
+import { resolveSentryConfig } from './sentry.config';
 
 export default () => {
   const uri = resolveMongoUri();
@@ -49,5 +50,6 @@ export default () => {
     platformAuth: resolvePlatformAuthConfig(),
     marketingChat: resolveMarketingChatConfig(),
     playground: resolvePlaygroundConfig(),
+    sentry: resolveSentryConfig(),
   };
 };

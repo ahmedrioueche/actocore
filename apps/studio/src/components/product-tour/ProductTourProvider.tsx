@@ -17,6 +17,7 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import { markDemoProductTourSeen } from '@/lib/demo-product-tour';
+import { getStoredTestAccountLeaseId } from '@/lib/test-account-lease';
 import {
   useProductTourState,
   useUpdateProductTour,
@@ -76,7 +77,7 @@ export function ProductTourProvider({ children }: ProductTourProviderProps) {
   const isDemoSession = Boolean(
     demoEmail &&
       isStudioTestAccountEmail(demoEmail) &&
-      session?.testAccountLease,
+      getStoredTestAccountLeaseId(demoEmail),
   );
   const tourState = tourQuery.data;
   const activeStep = tourState?.activeStep ?? null;

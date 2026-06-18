@@ -2,6 +2,7 @@ import type { ErrorInfo, ReactNode } from 'react';
 import { Component } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { captureAppException } from '@/lib/sentry';
 import ErrorPage from '@/pages/system/ErrorPage';
 
 interface ErrorBoundaryProps {
@@ -31,6 +32,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    captureAppException(error, { componentStack: errorInfo.componentStack });
   }
 
   render() {

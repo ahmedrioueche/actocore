@@ -33,6 +33,8 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/mongoose": "^11.0.4",
     "@nestjs/platform-express": "^11.0.1",
+    "@sentry/nestjs": "^10.58.0",
+    "@sentry/node": "^10.58.0",
     "ajv": "^8.20.0",
     "axios": "^1.13.2",
     "bullmq": "^5.78.1",

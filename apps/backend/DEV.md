@@ -207,6 +207,29 @@ SDK dev workflow: [`packages/sdk/DEV.md`](../../packages/sdk/DEV.md).
 
 ---
 
+## Sentry (errors + email alerts)
+
+Backend and Studio report to Sentry when a DSN is set. Email notifications are **not** configured in code — set them up once in [sentry.io](https://sentry.io):
+
+1. Create a Sentry organization and two projects (e.g. `actocore-backend`, `actocore-studio`).
+2. Copy each project's DSN into env:
+   - Backend: `SENTRY_DSN` in `apps/backend/.env`
+   - Studio: `VITE_SENTRY_DSN` in `apps/studio/.env` (baked in at `vite build`)
+3. In Sentry → **Alerts** → **Create Alert** → choose **Issues** → trigger on new or regressed issues → action **Send a notification via Email** to your address.
+4. Repeat per project, or use one alert rule with both projects if you use a single Sentry project.
+
+Optional env:
+
+| Variable | App | Default |
+| -------- | --- | ------- |
+| `SENTRY_ENVIRONMENT` / `VITE_SENTRY_ENVIRONMENT` | both | `NODE_ENV` / Vite `MODE` |
+| `SENTRY_TRACES_SAMPLE_RATE` / `VITE_SENTRY_TRACES_SAMPLE_RATE` | both | `0.1` |
+| `SENTRY_ENABLED` / `VITE_SENTRY_ENABLED` | both | on when DSN is set; set `false` to disable |
+
+Backend captures unhandled exceptions and HTTP 5xx responses. Studio captures React crashes and unhandled browser errors.
+
+---
+
 ## Related
 
 - [README.md](./README.md) — routes, knowledge matrix, curl

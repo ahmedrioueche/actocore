@@ -13,6 +13,7 @@ import {
   type PlanLimitErrorDetails,
 } from '@ahmedrioueche/actocore-shared';
 import type { Response } from 'express';
+import { captureSentryException } from '../../observability/sentry.util';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -48,6 +49,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         this.logger.warn(`HTTP ${status} ${errorCode}: ${message}`);
       }
 
+      if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+        captureSentryException(exception, {
+          tags: { errorCode, httpStatus: String(status) },
+          extra: { message },
+        });
+      }
+
       const details = this.extractDetails(body);
 
       response.status(status).json(apiError(errorCode, message, details));
@@ -55,6 +63,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     this.logger.error(exception);
+    captureSentryException(exception);
     response
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json(apiError(ErrorCode.INTERNAL_ERROR, 'Internal server error'));

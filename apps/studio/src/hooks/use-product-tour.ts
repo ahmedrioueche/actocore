@@ -8,6 +8,7 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import { hasSeenDemoProductTour, markDemoProductTourSeen } from '@/lib/demo-product-tour';
+import { getStoredTestAccountLeaseId } from '@/lib/test-account-lease';
 import { parseApiResponse } from '@/lib/parse-api-response';
 import { queryKeys } from '@/lib/query-keys';
 import { ensureApiConfigured } from '@/lib/configure-api';
@@ -26,15 +27,10 @@ export function useProductTourState() {
   ensureApiConfigured();
   const { session } = useAuth();
   const demoEmail = session?.user.email;
-  const isDemoSession = Boolean(
-    demoEmail &&
-      isStudioTestAccountEmail(demoEmail) &&
-      session?.testAccountLease,
+  const hasDemoLease = Boolean(
+    demoEmail && getStoredTestAccountLeaseId(demoEmail),
   );
-  const suppressDemoTour = isDemoTourSuppressed(
-    demoEmail,
-    Boolean(session?.testAccountLease),
-  );
+  const suppressDemoTour = isDemoTourSuppressed(demoEmail, hasDemoLease);
 
   return useQuery({
     queryKey: queryKeys.productTour.state(),
@@ -63,7 +59,7 @@ export function useUpdateProductTour() {
       if (
         demoEmail &&
         isStudioTestAccountEmail(demoEmail) &&
-        session?.testAccountLease &&
+        getStoredTestAccountLeaseId(demoEmail) &&
         (data.dismissed || data.activeStep === null)
       ) {
         markDemoProductTourSeen(demoEmail);
