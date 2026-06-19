@@ -1,6 +1,8 @@
+import { initClarity } from '@/lib/clarity';
 import { initSentry } from '@/lib/sentry';
 
 initSentry();
+initClarity();
 
 import 'reflect-metadata';
 import { StrictMode } from 'react';

@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_ENVIRONMENT?: string;
   readonly VITE_SENTRY_TRACES_SAMPLE_RATE?: string;
   readonly VITE_SENTRY_ENABLED?: string;
+  readonly VITE_CLARITY_PROJECT_ID?: string;
+  readonly VITE_CLARITY_ENABLED?: string;
 }
 
 interface ImportMeta {
