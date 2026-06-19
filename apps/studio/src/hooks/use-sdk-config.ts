@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';import {
   sdkConfigApi,
+  type TranslateSdkCopyDto,
   type UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
 
@@ -29,6 +29,15 @@ export function useUpdateSdkConfig(projectId: string | null) {
       if (projectId) {
         queryClient.setQueryData(queryKeys.sdkConfig.detail(projectId), data);
       }
+    },
+  });
+}
+
+export function useTranslateSdkCopy(projectId: string | null) {
+  return useMutation({
+    mutationFn: async (body: TranslateSdkCopyDto) => {
+      ensureApiConfigured();
+      return parseApiResponse(await sdkConfigApi.translateCopy(projectId!, body));
     },
   });
 }

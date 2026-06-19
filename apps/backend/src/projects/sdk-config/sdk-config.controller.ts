@@ -4,12 +4,14 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import {
   apiSuccess,
   StudioPermission,
+  TranslateSdkCopyDto,
   UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
 import { RequireStudioPermission } from '../../studio/decorators/require-studio-permission.decorator';
@@ -21,12 +23,14 @@ import { StudioAccessService } from '../../studio/studio-access.service';
 import { assertStudioProjectRoute } from '../../studio/studio-project-route.util';
 import { ProjectsService } from '../projects.service';
 import { SdkConfigService } from './sdk-config.service';
+import { SdkConfigTranslateService } from './sdk-config-translate.service';
 
 @UseGuards(StudioAuthGuard, StudioPermissionsGuard)
 @Controller('web/projects/:projectId/sdk-config')
 export class SdkConfigController {
   constructor(
     private readonly sdkConfig: SdkConfigService,
+    private readonly sdkConfigTranslate: SdkConfigTranslateService,
     private readonly projects: ProjectsService,
     private readonly studioAccess: StudioAccessService,
   ) {}
@@ -82,5 +86,21 @@ export class SdkConfigController {
       this.projects,
     );
     return apiSuccess(await this.sdkConfig.updateConfig(projectId, body));
+  }
+
+  @Post('translate-copy')
+  @RequireStudioPermission(StudioPermission.SDK_CONFIG_WRITE)
+  async translateCopy(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Body() body: TranslateSdkCopyDto,
+  ) {
+    await assertStudioProjectRoute(
+      ctx,
+      projectId,
+      this.studioAccess,
+      this.projects,
+    );
+    return apiSuccess(await this.sdkConfigTranslate.translateCopy(body));
   }
 }

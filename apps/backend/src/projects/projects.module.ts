@@ -23,6 +23,7 @@ import {
   ChatSession,
   ChatSessionSchema,
 } from '../sessions/schemas/chat-session.schema';
+import { LlmModule } from '../external/llm/llm.module';
 import { SessionsModule } from '../sessions/sessions.module';
 import { StudioBillingModule } from '../studio-billing/studio-billing.module';
 import {
@@ -45,6 +46,7 @@ import {
 import { SdkConfigAuditLogger } from './sdk-config/sdk-config-audit.logger';
 import { SdkConfigController } from './sdk-config/sdk-config.controller';
 import { SdkConfigService } from './sdk-config/sdk-config.service';
+import { SdkConfigTranslateService } from './sdk-config/sdk-config-translate.service';
 
 @Module({
   imports: [
@@ -52,6 +54,7 @@ import { SdkConfigService } from './sdk-config/sdk-config.service';
     forwardRef(() => StudioBillingModule),
     forwardRef(() => AuthModule),
     SessionsModule,
+    LlmModule,
     MongooseModule.forFeature([
       { name: Project.name, schema: ProjectSchema },
       { name: SdkConfigAudit.name, schema: SdkConfigAuditSchema },
@@ -70,6 +73,7 @@ import { SdkConfigService } from './sdk-config/sdk-config.service';
     ProjectsService,
     ProjectDeleteService,
     SdkConfigService,
+    SdkConfigTranslateService,
     SdkConfigAuditLogger,
     KnowledgeStorageService,
   ],

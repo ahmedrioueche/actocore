@@ -52,6 +52,7 @@ const LOADING_TEXT_ANIMATIONS: readonly SdkLoadingTextAnimation[] = [
 ];
 
 export const SDK_CONFIG_MAX_TRANSLATIONS_BYTES = 32_768;
+export const SDK_CONFIG_MAX_SUPPORTED_LOCALES = 20;
 export const SDK_CONFIG_MAX_ALLOWED_ACTIONS = 50;
 export const SDK_CONFIG_MAX_THEME_TOKENS = 40;
 
@@ -65,7 +66,7 @@ export function deepMergeSdkConfig(
 ): SdkProjectConfigData {
   const merged: SdkProjectConfigData = {
     sdkConfigVersion: current.sdkConfigVersion,
-    i18n: patch.i18n !== undefined ? mergeSection(current.i18n, patch.i18n) : current.i18n,
+    i18n: patch.i18n !== undefined ? mergeI18n(current.i18n, patch.i18n) : current.i18n,
     theme:
       patch.theme !== undefined ? mergeTheme(current.theme, patch.theme) : current.theme,
     security:
@@ -307,6 +308,41 @@ function mergeSection<T extends object>(base: T | undefined, patch: Partial<T>):
   return { ...(base ?? ({} as T)), ...patch };
 }
 
+function mergeI18n(
+  base: SdkProjectConfigData['i18n'],
+  patch: NonNullable<UpdateSdkProjectConfigDto['i18n']>,
+): SdkProjectConfigData['i18n'] {
+  const merged: NonNullable<SdkProjectConfigData['i18n']> = {
+    ...(base ?? {}),
+  };
+
+  if (patch.locale !== undefined) {
+    if (patch.locale === null) {
+      delete merged.locale;
+    } else {
+      merged.locale = patch.locale;
+    }
+  }
+
+  if (patch.supportedLocales !== undefined) {
+    if (patch.supportedLocales === null) {
+      delete merged.supportedLocales;
+    } else {
+      merged.supportedLocales = patch.supportedLocales;
+    }
+  }
+
+  if (patch.translations !== undefined) {
+    if (patch.translations === null) {
+      delete merged.translations;
+    } else {
+      merged.translations = patch.translations;
+    }
+  }
+
+  return Object.keys(merged).length > 0 ? merged : undefined;
+}
+
 export function normalizeSdkConfig(raw: unknown): SdkProjectConfigData {
   if (!raw || typeof raw !== 'object') {
     return emptySdkProjectConfig();
@@ -339,6 +375,14 @@ export function normalizeSdkConfig(raw: unknown): SdkProjectConfigData {
 }
 
 export function assertSdkConfigLimits(config: SdkProjectConfigData): void {
+  if (config.i18n?.supportedLocales?.length) {
+    if (config.i18n.supportedLocales.length > SDK_CONFIG_MAX_SUPPORTED_LOCALES) {
+      throw new Error(
+        `supportedLocales exceeds maximum of ${SDK_CONFIG_MAX_SUPPORTED_LOCALES} entries`,
+      );
+    }
+  }
+
   if (config.i18n?.translations) {
     const size = JSON.stringify(config.i18n.translations).length;
     if (size > SDK_CONFIG_MAX_TRANSLATIONS_BYTES) {
@@ -365,16 +409,56 @@ export function assertSdkConfigLimits(config: SdkProjectConfigData): void {
   }
 }
 
+function normalizeLocaleCode(raw: string): string | undefined {
+  const trimmed = raw.trim().toLowerCase();
+  if (!trimmed) {
+    return undefined;
+  }
+  return trimmed.split('-')[0].slice(0, 35);
+}
+
+function isValidLocaleCode(code: string): boolean {
+  return /^[a-z]{2,3}$/.test(code);
+}
+
+function pickSupportedLocales(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) {
+    return undefined;
+  }
+
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const item of raw) {
+    if (typeof item !== 'string') {
+      continue;
+    }
+    const code = normalizeLocaleCode(item);
+    if (!code || !isValidLocaleCode(code) || seen.has(code)) {
+      continue;
+    }
+    seen.add(code);
+    result.push(code);
+    if (result.length >= SDK_CONFIG_MAX_SUPPORTED_LOCALES) {
+      break;
+    }
+  }
+
+  return result.length > 0 ? result : undefined;
+}
+
 function pickI18n(raw: unknown): SdkProjectConfigData['i18n'] | undefined {
   if (!raw || typeof raw !== 'object') return undefined;
   const o = raw as Record<string, unknown>;
-  const locale = typeof o.locale === 'string' ? o.locale.trim() : undefined;
+  const locale =
+    typeof o.locale === 'string' ? normalizeLocaleCode(o.locale) : undefined;
+  const supportedLocales = pickSupportedLocales(o.supportedLocales);
   const translations =
     o.translations && typeof o.translations === 'object'
       ? (o.translations as Record<string, Record<string, unknown>>)
       : undefined;
-  if (!locale && !translations) return undefined;
-  return { locale, translations };
+  if (!locale && !supportedLocales?.length && !translations) return undefined;
+  return { locale, supportedLocales, translations };
 }
 
 function pickTheme(raw: unknown): SdkProjectConfigData['theme'] | undefined {

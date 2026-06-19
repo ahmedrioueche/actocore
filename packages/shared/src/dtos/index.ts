@@ -11,6 +11,7 @@ export * from './project.dto';
 export * from './session.dto';
 export * from './knowledge.dto';
 export * from './sdk-config.dto';
+export * from './sdk-label-translate.dto';
 export * from './studio-auth.dto';
 export * from './account.dto';
 export * from './onboarding.dto';

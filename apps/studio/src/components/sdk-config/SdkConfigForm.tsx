@@ -15,6 +15,7 @@ import type { SdkConfigFormState } from "@/utils/sdk-config-form";
 import type { SdkProjectConfigData } from "@ahmedrioueche/actocore-shared";
 
 interface SdkConfigFormProps {
+  projectId: string;
   value: SdkConfigFormState;
   onChange: (value: SdkConfigFormState) => void;
   disabled?: boolean;
@@ -22,6 +23,7 @@ interface SdkConfigFormProps {
 }
 
 export function SdkConfigForm({
+  projectId,
   value,
   onChange,
   disabled = false,
@@ -71,8 +73,8 @@ export function SdkConfigForm({
         {activeSection === "loading" && (
           <SdkConfigLoadingSection {...sectionProps} />
         )}
-        {activeSection === "copy" && (
-          <SdkConfigCopySection {...sectionProps} />
+        {activeSection === "languages" && (
+          <SdkConfigCopySection {...sectionProps} projectId={projectId} />
         )}
       </div>
     </div>

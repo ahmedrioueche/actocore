@@ -1,10 +1,12 @@
 import { apiPath } from '../config/api-version';
+import { TranslateSdkCopyDto } from '../dtos/sdk-label-translate.dto';
 import { UpdateSdkProjectConfigDto } from '../dtos/sdk-config.dto';
 import type { ApiResponse } from '../types/api-response';
 import type {
   SdkConfigAuditEntryData,
   SdkProjectConfigData,
 } from '../types/sdk-config';
+import type { TranslateSdkCopyResultData } from '../types/sdk-label';
 import type { Paginated, PaginationQuery } from '../types/pagination';
 import { BaseApi } from './helper';
 
@@ -46,6 +48,18 @@ export class SdkConfigApi extends BaseApi {
         apiPath(
           `web/projects/${projectId}/sdk-config/audit${qs ? `?${qs}` : ''}`,
         ),
+      ),
+    );
+  }
+
+  translateCopy(
+    projectId: string,
+    body: TranslateSdkCopyDto,
+  ): Promise<ApiResponse<TranslateSdkCopyResultData>> {
+    return this.request(() =>
+      this.client.post<ApiResponse<TranslateSdkCopyResultData>>(
+        apiPath(`web/projects/${projectId}/sdk-config/translate-copy`),
+        body,
       ),
     );
   }

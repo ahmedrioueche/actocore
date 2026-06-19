@@ -17,6 +17,23 @@ import {
   SDK_CONFIG_WIDGET_DEFAULTS,
 } from '@/constants/sdk-config-defaults';
 import {
+  SDK_CONFIG_DEFAULT_CHAT_LOCALE,
+  SDK_CONFIG_DEFAULT_SUPPORTED_CHAT_LOCALES,
+  isValidSdkChatLocaleCode,
+  normalizeSupportedChatLocales,
+  SDK_CONFIG_MAX_SUPPORTED_CHAT_LOCALES,
+} from '@/constants/sdk-chat-locales';
+import {
+  createDefaultLabelTexts,
+  createEmptyLabelTextsByLocale,
+  getBundledLabelDefault,
+  readLabelTextsForLocale,
+  SDK_LABEL_FIELD_TO_CHAT_KEY,
+  SDK_LABEL_TEXT_FIELDS,
+  syncLabelTextsByLocale,
+  type SdkLabelTexts,
+} from '@/constants/sdk-label-text';
+import {
   createEmptyThemeColorsByVariant,
   parseThemeColorsFromTokens,
   resolveFontFamilyFromPreset,
@@ -31,16 +48,27 @@ import { isValidHexColor, normalizeHexColor } from '@/utils/hex-color';
 import type {
   SdkHeaderConfig,
   SdkLauncherPlacement,
+  SdkLauncherVariant,
   SdkLoadingInitStyle,
   SdkLoadingTextAnimation,
   SdkLoadingThinkingStyle,
-  SdkLauncherVariant,
   SdkPresentationMode,
   SdkProjectConfigData,
   SdkWidgetPanelLayout,
   SdkWidgetPosition,
   UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
+import {
+  SDK_LABEL_TEXT_MAX_LENGTH,
+  type SdkLabelTextField,
+} from '@ahmedrioueche/actocore-shared';
+
+/** PATCH bodies use null to clear saved i18n fields (backend merge supports this). */
+type SdkI18nConfigNullablePatch = {
+  locale?: string | null;
+  supportedLocales?: string[] | null;
+  translations?: Record<string, Record<string, unknown>> | null;
+};
 
 export interface SdkConfigFormState {
   appThemes: SdkAppThemesSupport;
@@ -53,19 +81,12 @@ export interface SdkConfigFormState {
   showActionPicker: boolean;
   composerMinRows: number;
   composerMaxRows: number;
-  headerTitle: string;
-  headerSubtitle: string;
+  defaultLocale: string;
+  supportedLocales: string[];
+  labelTextsByLocale: Record<string, SdkLabelTexts>;
   showHeaderIcon: boolean;
   headerIconUrl: string;
-  emptyTitle: string;
-  emptyDescription: string;
-  actionsHint: string;
-  placeholder: string;
-  send: string;
   open: string;
-  newConversation: string;
-  minimize: string;
-  stop: string;
   loadingText: string;
   thinkingText: string;
   loadingInitStyle: SdkLoadingInitStyle;
@@ -100,22 +121,17 @@ export type SdkConfigFormValidationError =
   | 'widgetZIndexInvalid'
   | 'fieldTooLong'
   | 'invalidHexColor'
-  | 'fontFamilyTooLong';
+  | 'fontFamilyTooLong'
+  | 'supportedLocalesInvalid'
+  | 'supportedLocalesMax'
+  | 'defaultLocaleUnsupported';
+
+const LABEL_TEXT_FIELD_LIMITS = SDK_LABEL_TEXT_MAX_LENGTH;
 
 const TEXT_FIELD_LIMITS: Record<
   keyof Pick<
     SdkConfigFormState,
-    | 'headerTitle'
-    | 'headerSubtitle'
-    | 'emptyTitle'
-    | 'emptyDescription'
-    | 'actionsHint'
-    | 'placeholder'
-    | 'send'
     | 'open'
-    | 'newConversation'
-    | 'minimize'
-    | 'stop'
     | 'loadingText'
     | 'thinkingText'
     | 'launcherAriaLabel'
@@ -132,17 +148,7 @@ const TEXT_FIELD_LIMITS: Record<
   >,
   number
 > = {
-  headerTitle: 200,
-  headerSubtitle: 400,
-  emptyTitle: 200,
-  emptyDescription: 600,
-  actionsHint: 600,
-  placeholder: 200,
-  send: 80,
   open: 80,
-  newConversation: 80,
-  minimize: 80,
-  stop: 80,
   loadingText: 80,
   thinkingText: 80,
   launcherAriaLabel: 120,
@@ -394,19 +400,14 @@ export function createDefaultSdkConfigFormState(): SdkConfigFormState {
     showActionPicker: SDK_CONFIG_UI_TOGGLE_DEFAULTS.showActionPicker,
     composerMinRows: SDK_CONFIG_COMPOSER_DEFAULTS.composerMinRows,
     composerMaxRows: SDK_CONFIG_COMPOSER_DEFAULTS.composerMaxRows,
-    headerTitle: SDK_CONFIG_UI_TEXT_DEFAULTS.headerTitle,
-    headerSubtitle: SDK_CONFIG_UI_TEXT_DEFAULTS.headerSubtitle,
+    defaultLocale: SDK_CONFIG_DEFAULT_CHAT_LOCALE,
+    supportedLocales: [...SDK_CONFIG_DEFAULT_SUPPORTED_CHAT_LOCALES],
+    labelTextsByLocale: createEmptyLabelTextsByLocale([
+      ...SDK_CONFIG_DEFAULT_SUPPORTED_CHAT_LOCALES,
+    ]),
     showHeaderIcon: SDK_CONFIG_HEADER_DEFAULTS.showIcon,
     headerIconUrl: '',
-    emptyTitle: SDK_CONFIG_UI_TEXT_DEFAULTS.emptyTitle,
-    emptyDescription: SDK_CONFIG_UI_TEXT_DEFAULTS.emptyDescription,
-    actionsHint: SDK_CONFIG_UI_TEXT_DEFAULTS.actionsHint,
-    placeholder: SDK_CONFIG_UI_TEXT_DEFAULTS.placeholder,
-    send: SDK_CONFIG_UI_TEXT_DEFAULTS.send,
     open: SDK_CONFIG_UI_TEXT_DEFAULTS.open,
-    newConversation: SDK_CONFIG_UI_TEXT_DEFAULTS.newConversation,
-    minimize: SDK_CONFIG_UI_TEXT_DEFAULTS.minimize,
-    stop: SDK_CONFIG_UI_TEXT_DEFAULTS.stop,
     loadingText: SDK_CONFIG_UI_TEXT_DEFAULTS.loading,
     thinkingText: SDK_CONFIG_UI_TEXT_DEFAULTS.thinking,
     loadingInitStyle: SDK_CONFIG_LOADING_DEFAULTS.initStyle,
@@ -437,6 +438,20 @@ export function configToFormState(
 ): SdkConfigFormState {
   const defaults = createDefaultSdkConfigFormState();
   const text = config.ui?.text;
+  const defaultLocale =
+    config.i18n?.locale?.trim() || defaults.defaultLocale;
+  const supportedLocales = config.i18n?.supportedLocales?.length
+    ? normalizeSupportedChatLocales(config.i18n.supportedLocales, defaultLocale)
+    : normalizeSupportedChatLocales([defaultLocale], defaultLocale);
+  const labelTextsByLocale = syncLabelTextsByLocale(
+    Object.fromEntries(
+      supportedLocales.map((locale) => [
+        locale,
+        readLabelTextsForLocale(config, locale),
+      ]),
+    ),
+    supportedLocales,
+  );
   const tokens = config.theme?.tokens ?? {};
   const themeColorsByVariant = parseThemeColorsFromTokens(tokens);
 
@@ -457,23 +472,13 @@ export function configToFormState(
     showActionPicker: config.ui?.showActionPicker ?? defaults.showActionPicker,
     composerMinRows: config.ui?.composerMinRows ?? defaults.composerMinRows,
     composerMaxRows: config.ui?.composerMaxRows ?? defaults.composerMaxRows,
-    headerTitle: resolveUiTextField(text?.headerTitle, 'headerTitle'),
-    headerSubtitle: resolveUiTextField(text?.headerSubtitle, 'headerSubtitle'),
+    defaultLocale,
+    supportedLocales,
+    labelTextsByLocale,
     showHeaderIcon:
       config.ui?.header?.showIcon ?? SDK_CONFIG_HEADER_DEFAULTS.showIcon,
     headerIconUrl: config.ui?.header?.iconUrl ?? '',
-    emptyTitle: resolveUiTextField(text?.emptyTitle, 'emptyTitle'),
-    emptyDescription: resolveUiTextField(
-      text?.emptyDescription,
-      'emptyDescription',
-    ),
-    actionsHint: resolveUiTextField(text?.actionsHint, 'actionsHint'),
-    placeholder: resolveUiTextField(text?.placeholder, 'placeholder'),
-    send: resolveUiTextField(text?.send, 'send'),
     open: resolveUiTextField(text?.open, 'open'),
-    newConversation: resolveUiTextField(text?.newConversation, 'newConversation'),
-    minimize: resolveUiTextField(text?.minimize, 'minimize'),
-    stop: resolveUiTextField(text?.stop, 'stop'),
     loadingText: resolveUiTextField(text?.loading, 'loading'),
     thinkingText: resolveUiTextField(text?.thinking, 'thinking'),
     loadingInitStyle:
@@ -652,6 +657,32 @@ export function validateSdkConfigForm(
     }
   }
 
+  for (const locale of state.supportedLocales) {
+    const labels =
+      state.labelTextsByLocale[locale] ?? createDefaultLabelTexts(locale);
+    for (const [field, maxLength] of Object.entries(LABEL_TEXT_FIELD_LIMITS)) {
+      const value = labels[field as SdkLabelTextField];
+      if (value.length > maxLength) {
+        return 'fieldTooLong';
+      }
+    }
+  }
+
+  if (state.supportedLocales.length > SDK_CONFIG_MAX_SUPPORTED_CHAT_LOCALES) {
+    return 'supportedLocalesMax';
+  }
+
+  if (
+    !isValidSdkChatLocaleCode(state.defaultLocale) ||
+    !state.supportedLocales.every((code) => isValidSdkChatLocaleCode(code))
+  ) {
+    return 'supportedLocalesInvalid';
+  }
+
+  if (!state.supportedLocales.includes(state.defaultLocale)) {
+    return 'defaultLocaleUnsupported';
+  }
+
   return null;
 }
 
@@ -667,34 +698,169 @@ export function isSdkConfigFormDirty(
   );
 }
 
+function arraysEqual(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  return a.every((value, index) => value === b[index]);
+}
+
+function buildSparseTranslations(
+  state: SdkConfigFormState,
+): Record<string, { chat: Record<string, string> }> {
+  const translations: Record<string, { chat: Record<string, string> }> = {};
+
+  for (const locale of state.supportedLocales) {
+    const labels =
+      state.labelTextsByLocale[locale] ?? createDefaultLabelTexts(locale);
+    const chat: Record<string, string> = {};
+
+    for (const field of SDK_LABEL_TEXT_FIELDS) {
+      const trimmed = trimOrEmpty(labels[field]);
+      const defaultValue = getBundledLabelDefault(field, locale);
+      if (trimmed && trimmed !== defaultValue) {
+        chat[SDK_LABEL_FIELD_TO_CHAT_KEY[field]] = trimmed;
+      }
+    }
+
+    if (Object.keys(chat).length > 0) {
+      translations[locale] = { chat };
+    }
+  }
+
+  return translations;
+}
+
+function normalizeTranslationsForCompare(
+  translations: Record<string, Record<string, unknown>> | undefined,
+  supportedLocales: string[],
+): Record<string, { chat: Record<string, string> }> {
+  const supported = new Set(supportedLocales);
+  const result: Record<string, { chat: Record<string, string> }> = {};
+
+  for (const [locale, bundle] of Object.entries(translations ?? {})) {
+    if (!supported.has(locale)) {
+      continue;
+    }
+    const chat = bundle?.chat;
+    if (!chat || typeof chat !== 'object') {
+      continue;
+    }
+    const normalizedChat: Record<string, string> = {};
+    for (const [key, value] of Object.entries(chat as Record<string, unknown>)) {
+      if (typeof value === 'string' && value.trim()) {
+        normalizedChat[key] = value.trim();
+      }
+    }
+    if (Object.keys(normalizedChat).length > 0) {
+      result[locale] = { chat: normalizedChat };
+    }
+  }
+
+  return result;
+}
+
+function buildTranslationsPatch(
+  state: SdkConfigFormState,
+  saved?: SdkProjectConfigData,
+): Record<string, { chat: Record<string, string> }> | null | undefined {
+  const built = buildSparseTranslations(state);
+  const savedNormalized = normalizeTranslationsForCompare(
+    saved?.i18n?.translations,
+    state.supportedLocales,
+  );
+  const savedHadUnsupported = Object.keys(saved?.i18n?.translations ?? {}).some(
+    (locale) => !state.supportedLocales.includes(locale),
+  );
+  const savedHadLegacyUiText = SDK_LABEL_TEXT_FIELDS.some(
+    (field) => saved?.ui?.text?.[field as SdkUiTextFormField] !== undefined,
+  );
+
+  if (
+    JSON.stringify(built) === JSON.stringify(savedNormalized) &&
+    !savedHadUnsupported &&
+    !savedHadLegacyUiText
+  ) {
+    return undefined;
+  }
+
+  if (
+    Object.keys(built).length === 0 &&
+    (Object.keys(savedNormalized).length > 0 || savedHadLegacyUiText)
+  ) {
+    return null;
+  }
+
+  return built;
+}
+
+function buildI18nPatch(
+  state: SdkConfigFormState,
+  saved?: SdkProjectConfigData,
+): SdkI18nConfigNullablePatch | undefined {
+  const localePatch = buildLocaleSettingsPatch(state, saved);
+  const translations = buildTranslationsPatch(state, saved);
+
+  if (!localePatch && translations === undefined) {
+    return undefined;
+  }
+
+  return {
+    ...(localePatch ?? {}),
+    ...(translations !== undefined ? { translations } : {}),
+  };
+}
+
+function buildLocaleSettingsPatch(
+  state: SdkConfigFormState,
+  saved?: SdkProjectConfigData,
+):
+  | Pick<SdkI18nConfigNullablePatch, 'locale' | 'supportedLocales'>
+  | undefined {
+  const savedLocale = saved?.i18n?.locale?.trim() || SDK_CONFIG_DEFAULT_CHAT_LOCALE;
+  const savedSupported = saved?.i18n?.supportedLocales?.length
+    ? normalizeSupportedChatLocales(saved.i18n.supportedLocales, savedLocale)
+    : [savedLocale];
+
+  if (
+    state.defaultLocale === savedLocale &&
+    arraysEqual(state.supportedLocales, savedSupported)
+  ) {
+    return undefined;
+  }
+
+  const isDefault =
+    state.defaultLocale === SDK_CONFIG_DEFAULT_CHAT_LOCALE &&
+    arraysEqual(
+      state.supportedLocales,
+      [...SDK_CONFIG_DEFAULT_SUPPORTED_CHAT_LOCALES],
+    );
+
+  return {
+    locale:
+      state.defaultLocale === SDK_CONFIG_DEFAULT_CHAT_LOCALE
+        ? null
+        : state.defaultLocale,
+    supportedLocales: isDefault ? null : state.supportedLocales,
+  };
+}
+
 export function formStateToPatch(
   state: SdkConfigFormState,
   saved?: SdkProjectConfigData,
 ): UpdateSdkProjectConfigDto {
+  const legacyUiTextClears = Object.fromEntries(
+    SDK_LABEL_TEXT_FIELDS.map((field) => [
+      field,
+      saved?.ui?.text?.[field as SdkUiTextFormField] !== undefined
+        ? null
+        : undefined,
+    ]),
+  ) as Record<string, string | null | undefined>;
+
   const text = buildNullablePatchRecord({
-    headerTitle: uiTextFieldForPatch('headerTitle', state.headerTitle, saved),
-    headerSubtitle: uiTextFieldForPatch(
-      'headerSubtitle',
-      state.headerSubtitle,
-      saved,
-    ),
-    emptyTitle: uiTextFieldForPatch('emptyTitle', state.emptyTitle, saved),
-    emptyDescription: uiTextFieldForPatch(
-      'emptyDescription',
-      state.emptyDescription,
-      saved,
-    ),
-    actionsHint: uiTextFieldForPatch('actionsHint', state.actionsHint, saved),
-    placeholder: uiTextFieldForPatch('placeholder', state.placeholder, saved),
-    send: uiTextFieldForPatch('send', state.send, saved),
+    ...legacyUiTextClears,
     open: uiTextFieldForPatch('open', state.open, saved),
-    newConversation: uiTextFieldForPatch(
-      'newConversation',
-      state.newConversation,
-      saved,
-    ),
-    minimize: uiTextFieldForPatch('minimize', state.minimize, saved),
-    stop: uiTextFieldForPatch('stop', state.stop, saved),
     loading: uiTextFieldForPatch('loading', state.loadingText, saved),
     thinking: uiTextFieldForPatch('thinking', state.thinkingText, saved),
   });
@@ -799,6 +965,7 @@ export function formStateToPatch(
   });
 
   const tokens = buildThemeTokens(state);
+  const i18n = buildI18nPatch(state, saved);
 
   const ui: NonNullable<UpdateSdkProjectConfigDto['ui']> = {
     showSources: state.showSources,
@@ -847,6 +1014,66 @@ export function formStateToPatch(
       mode: appThemesToSdkMode(state.appThemes),
       tokens,
     },
+    ...(i18n ? { i18n: i18n as UpdateSdkProjectConfigDto['i18n'] } : {}),
     ui: ui as UpdateSdkProjectConfigDto['ui'],
+  };
+}
+
+export function getFormLabelTexts(
+  state: SdkConfigFormState,
+  locale: string,
+): SdkLabelTexts {
+  return state.labelTextsByLocale[locale] ?? createDefaultLabelTexts(locale);
+}
+
+export function buildTranslateSourceLabels(
+  state: SdkConfigFormState,
+  sourceLocale: string,
+): Record<string, string> {
+  const labels = getFormLabelTexts(state, sourceLocale);
+  const result: Record<string, string> = {};
+
+  for (const field of SDK_LABEL_TEXT_FIELDS) {
+    const value = labels[field].trim();
+    if (value) {
+      result[field] = value;
+    }
+  }
+
+  return result;
+}
+
+export function resolveTranslateTargetLocales(
+  state: SdkConfigFormState,
+  activeLabelLocale: string,
+): string[] {
+  if (activeLabelLocale !== state.defaultLocale) {
+    return [activeLabelLocale];
+  }
+
+  return state.supportedLocales.filter(
+    (locale) => locale !== state.defaultLocale,
+  );
+}
+
+export function applyTranslatedLabelsToForm(
+  state: SdkConfigFormState,
+  translations: Record<string, Partial<SdkLabelTexts>>,
+): SdkConfigFormState {
+  const labelTextsByLocale = { ...state.labelTextsByLocale };
+
+  for (const [locale, patch] of Object.entries(translations)) {
+    labelTextsByLocale[locale] = {
+      ...(labelTextsByLocale[locale] ?? createDefaultLabelTexts(locale)),
+      ...patch,
+    };
+  }
+
+  return {
+    ...state,
+    labelTextsByLocale: syncLabelTextsByLocale(
+      labelTextsByLocale,
+      state.supportedLocales,
+    ),
   };
 }

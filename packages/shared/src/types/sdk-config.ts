@@ -18,6 +18,7 @@ export interface SdkConfigAuditEntryData {
 
 export interface SdkI18nConfig {
   locale?: string;
+  supportedLocales?: string[];
   translations?: Record<string, Record<string, unknown>>;
 }
 

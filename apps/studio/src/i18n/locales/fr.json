@@ -330,6 +330,7 @@
       "actions": "Actions",
       "appLayout": "App layout",
       "sdkConfig": "Config SDK",
+      "sdkLanguages": "Langues et libellés",
       "sdkUpdates": "Mises à jour SDK"
     },
     "contextualTips": {
@@ -340,6 +341,10 @@
       "sdkConfig": {
         "title": "Appliquer les paramètres dans votre app",
         "body": "Les paramètres enregistrés sont chargés par le SDK intégré lorsque loadRemoteConfig est activé sur ActocoreProvider."
+      },
+      "sdkLanguages": {
+        "title": "Suivre la langue de votre app",
+        "body": "Passez i18n.locale depuis votre sélecteur de langue pour que les libellés du chat et les réponses IA suivent la locale active."
       }
     },
     "gettingStarted": {
@@ -364,7 +369,8 @@
       "knowledge": "Téléchargez des documents et des URL pour que l'assistant puisse répondre à partir du contenu de votre produit.",
       "actions": "Définissez les outils que l'assistant peut exécuter dans le chat. Gestionnaires de câbles dans votre application avec des noms correspondants.",
       "appLayout": "Mappez les écrans et routes de votre app pour que l'assistant sache où se trouvent les utilisateurs.",
-      "sdkConfig": "Personnalisez les paramètres par défaut du thème, de la copie, des paramètres régionaux et de la sécurité chargés par le SDK intégré."
+      "sdkConfig": "Personnalisez les paramètres par défaut du thème, de la copie, des paramètres régionaux et de la sécurité chargés par le SDK intégré.",
+      "sdkLanguages": "Configurez les langues prises en charge, les libellés par locale et synchronisez la locale active depuis votre app."
     },
     "sections": {
       "apiKeys": {
@@ -416,6 +422,29 @@
           "Les listes d'autorisation d'actions et de sections s'appliquent avec loadRemoteConfig.",
           "Les changements prennent effet dans les apps intégrées sans réinstallation npm lorsque le rafraîchissement distant est actif."
         ]
+      },
+      "sdkLanguages": {
+        "title": "Langues et libellés",
+        "description": "Le chat intégré peut suivre le sélecteur de langue de votre app et afficher des libellés personnalisés par locale configurés dans Studio.",
+        "hostLocaleTitle": "Votre app définit la locale active",
+        "hostLocaleBody": "Quand l'utilisateur change de langue dans votre produit, passez le nouveau code sur ActocoreProvider i18n.locale. Studio enregistre les langues prises en charge et les libellés par langue — il n'impose pas une locale aux utilisateurs finaux.",
+        "studioTitle": "Configurer dans Studio",
+        "studioBullets": [
+          "Ouvrez Config SDK → Langues et libellés pour ajouter des codes BCP-47 (ex. en, fr, de) et choisir une langue par défaut.",
+          "Utilisez les onglets de locale pour personnaliser l'en-tête, le placeholder, l'état vide et les autres libellés du chat.",
+          "Laissez un champ sur sa valeur par défaut pour utiliser le texte SDK intégré pour cette langue.",
+          "Utilisez Traduire avec l'IA pour générer les autres locales à partir de la langue par défaut, puis vérifiez et enregistrez."
+        ],
+        "runtimeTitle": "Résolution des libellés à l'exécution",
+        "runtimeBody": "Le SDK fusionne les textes dans cet ordre (le dernier l'emporte) : JSON de locale intégré → i18n.translations distantes du projet → i18n.translations locales sur ActocoreProvider.",
+        "runtimeBullets": [
+          "Seules les clés personnalisées sont stockées dans la config projet — les bundles épars limitent la taille.",
+          "Les langues prises en charge doivent inclure la langue par défaut (jusqu'à 20 langues par projet).",
+          "Activez loadRemoteConfig pour appliquer les libellés Studio sans redéployer votre app."
+        ],
+        "codeLabel": "Synchroniser la locale depuis react-i18next",
+        "translateTitle": "Traduction assistée par IA",
+        "translateBody": "Traduire avec l'IA remplit les champs de libellés pour les autres locales à partir de l'onglet langue par défaut. Cela n'enregistre pas automatiquement — vérifiez chaque onglet puis cliquez sur Enregistrer sur la page Config SDK."
       }
     },
     "updates": {
@@ -765,7 +794,7 @@
       "loading": "Chargement et animations",
       "widget": "Widget et lanceur",
       "inline": "Intégration inline",
-      "copy": "Textes et libellés"
+      "languages": "Langues et libellés"
     },
     "loadRemoteConfigTip": {
       "title": "Appliquer les paramètres dans votre application",
@@ -796,6 +825,10 @@
         "title": "Copie et lanceur",
         "description": "Personnalisez les étiquettes et le bouton de lancement flottant."
       },
+      "languagesLabels": {
+        "title": "Langues et libellés",
+        "description": "Choisissez les langues prises en charge par le chat, puis personnalisez les libellés du widget intégré."
+      },
       "loading": {
         "title": "Chargement et animations",
         "description": "Contrôlez l'apparence du chat pendant le chargement de la session et la préparation de la réponse."
@@ -815,6 +848,35 @@
       "defaultOff": "Par défaut : désactivé",
       "leaveBlankHint": "Laissez vide pour utiliser la valeur par défaut du SDK affichée comme espace réservé.",
       "copyLauncherHint": "Pré-rempli avec les valeurs par défaut du SDK. Seules les valeurs personnalisées sont enregistrées. Le libellé d'ouverture du lanceur se configure dans la section Widget.",
+      "supportedLocales": "Langues prises en charge",
+      "supportedLocalesHint": "Ajoutez des codes de langue BCP-47 (ex. de, es, pt). Jusqu'à {{max}} langues.",
+      "defaultLocale": "Langue par défaut",
+      "activeLocaleHostHint": "La langue active à l'exécution vient de votre application — passez i18n.locale sur ActocoreProvider quand l'utilisateur change de langue.",
+      "addLocale": "Ajouter une langue",
+      "addLocalePlaceholder": "ex. de ou pt-BR",
+      "addLocaleAction": "Ajouter",
+      "removeLocale": "Retirer {{locale}}",
+      "localeQuickAdd": "Ajout rapide",
+      "addLocaleErrors": {
+        "invalid": "Saisissez un code de langue valide (2–3 lettres, ex. de, es, ja).",
+        "duplicate": "Cette langue est déjà dans la liste.",
+        "max": "Vous pouvez ajouter au maximum {{max}} langues."
+      },
+      "labelsGroup": "Libellés",
+      "languagesLabelsHint": "Choisissez un onglet de langue ci-dessous, puis personnalisez les libellés pour cette locale. Laissez la valeur par défaut pour utiliser le texte SDK intégré.",
+      "labelLocaleTabs": "Libellés pour",
+      "chatLocales": {
+        "en": "Anglais",
+        "fr": "Français",
+        "de": "Allemand",
+        "es": "Espagnol",
+        "pt": "Portugais",
+        "it": "Italien",
+        "nl": "Néerlandais",
+        "ar": "Arabe",
+        "ja": "Japonais",
+        "zh": "Chinois"
+      },
       "colorsGroup": "Couleurs de la marque",
       "colorPaletteTabs": "Palette de couleurs",
       "colorPalettes": {
@@ -960,6 +1022,15 @@
       "inlineHeight": "Hauteur",
       "inlineMinHeight": "Hauteur min"
     },
+    "translate": {
+      "toActiveLocale": "Traduire avec l'IA ({{source}} → {{target}})",
+      "toActiveLocaleShort": "Traduire vers {{target}}",
+      "toOtherLocales": "Traduire avec l'IA vers les autres langues (depuis {{source}})",
+      "toOtherLocalesShort": "Traduire avec l'IA",
+      "hint": "Utilise les libellés de l'onglet langue par défaut. Vérifiez le résultat puis enregistrez.",
+      "success": "Libellés traduits. Vérifiez les onglets puis enregistrez.",
+      "noSourceLabels": "Saisissez des libellés sur l'onglet langue par défaut avant de traduire."
+    },
     "errors": {
       "composerRowsInvalid": "Les lignes du compositeur doivent être constituées de nombres entiers compris entre 1 et 12.",
       "composerRowsOrder": "Le nombre minimum de lignes du composeur ne peut pas être supérieur au maximum.",
@@ -970,7 +1041,10 @@
       "widgetZIndexInvalid": "Le z-index doit être un entier entre 1 et 999999.",
       "fieldTooLong": "Un ou plusieurs champs dépassent la longueur maximale.",
       "invalidHexColor": "Chaque couleur doit être un code hexadécimal valide (#RGB ou #RRGGBB) ou laissé vide.",
-      "fontFamilyTooLong": "La pile de polices est trop longue (200 caractères maximum)."
+      "fontFamilyTooLong": "La pile de polices est trop longue (200 caractères maximum).",
+      "supportedLocalesInvalid": "Un ou plusieurs codes de langue ne sont pas valides.",
+      "supportedLocalesMax": "Vous pouvez configurer au maximum 20 langues prises en charge.",
+      "defaultLocaleUnsupported": "La langue par défaut doit faire partie des langues prises en charge."
     }
   },
   "reports": {

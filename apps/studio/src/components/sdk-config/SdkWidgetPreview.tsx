@@ -1,5 +1,6 @@
 import type { SdkConfigFormState } from '@/utils/sdk-config-form';
-import { resolveFormHeaderIcon } from '@/utils/sdk-config-form';
+import { getFormLabelTexts, resolveFormHeaderIcon } from '@/utils/sdk-config-form';
+import { getBundledLabelDefault } from '@/constants/sdk-label-text';
 import { SDK_CONFIG_UI_TEXT_DEFAULTS } from '@/constants/sdk-config-defaults';
 import { cn } from '@/utils/helper';
 import type { SdkProjectConfigData } from '@ahmedrioueche/actocore-shared';
@@ -39,18 +40,19 @@ export function SdkWidgetPreview({ value, savedConfig }: SdkWidgetPreviewProps) 
   const isHostLauncher = value.launcherPlacement === 'host';
   const isButtonVariant = value.launcherVariant === 'button';
   const isLinkVariant = value.launcherVariant === 'link';
+  const previewLabels = getFormLabelTexts(value, value.defaultLocale);
   const headerTitle = resolvePreviewText(
-    value.headerTitle,
-    SDK_CONFIG_UI_TEXT_DEFAULTS.headerTitle,
+    previewLabels.headerTitle,
+    getBundledLabelDefault('headerTitle', value.defaultLocale),
   );
   const placeholder = resolvePreviewText(
-    value.placeholder,
-    SDK_CONFIG_UI_TEXT_DEFAULTS.placeholder,
+    previewLabels.placeholder,
+    getBundledLabelDefault('placeholder', value.defaultLocale),
   );
   const launcherLabel =
     value.launcherLabel.trim() ||
     value.launcherAriaLabel.trim() ||
-    SDK_CONFIG_UI_TEXT_DEFAULTS.open;
+    resolvePreviewText(value.open, SDK_CONFIG_UI_TEXT_DEFAULTS.open);
   const headerIcon = resolveFormHeaderIcon(value, savedConfig);
   const showHeaderIcon = headerIcon.kind !== 'hidden';
   const showInitBar =

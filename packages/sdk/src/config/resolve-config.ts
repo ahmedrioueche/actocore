@@ -41,6 +41,7 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
     },
     i18n: {
       locale: config.i18n?.locale ?? 'en',
+      supportedLocales: config.i18n?.supportedLocales,
       translations: config.i18n?.translations,
     },
     voice: {

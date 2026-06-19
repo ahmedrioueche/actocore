@@ -336,6 +336,7 @@
       "actions": "Actions",
       "appLayout": "App layout",
       "sdkConfig": "SDK config",
+      "sdkLanguages": "Languages & labels",
       "sdkUpdates": "SDK updates"
     },
     "contextualTips": {
@@ -346,6 +347,10 @@
       "sdkConfig": {
         "title": "Apply settings in your app",
         "body": "Saved settings load in the embedded SDK when loadRemoteConfig is enabled on ActocoreProvider."
+      },
+      "sdkLanguages": {
+        "title": "Match your app language",
+        "body": "Pass i18n.locale from your language switcher so chat labels and AI replies follow the active locale."
       }
     },
     "gettingStarted": {
@@ -370,7 +375,8 @@
       "knowledge": "Upload documents and URLs so the assistant can answer from your product content.",
       "actions": "Define tools the assistant can run in chat. Wire handlers in your app with matching names.",
       "appLayout": "Map your app screens and routes so the assistant knows where users are.",
-      "sdkConfig": "Customize theme, copy, locale, and security defaults loaded by the embedded SDK."
+      "sdkConfig": "Customize theme, copy, locale, and security defaults loaded by the embedded SDK.",
+      "sdkLanguages": "Configure supported languages, per-locale labels, and sync the active locale from your app."
     },
     "sections": {
       "apiKeys": {
@@ -422,6 +428,29 @@
           "Security allowlists for actions and sections apply when loadRemoteConfig is enabled.",
           "Changes take effect in embedded apps without an npm reinstall when remote config polling or refresh is active."
         ]
+      },
+      "sdkLanguages": {
+        "title": "Languages & labels",
+        "description": "The embedded chat can follow your app's language switcher and show customized copy per locale configured in Studio.",
+        "hostLocaleTitle": "Your app owns the active locale",
+        "hostLocaleBody": "When users change language in your product, pass the new code on ActocoreProvider i18n.locale. Studio stores which languages are supported and the label text for each — it does not push a locale to end users.",
+        "studioTitle": "Configure in Studio",
+        "studioBullets": [
+          "Open SDK config → Languages & labels to add BCP-47 codes (e.g. en, fr, de) and pick a default language.",
+          "Use locale tabs to customize header, placeholder, empty state, and other chat labels per language.",
+          "Leave a field on its default placeholder to use the SDK built-in copy for that language.",
+          "Use Translate with AI to draft other locales from your default language, then review and save."
+        ],
+        "runtimeTitle": "How labels resolve at runtime",
+        "runtimeBody": "The SDK merges copy in this order (later wins): bundled locale JSON → remote i18n.translations from your project → local i18n.translations on ActocoreProvider.",
+        "runtimeBullets": [
+          "Only customized keys are stored in your project config — sparse bundles keep payloads small.",
+          "Supported locales must include your default language (up to 20 languages per project).",
+          "Enable loadRemoteConfig so Studio labels apply without redeploying your app."
+        ],
+        "codeLabel": "Sync locale from react-i18next",
+        "translateTitle": "AI-assisted translation",
+        "translateBody": "Translate with AI fills label fields for other locales from your default language tab. It does not save automatically — review each tab and click Save on the SDK config page."
       }
     },
     "updates": {
@@ -834,7 +863,7 @@
       "loading": "Loading & animations",
       "widget": "Widget & launcher",
       "inline": "Inline embed",
-      "copy": "Copy & labels"
+      "languages": "Languages & labels"
     },
     "loadRemoteConfigTip": {
       "title": "Apply settings in your app",
@@ -865,6 +894,10 @@
         "title": "Copy & launcher",
         "description": "Customize labels and the floating launcher button."
       },
+      "languagesLabels": {
+        "title": "Languages & labels",
+        "description": "Choose which languages your chat supports, then customize labels for the embedded widget."
+      },
       "loading": {
         "title": "Loading & animations",
         "description": "Control how the chat looks while the session loads and while the assistant is preparing a reply."
@@ -884,6 +917,35 @@
       "defaultOff": "Default: off",
       "leaveBlankHint": "Leave blank to use the SDK default shown as the placeholder.",
       "copyLauncherHint": "Pre-filled with SDK defaults. Only customized values are saved to your project config. Launcher open label and accessibility are configured in the Widget section.",
+      "supportedLocales": "Supported languages",
+      "supportedLocalesHint": "Add BCP-47 language codes (e.g. de, es, pt). Up to {{max}} languages.",
+      "defaultLocale": "Default language",
+      "activeLocaleHostHint": "The active language at runtime comes from your app — pass i18n.locale on ActocoreProvider when the user switches language.",
+      "addLocale": "Add language",
+      "addLocalePlaceholder": "e.g. de or pt-BR",
+      "addLocaleAction": "Add",
+      "removeLocale": "Remove {{locale}}",
+      "localeQuickAdd": "Quick add",
+      "addLocaleErrors": {
+        "invalid": "Enter a valid language code (2–3 letters, e.g. de, es, ja).",
+        "duplicate": "That language is already in the list.",
+        "max": "You can add at most {{max}} languages."
+      },
+      "labelsGroup": "Labels",
+      "languagesLabelsHint": "Choose a language tab below, then customize labels for that locale. Leave a field on its default placeholder to use the SDK built-in copy for that language.",
+      "labelLocaleTabs": "Edit labels for",
+      "chatLocales": {
+        "en": "English",
+        "fr": "French",
+        "de": "German",
+        "es": "Spanish",
+        "pt": "Portuguese",
+        "it": "Italian",
+        "nl": "Dutch",
+        "ar": "Arabic",
+        "ja": "Japanese",
+        "zh": "Chinese"
+      },
       "colorsGroup": "Brand colors",
       "colorPaletteTabs": "Color palette",
       "colorPalettes": {
@@ -1029,6 +1091,15 @@
       "inlineHeight": "Height",
       "inlineMinHeight": "Min height"
     },
+    "translate": {
+      "toActiveLocale": "Translate with AI ({{source}} → {{target}})",
+      "toActiveLocaleShort": "Translate to {{target}}",
+      "toOtherLocales": "Translate with AI to other languages (from {{source}})",
+      "toOtherLocalesShort": "Translate with AI",
+      "hint": "Uses labels from the default language tab. Review results and click Save to persist.",
+      "success": "Labels translated. Review the tabs and save when ready.",
+      "noSourceLabels": "Enter label text on the default language tab before translating."
+    },
     "errors": {
       "composerRowsInvalid": "Composer rows must be whole numbers between 1 and 12.",
       "composerRowsOrder": "Minimum composer rows cannot be greater than maximum.",
@@ -1039,7 +1110,10 @@
       "widgetZIndexInvalid": "z-index must be a whole number between 1 and 999999.",
       "fieldTooLong": "One or more fields exceed the maximum length.",
       "invalidHexColor": "Each color must be a valid hex code (#RGB or #RRGGBB) or left empty.",
-      "fontFamilyTooLong": "Font stack is too long (max 200 characters)."
+      "fontFamilyTooLong": "Font stack is too long (max 200 characters).",
+      "supportedLocalesInvalid": "One or more language codes are invalid.",
+      "supportedLocalesMax": "You can configure at most 20 supported languages.",
+      "defaultLocaleUnsupported": "Default language must be one of the supported languages."
     }
   },
   "reports": {

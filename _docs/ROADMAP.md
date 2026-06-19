@@ -251,6 +251,7 @@ _Align with [`RULES.md`](_docs/RULES.md) (web uses i18next); SDK must be locale-
 - [x] `changeLanguage` when `locale` prop changes (host or dashboard-driven)
 - [x] Document how hosts override strings without forking components (pass `translations` on provider) — [`packages/sdk/README.md`](packages/sdk/README.md)
 - [x] Control plane `GET/PATCH` project SDK settings — SDK reads via `loadRemoteConfig` + `GET /v1/sdk/runtime` (Studio UI still pending)
+- [ ] **SDK language & localization** — see [`_docs/studio/assistant/SDK-LANGUAGE-PLAN.md`](_docs/studio/assistant/SDK-LANGUAGE-PLAN.md) (host locale sync, AI reply language, Studio Languages + multi-locale Copy, AI translate)
 
 ### 3. Theming and styles — no hardcoded look & feel
 

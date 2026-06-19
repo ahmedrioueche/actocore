@@ -41,6 +41,7 @@ import ProjectDocsKnowledgePage from "@/pages/user/projects/docs/ProjectDocsKnow
 import ProjectDocsOverviewPage from "@/pages/user/projects/docs/ProjectDocsOverviewPage";
 import ProjectDocsQuickStartPage from "@/pages/user/projects/docs/ProjectDocsQuickStartPage";
 import ProjectDocsSdkConfigDocPage from "@/pages/user/projects/docs/ProjectDocsSdkConfigDocPage";
+import ProjectDocsSdkLanguagesPage from "@/pages/user/projects/docs/ProjectDocsSdkLanguagesPage";
 import ProjectDocsSdkUpdatesPage from "@/pages/user/projects/docs/ProjectDocsSdkUpdatesPage";
 import ProjectKnowledgeDetailPage from "@/pages/user/projects/ProjectKnowledgeDetailPage";
 import ProjectKnowledgePage from "@/pages/user/projects/ProjectKnowledgePage";
@@ -222,6 +223,12 @@ const projectDocsSdkConfigDocRoute = createRoute({
   getParentRoute: () => projectDocsLayoutRoute,
   path: "/sdk-config",
   component: ProjectDocsSdkConfigDocPage,
+});
+
+const projectDocsSdkLanguagesRoute = createRoute({
+  getParentRoute: () => projectDocsLayoutRoute,
+  path: "/sdk-languages",
+  component: ProjectDocsSdkLanguagesPage,
 });
 
 const projectDocsSdkUpdatesRoute = createRoute({
@@ -447,6 +454,7 @@ const routeTree = rootRoute.addChildren([
       projectDocsActionsDocRoute,
       projectDocsAppLayoutDocRoute,
       projectDocsSdkConfigDocRoute,
+      projectDocsSdkLanguagesRoute,
       projectDocsSdkUpdatesRoute,
     ]),
     projectKnowledgeRoute,

@@ -16,6 +16,8 @@ export function mergeRemoteSdkConfig(
     ...local,
     i18n: {
       locale: local.i18n?.locale ?? remote.i18n?.locale,
+      supportedLocales:
+        local.i18n?.supportedLocales ?? remote.i18n?.supportedLocales,
       translations: {
         ...(remote.i18n?.translations ?? {}),
         ...(local.i18n?.translations ?? {}),

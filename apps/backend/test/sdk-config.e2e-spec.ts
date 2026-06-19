@@ -308,4 +308,45 @@ describe('SDK project config (e2e)', () => {
     expect(otherConfig.body.data.i18n?.locale).toBeUndefined();
     expect(otherConfig.body.data.sdkConfigVersion).toBe(0);
   });
+
+  it('rejects invalid translate-copy payloads', async () => {
+    const server = app.getHttpServer();
+
+    await request(server)
+      .post(`/v1/web/projects/${projectId}/sdk-config/translate-copy`)
+      .send({
+        sourceLocale: 'en',
+        targetLocales: ['en'],
+        sourceLabels: { headerTitle: 'Assistant' },
+      })
+      .expect(400);
+
+    await request(server)
+      .post(`/v1/web/projects/${projectId}/sdk-config/translate-copy`)
+      .send({
+        sourceLocale: 'en',
+        targetLocales: [],
+        sourceLabels: { headerTitle: 'Assistant' },
+      })
+      .expect(400);
+  });
+
+  it('returns BAD_GATEWAY when translate LLM output is not valid JSON', async () => {
+    const server = app.getHttpServer();
+
+    const res = await request(server)
+      .post(`/v1/web/projects/${projectId}/sdk-config/translate-copy`)
+      .send({
+        sourceLocale: 'en',
+        targetLocales: ['fr'],
+        sourceLabels: {
+          headerTitle: 'Assistant',
+          placeholder: 'Type a message…',
+        },
+      })
+      .expect(502);
+
+    expect(res.body.success).toBe(false);
+    expect(res.body.errorCode).toBe('BAD_GATEWAY');
+  });
 });

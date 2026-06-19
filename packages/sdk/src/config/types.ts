@@ -193,6 +193,8 @@ export interface ActocoreUiConfig {
 export interface ActocoreI18nConfig {
   /** BCP-47 locale, e.g. `en`, `fr` */
   locale?: string;
+  /** Locales enabled for this project (Studio / dashboard). */
+  supportedLocales?: string[];
   /** Deep-merge custom strings over bundled locales */
   translations?: Record<string, Record<string, unknown>>;
 }

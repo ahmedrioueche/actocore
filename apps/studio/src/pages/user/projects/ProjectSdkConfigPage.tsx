@@ -130,6 +130,7 @@ export default function ProjectSdkConfigPage() {
               className="space-y-6"
             >
               <SdkConfigForm
+                projectId={projectId}
                 value={formState}
                 onChange={setFormState}
                 disabled={!canWrite}

@@ -49,41 +49,6 @@ function SdkConfigSidebarSkeleton() {
   );
 }
 
-function SdkConfigAppearanceSectionSkeleton() {
-  return (
-    <SdkConfigSectionSkeleton fieldRows={0}>
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-24" />
-        <div className="flex flex-wrap gap-2">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-9 w-24 rounded-lg" />
-          ))}
-        </div>
-      </div>
-      <div className="space-y-3">
-        <Skeleton className="h-4 w-32" />
-        <div className="flex gap-2">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-8 w-20 rounded-lg" />
-          ))}
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-11 w-full rounded-xl" />
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="space-y-2 border-t border-border pt-4">
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="h-11 w-full rounded-xl" />
-      </div>
-    </SdkConfigSectionSkeleton>
-  );
-}
-
 export function SdkConfigFormSkeleton() {
   return (
     <div className="space-y-4">
@@ -98,7 +63,21 @@ export function SdkConfigFormSkeleton() {
       <div className="flex flex-col gap-8 md:flex-row md:items-start">
         <SdkConfigSidebarSkeleton />
         <div className="min-w-0 flex-1">
-          <SdkConfigAppearanceSectionSkeleton />
+          <SdkConfigSectionSkeleton fieldRows={0}>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-36" />
+              <div className="flex gap-2">
+                <Skeleton className="h-9 w-20 rounded-lg" />
+                <Skeleton className="h-9 w-20 rounded-lg" />
+              </div>
+              <Skeleton className="h-11 w-full max-w-xs rounded-xl" />
+            </div>
+            <div className="space-y-2 border-t border-border pt-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-11 w-full rounded-xl" />
+              <Skeleton className="h-11 w-full rounded-xl" />
+            </div>
+          </SdkConfigSectionSkeleton>
         </div>
       </div>
     </div>

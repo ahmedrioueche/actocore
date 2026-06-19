@@ -20,6 +20,7 @@ export * from "./platform";
 export * from "./project";
 export * from "./runtime";
 export * from "./sdk-config";
+export * from "./sdk-label";
 export * from "./session";
 export * from "./studio";
 export * from "./usage";

@@ -44,6 +44,11 @@ export class SdkI18nConfigDto {
   locale?: string;
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  supportedLocales?: string[];
+
+  @IsOptional()
   @IsObject()
   translations?: Record<string, Record<string, unknown>>;
 }

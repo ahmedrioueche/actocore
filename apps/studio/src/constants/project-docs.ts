@@ -54,3 +54,22 @@ export function AppShell() {
 export const PROJECT_DOCS_ENV_EXAMPLE = `# .env (Vite example)
 VITE_ACTOCORE_API_URL=https://actocore.onrender.com
 VITE_ACTOCORE_API_KEY=ac_...`;
+
+export const PROJECT_DOCS_LOCALE_SYNC = `import { useTranslation } from 'react-i18next';
+import { ActocoreProvider, ActoChatWidget } from '@ahmedrioueche/actocore-sdk';
+
+export function App() {
+  const { i18n } = useTranslation();
+  const locale = i18n.language?.split('-')[0] ?? 'en';
+
+  return (
+    <ActocoreProvider
+      apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}
+      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}
+      loadRemoteConfig
+      i18n={{ locale }}
+    >
+      <ActoChatWidget />
+    </ActocoreProvider>
+  );
+}`;

@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   BookOpen,
   KeyRound,
+  Languages,
   LayoutDashboard,
   Map,
   Package,
@@ -18,6 +19,7 @@ export type ProjectDocsSectionId =
   | 'actions'
   | 'app-layout'
   | 'sdk-config'
+  | 'sdk-languages'
   | 'sdk-updates';
 
 export interface ProjectDocsNavItem {
@@ -70,6 +72,12 @@ export const PROJECT_DOCS_NAV: ProjectDocsNavItem[] = [
     labelKey: 'projectDocs.nav.sdkConfig',
     icon: SlidersHorizontal,
     segment: 'sdk-config',
+  },
+  {
+    id: 'sdk-languages',
+    labelKey: 'projectDocs.nav.sdkLanguages',
+    icon: Languages,
+    segment: 'sdk-languages',
   },
   {
     id: 'sdk-updates',
