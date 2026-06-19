@@ -46,3 +46,13 @@ export const SDK_CONFIG_NAV: SdkConfigNavItem[] = [
 export function sdkConfigSectionHash(id: SdkConfigSectionId): string {
   return `#${id}`;
 }
+
+export function readSdkConfigSectionFromHash(): SdkConfigSectionId {
+  if (typeof window === "undefined") {
+    return SDK_CONFIG_NAV[0].id;
+  }
+
+  const hash = window.location.hash.replace(/^#/, "");
+  const match = SDK_CONFIG_NAV.find((item) => item.id === hash);
+  return match?.id ?? SDK_CONFIG_NAV[0].id;
+}

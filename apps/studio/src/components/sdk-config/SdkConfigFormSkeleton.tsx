@@ -84,61 +84,6 @@ function SdkConfigAppearanceSectionSkeleton() {
   );
 }
 
-function SdkConfigChatBehaviorSectionSkeleton() {
-  return (
-    <SdkConfigSectionSkeleton fieldRows={0}>
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div
-          key={index}
-          className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3"
-        >
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="h-6 w-11 rounded-full" />
-        </div>
-      ))}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {Array.from({ length: 2 }).map((_, index) => (
-          <div key={index} className="space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-11 w-full rounded-xl" />
-          </div>
-        ))}
-      </div>
-    </SdkConfigSectionSkeleton>
-  );
-}
-
-function SdkConfigWidgetSectionSkeleton() {
-  return (
-    <SdkConfigSectionSkeleton fieldRows={0}>
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-28" />
-        <div className="flex flex-wrap gap-2">
-          <Skeleton className="h-9 w-20 rounded-lg" />
-          <Skeleton className="h-9 w-20 rounded-lg" />
-        </div>
-      </div>
-      <Skeleton className="h-56 w-full rounded-xl" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-32" />
-        <div className="flex flex-wrap gap-2">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-9 w-24 rounded-lg" />
-          ))}
-        </div>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-11 w-full rounded-xl" />
-          </div>
-        ))}
-      </div>
-    </SdkConfigSectionSkeleton>
-  );
-}
-
 export function SdkConfigFormSkeleton() {
   return (
     <div className="space-y-4">
@@ -152,12 +97,8 @@ export function SdkConfigFormSkeleton() {
 
       <div className="flex flex-col gap-8 md:flex-row md:items-start">
         <SdkConfigSidebarSkeleton />
-        <div className="min-w-0 flex-1 space-y-6">
+        <div className="min-w-0 flex-1">
           <SdkConfigAppearanceSectionSkeleton />
-          <SdkConfigChatBehaviorSectionSkeleton />
-          <SdkConfigWidgetSectionSkeleton />
-          <SdkConfigSectionSkeleton fieldRows={3} />
-          <SdkConfigSectionSkeleton fieldRows={5} />
         </div>
       </div>
     </div>

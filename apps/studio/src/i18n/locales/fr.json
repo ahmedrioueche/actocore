@@ -758,7 +758,7 @@
     "readOnly": "Vous pouvez afficher les paramètres du SDK, mais vous n'êtes pas autorisé à les modifier.",
     "readOnlyTitle": "Visualisation uniquement",
     "sidebarTitle": "Sections",
-    "sidebarHint": "Accédez à une section. Toutes les modifications s'enregistrent ensemble.",
+    "sidebarHint": "Choisissez une section à configurer. Toutes les modifications s'enregistrent ensemble.",
     "nav": {
       "appearance": "Apparence",
       "chatBehavior": "Comportement du chat",

@@ -827,7 +827,7 @@
     "readOnly": "You can view SDK settings but do not have permission to change them.",
     "readOnlyTitle": "View only",
     "sidebarTitle": "Sections",
-    "sidebarHint": "Jump to a section. All changes save together.",
+    "sidebarHint": "Select a section to configure. All changes save together.",
     "nav": {
       "appearance": "Appearance",
       "chatBehavior": "Chat behavior",

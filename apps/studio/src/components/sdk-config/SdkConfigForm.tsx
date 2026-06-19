@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 import { SdkConfigAppearanceSection } from "@/components/sdk-config/SdkConfigAppearanceSection";
 import { SdkConfigChatBehaviorSection } from "@/components/sdk-config/SdkConfigChatBehaviorSection";
 import { SdkConfigCopySection } from "@/components/sdk-config/SdkConfigCopySection";
@@ -5,6 +7,10 @@ import { SdkConfigInlineSection } from "@/components/sdk-config/SdkConfigInlineS
 import { SdkConfigLoadingSection } from "@/components/sdk-config/SdkConfigLoadingSection";
 import { SdkConfigSidebar } from "@/components/sdk-config/SdkConfigSidebar";
 import { SdkConfigWidgetSection } from "@/components/sdk-config/SdkConfigWidgetSection";
+import {
+  readSdkConfigSectionFromHash,
+  type SdkConfigSectionId,
+} from "@/constants/sdk-config-nav";
 import type { SdkConfigFormState } from "@/utils/sdk-config-form";
 import type { SdkProjectConfigData } from "@ahmedrioueche/actocore-shared";
 
@@ -21,42 +27,53 @@ export function SdkConfigForm({
   disabled = false,
   savedConfig,
 }: SdkConfigFormProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState<SdkConfigSectionId>(
+    readSdkConfigSectionFromHash,
+  );
+
+  useEffect(() => {
+    const sync = () => setActiveSection(readSdkConfigSectionFromHash());
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
+  const handleSectionChange = (id: SdkConfigSectionId) => {
+    setActiveSection(id);
+    window.location.hash = id;
+    contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const sectionProps = { value, onChange, disabled };
+
   return (
     <div className="flex flex-col gap-8 md:flex-row md:items-start">
-      <SdkConfigSidebar />
-      <div className="min-w-0 flex-1 space-y-6">
-        <SdkConfigAppearanceSection
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-        />
-
-        <SdkConfigWidgetSection
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-          savedConfig={savedConfig}
-        />
-        <SdkConfigInlineSection
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-        />
-        <SdkConfigChatBehaviorSection
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-        />
-        <SdkConfigLoadingSection
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-        />
-        <SdkConfigCopySection
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-        />
+      <SdkConfigSidebar
+        activeSection={activeSection}
+        onSectionChange={handleSectionChange}
+      />
+      <div ref={contentRef} className="min-w-0 flex-1">
+        {activeSection === "appearance" && (
+          <SdkConfigAppearanceSection {...sectionProps} />
+        )}
+        {activeSection === "widget" && (
+          <SdkConfigWidgetSection
+            {...sectionProps}
+            savedConfig={savedConfig}
+          />
+        )}
+        {activeSection === "inline" && (
+          <SdkConfigInlineSection {...sectionProps} />
+        )}
+        {activeSection === "chat-behavior" && (
+          <SdkConfigChatBehaviorSection {...sectionProps} />
+        )}
+        {activeSection === "loading" && (
+          <SdkConfigLoadingSection {...sectionProps} />
+        )}
+        {activeSection === "copy" && (
+          <SdkConfigCopySection {...sectionProps} />
+        )}
       </div>
     </div>
   );
