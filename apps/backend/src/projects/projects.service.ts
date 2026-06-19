@@ -23,6 +23,7 @@ import { withProjectId } from '../common/tenant/tenant-scope';
 import { normalizePagination, paginate } from '../common/pagination/pagination.util';
 import { StudioEntitlementsService } from '../studio-billing/studio-entitlements.service';
 import { StudioAccessService } from '../studio/studio-access.service';
+import { StudioPlatformNotificationService } from '../studio/studio-platform-notification.service';
 import type { StudioRequestContext } from '../studio/studio-context';
 import { ProjectDeleteService } from './project-delete.service';
 import { Project, ProjectDocument } from './schemas/project.schema';
@@ -36,6 +37,7 @@ export class ProjectsService {
     @Inject(forwardRef(() => StudioEntitlementsService))
     private readonly entitlements: StudioEntitlementsService,
     private readonly projectDelete: ProjectDeleteService,
+    private readonly platformNotifications: StudioPlatformNotificationService,
   ) {}
 
   async delete(
@@ -60,6 +62,7 @@ export class ProjectsService {
   async create(
     ctx: StudioRequestContext | null,
     body: CreateProjectDto,
+    options?: { notificationSource?: 'signup_default' | 'user' },
   ): Promise<ProjectData> {
     const accountId = ctx?.accountId;
     if (accountId) {
@@ -79,7 +82,15 @@ export class ProjectsService {
       accountId,
       settings: body.settings ?? {},
     });
-    return this.toData(doc);
+    const project = this.toData(doc);
+    this.platformNotifications.notifyProjectCreated({
+      projectId: project.id,
+      projectName: project.name,
+      accountId,
+      createdByEmail: ctx?.email,
+      source: options?.notificationSource ?? 'user',
+    });
+    return project;
   }
 
   async createForPlayground(name: string): Promise<ProjectData> {

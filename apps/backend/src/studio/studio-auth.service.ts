@@ -49,6 +49,7 @@ import { StudioSubscriptionService } from '../studio-billing/studio-subscription
 import { StudioAccountDeleteService } from './studio-account-delete.service';
 import { getAppEnvironment } from '../config/mongodb.config';
 import { StudioEmailService } from './studio-email.service';
+import { StudioPlatformNotificationService } from './studio-platform-notification.service';
 import { generateNumericOtp, hashOtp, verifyOtp } from './utils/studio-otp.util';
 import { StudioAccount, StudioAccountDocument } from './schemas/studio-account.schema';
 import {
@@ -89,6 +90,7 @@ export class StudioAuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly email: StudioEmailService,
+    private readonly platformNotifications: StudioPlatformNotificationService,
     private readonly accountDelete: StudioAccountDeleteService,
     @Inject(forwardRef(() => ProjectsService))
     private readonly projects: ProjectsService,
@@ -148,6 +150,14 @@ export class StudioAuthService {
     );
 
     await this.maybeStartFreeTrial(account._id.toString());
+
+    this.platformNotifications.notifyUserSignup({
+      email,
+      displayName: user.displayName,
+      accountName: account.name,
+      accountId: account._id.toString(),
+      method: 'email',
+    });
 
     if (process.env.STUDIO_AUTO_VERIFY_EMAIL === 'true') {
       user.emailVerified = true;
@@ -895,6 +905,14 @@ export class StudioAuthService {
 
     await this.maybeStartFreeTrial(account._id.toString());
 
+    this.platformNotifications.notifyUserSignup({
+      email,
+      displayName: user.displayName,
+      accountName: account.name,
+      accountId: account._id.toString(),
+      method: 'google',
+    });
+
     return this.buildSessionForUser(user);
   }
 
@@ -1212,9 +1230,13 @@ export class StudioAuthService {
       projectIds: [],
     };
 
-    const project = await this.projects.create(ctx, {
-      name: this.getConfig().defaultProjectName,
-    });
+    const project = await this.projects.create(
+      ctx,
+      {
+        name: this.getConfig().defaultProjectName,
+      },
+      { notificationSource: 'signup_default' },
+    );
 
     membership.projectIds = [project.id];
     await membership.save();

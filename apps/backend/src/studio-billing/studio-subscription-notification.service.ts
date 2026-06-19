@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { StudioAdminEmailsService } from '../studio/studio-admin-emails.service';
 import { StudioEmailService } from '../studio/studio-email.service';
+import { StudioPlatformNotificationService } from '../studio/studio-platform-notification.service';
 import { StudioPlanModel } from './schemas/billing.schema';
 
 export const SUBSCRIPTION_EMAIL_ACTIONS = [
@@ -34,6 +35,7 @@ export class StudioSubscriptionNotificationService {
   constructor(
     private readonly email: StudioEmailService,
     private readonly adminEmails: StudioAdminEmailsService,
+    private readonly platformNotifications: StudioPlatformNotificationService,
     @InjectModel(StudioPlanModel.name)
     private readonly planModel: Model<StudioPlanModel>,
   ) {}
@@ -71,6 +73,8 @@ export class StudioSubscriptionNotificationService {
           this.email.sendSubscriptionEvent(to, subject, body),
         ),
       );
+
+      this.platformNotifications.notifySubscriptionEvent(accountId, context);
     } catch (error) {
       this.logger.warn(
         `Subscription email failed (${context.action}) for account ${accountId}: ${

@@ -2,6 +2,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { StudioAdminEmailsService } from '../studio/studio-admin-emails.service';
 import { StudioEmailService } from '../studio/studio-email.service';
+import { StudioPlatformNotificationService } from '../studio/studio-platform-notification.service';
 import { StudioPlanModel } from './schemas/billing.schema';
 import { StudioSubscriptionNotificationService } from './studio-subscription-notification.service';
 
@@ -11,6 +12,9 @@ describe('StudioSubscriptionNotificationService', () => {
   const email = { sendSubscriptionEvent: jest.fn() };
   const adminEmails = {
     resolveForAccount: jest.fn(async () => ['admin@test.local']),
+  };
+  const platformNotifications = {
+    notifySubscriptionEvent: jest.fn(),
   };
   const planModel = {
     findOne: jest.fn(() => ({
@@ -28,6 +32,10 @@ describe('StudioSubscriptionNotificationService', () => {
         StudioSubscriptionNotificationService,
         { provide: StudioEmailService, useValue: email },
         { provide: StudioAdminEmailsService, useValue: adminEmails },
+        {
+          provide: StudioPlatformNotificationService,
+          useValue: platformNotifications,
+        },
         { provide: getModelToken(StudioPlanModel.name), useValue: planModel },
       ],
     }).compile();
@@ -47,6 +55,10 @@ describe('StudioSubscriptionNotificationService', () => {
       'admin@test.local',
       'Subscription active',
       expect.stringContaining('Starter'),
+    );
+    expect(platformNotifications.notifySubscriptionEvent).toHaveBeenCalledWith(
+      '507f1f77bcf86cd799439011',
+      expect.objectContaining({ action: 'subscribed', planId: 'starter' }),
     );
   });
 

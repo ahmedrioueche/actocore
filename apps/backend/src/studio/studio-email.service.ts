@@ -8,6 +8,7 @@ import {
   buildQuotaAlertEmail,
   buildStudioReportEmail,
   buildSubscriptionEventEmail,
+  buildPlatformActivityEmail,
   buildVerificationEmail,
 } from './studio-email-templates';
 import { buildStudioAppUrl } from './utils/studio-redirect.util';
@@ -97,6 +98,20 @@ export class StudioEmailService {
       content,
       { replyTo: input.email },
     );
+  }
+
+  async sendPlatformActivity(
+    to: string,
+    eventLabel: string,
+    lines: string[],
+  ): Promise<void> {
+    const cfg = this.cfg();
+    const content = buildPlatformActivityEmail({
+      eventLabel,
+      lines,
+      studioAppUrl: cfg.studioAppUrl,
+    });
+    await this.send(to, `[ActoCore Platform] ${eventLabel}`, content);
   }
 
   async sendStudioReportNotification(report: {

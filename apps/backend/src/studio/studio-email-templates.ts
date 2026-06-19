@@ -343,3 +343,41 @@ ${plainTextToHtml(report.message)}`;
 
   return { html, text };
 }
+
+export function buildPlatformActivityEmail(input: {
+  eventLabel: string;
+  lines: string[];
+  studioAppUrl: string;
+}): { html: string; text: string } {
+  const text = [...input.lines, '', `Open Studio: ${input.studioAppUrl}`].join(
+    '\n',
+  );
+
+  const rows = input.lines
+    .map((line) => {
+      const colon = line.indexOf(':');
+      if (colon === -1) {
+        return `<tr><td style="padding:8px 0;font-size:14px;line-height:1.6;color:${BRAND.textMuted};">${escapeHtml(line)}</td></tr>`;
+      }
+      const label = line.slice(0, colon).trim();
+      const value = line.slice(colon + 1).trim();
+      return `<tr><td style="padding:8px 0;font-size:14px;line-height:1.6;color:${BRAND.textMuted};"><strong style="color:${BRAND.text};">${escapeHtml(label)}:</strong> ${escapeHtml(value)}</td></tr>`;
+    })
+    .join('');
+
+  const bodyHtml = `
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 20px;">
+  ${rows}
+</table>
+${renderPrimaryButton(input.studioAppUrl, 'Open ActoCore Studio')}`;
+
+  const html = renderStudioEmailLayout({
+    preheader: input.eventLabel,
+    title: input.eventLabel,
+    bodyHtml,
+    footerNote:
+      'You received this platform activity alert from ActoCore Studio.',
+  });
+
+  return { html, text };
+}

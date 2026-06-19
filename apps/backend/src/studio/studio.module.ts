@@ -52,6 +52,7 @@ import { PlatformPermissionGuard } from './guards/platform-permission.guard';
 import { StudioPlatformAccessService } from './studio-platform-access.service';
 import { StudioAdminEmailsService } from './studio-admin-emails.service';
 import { StudioAdminNotificationService } from './studio-admin-notification.service';
+import { StudioPlatformNotificationService } from './studio-platform-notification.service';
 import { StudioQuotaWebhookService } from './studio-quota-webhook.service';
 import { StudioAccountDeleteService } from './studio-account-delete.service';
 import { StudioAccountController } from './studio-account.controller';
@@ -163,6 +164,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioPlatformAccessService,
     StudioAdminEmailsService,
     StudioAdminNotificationService,
+    StudioPlatformNotificationService,
     StudioAccountDeleteService,
     StudioAccessService,
     StudioAuthGuard,
@@ -182,6 +184,7 @@ import { StudioUser, StudioUserSchema } from './schemas/studio-user.schema';
     StudioQuotaWebhookService,
     StudioAdminEmailsService,
     StudioAdminNotificationService,
+    StudioPlatformNotificationService,
     StudioPlatformBootstrapService,
     PlatformPermissionGuard,
     StudioPlatformAccessService,

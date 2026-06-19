@@ -20,6 +20,10 @@ export type StudioAuthConfig = {
   contactInboxEmail: string;
   /** Inbox for Studio report submissions. */
   reportsInboxEmail: string;
+  /** Inbox for platform activity alerts (signups, projects, subscriptions). */
+  platformNotifyEmail: string;
+  /** Set PLATFORM_NOTIFY_ENABLED=false to disable platform activity emails. */
+  platformNotifyEnabled: boolean;
   /** HTTPS API — works on Render free tier (no SMTP ports). */
   resendApiKey: string | null;
   smtpHost: string | null;
@@ -88,6 +92,11 @@ export function resolveStudioAuthConfig(): StudioAuthConfig {
       process.env.CONTACT_INBOX_EMAIL?.trim() || 'adsrahmed@gmail.com',
     reportsInboxEmail:
       process.env.REPORTS_INBOX_EMAIL?.trim() || 'adsrahmed@gmail.com',
+    platformNotifyEmail:
+      process.env.PLATFORM_NOTIFY_EMAIL?.trim() ||
+      process.env.CONTACT_INBOX_EMAIL?.trim() ||
+      'adsrahmed@gmail.com',
+    platformNotifyEnabled: process.env.PLATFORM_NOTIFY_ENABLED !== 'false',
     resendApiKey: process.env.RESEND_API_KEY?.trim() || null,
     smtpHost: process.env.SMTP_HOST?.trim() || null,
     smtpPort: parseInt(process.env.SMTP_PORT ?? '587', 10),
