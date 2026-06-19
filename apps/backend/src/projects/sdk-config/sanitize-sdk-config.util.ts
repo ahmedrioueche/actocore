@@ -108,7 +108,10 @@ function mergeUi(
   }
 
   if (patch.text !== undefined) {
-    const text = mergeNullableStringRecord(base?.text, patch.text);
+    const text = mergeNullableStringRecord<SdkUiTextOverrides>(
+      base?.text,
+      patch.text as Record<string, string | null> | undefined,
+    );
     if (text) {
       merged.text = text;
     } else {
@@ -135,9 +138,12 @@ function mergeUi(
   }
 
   if (patch.inline !== undefined) {
-    const inline = mergeNullableStringRecord(base?.inline, patch.inline);
+    const inline = mergeNullableStringRecord<SdkInlineConfig>(
+      base?.inline,
+      patch.inline as Record<string, string | null> | undefined,
+    );
     if (inline) {
-      merged.inline = inline as SdkInlineConfig;
+      merged.inline = inline;
     } else {
       delete merged.inline;
     }
@@ -150,15 +156,15 @@ type NullablePatch<T> = {
   [K in keyof T]?: T[K] | null;
 };
 
-function mergeNullableStringRecord(
-  base: Record<string, string> | undefined,
+function mergeNullableStringRecord<T>(
+  base: T | undefined,
   patch: Record<string, string | null> | undefined,
-): Record<string, string> | undefined {
+): T | undefined {
   if (patch === undefined) {
     return base;
   }
 
-  const result: Record<string, string> = { ...(base ?? {}) };
+  const result = { ...(base ?? {}) } as Record<string, string>;
   for (const [key, value] of Object.entries(patch)) {
     if (value === null) {
       delete result[key];
@@ -167,7 +173,7 @@ function mergeNullableStringRecord(
     }
   }
 
-  return Object.keys(result).length > 0 ? result : undefined;
+  return Object.keys(result).length > 0 ? (result as T) : undefined;
 }
 
 function mergeLauncher(
