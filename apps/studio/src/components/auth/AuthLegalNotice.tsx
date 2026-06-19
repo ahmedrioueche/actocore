@@ -1,15 +1,16 @@
 import { useTranslation } from 'react-i18next';
 
-import { LEGAL_LINKS } from '@/constants/legal';
+import { getLegalLinks } from '@/constants/legal';
 
 export function AuthLegalNotice() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const legalLinks = getLegalLinks(i18n.language);
 
   return (
       <p className="mt-4 text-center text-sm text-text-secondary">
       {t('auth.signup.legalPrefix')}{' '}
       <a
-        href={LEGAL_LINKS.terms}
+        href={legalLinks.terms}
         target="_blank"
         rel="noopener noreferrer"
         className="text-primary hover:underline"
@@ -18,7 +19,7 @@ export function AuthLegalNotice() {
       </a>{' '}
       {t('auth.signup.legalAnd')}{' '}
       <a
-        href={LEGAL_LINKS.privacy}
+        href={legalLinks.privacy}
         target="_blank"
         rel="noopener noreferrer"
         className="text-primary hover:underline"
