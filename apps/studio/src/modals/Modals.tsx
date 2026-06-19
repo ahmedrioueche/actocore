@@ -2,6 +2,9 @@ import { lazy, Suspense } from 'react';
 
 import ConfirmModal from '@/components/ConfirmModal';
 import { useModalBodyFlag } from '@/hooks/use-modal-body-flag';
+import { useWindowPathname } from '@/hooks/use-window-pathname';
+import { isPublicAppPath } from '@/lib/auth-session';
+import { useModalStore, type ModalId } from '@/stores/modal';
 
 const UploadKnowledgeModal = lazy(
   () => import('@/components/knowledge/UploadKnowledgeModal'),
@@ -73,37 +76,76 @@ const EditReportModal = lazy(
   () => import('@/components/reports/EditReportModal'),
 );
 
+function ActiveLazyModal({ modalId }: { modalId: Exclude<ModalId, 'confirm' | null> }) {
+  switch (modalId) {
+    case 'uploadKnowledge':
+      return <UploadKnowledgeModal />;
+    case 'createApiKey':
+      return <CreateApiKeyModal />;
+    case 'editApiKey':
+      return <EditApiKeyModal />;
+    case 'issuedApiKey':
+      return <IssuedApiKeyModal />;
+    case 'createAction':
+      return <CreateActionModal />;
+    case 'editAction':
+      return <EditActionModal />;
+    case 'createSection':
+      return <CreateSectionModal />;
+    case 'editSection':
+      return <EditSectionModal />;
+    case 'actionCreated':
+      return <ActionCreatedModal />;
+    case 'actionsSdkCode':
+      return <ActionsSdkCodeModal />;
+    case 'createProject':
+      return <CreateProjectModal />;
+    case 'inviteMember':
+      return <InviteMemberModal />;
+    case 'editMember':
+      return <EditMemberModal />;
+    case 'createPlan':
+      return <CreatePlanModal />;
+    case 'editPlan':
+      return <EditPlanModal />;
+    case 'createPlatformManager':
+      return <CreatePlatformManagerModal />;
+    case 'editPlatformManager':
+      return <EditPlatformManagerModal />;
+    case 'deleteAccount':
+      return <DeleteAccountModal />;
+    case 'createAppPage':
+      return <CreateAppPageModal />;
+    case 'editAppPage':
+      return <EditAppPageModal />;
+    case 'createReport':
+      return <CreateReportModal />;
+    case 'viewReport':
+      return <ViewReportModal />;
+    case 'editReport':
+      return <EditReportModal />;
+    default:
+      return null;
+  }
+}
+
 export default function Modals() {
   useModalBodyFlag();
+  const pathname = useWindowPathname();
+  const currentModal = useModalStore((state) => state.currentModal);
+  const showLazyModals =
+    !isPublicAppPath(pathname) &&
+    currentModal !== null &&
+    currentModal !== 'confirm';
 
   return (
     <>
       <ConfirmModal />
-      <Suspense fallback={null}>
-        <UploadKnowledgeModal />
-        <CreateApiKeyModal />
-        <EditApiKeyModal />
-        <IssuedApiKeyModal />
-        <CreateActionModal />
-        <EditActionModal />
-        <CreateSectionModal />
-        <EditSectionModal />
-        <ActionCreatedModal />
-        <ActionsSdkCodeModal />
-        <CreateProjectModal />
-        <InviteMemberModal />
-        <EditMemberModal />
-        <CreatePlanModal />
-        <EditPlanModal />
-        <CreatePlatformManagerModal />
-        <EditPlatformManagerModal />
-        <DeleteAccountModal />
-        <CreateAppPageModal />
-        <EditAppPageModal />
-        <CreateReportModal />
-        <ViewReportModal />
-        <EditReportModal />
-      </Suspense>
+      {showLazyModals ? (
+        <Suspense fallback={null}>
+          <ActiveLazyModal modalId={currentModal} />
+        </Suspense>
+      ) : null}
     </>
   );
 }

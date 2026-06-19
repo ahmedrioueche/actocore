@@ -1,8 +1,10 @@
 import { initClarity } from '@/lib/clarity';
+import { setupChunkLoadRecovery } from '@/lib/chunk-load-recovery';
 import { initSentry } from '@/lib/sentry';
 
 initSentry();
 initClarity();
+setupChunkLoadRecovery();
 
 import 'reflect-metadata';
 import { StrictMode } from 'react';

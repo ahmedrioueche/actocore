@@ -3,6 +3,7 @@ import { Component } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { captureAppException } from '@/lib/sentry';
+import { reloadOnceForStaleChunk } from '@/lib/chunk-load-recovery';
 import ErrorPage from '@/pages/system/ErrorPage';
 
 interface ErrorBoundaryProps {
@@ -24,6 +25,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    if (reloadOnceForStaleChunk(error)) {
+      return {
+        hasError: false,
+        error: null,
+      };
+    }
+
     return {
       hasError: true,
       error,
