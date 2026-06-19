@@ -12,7 +12,8 @@ describe('TypingIndicator', () => {
     );
 
     expect(screen.getByRole('status')).toBeTruthy();
-    expect(screen.getByText('Thinking…')).toBeTruthy();
-    expect(document.querySelector('.ac-chat__typing-cloud')).toBeTruthy();
+    expect(screen.getByText(/^Thinking/)).toBeTruthy();
+    expect(document.querySelector('.ac-chat__typing-cloud')).toBeNull();
+    expect(document.querySelector('.ac-chat__typing-text')).toBeTruthy();
   });
 });

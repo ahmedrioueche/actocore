@@ -20,6 +20,8 @@ import { Composer } from './Composer';
 import { ChatEmpty } from './ChatEmpty';
 import { ChatLoading } from './ChatLoading';
 import { ChatHeader } from './ChatHeader';
+import { ChatInitProgressBar } from './ChatInitProgressBar';
+import { initStyleShowsBar } from '../../utils/resolve-loading-config';
 
 export interface ActoChatProps {
   sessionId?: string;
@@ -201,6 +203,10 @@ export function ActoChat({
           isInitializing || isSending || isStartingNewConversation
         }
       />
+
+      {isInitializing && initStyleShowsBar(ui.loading.initStyle) ? (
+        <ChatInitProgressBar />
+      ) : null}
 
       <div
         ref={bodyRef}

@@ -1,4 +1,10 @@
-import { useTranslation } from 'react-i18next';
+import { useActocoreUiConfig } from '../../context/actocore-context';
+import { useUiText } from '../../hooks/use-ui-text';
+import {
+  initStyleShowsCloud,
+  initStyleShowsInitBody,
+  initStyleShowsInitText,
+} from '../../utils/resolve-loading-config';
 
 function LoadingCloudIcon() {
   return (
@@ -18,12 +24,21 @@ function LoadingCloudIcon() {
 }
 
 export function ChatLoading() {
-  const { t } = useTranslation();
+  const ui = useActocoreUiConfig();
+  const label = useUiText('loading');
+  const initStyle = ui.loading.initStyle;
+
+  if (!initStyleShowsInitBody(initStyle)) {
+    return null;
+  }
+
+  const showCloud = initStyleShowsCloud(initStyle);
+  const showText = initStyleShowsInitText(initStyle);
 
   return (
     <div className="ac-chat__loading" role="status" aria-live="polite">
-      <LoadingCloudIcon />
-      <p className="ac-chat__loading-text">{t('chat.loading')}</p>
+      {showCloud ? <LoadingCloudIcon /> : null}
+      {showText ? <p className="ac-chat__loading-text">{label}</p> : null}
     </div>
   );
 }

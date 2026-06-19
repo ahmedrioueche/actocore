@@ -46,6 +46,40 @@ export interface SdkUiTextOverrides {
   newConversation?: string;
   minimize?: string;
   stop?: string;
+  loading?: string;
+  thinking?: string;
+}
+
+export const SDK_LOADING_INIT_STYLES = [
+  'bar-and-centered',
+  'bar-and-animation',
+  'bar-and-animation-text',
+  'bar-only',
+  'centered',
+  'none',
+] as const;
+export type SdkLoadingInitStyle = (typeof SDK_LOADING_INIT_STYLES)[number];
+
+export const SDK_LOADING_THINKING_STYLES = [
+  'text',
+  'dots',
+  'text-and-dots',
+  'none',
+] as const;
+export type SdkLoadingThinkingStyle = (typeof SDK_LOADING_THINKING_STYLES)[number];
+
+export const SDK_LOADING_TEXT_ANIMATIONS = [
+  'pulse',
+  'ellipsis',
+  'shimmer',
+  'none',
+] as const;
+export type SdkLoadingTextAnimation = (typeof SDK_LOADING_TEXT_ANIMATIONS)[number];
+
+export interface SdkLoadingConfig {
+  initStyle?: SdkLoadingInitStyle;
+  thinkingStyle?: SdkLoadingThinkingStyle;
+  thinkingAnimation?: SdkLoadingTextAnimation;
 }
 
 export const SDK_WIDGET_POSITIONS = [
@@ -128,6 +162,7 @@ export interface SdkUiConfig {
   composerMaxRows?: number;
   text?: SdkUiTextOverrides;
   header?: SdkHeaderConfig;
+  loading?: SdkLoadingConfig;
   launcher?: SdkLauncherConfig;
   widget?: SdkWidgetConfig;
   inline?: SdkInlineConfig;

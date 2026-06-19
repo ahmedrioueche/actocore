@@ -1,5 +1,6 @@
 import type { ActocoreSdkConfig, ResolvedActocoreConfig } from './types';
 import { SDK_VOICE_DEFAULTS } from './sdk-defaults';
+import { resolveLoadingConfig } from '../utils/resolve-loading-config';
 
 export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig {
   return {
@@ -32,6 +33,7 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
       classNames: config.ui?.classNames,
       text: config.ui?.text,
       header: config.ui?.header,
+      loading: resolveLoadingConfig(config.ui?.loading),
       launcher: config.ui?.launcher,
       widget: config.ui?.widget,
       inline: config.ui?.inline,

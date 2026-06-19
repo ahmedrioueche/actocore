@@ -1,6 +1,9 @@
 import type {
   SdkLauncherPlacement,
   SdkLauncherVariant,
+  SdkLoadingInitStyle,
+  SdkLoadingTextAnimation,
+  SdkLoadingThinkingStyle,
   SdkPresentationMode,
   SdkWidgetPanelLayout,
   SdkWidgetPosition,
@@ -22,7 +25,15 @@ export const SDK_CONFIG_UI_TEXT_DEFAULTS = {
   newConversation: 'New conversation',
   minimize: 'Minimize chat',
   stop: 'Stop generating',
+  loading: 'Loading conversation…',
+  thinking: 'Thinking…',
   launcherAriaLabel: 'Open chat',
+} as const;
+
+export const SDK_CONFIG_LOADING_DEFAULTS = {
+  initStyle: 'bar-and-centered' as SdkLoadingInitStyle,
+  thinkingStyle: 'text' as SdkLoadingThinkingStyle,
+  thinkingAnimation: 'ellipsis' as SdkLoadingTextAnimation,
 } as const;
 
 export const SDK_CONFIG_HEADER_DEFAULTS = {

@@ -762,6 +762,7 @@
     "nav": {
       "appearance": "Apparence",
       "chatBehavior": "Comportement du chat",
+      "loading": "Chargement et animations",
       "widget": "Widget et lanceur",
       "inline": "Intégration inline",
       "copy": "Textes et libellés"
@@ -794,6 +795,10 @@
       "copyLauncher": {
         "title": "Copie et lanceur",
         "description": "Personnalisez les étiquettes et le bouton de lancement flottant."
+      },
+      "loading": {
+        "title": "Chargement et animations",
+        "description": "Contrôlez l'apparence du chat pendant le chargement de la session et la préparation de la réponse."
       }
     },
     "fields": {
@@ -854,7 +859,34 @@
       "showActionPicker": "Afficher le sélecteur d'actions",
       "composerMinRows": "Lignes minimales du compositeur",
       "composerMaxRows": "Nombre maximum de lignes du compositeur",
-      "composerRowsHint": "Chaque ligne doit être comprise entre 1 et 12. Le minimum ne peut pas dépasser le maximum. Valeurs par défaut du SDK : 1 minimum, 6 maximum.",
+      "composerRowsHint": "Chaque ligne doit être comprise entre 1 et 12. Le minimum ne peut pas dépasser le maximum. Valeurs par défaut du SDK : 1 minimum, 6 maximum.",
+      "loadingInitStyle": "Style de chargement initial",
+      "loadingInitStyleHint": "Affiché au démarrage de la session. La barre de progression apparaît directement sous l'en-tête.",
+      "loadingInitStyles": {
+        "bar-and-centered": "Barre + texte centré",
+        "bar-and-animation": "Barre + animation nuage",
+        "bar-and-animation-text": "Barre + animation nuage + texte",
+        "bar-only": "Barre uniquement",
+        "centered": "Nuage centré + texte",
+        "none": "Masqué"
+      },
+      "loadingText": "Texte de chargement initial",
+      "loadingThinkingStyle": "Style d'indicateur de réflexion",
+      "loadingThinkingStyleHint": "Affiché après l'envoi du message, avant le début du streaming de la réponse.",
+      "loadingThinkingStyles": {
+        "text": "Texte",
+        "dots": "Points",
+        "text-and-dots": "Texte + points",
+        "none": "Masqué"
+      },
+      "loadingThinkingAnimation": "Animation du texte de réflexion",
+      "loadingThinkingAnimations": {
+        "pulse": "Pulsation",
+        "ellipsis": "Points de suspension",
+        "shimmer": "Brillance",
+        "none": "Aucune"
+      },
+      "thinkingText": "Texte de réflexion",
       "headerTitle": "Titre de l'en-tête",
       "headerSubtitle": "Sous-titre d'en-tête",
       "showHeaderIcon": "Afficher l'icône d'en-tête",

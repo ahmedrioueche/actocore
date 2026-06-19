@@ -9,6 +9,7 @@ import {
   SDK_CONFIG_COMPOSER_DEFAULTS,
   SDK_CONFIG_HEADER_DEFAULTS,
   SDK_CONFIG_INLINE_DEFAULTS,
+  SDK_CONFIG_LOADING_DEFAULTS,
   SDK_CONFIG_LAUNCHER_DEFAULTS,
   SDK_CONFIG_PRESENTATION_DEFAULT,
   SDK_CONFIG_UI_TEXT_DEFAULTS,
@@ -30,6 +31,9 @@ import { isValidHexColor, normalizeHexColor } from '@/utils/hex-color';
 import type {
   SdkHeaderConfig,
   SdkLauncherPlacement,
+  SdkLoadingInitStyle,
+  SdkLoadingTextAnimation,
+  SdkLoadingThinkingStyle,
   SdkLauncherVariant,
   SdkPresentationMode,
   SdkProjectConfigData,
@@ -62,6 +66,11 @@ export interface SdkConfigFormState {
   newConversation: string;
   minimize: string;
   stop: string;
+  loadingText: string;
+  thinkingText: string;
+  loadingInitStyle: SdkLoadingInitStyle;
+  loadingThinkingStyle: SdkLoadingThinkingStyle;
+  loadingThinkingAnimation: SdkLoadingTextAnimation;
   launcherIconUrl: string;
   launcherAriaLabel: string;
   launcherPlacement: SdkLauncherPlacement;
@@ -107,6 +116,8 @@ const TEXT_FIELD_LIMITS: Record<
     | 'newConversation'
     | 'minimize'
     | 'stop'
+    | 'loadingText'
+    | 'thinkingText'
     | 'launcherAriaLabel'
     | 'launcherLabel'
     | 'launcherOffsetX'
@@ -132,6 +143,8 @@ const TEXT_FIELD_LIMITS: Record<
   newConversation: 80,
   minimize: 80,
   stop: 80,
+  loadingText: 80,
+  thinkingText: 80,
   launcherAriaLabel: 120,
   launcherLabel: 80,
   launcherOffsetX: 20,
@@ -271,6 +284,29 @@ function buildHeaderPatch(
   });
 }
 
+function buildLoadingPatch(
+  state: SdkConfigFormState,
+  saved?: SdkProjectConfigData,
+): Record<string, string | null> | undefined {
+  return buildNullablePatchRecord({
+    initStyle: enumFieldForPatch(
+      state.loadingInitStyle,
+      SDK_CONFIG_LOADING_DEFAULTS.initStyle,
+      saved?.ui?.loading?.initStyle,
+    ),
+    thinkingStyle: enumFieldForPatch(
+      state.loadingThinkingStyle,
+      SDK_CONFIG_LOADING_DEFAULTS.thinkingStyle,
+      saved?.ui?.loading?.thinkingStyle,
+    ),
+    thinkingAnimation: enumFieldForPatch(
+      state.loadingThinkingAnimation,
+      SDK_CONFIG_LOADING_DEFAULTS.thinkingAnimation,
+      saved?.ui?.loading?.thinkingAnimation,
+    ),
+  });
+}
+
 function mergeHeaderConfigForPreview(
   saved: SdkHeaderConfig | undefined,
   patch: Record<string, string | boolean | null> | undefined,
@@ -371,6 +407,11 @@ export function createDefaultSdkConfigFormState(): SdkConfigFormState {
     newConversation: SDK_CONFIG_UI_TEXT_DEFAULTS.newConversation,
     minimize: SDK_CONFIG_UI_TEXT_DEFAULTS.minimize,
     stop: SDK_CONFIG_UI_TEXT_DEFAULTS.stop,
+    loadingText: SDK_CONFIG_UI_TEXT_DEFAULTS.loading,
+    thinkingText: SDK_CONFIG_UI_TEXT_DEFAULTS.thinking,
+    loadingInitStyle: SDK_CONFIG_LOADING_DEFAULTS.initStyle,
+    loadingThinkingStyle: SDK_CONFIG_LOADING_DEFAULTS.thinkingStyle,
+    loadingThinkingAnimation: SDK_CONFIG_LOADING_DEFAULTS.thinkingAnimation,
     launcherIconUrl: '',
     launcherAriaLabel: SDK_CONFIG_UI_TEXT_DEFAULTS.launcherAriaLabel,
     launcherPlacement: SDK_CONFIG_LAUNCHER_DEFAULTS.placement,
@@ -433,6 +474,16 @@ export function configToFormState(
     newConversation: resolveUiTextField(text?.newConversation, 'newConversation'),
     minimize: resolveUiTextField(text?.minimize, 'minimize'),
     stop: resolveUiTextField(text?.stop, 'stop'),
+    loadingText: resolveUiTextField(text?.loading, 'loading'),
+    thinkingText: resolveUiTextField(text?.thinking, 'thinking'),
+    loadingInitStyle:
+      config.ui?.loading?.initStyle ?? SDK_CONFIG_LOADING_DEFAULTS.initStyle,
+    loadingThinkingStyle:
+      config.ui?.loading?.thinkingStyle ??
+      SDK_CONFIG_LOADING_DEFAULTS.thinkingStyle,
+    loadingThinkingAnimation:
+      config.ui?.loading?.thinkingAnimation ??
+      SDK_CONFIG_LOADING_DEFAULTS.thinkingAnimation,
     launcherIconUrl: config.ui?.launcher?.iconUrl ?? '',
     launcherAriaLabel: resolveLauncherOpenLabel(config),
     launcherPlacement:
@@ -644,9 +695,12 @@ export function formStateToPatch(
     ),
     minimize: uiTextFieldForPatch('minimize', state.minimize, saved),
     stop: uiTextFieldForPatch('stop', state.stop, saved),
+    loading: uiTextFieldForPatch('loading', state.loadingText, saved),
+    thinking: uiTextFieldForPatch('thinking', state.thinkingText, saved),
   });
 
   const header = buildHeaderPatch(state, saved);
+  const loading = buildLoadingPatch(state, saved);
 
   const launcher = buildNullablePatchRecord({
     iconUrl: stringFieldForPatch(
@@ -770,6 +824,11 @@ export function formStateToPatch(
   }
   if (header) {
     ui.header = header as NonNullable<UpdateSdkProjectConfigDto['ui']>['header'];
+  }
+  if (loading) {
+    ui.loading = loading as NonNullable<
+      UpdateSdkProjectConfigDto['ui']
+    >['loading'];
   }
   if (launcher) {
     ui.launcher = launcher as NonNullable<

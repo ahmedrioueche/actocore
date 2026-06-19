@@ -69,6 +69,10 @@ function mergeUi(
       ...(remote?.header ?? {}),
       ...(local?.header ?? {}),
     },
+    loading: {
+      ...(remote?.loading ?? {}),
+      ...(local?.loading ?? {}),
+    },
     launcher: {
       ...(remote?.launcher ?? {}),
       ...(local?.launcher ?? {}),

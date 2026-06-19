@@ -46,6 +46,34 @@ export interface ActocoreUiTextOverrides {
   newConversation?: string;
   minimize?: string;
   stop?: string;
+  loading?: string;
+  thinking?: string;
+}
+
+export type ActocoreLoadingInitStyle =
+  | 'bar-and-centered'
+  | 'bar-and-animation'
+  | 'bar-and-animation-text'
+  | 'bar-only'
+  | 'centered'
+  | 'none';
+
+export type ActocoreLoadingThinkingStyle =
+  | 'text'
+  | 'dots'
+  | 'text-and-dots'
+  | 'none';
+
+export type ActocoreLoadingTextAnimation =
+  | 'pulse'
+  | 'ellipsis'
+  | 'shimmer'
+  | 'none';
+
+export interface ActocoreLoadingConfig {
+  initStyle?: ActocoreLoadingInitStyle;
+  thinkingStyle?: ActocoreLoadingThinkingStyle;
+  thinkingAnimation?: ActocoreLoadingTextAnimation;
 }
 
 /** Launcher bubble branding — image URL or widget-level React node. */
@@ -155,6 +183,7 @@ export interface ActocoreUiConfig {
   classNames?: ActocoreUiClassNames;
   text?: ActocoreUiTextOverrides;
   header?: ActocoreHeaderConfig;
+  loading?: ActocoreLoadingConfig;
   launcher?: ActocoreLauncherConfig;
   widget?: ActocoreWidgetConfig;
   inline?: ActocoreInlineConfig;
@@ -208,7 +237,20 @@ export interface ResolvedActocoreConfig {
       | 'composerMaxRows'
     >
   > &
-    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'header' | 'launcher' | 'widget' | 'inline' | 'presentation' | 'seedMessages'>;
+    Pick<
+      ActocoreUiConfig,
+      | 'classNames'
+      | 'text'
+      | 'header'
+      | 'loading'
+      | 'launcher'
+      | 'widget'
+      | 'inline'
+      | 'presentation'
+      | 'seedMessages'
+    > & {
+      loading: Required<ActocoreLoadingConfig>;
+    };
   i18n: Required<Pick<ActocoreI18nConfig, 'locale'>> & ActocoreI18nConfig;
   voice: Required<
     Pick<ActocoreVoiceConfig, 'input' | 'output' | 'inputMode' | 'autoSendOnFinalize'>

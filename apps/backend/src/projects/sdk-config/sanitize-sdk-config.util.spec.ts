@@ -171,4 +171,56 @@ describe('sanitize-sdk-config.util', () => {
     expect(merged.ui?.header?.iconUrl).toBeUndefined();
     expect(merged.ui?.header?.showIcon).toBe(true);
   });
+
+  it('deep merges ui.loading without wiping thinkingStyle', () => {
+    const current = {
+      ...emptySdkProjectConfig(),
+      ui: {
+        loading: {
+          initStyle: 'bar-only' as const,
+          thinkingStyle: 'dots' as const,
+        },
+      },
+    };
+
+    const merged = deepMergeSdkConfig(current, {
+      ui: {
+        showSources: true,
+        showIntentBadge: false,
+        showActionsHint: false,
+        showActionPicker: false,
+        composerMinRows: 1,
+        composerMaxRows: 6,
+        loading: { thinkingAnimation: 'pulse' },
+      },
+    });
+
+    expect(merged.ui?.loading?.initStyle).toBe('bar-only');
+    expect(merged.ui?.loading?.thinkingStyle).toBe('dots');
+    expect(merged.ui?.loading?.thinkingAnimation).toBe('pulse');
+  });
+
+  it('clears saved ui.text.thinking when patch sends null', () => {
+    const current = {
+      ...emptySdkProjectConfig(),
+      ui: {
+        text: { thinking: 'Working on it…', placeholder: 'Ask anything' },
+      },
+    };
+
+    const merged = deepMergeSdkConfig(current, {
+      ui: {
+        showSources: true,
+        showIntentBadge: false,
+        showActionsHint: false,
+        showActionPicker: false,
+        composerMinRows: 1,
+        composerMaxRows: 6,
+        text: { thinking: null },
+      },
+    });
+
+    expect(merged.ui?.text?.thinking).toBeUndefined();
+    expect(merged.ui?.text?.placeholder).toBe('Ask anything');
+  });
 });

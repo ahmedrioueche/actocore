@@ -831,6 +831,7 @@
     "nav": {
       "appearance": "Appearance",
       "chatBehavior": "Chat behavior",
+      "loading": "Loading & animations",
       "widget": "Widget & launcher",
       "inline": "Inline embed",
       "copy": "Copy & labels"
@@ -863,6 +864,10 @@
       "copyLauncher": {
         "title": "Copy & launcher",
         "description": "Customize labels and the floating launcher button."
+      },
+      "loading": {
+        "title": "Loading & animations",
+        "description": "Control how the chat looks while the session loads and while the assistant is preparing a reply."
       }
     },
     "fields": {
@@ -924,6 +929,33 @@
       "composerMinRows": "Composer minimum rows",
       "composerMaxRows": "Composer maximum rows",
       "composerRowsHint": "Each row must be between 1 and 12. Minimum cannot exceed maximum. SDK defaults: 1 minimum, 6 maximum.",
+      "loadingInitStyle": "Initial loading style",
+      "loadingInitStyleHint": "Shown while the chat session is starting. The progress bar appears directly under the header.",
+      "loadingInitStyles": {
+        "bar-and-centered": "Bar + centered text",
+        "bar-and-animation": "Bar + cloud animation",
+        "bar-and-animation-text": "Bar + cloud animation + text",
+        "bar-only": "Bar only",
+        "centered": "Centered cloud + text",
+        "none": "Hidden"
+      },
+      "loadingText": "Initial loading text",
+      "loadingThinkingStyle": "Thinking indicator style",
+      "loadingThinkingStyleHint": "Shown after the user sends a message, before the assistant reply starts streaming.",
+      "loadingThinkingStyles": {
+        "text": "Text",
+        "dots": "Dots",
+        "text-and-dots": "Text + dots",
+        "none": "Hidden"
+      },
+      "loadingThinkingAnimation": "Thinking text animation",
+      "loadingThinkingAnimations": {
+        "pulse": "Pulse",
+        "ellipsis": "Ellipsis",
+        "shimmer": "Shimmer",
+        "none": "None"
+      },
+      "thinkingText": "Thinking text",
       "headerTitle": "Header title",
       "headerSubtitle": "Header subtitle",
       "showHeaderIcon": "Show header icon",

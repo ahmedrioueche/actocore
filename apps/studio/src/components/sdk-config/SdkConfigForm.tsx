@@ -2,6 +2,7 @@ import { SdkConfigAppearanceSection } from "@/components/sdk-config/SdkConfigApp
 import { SdkConfigChatBehaviorSection } from "@/components/sdk-config/SdkConfigChatBehaviorSection";
 import { SdkConfigCopySection } from "@/components/sdk-config/SdkConfigCopySection";
 import { SdkConfigInlineSection } from "@/components/sdk-config/SdkConfigInlineSection";
+import { SdkConfigLoadingSection } from "@/components/sdk-config/SdkConfigLoadingSection";
 import { SdkConfigSidebar } from "@/components/sdk-config/SdkConfigSidebar";
 import { SdkConfigWidgetSection } from "@/components/sdk-config/SdkConfigWidgetSection";
 import type { SdkConfigFormState } from "@/utils/sdk-config-form";
@@ -42,6 +43,11 @@ export function SdkConfigForm({
           disabled={disabled}
         />
         <SdkConfigChatBehaviorSection
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+        />
+        <SdkConfigLoadingSection
           value={value}
           onChange={onChange}
           disabled={disabled}

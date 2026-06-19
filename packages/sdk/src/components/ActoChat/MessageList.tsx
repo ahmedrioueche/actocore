@@ -23,7 +23,11 @@ export function MessageList({
   const typingRef = useRef<HTMLDivElement>(null);
   const streamingRowRef = useRef<HTMLDivElement>(null);
   const streamingMessage = messages.find((m) => m.isStreaming);
-  const showTypingIndicator = Boolean(isSending && !streamingMessage);
+  const showTypingIndicator = Boolean(
+    isSending &&
+      !streamingMessage &&
+      ui.loading.thinkingStyle !== 'none',
+  );
 
   useEffect(() => {
     if (!showTypingIndicator || !typingRef.current) return;

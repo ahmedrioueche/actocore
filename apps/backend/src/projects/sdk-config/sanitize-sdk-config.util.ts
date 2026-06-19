@@ -1,9 +1,14 @@
+import { SDK_LOADING_INIT_STYLES } from '@ahmedrioueche/actocore-shared';
 import type {
   SdkHeaderConfig,
   SdkInlineConfig,
   SdkLauncherConfig,
   SdkLauncherPlacement,
   SdkLauncherVariant,
+  SdkLoadingConfig,
+  SdkLoadingInitStyle,
+  SdkLoadingTextAnimation,
+  SdkLoadingThinkingStyle,
   SdkPresentationMode,
   SdkProjectConfigData,
   SdkUiTextOverrides,
@@ -30,6 +35,21 @@ const WIDGET_PANEL_LAYOUTS: readonly SdkWidgetPanelLayout[] = [
 
 const LAUNCHER_PLACEMENTS: readonly SdkLauncherPlacement[] = ['floating', 'host'];
 const LAUNCHER_VARIANTS: readonly SdkLauncherVariant[] = ['icon', 'button', 'link'];
+
+const LOADING_INIT_STYLES: readonly SdkLoadingInitStyle[] =
+  SDK_LOADING_INIT_STYLES;
+const LOADING_THINKING_STYLES: readonly SdkLoadingThinkingStyle[] = [
+  'text',
+  'dots',
+  'text-and-dots',
+  'none',
+];
+const LOADING_TEXT_ANIMATIONS: readonly SdkLoadingTextAnimation[] = [
+  'pulse',
+  'ellipsis',
+  'shimmer',
+  'none',
+];
 
 export const SDK_CONFIG_MAX_TRANSLATIONS_BYTES = 32_768;
 export const SDK_CONFIG_MAX_ALLOWED_ACTIONS = 50;
@@ -129,6 +149,15 @@ function mergeUi(
     }
   }
 
+  if (patch.loading !== undefined) {
+    const loading = mergeLoading(base?.loading, patch.loading);
+    if (loading) {
+      merged.loading = loading;
+    } else {
+      delete merged.loading;
+    }
+  }
+
   if (patch.launcher !== undefined) {
     const launcher = mergeLauncher(base?.launcher, patch.launcher);
     if (launcher) {
@@ -223,6 +252,28 @@ function mergeHeader(
     if (value === null) {
       delete result[key];
     } else if (value !== undefined && value !== '') {
+      result[key] = value as never;
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function mergeLoading(
+  base: SdkLoadingConfig | undefined,
+  patch: NullablePatch<SdkLoadingConfig> | undefined,
+): SdkLoadingConfig | undefined {
+  if (patch === undefined) {
+    return base;
+  }
+
+  const result: SdkLoadingConfig = { ...(base ?? {}) };
+  for (const [key, value] of Object.entries(patch) as Array<
+    [keyof SdkLoadingConfig, SdkLoadingConfig[keyof SdkLoadingConfig] | null]
+  >) {
+    if (value === null) {
+      delete result[key];
+    } else if (value !== undefined) {
       result[key] = value as never;
     }
   }
@@ -397,6 +448,9 @@ function pickUi(raw: unknown): SdkProjectConfigData['ui'] | undefined {
   const header = pickHeader(o.header);
   if (header) result.header = header;
 
+  const loading = pickLoading(o.loading);
+  if (loading) result.loading = loading;
+
   const launcher = pickLauncher(o.launcher);
   if (launcher) result.launcher = launcher;
 
@@ -424,6 +478,8 @@ function pickUiText(raw: unknown): SdkUiTextOverrides | undefined {
     'newConversation',
     'minimize',
     'stop',
+    'loading',
+    'thinking',
   ] as const;
   const text: Record<string, string> = {};
   for (const key of keys) {
@@ -442,6 +498,33 @@ function pickHeader(raw: unknown): SdkHeaderConfig | undefined {
   const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : undefined;
   if (iconUrl) result.iconUrl = iconUrl;
   if (typeof o.showIcon === 'boolean') result.showIcon = o.showIcon;
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function pickLoading(raw: unknown): SdkLoadingConfig | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const o = raw as Record<string, unknown>;
+  const result: SdkLoadingConfig = {};
+
+  if (
+    typeof o.initStyle === 'string' &&
+    (LOADING_INIT_STYLES as readonly string[]).includes(o.initStyle)
+  ) {
+    result.initStyle = o.initStyle as SdkLoadingInitStyle;
+  }
+  if (
+    typeof o.thinkingStyle === 'string' &&
+    (LOADING_THINKING_STYLES as readonly string[]).includes(o.thinkingStyle)
+  ) {
+    result.thinkingStyle = o.thinkingStyle as SdkLoadingThinkingStyle;
+  }
+  if (
+    typeof o.thinkingAnimation === 'string' &&
+    (LOADING_TEXT_ANIMATIONS as readonly string[]).includes(o.thinkingAnimation)
+  ) {
+    result.thinkingAnimation = o.thinkingAnimation as SdkLoadingTextAnimation;
+  }
 
   return Object.keys(result).length > 0 ? result : undefined;
 }

@@ -17,6 +17,9 @@ import {
 import {
   SDK_LAUNCHER_PLACEMENTS,
   SDK_LAUNCHER_VARIANTS,
+  SDK_LOADING_INIT_STYLES,
+  SDK_LOADING_TEXT_ANIMATIONS,
+  SDK_LOADING_THINKING_STYLES,
   SDK_PRESENTATION_MODES,
   SDK_WIDGET_PANEL_LAYOUTS,
   SDK_WIDGET_POSITIONS,
@@ -24,6 +27,9 @@ import {
 import type {
   SdkLauncherPlacement,
   SdkLauncherVariant,
+  SdkLoadingInitStyle,
+  SdkLoadingTextAnimation,
+  SdkLoadingThinkingStyle,
   SdkPresentationMode,
   SdkThemeMode,
   SdkVoiceInputMode,
@@ -87,6 +93,25 @@ export class SdkUiTextOverridesDto {
   @IsOptional() @IsString() @MaxLength(80) newConversation?: string;
   @IsOptional() @IsString() @MaxLength(80) minimize?: string;
   @IsOptional() @IsString() @MaxLength(80) stop?: string;
+  @IsOptional() @IsString() @MaxLength(80) loading?: string;
+  @IsOptional() @IsString() @MaxLength(80) thinking?: string;
+}
+
+export class SdkLoadingConfigDto {
+  @IsOptional()
+  @ValidateIf((_, value) => value != null)
+  @IsEnum(SDK_LOADING_INIT_STYLES)
+  initStyle?: SdkLoadingInitStyle | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value != null)
+  @IsEnum(SDK_LOADING_THINKING_STYLES)
+  thinkingStyle?: SdkLoadingThinkingStyle | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value != null)
+  @IsEnum(SDK_LOADING_TEXT_ANIMATIONS)
+  thinkingAnimation?: SdkLoadingTextAnimation | null;
 }
 
 export class SdkHeaderConfigDto {
@@ -194,6 +219,11 @@ export class SdkUiConfigDto {
   @ValidateNested()
   @Type(() => SdkHeaderConfigDto)
   header?: SdkHeaderConfigDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SdkLoadingConfigDto)
+  loading?: SdkLoadingConfigDto;
 
   @IsOptional()
   @ValidateNested()

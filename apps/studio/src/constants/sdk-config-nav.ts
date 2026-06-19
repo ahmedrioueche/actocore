@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutTemplate,
+  LoaderCircle,
   MessageSquare,
   PanelRight,
   Rows3,
@@ -10,6 +11,7 @@ import {
 export type SdkConfigSectionId =
   | "appearance"
   | "chat-behavior"
+  | "loading"
   | "widget"
   | "inline"
   | "copy";
@@ -32,6 +34,11 @@ export const SDK_CONFIG_NAV: SdkConfigNavItem[] = [
     id: "chat-behavior",
     labelKey: "sdkConfig.nav.chatBehavior",
     icon: MessageSquare,
+  },
+  {
+    id: "loading",
+    labelKey: "sdkConfig.nav.loading",
+    icon: LoaderCircle,
   },
   { id: "copy", labelKey: "sdkConfig.nav.copy", icon: Type },
 ];

@@ -53,6 +53,9 @@ export function SdkWidgetPreview({ value, savedConfig }: SdkWidgetPreviewProps) 
     SDK_CONFIG_UI_TEXT_DEFAULTS.open;
   const headerIcon = resolveFormHeaderIcon(value, savedConfig);
   const showHeaderIcon = headerIcon.kind !== 'hidden';
+  const showInitBar =
+    value.loadingInitStyle !== 'centered' &&
+    value.loadingInitStyle !== 'none';
 
   const launcherClass = cn(
     'absolute bg-primary shadow-md',
@@ -118,6 +121,11 @@ export function SdkWidgetPreview({ value, savedConfig }: SdkWidgetPreviewProps) 
             ) : null}
             <span className="truncate">{headerTitle}</span>
           </div>
+          {showInitBar ? (
+            <div className="h-0.5 w-full overflow-hidden bg-border" aria-hidden>
+              <div className="h-full w-2/5 bg-primary" />
+            </div>
+          ) : null}
           <div className="flex-1 space-y-2 p-3">
             <div className="ml-auto max-w-[80%] rounded-lg bg-primary px-2 py-1 text-[10px] text-white">
               {placeholder}
