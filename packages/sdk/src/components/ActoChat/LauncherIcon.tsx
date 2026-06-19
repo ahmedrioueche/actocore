@@ -12,9 +12,15 @@ const SIZE_VARS: Record<LauncherIconSize, string> = {
 export function LauncherIcon({
   customIcon,
   size = 'launcher',
+  iconUrl,
+  useDefaultWhenUnset = false,
 }: {
   customIcon?: ReactNode;
   size?: LauncherIconSize;
+  /** Explicit image URL (header config or resolved override). */
+  iconUrl?: string;
+  /** When true, show the built-in icon instead of falling back to launcher URL. */
+  useDefaultWhenUnset?: boolean;
 }) {
   const ui = useActocoreUiConfig();
   const iconStyle: CSSProperties = {
@@ -27,9 +33,9 @@ export function LauncherIcon({
     return <>{customIcon}</>;
   }
 
-  const iconUrl = ui.launcher?.iconUrl;
-  if (iconUrl) {
-    return <img src={iconUrl} alt="" style={iconStyle} />;
+  const resolvedUrl = iconUrl?.trim() || (!useDefaultWhenUnset ? ui.launcher?.iconUrl?.trim() : undefined);
+  if (resolvedUrl) {
+    return <img src={resolvedUrl} alt="" style={iconStyle} />;
   }
 
   return <DefaultLauncherIcon />;

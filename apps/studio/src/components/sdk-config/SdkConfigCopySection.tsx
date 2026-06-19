@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { SdkConfigSection } from '@/components/sdk-config/SdkConfigSection';
 import InputField from '@/components/ui/InputField';
 import TextArea from '@/components/ui/TextArea';
-import { SDK_CONFIG_UI_TEXT_DEFAULTS } from '@/constants/sdk-config-defaults';
+import ToggleSwitch from '@/components/ui/ToggleSwitch';
+import {
+  SDK_CONFIG_UI_TEXT_DEFAULTS,
+} from '@/constants/sdk-config-defaults';
 import type { SdkConfigFormState } from '@/utils/sdk-config-form';
 
 interface SdkConfigCopySectionProps {
@@ -53,6 +56,26 @@ export function SdkConfigCopySection({
         )}
         disabled={disabled}
       />
+      <ToggleSwitch
+        checked={value.showHeaderIcon}
+        onChange={(showHeaderIcon) => patch({ showHeaderIcon })}
+        disabled={disabled}
+        label={t('sdkConfig.fields.showHeaderIcon')}
+        description={t(
+          value.showHeaderIcon
+            ? 'sdkConfig.fields.showHeaderIconOnHint'
+            : 'sdkConfig.fields.showHeaderIconOffHint',
+        )}
+      />
+      {value.showHeaderIcon ? (
+        <InputField
+          label={t('sdkConfig.fields.headerIconUrl')}
+          value={value.headerIconUrl}
+          onChange={(e) => patch({ headerIconUrl: e.target.value })}
+          placeholder={t('sdkConfig.fields.headerIconUrlDefault')}
+          disabled={disabled}
+        />
+      ) : null}
       <InputField
         label={t('sdkConfig.fields.emptyTitle')}
         value={value.emptyTitle}

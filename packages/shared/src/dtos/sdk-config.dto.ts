@@ -89,6 +89,17 @@ export class SdkUiTextOverridesDto {
   @IsOptional() @IsString() @MaxLength(80) stop?: string;
 }
 
+export class SdkHeaderConfigDto {
+  @IsOptional()
+  @ValidateIf((_, value) => value !== '' && value != null)
+  @IsUrl()
+  iconUrl?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showIcon?: boolean;
+}
+
 export class SdkLauncherConfigDto {
   @IsOptional()
   @ValidateIf((_, value) => value !== '' && value != null)
@@ -178,6 +189,11 @@ export class SdkUiConfigDto {
   @ValidateNested()
   @Type(() => SdkUiTextOverridesDto)
   text?: SdkUiTextOverridesDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SdkHeaderConfigDto)
+  header?: SdkHeaderConfigDto;
 
   @IsOptional()
   @ValidateNested()

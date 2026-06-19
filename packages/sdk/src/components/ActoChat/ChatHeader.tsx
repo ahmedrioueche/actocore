@@ -1,6 +1,7 @@
 import { useUiText } from '../../hooks/use-ui-text';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
+import { resolveHeaderIcon } from '../../utils/resolve-header-icon';
 import { LauncherIcon } from './LauncherIcon';
 import type { ReactNode } from 'react';
 
@@ -10,7 +11,7 @@ export function ChatHeader({
   onNewConversation,
   isNewConversationDisabled,
 }: {
-  /** Same override as `ActoChatWidget` launcherIcon — wins over `ui.launcher.iconUrl`. */
+  /** Host React node override — wins over configured header/launcher image URLs. */
   launcherIcon?: ReactNode;
   onMinimize?: () => void;
   onNewConversation?: () => void;
@@ -21,22 +22,33 @@ export function ChatHeader({
   const subtitle = useUiText('headerSubtitle');
   const newConversationLabel = useUiText('newConversation');
   const minimizeLabel = useUiText('minimize');
-  const customImage = Boolean(launcherIcon || ui.launcher?.iconUrl);
+  const resolvedIcon = resolveHeaderIcon(ui.header, ui.launcher);
+  const showIcon = resolvedIcon.kind !== 'hidden';
+  const customImage = Boolean(launcherIcon) || resolvedIcon.kind === 'url';
 
   return (
     <header
       className={mergeClassNames('ac-chat__header', ui.classNames?.header)}
     >
-      <div
-        className={mergeClassNames(
-          'ac-chat__header-icon',
-          customImage && 'ac-chat__header-icon--image',
-          ui.classNames?.headerIcon,
-        )}
-        aria-hidden
-      >
-        <LauncherIcon customIcon={launcherIcon} size="header" />
-      </div>
+      {showIcon ? (
+        <div
+          className={mergeClassNames(
+            'ac-chat__header-icon',
+            customImage && 'ac-chat__header-icon--image',
+            ui.classNames?.headerIcon,
+          )}
+          aria-hidden
+        >
+          <LauncherIcon
+            customIcon={launcherIcon}
+            size="header"
+            iconUrl={
+              resolvedIcon.kind === 'url' ? resolvedIcon.url : undefined
+            }
+            useDefaultWhenUnset={resolvedIcon.kind === 'default'}
+          />
+        </div>
+      ) : null}
       <div className="ac-chat__header-text">
         <h2 className="ac-chat__header-title">{title}</h2>
         <p className="ac-chat__header-subtitle">{subtitle}</p>

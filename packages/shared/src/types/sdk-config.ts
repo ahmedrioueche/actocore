@@ -73,6 +73,13 @@ export type SdkLauncherPlacement = (typeof SDK_LAUNCHER_PLACEMENTS)[number];
 export const SDK_LAUNCHER_VARIANTS = ['icon', 'button', 'link'] as const;
 export type SdkLauncherVariant = (typeof SDK_LAUNCHER_VARIANTS)[number];
 
+export interface SdkHeaderConfig {
+  /** Custom image URL for the chat header icon. Omit for the built-in default. */
+  iconUrl?: string;
+  /** When false, the header icon is hidden. Default true when unset. */
+  showIcon?: boolean;
+}
+
 export interface SdkLauncherConfig {
   iconUrl?: string;
   ariaLabel?: string;
@@ -120,6 +127,7 @@ export interface SdkUiConfig {
   composerMinRows?: number;
   composerMaxRows?: number;
   text?: SdkUiTextOverrides;
+  header?: SdkHeaderConfig;
   launcher?: SdkLauncherConfig;
   widget?: SdkWidgetConfig;
   inline?: SdkInlineConfig;

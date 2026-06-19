@@ -133,6 +133,7 @@ export default function ProjectSdkConfigPage() {
                 value={formState}
                 onChange={setFormState}
                 disabled={!canWrite}
+                savedConfig={configQuery.data}
               />
             </form>
           </div>

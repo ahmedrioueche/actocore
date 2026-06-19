@@ -18,11 +18,13 @@ import {
 } from '@/constants/sdk-config-defaults';
 import type { SdkConfigFormState } from '@/utils/sdk-config-form';
 import { cn } from '@/utils/helper';
+import type { SdkProjectConfigData } from '@ahmedrioueche/actocore-shared';
 
 interface SdkConfigWidgetSectionProps {
   value: SdkConfigFormState;
   onChange: (value: SdkConfigFormState) => void;
   disabled?: boolean;
+  savedConfig?: SdkProjectConfigData;
 }
 
 const PANEL_WIDTH_PRESETS = ['24rem', '32rem', '40rem'] as const;
@@ -31,6 +33,7 @@ export function SdkConfigWidgetSection({
   value,
   onChange,
   disabled = false,
+  savedConfig,
 }: SdkConfigWidgetSectionProps) {
   const { t } = useTranslation();
 
@@ -91,7 +94,7 @@ export function SdkConfigWidgetSection({
         </p>
       ) : (
         <>
-          <SdkWidgetPreview value={value} />
+          <SdkWidgetPreview value={value} savedConfig={savedConfig} />
 
           <SdkPanelLayoutPicker
             value={value.panelLayout}
@@ -250,4 +253,4 @@ export function SdkConfigWidgetSection({
     </SdkConfigSection>
   );
 }
-
+

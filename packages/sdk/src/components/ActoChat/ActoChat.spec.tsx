@@ -70,7 +70,7 @@ describe('ActoChat', () => {
     expect(screen.getByPlaceholderText('Écrivez un message…')).toBeTruthy();
   });
 
-  it('uses launcher icon URL in the chat header', () => {
+  it('uses launcher icon URL in the chat header when header is not configured', () => {
     render(
       <ActocoreProvider
         apiKey="sdk-key"
@@ -91,6 +91,44 @@ describe('ActoChat', () => {
       'src',
       'https://cdn.example.com/brand.svg',
     );
+  });
+
+  it('uses header icon URL over launcher icon', () => {
+    render(
+      <ActocoreProvider
+        apiKey="sdk-key"
+        i18n={{ locale: 'en' }}
+        ui={{
+          header: { iconUrl: 'https://cdn.example.com/header.svg' },
+          launcher: { iconUrl: 'https://cdn.example.com/launcher.svg' },
+        }}
+      >
+        <ActoChat />
+      </ActocoreProvider>,
+    );
+
+    const headerIcon = document.querySelector('.ac-chat__header-icon img');
+    expect(headerIcon).toHaveAttribute(
+      'src',
+      'https://cdn.example.com/header.svg',
+    );
+  });
+
+  it('hides the header icon when showIcon is false', () => {
+    render(
+      <ActocoreProvider
+        apiKey="sdk-key"
+        i18n={{ locale: 'en' }}
+        ui={{
+          header: { showIcon: false },
+          launcher: { iconUrl: 'https://cdn.example.com/launcher.svg' },
+        }}
+      >
+        <ActoChat />
+      </ActocoreProvider>,
+    );
+
+    expect(document.querySelector('.ac-chat__header-icon')).toBeNull();
   });
 
   it('keeps the composer visible but disabled while initializing', () => {

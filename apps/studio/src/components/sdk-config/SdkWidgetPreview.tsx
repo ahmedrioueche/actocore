@@ -1,9 +1,12 @@
 import type { SdkConfigFormState } from '@/utils/sdk-config-form';
+import { resolveFormHeaderIcon } from '@/utils/sdk-config-form';
 import { SDK_CONFIG_UI_TEXT_DEFAULTS } from '@/constants/sdk-config-defaults';
 import { cn } from '@/utils/helper';
+import type { SdkProjectConfigData } from '@ahmedrioueche/actocore-shared';
 
 type SdkWidgetPreviewProps = {
   value: SdkConfigFormState;
+  savedConfig?: SdkProjectConfigData;
 };
 
 function parseRem(value: string, fallbackRem: number): number {
@@ -26,7 +29,7 @@ function resolvePreviewText(
   return trimmed || fallback;
 }
 
-export function SdkWidgetPreview({ value }: SdkWidgetPreviewProps) {
+export function SdkWidgetPreview({ value, savedConfig }: SdkWidgetPreviewProps) {
   const panelLayout = value.panelLayout;
   const panelWidthRem = parseRem(value.panelWidth, 24);
   const isDockRight = panelLayout === 'dock-right';
@@ -48,6 +51,8 @@ export function SdkWidgetPreview({ value }: SdkWidgetPreviewProps) {
     value.launcherLabel.trim() ||
     value.launcherAriaLabel.trim() ||
     SDK_CONFIG_UI_TEXT_DEFAULTS.open;
+  const headerIcon = resolveFormHeaderIcon(value, savedConfig);
+  const showHeaderIcon = headerIcon.kind !== 'hidden';
 
   const launcherClass = cn(
     'absolute bg-primary shadow-md',
@@ -96,8 +101,22 @@ export function SdkWidgetPreview({ value }: SdkWidgetPreviewProps) {
         <div className="absolute left-6 top-[4.5rem] h-2 w-32 rounded bg-border/70" />
 
         <div className={panelClass} style={panelStyle}>
-          <div className="truncate border-b border-border px-3 py-2 text-xs font-medium text-text-primary">
-            {headerTitle}
+          <div className="flex items-center gap-2 truncate border-b border-border px-3 py-2 text-xs font-medium text-text-primary">
+            {showHeaderIcon ? (
+              <span
+                className={cn(
+                  'h-4 w-4 shrink-0 rounded-full bg-primary',
+                  headerIcon.kind === 'url' && 'bg-cover bg-center',
+                )}
+                style={
+                  headerIcon.kind === 'url'
+                    ? { backgroundImage: `url(${headerIcon.url})` }
+                    : undefined
+                }
+                aria-hidden
+              />
+            ) : null}
+            <span className="truncate">{headerTitle}</span>
           </div>
           <div className="flex-1 space-y-2 p-3">
             <div className="ml-auto max-w-[80%] rounded-lg bg-primary px-2 py-1 text-[10px] text-white">

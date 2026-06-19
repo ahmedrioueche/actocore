@@ -65,6 +65,10 @@ function mergeUi(
       ...(remote?.text ?? {}),
       ...(local?.text ?? {}),
     },
+    header: {
+      ...(remote?.header ?? {}),
+      ...(local?.header ?? {}),
+    },
     launcher: {
       ...(remote?.launcher ?? {}),
       ...(local?.launcher ?? {}),

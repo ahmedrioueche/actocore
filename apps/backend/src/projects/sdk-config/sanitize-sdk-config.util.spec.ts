@@ -121,4 +121,54 @@ describe('sanitize-sdk-config.util', () => {
     expect(merged.ui?.text?.headerTitle).toBeUndefined();
     expect(merged.ui?.text?.placeholder).toBe('Ask anything');
   });
+
+  it('deep merges ui.header without wiping launcher', () => {
+    const current = {
+      ...emptySdkProjectConfig(),
+      ui: {
+        header: { iconUrl: 'https://example.com/old.png' },
+        launcher: { iconUrl: 'https://example.com/launcher.png' },
+      },
+    };
+
+    const merged = deepMergeSdkConfig(current, {
+      ui: {
+        showSources: true,
+        showIntentBadge: false,
+        showActionsHint: false,
+        showActionPicker: false,
+        composerMinRows: 1,
+        composerMaxRows: 6,
+        header: { showIcon: false },
+      },
+    });
+
+    expect(merged.ui?.header?.iconUrl).toBe('https://example.com/old.png');
+    expect(merged.ui?.header?.showIcon).toBe(false);
+    expect(merged.ui?.launcher?.iconUrl).toBe('https://example.com/launcher.png');
+  });
+
+  it('clears saved header iconUrl when patch sends null', () => {
+    const current = {
+      ...emptySdkProjectConfig(),
+      ui: {
+        header: { iconUrl: 'https://example.com/icon.png', showIcon: true },
+      },
+    };
+
+    const merged = deepMergeSdkConfig(current, {
+      ui: {
+        showSources: true,
+        showIntentBadge: false,
+        showActionsHint: false,
+        showActionPicker: false,
+        composerMinRows: 1,
+        composerMaxRows: 6,
+        header: { iconUrl: null },
+      },
+    });
+
+    expect(merged.ui?.header?.iconUrl).toBeUndefined();
+    expect(merged.ui?.header?.showIcon).toBe(true);
+  });
 });

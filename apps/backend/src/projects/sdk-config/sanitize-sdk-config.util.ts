@@ -1,4 +1,5 @@
 import type {
+  SdkHeaderConfig,
   SdkInlineConfig,
   SdkLauncherConfig,
   SdkLauncherPlacement,
@@ -119,6 +120,15 @@ function mergeUi(
     }
   }
 
+  if (patch.header !== undefined) {
+    const header = mergeHeader(base?.header, patch.header);
+    if (header) {
+      merged.header = header;
+    } else {
+      delete merged.header;
+    }
+  }
+
   if (patch.launcher !== undefined) {
     const launcher = mergeLauncher(base?.launcher, patch.launcher);
     if (launcher) {
@@ -187,6 +197,28 @@ function mergeLauncher(
   const result: SdkLauncherConfig = { ...(base ?? {}) };
   for (const [key, value] of Object.entries(patch) as Array<
     [keyof SdkLauncherConfig, SdkLauncherConfig[keyof SdkLauncherConfig] | null]
+  >) {
+    if (value === null) {
+      delete result[key];
+    } else if (value !== undefined && value !== '') {
+      result[key] = value as never;
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function mergeHeader(
+  base: SdkHeaderConfig | undefined,
+  patch: NullablePatch<SdkHeaderConfig> | undefined,
+): SdkHeaderConfig | undefined {
+  if (patch === undefined) {
+    return base;
+  }
+
+  const result: SdkHeaderConfig = { ...(base ?? {}) };
+  for (const [key, value] of Object.entries(patch) as Array<
+    [keyof SdkHeaderConfig, SdkHeaderConfig[keyof SdkHeaderConfig] | null]
   >) {
     if (value === null) {
       delete result[key];
@@ -362,6 +394,9 @@ function pickUi(raw: unknown): SdkProjectConfigData['ui'] | undefined {
   const text = pickUiText(o.text);
   if (text) result.text = text;
 
+  const header = pickHeader(o.header);
+  if (header) result.header = header;
+
   const launcher = pickLauncher(o.launcher);
   if (launcher) result.launcher = launcher;
 
@@ -397,6 +432,18 @@ function pickUiText(raw: unknown): SdkUiTextOverrides | undefined {
     }
   }
   return Object.keys(text).length > 0 ? text : undefined;
+}
+
+function pickHeader(raw: unknown): SdkHeaderConfig | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const o = raw as Record<string, unknown>;
+  const result: SdkHeaderConfig = {};
+
+  const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : undefined;
+  if (iconUrl) result.iconUrl = iconUrl;
+  if (typeof o.showIcon === 'boolean') result.showIcon = o.showIcon;
+
+  return Object.keys(result).length > 0 ? result : undefined;
 }
 
 function pickLauncher(raw: unknown): SdkLauncherConfig | undefined {

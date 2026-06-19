@@ -31,6 +31,7 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
       seedMessages: config.ui?.seedMessages,
       classNames: config.ui?.classNames,
       text: config.ui?.text,
+      header: config.ui?.header,
       launcher: config.ui?.launcher,
       widget: config.ui?.widget,
       inline: config.ui?.inline,

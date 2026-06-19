@@ -25,6 +25,10 @@ export const SDK_CONFIG_UI_TEXT_DEFAULTS = {
   launcherAriaLabel: 'Open chat',
 } as const;
 
+export const SDK_CONFIG_HEADER_DEFAULTS = {
+  showIcon: true,
+} as const;
+
 export const SDK_CONFIG_UI_TOGGLE_DEFAULTS = {
   showSources: true,
   showIntentBadge: false,

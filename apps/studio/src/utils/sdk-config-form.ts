@@ -7,6 +7,7 @@ import {
 } from '@/constants/sdk-app-themes';
 import {
   SDK_CONFIG_COMPOSER_DEFAULTS,
+  SDK_CONFIG_HEADER_DEFAULTS,
   SDK_CONFIG_INLINE_DEFAULTS,
   SDK_CONFIG_LAUNCHER_DEFAULTS,
   SDK_CONFIG_PRESENTATION_DEFAULT,
@@ -27,6 +28,7 @@ import {
 } from '@/constants/sdk-theme';
 import { isValidHexColor, normalizeHexColor } from '@/utils/hex-color';
 import type {
+  SdkHeaderConfig,
   SdkLauncherPlacement,
   SdkLauncherVariant,
   SdkPresentationMode,
@@ -49,6 +51,8 @@ export interface SdkConfigFormState {
   composerMaxRows: number;
   headerTitle: string;
   headerSubtitle: string;
+  showHeaderIcon: boolean;
+  headerIconUrl: string;
   emptyTitle: string;
   emptyDescription: string;
   actionsHint: string;
@@ -81,6 +85,7 @@ export type SdkConfigFormValidationError =
   | 'composerRowsInvalid'
   | 'composerRowsOrder'
   | 'launcherIconUrlInvalid'
+  | 'headerIconUrlInvalid'
   | 'launcherOffsetInvalid'
   | 'layoutSizeInvalid'
   | 'widgetZIndexInvalid'
@@ -237,7 +242,97 @@ function launcherAriaLabelForPatch(
   return trimmed;
 }
 
-function buildNullablePatchRecord<T extends string>(
+function booleanFieldForPatch(
+  value: boolean,
+  defaultValue: boolean,
+  savedValue: boolean | undefined,
+): boolean | null | undefined {
+  if (value === defaultValue) {
+    return savedValue !== undefined ? null : undefined;
+  }
+  return value;
+}
+
+function buildHeaderPatch(
+  state: SdkConfigFormState,
+  saved?: SdkProjectConfigData,
+): Record<string, string | boolean | null> | undefined {
+  return buildNullablePatchRecord({
+    iconUrl: stringFieldForPatch(
+      state.headerIconUrl,
+      trimOrEmpty(state.headerIconUrl) === '',
+      saved?.ui?.header?.iconUrl !== undefined,
+    ),
+    showIcon: booleanFieldForPatch(
+      state.showHeaderIcon,
+      SDK_CONFIG_HEADER_DEFAULTS.showIcon,
+      saved?.ui?.header?.showIcon,
+    ),
+  });
+}
+
+function mergeHeaderConfigForPreview(
+  saved: SdkHeaderConfig | undefined,
+  patch: Record<string, string | boolean | null> | undefined,
+): SdkHeaderConfig | undefined {
+  if (!patch && !saved) {
+    return undefined;
+  }
+
+  const result: SdkHeaderConfig = { ...(saved ?? {}) };
+  if (patch) {
+    for (const [key, value] of Object.entries(patch)) {
+      if (value === null) {
+        delete result[key as keyof SdkHeaderConfig];
+      } else if (value !== undefined) {
+        result[key as keyof SdkHeaderConfig] = value as never;
+      }
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+export type ResolvedFormHeaderIcon =
+  | { kind: 'hidden' }
+  | { kind: 'url'; url: string }
+  | { kind: 'default' };
+
+/** Mirrors SDK resolveHeaderIcon using form state plus optional saved config. */
+export function resolveFormHeaderIcon(
+  state: SdkConfigFormState,
+  saved?: SdkProjectConfigData,
+): ResolvedFormHeaderIcon {
+  const header = mergeHeaderConfigForPreview(
+    saved?.ui?.header,
+    buildHeaderPatch(state, saved),
+  );
+  const launcherUrl =
+    trimOrEmpty(state.launcherIconUrl) ||
+    saved?.ui?.launcher?.iconUrl?.trim() ||
+    undefined;
+
+  if (header?.showIcon === false) {
+    return { kind: 'hidden' };
+  }
+
+  const headerUrl = header?.iconUrl?.trim();
+  if (headerUrl) {
+    return { kind: 'url', url: headerUrl };
+  }
+
+  const hasHeaderConfig =
+    header !== undefined &&
+    (header.showIcon !== undefined || header.iconUrl !== undefined);
+
+  if (!hasHeaderConfig && launcherUrl) {
+    return { kind: 'url', url: launcherUrl };
+  }
+
+  return { kind: 'default' };
+}
+
+function buildNullablePatchRecord<T>(
   entries: Record<string, T | null | undefined>,
 ): Record<string, T | null> | undefined {
   const result: Record<string, T | null> = {};
@@ -265,6 +360,8 @@ export function createDefaultSdkConfigFormState(): SdkConfigFormState {
     composerMaxRows: SDK_CONFIG_COMPOSER_DEFAULTS.composerMaxRows,
     headerTitle: SDK_CONFIG_UI_TEXT_DEFAULTS.headerTitle,
     headerSubtitle: SDK_CONFIG_UI_TEXT_DEFAULTS.headerSubtitle,
+    showHeaderIcon: SDK_CONFIG_HEADER_DEFAULTS.showIcon,
+    headerIconUrl: '',
     emptyTitle: SDK_CONFIG_UI_TEXT_DEFAULTS.emptyTitle,
     emptyDescription: SDK_CONFIG_UI_TEXT_DEFAULTS.emptyDescription,
     actionsHint: SDK_CONFIG_UI_TEXT_DEFAULTS.actionsHint,
@@ -321,6 +418,9 @@ export function configToFormState(
     composerMaxRows: config.ui?.composerMaxRows ?? defaults.composerMaxRows,
     headerTitle: resolveUiTextField(text?.headerTitle, 'headerTitle'),
     headerSubtitle: resolveUiTextField(text?.headerSubtitle, 'headerSubtitle'),
+    showHeaderIcon:
+      config.ui?.header?.showIcon ?? SDK_CONFIG_HEADER_DEFAULTS.showIcon,
+    headerIconUrl: config.ui?.header?.iconUrl ?? '',
     emptyTitle: resolveUiTextField(text?.emptyTitle, 'emptyTitle'),
     emptyDescription: resolveUiTextField(
       text?.emptyDescription,
@@ -438,6 +538,11 @@ export function validateSdkConfigForm(
     return 'launcherIconUrlInvalid';
   }
 
+  const headerIconUrl = trimOrEmpty(state.headerIconUrl);
+  if (headerIconUrl && !isValidHttpUrl(headerIconUrl)) {
+    return 'headerIconUrlInvalid';
+  }
+
   const offsetX = trimOrEmpty(state.launcherOffsetX);
   const offsetY = trimOrEmpty(state.launcherOffsetY);
   if (
@@ -540,6 +645,8 @@ export function formStateToPatch(
     minimize: uiTextFieldForPatch('minimize', state.minimize, saved),
     stop: uiTextFieldForPatch('stop', state.stop, saved),
   });
+
+  const header = buildHeaderPatch(state, saved);
 
   const launcher = buildNullablePatchRecord({
     iconUrl: stringFieldForPatch(
@@ -660,6 +767,9 @@ export function formStateToPatch(
 
   if (text) {
     ui.text = text as NonNullable<UpdateSdkProjectConfigDto['ui']>['text'];
+  }
+  if (header) {
+    ui.header = header as NonNullable<UpdateSdkProjectConfigDto['ui']>['header'];
   }
   if (launcher) {
     ui.launcher = launcher as NonNullable<

@@ -60,6 +60,12 @@ export interface ActocoreLauncherConfig {
   label?: string;
 }
 
+export interface ActocoreHeaderConfig {
+  iconUrl?: string;
+  /** When false, the header icon is hidden. Default true when unset. */
+  showIcon?: boolean;
+}
+
 export type ActocoreWidgetPosition =
   | 'bottom-right'
   | 'bottom-left'
@@ -148,6 +154,7 @@ export interface ActocoreUiConfig {
   seedMessages?: ActocoreSeedMessage[];
   classNames?: ActocoreUiClassNames;
   text?: ActocoreUiTextOverrides;
+  header?: ActocoreHeaderConfig;
   launcher?: ActocoreLauncherConfig;
   widget?: ActocoreWidgetConfig;
   inline?: ActocoreInlineConfig;
@@ -201,7 +208,7 @@ export interface ResolvedActocoreConfig {
       | 'composerMaxRows'
     >
   > &
-    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'launcher' | 'widget' | 'inline' | 'presentation' | 'seedMessages'>;
+    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'header' | 'launcher' | 'widget' | 'inline' | 'presentation' | 'seedMessages'>;
   i18n: Required<Pick<ActocoreI18nConfig, 'locale'>> & ActocoreI18nConfig;
   voice: Required<
     Pick<ActocoreVoiceConfig, 'input' | 'output' | 'inputMode' | 'autoSendOnFinalize'>
