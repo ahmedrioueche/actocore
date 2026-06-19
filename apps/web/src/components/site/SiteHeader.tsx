@@ -20,6 +20,44 @@ const NAV_LINKS = [
   { href: '/docs', key: 'docs' as const },
 ] as const;
 
+type NavLinkKey = (typeof NAV_LINKS)[number]['key'];
+
+function isNavLinkActive(
+  key: NavLinkKey,
+  pathname: string,
+  hash: string,
+  homePathname: string,
+): boolean {
+  const onHome =
+    pathname === homePathname || pathname === `${homePathname}/`;
+
+  switch (key) {
+    case 'howItWorks':
+      return onHome && hash === '#how-it-works';
+    case 'pricing':
+      return pathname.endsWith('/pricing') || (onHome && hash === '#pricing');
+    case 'playground':
+      return pathname.endsWith('/playground');
+    case 'docs':
+      return pathname.endsWith('/docs') || pathname.includes('/docs/');
+    default:
+      return false;
+  }
+}
+
+function navLinkClassName(active: boolean, mobile = false) {
+  return cn(
+    'text-sm font-medium transition-colors',
+    active
+      ? mobile
+        ? 'text-primary'
+        : 'text-text-primary'
+      : mobile
+        ? 'text-text-primary hover:text-primary'
+        : 'text-text-secondary hover:text-text-primary',
+  );
+}
+
 export function SiteHeader() {
   const { t } = useT("nav");
   const { t: tSite } = useT("site");
@@ -59,15 +97,31 @@ export function SiteHeader() {
         </LocaleLink>
 
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
-          {NAV_LINKS.map((item) => (
-            <LocaleLink
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
-            >
-              {t(item.key)}
-            </LocaleLink>
-          ))}
+          {NAV_LINKS.map((item) => {
+            const active = isNavLinkActive(
+              item.key,
+              location.pathname,
+              location.hash,
+              homePathname,
+            );
+
+            return (
+              <LocaleLink
+                key={item.href}
+                href={item.href}
+                className={navLinkClassName(active)}
+                aria-current={
+                  active
+                    ? item.href.startsWith('/#')
+                      ? 'location'
+                      : 'page'
+                    : undefined
+                }
+              >
+                {t(item.key)}
+              </LocaleLink>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -105,16 +159,32 @@ export function SiteHeader() {
         )}
       >
         <div className="site-container flex flex-col gap-4 py-4">
-          {NAV_LINKS.map((item) => (
-            <LocaleLink
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-text-primary"
-              onClick={() => setOpen(false)}
-            >
-              {t(item.key)}
-            </LocaleLink>
-          ))}
+          {NAV_LINKS.map((item) => {
+            const active = isNavLinkActive(
+              item.key,
+              location.pathname,
+              location.hash,
+              homePathname,
+            );
+
+            return (
+              <LocaleLink
+                key={item.href}
+                href={item.href}
+                className={navLinkClassName(active, true)}
+                aria-current={
+                  active
+                    ? item.href.startsWith('/#')
+                      ? 'location'
+                      : 'page'
+                    : undefined
+                }
+                onClick={() => setOpen(false)}
+              >
+                {t(item.key)}
+              </LocaleLink>
+            );
+          })}
           <div className="flex flex-wrap items-center gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
