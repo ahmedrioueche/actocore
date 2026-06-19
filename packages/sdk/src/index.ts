@@ -2,8 +2,21 @@ import "reflect-metadata";
 
 export { ActoChat } from "./components/ActoChat/ActoChat";
 export type { ActoChatProps } from "./components/ActoChat/ActoChat";
-export { ActoChatWidget } from "./components/ActoChat/ActoChatWidget";
-export type { ActoChatWidgetProps } from "./components/ActoChat/ActoChatWidget";
+export {
+  ActoChatWidget,
+  ActoChatWidgetPanel,
+  ActoChatLauncher,
+  ActoChatWidgetProvider,
+  useActoChatWidget,
+  useOptionalActoChatWidget,
+} from "./components/ActoChat/ActoChatWidget";
+export type {
+  ActoChatWidgetProps,
+  ActoChatWidgetPanelProps,
+  ActoChatLauncherProps,
+  ActoChatWidgetContextValue,
+  ActoChatWidgetProviderProps,
+} from "./components/ActoChat/ActoChatWidget";
 export { ActocoreProvider } from "./provider/actocore-provider";
 
 export type {

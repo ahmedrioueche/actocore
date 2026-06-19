@@ -10,9 +10,13 @@ export default function StudioLayout() {
 
   return (
     <ProductTourProvider>
-      <Nav sidebarLinks={links} navMode={mode} projectId={projectId}>
+      <Nav
+        sidebarLinks={links}
+        navMode={mode}
+        projectId={projectId}
+        assistantPanel={<StudioAssistant />}
+      >
         <Outlet />
-        <StudioAssistant />
       </Nav>
     </ProductTourProvider>
   );

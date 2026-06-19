@@ -21,10 +21,10 @@ export default function AdminLayout() {
           onLogout={() => void signOutPlatform()}
         />
       }
+      assistantPanel={<StudioAssistant />}
       onLogout={() => void signOutPlatform()}
     >
       <Outlet />
-      <StudioAssistant />
     </Nav>
   );
 }

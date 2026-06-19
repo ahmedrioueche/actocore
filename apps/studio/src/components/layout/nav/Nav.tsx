@@ -25,6 +25,7 @@ interface NavProps {
   logoTo?: string;
   headerBadge?: ReactNode;
   profileMenu?: ReactNode;
+  assistantPanel?: ReactNode;
   onLogout?: () => void;
   logoutPending?: boolean;
 }
@@ -37,6 +38,7 @@ export default function Nav({
   logoTo,
   headerBadge,
   profileMenu,
+  assistantPanel,
   onLogout,
   logoutPending: logoutPendingProp,
 }: NavProps) {
@@ -160,7 +162,7 @@ export default function Nav({
         />
       ) : null}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <header className="flex min-h-16 shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-3 py-2 md:min-h-[4.5rem] md:px-4">
           <div
             className={`flex min-w-0 items-center gap-2 md:gap-3 ${!isMobile ? "px-12" : ""}`}
@@ -192,13 +194,16 @@ export default function Nav({
           )}
         </header>
 
-        <main
-          id="studio-content-scroller"
-          data-scroll-container
-          className="flex flex-1  flex-col overflow-auto"
-        >
-          <div className="studio-page pb-4">{children}</div>
-        </main>
+        <div className="relative min-h-0 flex-1 overflow-hidden">
+          <main
+            id="studio-content-scroller"
+            data-scroll-container
+            className="h-full min-w-0 overflow-auto"
+          >
+            <div className="studio-page pb-4">{children}</div>
+          </main>
+          {assistantPanel}
+        </div>
       </div>
     </div>
   );

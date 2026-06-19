@@ -33,6 +33,30 @@ describe('sanitize-sdk-config.util', () => {
     });
   });
 
+  it('normalizes launcher placement and variant', () => {
+    expect(
+      normalizeSdkConfig({
+        sdkConfigVersion: 1,
+        ui: {
+          launcher: {
+            placement: 'host',
+            variant: 'button',
+            label: 'Ask AI',
+          },
+        },
+      }),
+    ).toEqual({
+      sdkConfigVersion: 1,
+      ui: {
+        launcher: {
+          placement: 'host',
+          variant: 'button',
+          label: 'Ask AI',
+        },
+      },
+    });
+  });
+
   it('deep merges patch sections', () => {
     const current = {
       ...emptySdkProjectConfig(),
@@ -46,5 +70,55 @@ describe('sanitize-sdk-config.util', () => {
     expect(merged.i18n?.locale).toBe('fr');
     expect(merged.ui?.showSources).toBe(true);
     expect(merged.theme?.mode).toBe('dark');
+  });
+
+  it('deep merges ui.text and launcher without wiping on partial ui patch', () => {
+    const current = {
+      ...emptySdkProjectConfig(),
+      ui: {
+        text: { headerTitle: 'Help desk' },
+        launcher: { iconUrl: 'https://example.com/icon.png' },
+        widget: { panelLayout: 'dock-right' as const },
+      },
+    };
+
+    const merged = deepMergeSdkConfig(current, {
+      ui: {
+        showSources: false,
+        text: {},
+        launcher: {},
+        widget: {},
+        inline: {},
+      },
+    });
+
+    expect(merged.ui?.showSources).toBe(false);
+    expect(merged.ui?.text?.headerTitle).toBe('Help desk');
+    expect(merged.ui?.launcher?.iconUrl).toBe('https://example.com/icon.png');
+    expect(merged.ui?.widget?.panelLayout).toBe('dock-right');
+  });
+
+  it('clears saved ui.text override when patch sends null', () => {
+    const current = {
+      ...emptySdkProjectConfig(),
+      ui: {
+        text: { headerTitle: 'Custom title', placeholder: 'Ask anything' },
+      },
+    };
+
+    const merged = deepMergeSdkConfig(current, {
+      ui: {
+        showSources: true,
+        showIntentBadge: false,
+        showActionsHint: false,
+        showActionPicker: false,
+        composerMinRows: 1,
+        composerMaxRows: 6,
+        text: { headerTitle: null },
+      },
+    });
+
+    expect(merged.ui?.text?.headerTitle).toBeUndefined();
+    expect(merged.ui?.text?.placeholder).toBe('Ask anything');
   });
 });

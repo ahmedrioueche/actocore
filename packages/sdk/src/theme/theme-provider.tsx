@@ -4,6 +4,7 @@ import {
   resolveEffectiveThemeMode,
   resolveThemeTokensForMode,
 } from './resolve-theme-tokens';
+import { resolveLayoutTokens } from './resolve-layout-tokens';
 
 function tokensToStyle(tokens: Record<string, string> | undefined): CSSProperties {
   if (!tokens) {
@@ -43,12 +44,15 @@ export function ActocoreThemeRoot({
   children: ReactNode;
   className?: string;
 }) {
-  const { theme } = useActocoreConfig();
+  const { theme, ui } = useActocoreConfig();
   const prefersDark = usePrefersDark();
   const effectiveMode = resolveEffectiveThemeMode(theme.mode, prefersDark);
   const activeTokens = useMemo(
-    () => resolveThemeTokensForMode(theme.tokens, effectiveMode),
-    [theme.tokens, effectiveMode],
+    () => ({
+      ...resolveThemeTokensForMode(theme.tokens, effectiveMode),
+      ...resolveLayoutTokens(ui),
+    }),
+    [theme.tokens, effectiveMode, ui],
   );
   const style = useMemo(() => tokensToStyle(activeTokens), [activeTokens]);
   const mode =

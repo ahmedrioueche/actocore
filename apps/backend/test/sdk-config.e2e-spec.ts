@@ -90,6 +90,130 @@ describe('SDK project config (e2e)', () => {
       .expect(400);
   });
 
+  it('accepts widget layout PATCH fields', async () => {
+    const server = app.getHttpServer();
+
+    const patched = await request(server)
+      .patch(`/v1/web/projects/${projectId}/sdk-config`)
+      .send({
+        ui: {
+          presentation: 'inline',
+          widget: {
+            panelLayout: 'dock-right',
+            panelWidth: '32rem',
+            panelHeight: 'min(40rem, calc(100vh - 6rem))',
+          },
+          inline: {
+            maxWidth: '28rem',
+            height: '100%',
+            minHeight: '24rem',
+          },
+        },
+      })
+      .expect(200);
+
+    expect(patched.body.data.ui.presentation).toBe('inline');
+    expect(patched.body.data.ui.widget.panelLayout).toBe('dock-right');
+    expect(patched.body.data.ui.widget.panelWidth).toBe('32rem');
+    expect(patched.body.data.ui.inline.maxWidth).toBe('28rem');
+
+    const runtime = await request(server)
+      .get('/v1/sdk/runtime')
+      .set({ Authorization: `Bearer ${apiKey}` })
+      .expect(200);
+
+    expect(runtime.body.data.sdk.ui.widget.panelLayout).toBe('dock-right');
+    expect(runtime.body.data.sdk.ui.inline.maxWidth).toBe('28rem');
+  });
+
+  it('accepts launcher placement PATCH fields', async () => {
+    const server = app.getHttpServer();
+
+    const patched = await request(server)
+      .patch(`/v1/web/projects/${projectId}/sdk-config`)
+      .send({
+        ui: {
+          launcher: {
+            placement: 'host',
+            variant: 'button',
+            label: 'Ask AI',
+            ariaLabel: 'Open assistant',
+          },
+        },
+      })
+      .expect(200);
+
+    expect(patched.body.data.ui.launcher.placement).toBe('host');
+    expect(patched.body.data.ui.launcher.variant).toBe('button');
+    expect(patched.body.data.ui.launcher.label).toBe('Ask AI');
+
+    const runtime = await request(server)
+      .get('/v1/sdk/runtime')
+      .set({ Authorization: `Bearer ${apiKey}` })
+      .expect(200);
+
+    expect(runtime.body.data.sdk.ui.launcher.placement).toBe('host');
+    expect(runtime.body.data.sdk.ui.launcher.variant).toBe('button');
+  });
+
+  it('preserves copy and launcher when a later PATCH sends empty ui sub-objects', async () => {
+    const server = app.getHttpServer();
+    const auth = { Authorization: `Bearer ${apiKey}` };
+
+    await request(server)
+      .patch(`/v1/web/projects/${projectId}/sdk-config`)
+      .send({
+        ui: {
+          showSources: true,
+          showIntentBadge: false,
+          showActionsHint: false,
+          showActionPicker: false,
+          composerMinRows: 1,
+          composerMaxRows: 6,
+          text: {
+            headerTitle: 'Support bot',
+            placeholder: 'How can we help?',
+          },
+          launcher: {
+            ariaLabel: 'Open support chat',
+            variant: 'button',
+            label: 'Support',
+          },
+        },
+      })
+      .expect(200);
+
+    await request(server)
+      .patch(`/v1/web/projects/${projectId}/sdk-config`)
+      .send({
+        theme: {
+          mode: 'dark',
+          tokens: { 'color-primary': '#111827' },
+        },
+        ui: {
+          showSources: true,
+          showIntentBadge: false,
+          showActionsHint: false,
+          showActionPicker: false,
+          composerMinRows: 1,
+          composerMaxRows: 6,
+          text: {},
+          launcher: {},
+          widget: {},
+          inline: {},
+        },
+      })
+      .expect(200);
+
+    const runtime = await request(server).get('/v1/sdk/runtime').set(auth).expect(200);
+
+    expect(runtime.body.data.sdk.ui.text.headerTitle).toBe('Support bot');
+    expect(runtime.body.data.sdk.ui.text.placeholder).toBe('How can we help?');
+    expect(runtime.body.data.sdk.ui.launcher.ariaLabel).toBe('Open support chat');
+    expect(runtime.body.data.sdk.ui.launcher.label).toBe('Support');
+    expect(runtime.body.data.sdk.theme.tokens['color-primary']).toBe('#111827');
+  });
+
   it('accepts branding PATCH with empty launcher fields omitted', async () => {
     const server = app.getHttpServer();
 

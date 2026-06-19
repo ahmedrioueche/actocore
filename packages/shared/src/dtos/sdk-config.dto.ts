@@ -14,10 +14,20 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { SDK_WIDGET_POSITIONS } from '../types/sdk-config';
+import {
+  SDK_LAUNCHER_PLACEMENTS,
+  SDK_LAUNCHER_VARIANTS,
+  SDK_PRESENTATION_MODES,
+  SDK_WIDGET_PANEL_LAYOUTS,
+  SDK_WIDGET_POSITIONS,
+} from '../types/sdk-config';
 import type {
+  SdkLauncherPlacement,
+  SdkLauncherVariant,
+  SdkPresentationMode,
   SdkThemeMode,
   SdkVoiceInputMode,
+  SdkWidgetPanelLayout,
   SdkWidgetPosition,
 } from '../types/sdk-config';
 
@@ -74,6 +84,9 @@ export class SdkUiTextOverridesDto {
   @IsOptional() @IsString() @MaxLength(200) placeholder?: string;
   @IsOptional() @IsString() @MaxLength(80) send?: string;
   @IsOptional() @IsString() @MaxLength(80) open?: string;
+  @IsOptional() @IsString() @MaxLength(80) newConversation?: string;
+  @IsOptional() @IsString() @MaxLength(80) minimize?: string;
+  @IsOptional() @IsString() @MaxLength(80) stop?: string;
 }
 
 export class SdkLauncherConfigDto {
@@ -82,6 +95,13 @@ export class SdkLauncherConfigDto {
   @IsUrl()
   iconUrl?: string;
   @IsOptional() @IsString() @MaxLength(120) ariaLabel?: string;
+  @IsOptional()
+  @IsEnum(SDK_LAUNCHER_PLACEMENTS)
+  placement?: SdkLauncherPlacement;
+  @IsOptional()
+  @IsEnum(SDK_LAUNCHER_VARIANTS)
+  variant?: SdkLauncherVariant;
+  @IsOptional() @IsString() @MaxLength(80) label?: string;
 }
 
 export class SdkWidgetConfigDto {
@@ -109,9 +129,44 @@ export class SdkWidgetConfigDto {
   @IsString()
   @MaxLength(200)
   hideWhenSelector?: string;
+
+  @IsOptional()
+  @IsEnum(SDK_WIDGET_PANEL_LAYOUTS)
+  panelLayout?: SdkWidgetPanelLayout;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  panelWidth?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  panelHeight?: string;
+}
+
+export class SdkInlineConfigDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  maxWidth?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  height?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  minHeight?: string;
 }
 
 export class SdkUiConfigDto {
+  @IsOptional()
+  @IsEnum(SDK_PRESENTATION_MODES)
+  presentation?: SdkPresentationMode;
+
   @IsOptional() @IsBoolean() showSources?: boolean;
   @IsOptional() @IsBoolean() showIntentBadge?: boolean;
   @IsOptional() @IsBoolean() showActionsHint?: boolean;
@@ -133,6 +188,11 @@ export class SdkUiConfigDto {
   @ValidateNested()
   @Type(() => SdkWidgetConfigDto)
   widget?: SdkWidgetConfigDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SdkInlineConfigDto)
+  inline?: SdkInlineConfigDto;
 }
 
 export class SdkVoiceConfigDto {

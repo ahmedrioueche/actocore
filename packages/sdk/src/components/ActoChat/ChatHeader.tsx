@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { useUiText } from '../../hooks/use-ui-text';
 import { useActocoreUiConfig } from '../../context/actocore-context';
 import { mergeClassNames } from '../../utils/merge-class-names';
@@ -17,10 +16,11 @@ export function ChatHeader({
   onNewConversation?: () => void;
   isNewConversationDisabled?: boolean;
 }) {
-  const { t } = useTranslation();
   const ui = useActocoreUiConfig();
   const title = useUiText('headerTitle');
   const subtitle = useUiText('headerSubtitle');
+  const newConversationLabel = useUiText('newConversation');
+  const minimizeLabel = useUiText('minimize');
   const customImage = Boolean(launcherIcon || ui.launcher?.iconUrl);
 
   return (
@@ -48,8 +48,8 @@ export function ChatHeader({
             className="ac-chat__header-btn"
             onClick={onNewConversation}
             disabled={isNewConversationDisabled}
-            aria-label={t('chat.newConversation')}
-            title={t('chat.newConversation')}
+            aria-label={newConversationLabel}
+            title={newConversationLabel}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
               <path
@@ -67,8 +67,8 @@ export function ChatHeader({
             type="button"
             className="ac-chat__header-btn"
             onClick={onMinimize}
-            aria-label={t('chat.minimize')}
-            title={t('chat.minimize')}
+            aria-label={minimizeLabel}
+            title={minimizeLabel}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
               <path

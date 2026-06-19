@@ -43,6 +43,9 @@ export interface SdkUiTextOverrides {
   placeholder?: string;
   send?: string;
   open?: string;
+  newConversation?: string;
+  minimize?: string;
+  stop?: string;
 }
 
 export const SDK_WIDGET_POSITIONS = [
@@ -54,9 +57,31 @@ export const SDK_WIDGET_POSITIONS = [
 
 export type SdkWidgetPosition = (typeof SDK_WIDGET_POSITIONS)[number];
 
+export const SDK_PRESENTATION_MODES = ['widget', 'inline'] as const;
+export type SdkPresentationMode = (typeof SDK_PRESENTATION_MODES)[number];
+
+export const SDK_WIDGET_PANEL_LAYOUTS = [
+  'overlay',
+  'dock-right',
+  'dock-left',
+] as const;
+export type SdkWidgetPanelLayout = (typeof SDK_WIDGET_PANEL_LAYOUTS)[number];
+
+export const SDK_LAUNCHER_PLACEMENTS = ['floating', 'host'] as const;
+export type SdkLauncherPlacement = (typeof SDK_LAUNCHER_PLACEMENTS)[number];
+
+export const SDK_LAUNCHER_VARIANTS = ['icon', 'button', 'link'] as const;
+export type SdkLauncherVariant = (typeof SDK_LAUNCHER_VARIANTS)[number];
+
 export interface SdkLauncherConfig {
   iconUrl?: string;
   ariaLabel?: string;
+  /** Floating corner bubble (default) vs host-mounted trigger in navbar/layout. */
+  placement?: SdkLauncherPlacement;
+  /** Visual style when mounted by the host or shown as floating trigger. */
+  variant?: SdkLauncherVariant;
+  /** Visible label for button/link variants. */
+  label?: string;
 }
 
 export interface SdkWidgetConfig {
@@ -71,9 +96,23 @@ export interface SdkWidgetConfig {
    * Host apps toggle the marker when overlays open.
    */
   hideWhenSelector?: string;
+  /** Floating card vs Seer-like side drawer (widget mode only). Default `overlay`. */
+  panelLayout?: SdkWidgetPanelLayout;
+  /** Maps to `--ac-chat-max-width`, e.g. `24rem` or `420px`. */
+  panelWidth?: string;
+  /** Maps to `--ac-widget-panel-height`. */
+  panelHeight?: string;
+}
+
+export interface SdkInlineConfig {
+  /** For hosts rendering `ActoChat` inside their layout. */
+  maxWidth?: string;
+  height?: string;
+  minHeight?: string;
 }
 
 export interface SdkUiConfig {
+  presentation?: SdkPresentationMode;
   showSources?: boolean;
   showIntentBadge?: boolean;
   showActionsHint?: boolean;
@@ -83,6 +122,7 @@ export interface SdkUiConfig {
   text?: SdkUiTextOverrides;
   launcher?: SdkLauncherConfig;
   widget?: SdkWidgetConfig;
+  inline?: SdkInlineConfig;
 }
 
 export interface SdkVoiceConfig {

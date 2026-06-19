@@ -1,8 +1,13 @@
 import type {
+  SdkInlineConfig,
   SdkLauncherConfig,
+  SdkLauncherPlacement,
+  SdkLauncherVariant,
+  SdkPresentationMode,
   SdkProjectConfigData,
   SdkUiTextOverrides,
   SdkWidgetConfig,
+  SdkWidgetPanelLayout,
   SdkWidgetPosition,
   UpdateSdkProjectConfigDto,
 } from '@ahmedrioueche/actocore-shared';
@@ -13,6 +18,17 @@ const WIDGET_POSITIONS: readonly SdkWidgetPosition[] = [
   'top-right',
   'top-left',
 ];
+
+const PRESENTATION_MODES: readonly SdkPresentationMode[] = ['widget', 'inline'];
+
+const WIDGET_PANEL_LAYOUTS: readonly SdkWidgetPanelLayout[] = [
+  'overlay',
+  'dock-right',
+  'dock-left',
+];
+
+const LAUNCHER_PLACEMENTS: readonly SdkLauncherPlacement[] = ['floating', 'host'];
+const LAUNCHER_VARIANTS: readonly SdkLauncherVariant[] = ['icon', 'button', 'link'];
 
 export const SDK_CONFIG_MAX_TRANSLATIONS_BYTES = 32_768;
 export const SDK_CONFIG_MAX_ALLOWED_ACTIONS = 50;
@@ -26,19 +42,176 @@ export function deepMergeSdkConfig(
   current: SdkProjectConfigData,
   patch: UpdateSdkProjectConfigDto,
 ): SdkProjectConfigData {
-  return {
+  const merged: SdkProjectConfigData = {
     sdkConfigVersion: current.sdkConfigVersion,
     i18n: patch.i18n !== undefined ? mergeSection(current.i18n, patch.i18n) : current.i18n,
     theme:
-      patch.theme !== undefined ? mergeSection(current.theme, patch.theme) : current.theme,
+      patch.theme !== undefined ? mergeTheme(current.theme, patch.theme) : current.theme,
     security:
       patch.security !== undefined
         ? mergeSection(current.security, patch.security)
         : current.security,
-    ui: patch.ui !== undefined ? mergeSection(current.ui, patch.ui) : current.ui,
+    ui: patch.ui !== undefined ? mergeUi(current.ui, patch.ui) : current.ui,
     voice:
       patch.voice !== undefined ? mergeSection(current.voice, patch.voice) : current.voice,
   };
+
+  return normalizeSdkConfig(merged);
+}
+
+function mergeTheme(
+  base: SdkProjectConfigData['theme'],
+  patch: NonNullable<UpdateSdkProjectConfigDto['theme']>,
+): SdkProjectConfigData['theme'] {
+  const merged = mergeSection(base, patch);
+  if (patch.tokens !== undefined) {
+    const tokens = mergeNullableStringRecord(base?.tokens, patch.tokens);
+    if (tokens) {
+      merged.tokens = tokens;
+    } else {
+      delete merged.tokens;
+    }
+  }
+  return Object.keys(merged).length > 0 ? merged : undefined;
+}
+
+function mergeUi(
+  base: SdkProjectConfigData['ui'],
+  patch: NonNullable<UpdateSdkProjectConfigDto['ui']>,
+): SdkProjectConfigData['ui'] {
+  const merged: NonNullable<SdkProjectConfigData['ui']> = {
+    ...(base ?? {}),
+  };
+
+  if (patch.presentation !== undefined) {
+    if (patch.presentation === null) {
+      delete merged.presentation;
+    } else {
+      merged.presentation = patch.presentation;
+    }
+  }
+  if (patch.showSources !== undefined) merged.showSources = patch.showSources;
+  if (patch.showIntentBadge !== undefined) {
+    merged.showIntentBadge = patch.showIntentBadge;
+  }
+  if (patch.showActionsHint !== undefined) {
+    merged.showActionsHint = patch.showActionsHint;
+  }
+  if (patch.showActionPicker !== undefined) {
+    merged.showActionPicker = patch.showActionPicker;
+  }
+  if (patch.composerMinRows !== undefined) {
+    merged.composerMinRows = patch.composerMinRows;
+  }
+  if (patch.composerMaxRows !== undefined) {
+    merged.composerMaxRows = patch.composerMaxRows;
+  }
+
+  if (patch.text !== undefined) {
+    const text = mergeNullableStringRecord(base?.text, patch.text);
+    if (text) {
+      merged.text = text;
+    } else {
+      delete merged.text;
+    }
+  }
+
+  if (patch.launcher !== undefined) {
+    const launcher = mergeLauncher(base?.launcher, patch.launcher);
+    if (launcher) {
+      merged.launcher = launcher;
+    } else {
+      delete merged.launcher;
+    }
+  }
+
+  if (patch.widget !== undefined) {
+    const widget = mergeWidget(base?.widget, patch.widget);
+    if (widget) {
+      merged.widget = widget;
+    } else {
+      delete merged.widget;
+    }
+  }
+
+  if (patch.inline !== undefined) {
+    const inline = mergeNullableStringRecord(base?.inline, patch.inline);
+    if (inline) {
+      merged.inline = inline as SdkInlineConfig;
+    } else {
+      delete merged.inline;
+    }
+  }
+
+  return Object.keys(merged).length > 0 ? merged : undefined;
+}
+
+type NullablePatch<T> = {
+  [K in keyof T]?: T[K] | null;
+};
+
+function mergeNullableStringRecord(
+  base: Record<string, string> | undefined,
+  patch: Record<string, string | null> | undefined,
+): Record<string, string> | undefined {
+  if (patch === undefined) {
+    return base;
+  }
+
+  const result: Record<string, string> = { ...(base ?? {}) };
+  for (const [key, value] of Object.entries(patch)) {
+    if (value === null) {
+      delete result[key];
+    } else if (typeof value === 'string' && value.length > 0) {
+      result[key] = value;
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function mergeLauncher(
+  base: SdkLauncherConfig | undefined,
+  patch: NullablePatch<SdkLauncherConfig> | undefined,
+): SdkLauncherConfig | undefined {
+  if (patch === undefined) {
+    return base;
+  }
+
+  const result: SdkLauncherConfig = { ...(base ?? {}) };
+  for (const [key, value] of Object.entries(patch) as Array<
+    [keyof SdkLauncherConfig, SdkLauncherConfig[keyof SdkLauncherConfig] | null]
+  >) {
+    if (value === null) {
+      delete result[key];
+    } else if (value !== undefined && value !== '') {
+      result[key] = value as never;
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function mergeWidget(
+  base: SdkWidgetConfig | undefined,
+  patch: NullablePatch<SdkWidgetConfig> | undefined,
+): SdkWidgetConfig | undefined {
+  if (patch === undefined) {
+    return base;
+  }
+
+  const result: SdkWidgetConfig = { ...(base ?? {}) };
+  for (const [key, value] of Object.entries(patch) as Array<
+    [keyof SdkWidgetConfig, SdkWidgetConfig[keyof SdkWidgetConfig] | null]
+  >) {
+    if (value === null) {
+      delete result[key];
+    } else if (value !== undefined && value !== '') {
+      result[key] = value as never;
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
 }
 
 function mergeSection<T extends object>(base: T | undefined, patch: Partial<T>): T {
@@ -156,6 +329,13 @@ function pickUi(raw: unknown): SdkProjectConfigData['ui'] | undefined {
   const o = raw as Record<string, unknown>;
   const result: NonNullable<SdkProjectConfigData['ui']> = {};
 
+  if (
+    typeof o.presentation === 'string' &&
+    (PRESENTATION_MODES as readonly string[]).includes(o.presentation)
+  ) {
+    result.presentation = o.presentation as SdkPresentationMode;
+  }
+
   if (typeof o.showSources === 'boolean') result.showSources = o.showSources;
   if (typeof o.showIntentBadge === 'boolean') {
     result.showIntentBadge = o.showIntentBadge;
@@ -182,6 +362,9 @@ function pickUi(raw: unknown): SdkProjectConfigData['ui'] | undefined {
   const widget = pickWidget(o.widget);
   if (widget) result.widget = widget;
 
+  const inline = pickInline(o.inline);
+  if (inline) result.inline = inline;
+
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
@@ -197,6 +380,9 @@ function pickUiText(raw: unknown): SdkUiTextOverrides | undefined {
     'placeholder',
     'send',
     'open',
+    'newConversation',
+    'minimize',
+    'stop',
   ] as const;
   const text: Record<string, string> = {};
   for (const key of keys) {
@@ -210,10 +396,31 @@ function pickUiText(raw: unknown): SdkUiTextOverrides | undefined {
 function pickLauncher(raw: unknown): SdkLauncherConfig | undefined {
   if (!raw || typeof raw !== 'object') return undefined;
   const o = raw as Record<string, unknown>;
+  const result: SdkLauncherConfig = {};
+
   const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl : undefined;
   const ariaLabel = typeof o.ariaLabel === 'string' ? o.ariaLabel : undefined;
-  if (!iconUrl && !ariaLabel) return undefined;
-  return { iconUrl, ariaLabel };
+  const label = typeof o.label === 'string' ? o.label.trim() : undefined;
+
+  if (iconUrl) result.iconUrl = iconUrl;
+  if (ariaLabel) result.ariaLabel = ariaLabel;
+  if (label) result.label = label;
+
+  if (
+    typeof o.placement === 'string' &&
+    (LAUNCHER_PLACEMENTS as readonly string[]).includes(o.placement)
+  ) {
+    result.placement = o.placement as SdkLauncherPlacement;
+  }
+
+  if (
+    typeof o.variant === 'string' &&
+    (LAUNCHER_VARIANTS as readonly string[]).includes(o.variant)
+  ) {
+    result.variant = o.variant as SdkLauncherVariant;
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
 }
 
 function pickWidget(raw: unknown): SdkWidgetConfig | undefined {
@@ -240,6 +447,37 @@ function pickWidget(raw: unknown): SdkWidgetConfig | undefined {
   const hideWhenSelector =
     typeof o.hideWhenSelector === 'string' ? o.hideWhenSelector.trim() : undefined;
   if (hideWhenSelector) result.hideWhenSelector = hideWhenSelector;
+
+  if (
+    typeof o.panelLayout === 'string' &&
+    (WIDGET_PANEL_LAYOUTS as readonly string[]).includes(o.panelLayout)
+  ) {
+    result.panelLayout = o.panelLayout as SdkWidgetPanelLayout;
+  }
+
+  const panelWidth =
+    typeof o.panelWidth === 'string' ? o.panelWidth.trim() : undefined;
+  const panelHeight =
+    typeof o.panelHeight === 'string' ? o.panelHeight.trim() : undefined;
+  if (panelWidth) result.panelWidth = panelWidth;
+  if (panelHeight) result.panelHeight = panelHeight;
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function pickInline(raw: unknown): SdkInlineConfig | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const o = raw as Record<string, unknown>;
+  const result: SdkInlineConfig = {};
+
+  const maxWidth =
+    typeof o.maxWidth === 'string' ? o.maxWidth.trim() : undefined;
+  const height = typeof o.height === 'string' ? o.height.trim() : undefined;
+  const minHeight =
+    typeof o.minHeight === 'string' ? o.minHeight.trim() : undefined;
+  if (maxWidth) result.maxWidth = maxWidth;
+  if (height) result.height = height;
+  if (minHeight) result.minHeight = minHeight;
 
   return Object.keys(result).length > 0 ? result : undefined;
 }

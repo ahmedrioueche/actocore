@@ -1,8 +1,3 @@
-import { useParams } from "@tanstack/react-router";
-import { Save } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-
 import { PageHeader } from "@/components/layout/PageHeader";
 import { DocsLearnMoreLink } from "@/components/projects/docs/DocsLearnMoreLink";
 import { SdkConfigForm } from "@/components/sdk-config/SdkConfigForm";
@@ -23,6 +18,10 @@ import {
   type SdkConfigFormState,
 } from "@/utils/sdk-config-form";
 import { getApiErrorMessage } from "@/utils/statusMessage";
+import { useParams } from "@tanstack/react-router";
+import { Save } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const FORM_ID = "sdk-config-form";
 
@@ -54,7 +53,8 @@ export default function ProjectSdkConfigPage() {
   );
 
   const isDirty =
-    savedFormState !== null && isSdkConfigFormDirty(formState, savedFormState);
+    savedFormState !== null &&
+    isSdkConfigFormDirty(formState, savedFormState, configQuery.data ?? undefined);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +66,7 @@ export default function ProjectSdkConfigPage() {
     }
 
     try {
-      await updateConfig.mutateAsync(formStateToPatch(formState));
+      await updateConfig.mutateAsync(formStateToPatch(formState, configQuery.data));
       toast.success(t("sdkConfig.saved"));
     } catch (err) {
       const code = (err as Error & { errorCode?: string }).errorCode;
@@ -107,7 +107,7 @@ export default function ProjectSdkConfigPage() {
         isLoading={configQuery.isLoading || !projectId}
         isError={configQuery.isError}
         onRetry={() => void configQuery.refetch()}
-        loadingVariant="form"
+        loadingVariant="sdk-config"
       >
         {projectId ? (
           <div className="space-y-4">

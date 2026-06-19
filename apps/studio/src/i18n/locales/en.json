@@ -2,6 +2,9 @@
   "app": {
     "name": "ActoCore Studio"
   },
+  "assistant": {
+    "resizePanel": "Drag to resize assistant panel"
+  },
   "common": {
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -823,6 +826,15 @@
     "saved": "SDK settings saved.",
     "readOnly": "You can view SDK settings but do not have permission to change them.",
     "readOnlyTitle": "View only",
+    "sidebarTitle": "Sections",
+    "sidebarHint": "Jump to a section. All changes save together.",
+    "nav": {
+      "appearance": "Appearance",
+      "chatBehavior": "Chat behavior",
+      "widget": "Widget & launcher",
+      "inline": "Inline embed",
+      "copy": "Copy & labels"
+    },
     "loadRemoteConfigTip": {
       "title": "Apply settings in your app",
       "body": "Saved settings are loaded by the embedded SDK when the host app enables loadRemoteConfig on ActocoreProvider. Props you pass in code still override these dashboard values.",
@@ -836,6 +848,17 @@
       "chatUi": {
         "title": "Chat UI",
         "description": "Control what appears in the chat experience."
+      },
+      "widget": {
+        "title": "Widget & launcher",
+        "description": "Floating chat widget placement, panel layout, and sizing.",
+        "inlineRedirect": "Inline mode is selected. Configure dimensions in the Inline embed section and mount ActoChat in your app layout."
+      },
+      "inline": {
+        "title": "Inline embed",
+        "description": "Size the chat when you embed ActoChat inside your app shell instead of the floating widget.",
+        "integrationHint": "Use presentation mode Inline (Widget section) or mount ActoChat directly. These dimensions apply to the inline chat container.",
+        "snippetTitle": "Integration snippet"
       },
       "copyLauncher": {
         "title": "Copy & launcher",
@@ -855,7 +878,7 @@
       "defaultOn": "Default: on",
       "defaultOff": "Default: off",
       "leaveBlankHint": "Leave blank to use the SDK default shown as the placeholder.",
-      "copyLauncherHint": "Pre-filled with SDK defaults. Only customized values are saved to your project config.",
+      "copyLauncherHint": "Pre-filled with SDK defaults. Only customized values are saved to your project config. Launcher open label and accessibility are configured in the Widget section.",
       "colorsGroup": "Brand colors",
       "colorPaletteTabs": "Color palette",
       "colorPalettes": {
@@ -908,9 +931,29 @@
       "actionsHint": "Actions hint",
       "placeholder": "Message placeholder",
       "send": "Send button label",
+      "stop": "Stop generating label",
+      "newConversation": "New conversation label",
+      "minimize": "Minimize label",
       "open": "Open launcher label",
       "launcherGroup": "Launcher",
-      "launcherPosition": "Launcher position",
+      "launcherPlacement": "Launcher placement",
+      "launcherPlacements": {
+        "floating": "Floating corner",
+        "host": "Host navbar"
+      },
+      "launcherPlacementFloatingHint": "SDK renders a floating bubble in a screen corner.",
+      "launcherPlacementHostHint": "Mount ActoChatLauncher in your navbar or header.",
+      "launcherVariant": "Launcher style",
+      "launcherVariants": {
+        "icon": "Icon only",
+        "button": "Button with label",
+        "link": "Text link"
+      },
+      "launcherLabel": "Launcher label",
+      "hostLauncherSnippetTitle": "Navbar integration",
+      "hostLauncherSnippetHint": "Wrap your app shell with ActoChatWidgetProvider, place ActoChatLauncher in the navbar, and render ActoChatWidgetPanel for the chat surface.",
+      "hostLauncherSnippetLabel": "Host launcher example",
+      "launcherPosition": "Corner position",
       "launcherPositionHint": "Corner of the screen where the chat launcher appears.",
       "launcherPositions": {
         "bottom-right": "Bottom right",
@@ -923,13 +966,39 @@
       "launcherOffsetHint": "Distance from the screen edge (e.g. 1.25rem or 20px).",
       "launcherIconUrl": "Launcher icon URL",
       "launcherIconUrlDefault": "Default: built-in icon (leave empty)",
-      "launcherAriaLabel": "Launcher aria label"
+      "launcherAriaLabel": "Open / launcher aria label",
+      "launcherAriaLabelHint": "Accessibility label for the floating launcher. Falls back to the SDK default when blank.",
+      "presentation": "Integration mode",
+      "presentationHint": "Does not auto-mount components — use ActoChatWidget for floating widget mode or embed ActoChat inline in your layout. This setting styles the chosen integration.",
+      "presentationOptions": {
+        "widget": "Floating widget",
+        "inline": "Inline embed"
+      },
+      "panelLayout": "Panel layout",
+      "panelLayoutOptions": {
+        "overlay": "Floating overlay",
+        "dock-right": "Dock right",
+        "dock-left": "Dock left"
+      },
+      "panelWidth": "Panel width",
+      "panelWidthCustom": "Custom width",
+      "panelHeight": "Panel height (optional)",
+      "panelHeightDefault": "Default: min(40rem, viewport)",
+      "widgetZIndex": "Stacking order (z-index)",
+      "widgetZIndexDefault": "Default: 1000",
+      "hideWhenSelector": "Hide when selector matches",
+      "hideWhenSelectorPlaceholder": "e.g. [data-modal-open]",
+      "inlineMaxWidth": "Max width",
+      "inlineHeight": "Height",
+      "inlineMinHeight": "Min height"
     },
     "errors": {
       "composerRowsInvalid": "Composer rows must be whole numbers between 1 and 12.",
       "composerRowsOrder": "Minimum composer rows cannot be greater than maximum.",
       "launcherIconUrlInvalid": "Launcher icon URL must be a valid http or https URL.",
       "launcherOffsetInvalid": "Offsets must be CSS lengths like 1.25rem or 20px.",
+      "layoutSizeInvalid": "Sizes must be CSS lengths like 24rem, 420px, or min(40rem, calc(100vh - 6rem)).",
+      "widgetZIndexInvalid": "z-index must be a whole number between 1 and 999999.",
       "fieldTooLong": "One or more fields exceed the maximum length.",
       "invalidHexColor": "Each color must be a valid hex code (#RGB or #RRGGBB) or left empty.",
       "fontFamilyTooLong": "Font stack is too long (max 200 characters)."

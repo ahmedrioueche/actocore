@@ -2,6 +2,9 @@
   "app": {
     "name": "ActoCore Studio"
   },
+  "assistant": {
+    "resizePanel": "Glisser pour redimensionner le panneau assistant"
+  },
   "common": {
     "cancel": "Annuler",
     "confirm": "Confirmer",
@@ -754,6 +757,15 @@
     "saved": "Paramètres du SDK enregistrés.",
     "readOnly": "Vous pouvez afficher les paramètres du SDK, mais vous n'êtes pas autorisé à les modifier.",
     "readOnlyTitle": "Visualisation uniquement",
+    "sidebarTitle": "Sections",
+    "sidebarHint": "Accédez à une section. Toutes les modifications s'enregistrent ensemble.",
+    "nav": {
+      "appearance": "Apparence",
+      "chatBehavior": "Comportement du chat",
+      "widget": "Widget et lanceur",
+      "inline": "Intégration inline",
+      "copy": "Textes et libellés"
+    },
     "loadRemoteConfigTip": {
       "title": "Appliquer les paramètres dans votre application",
       "body": "Saved settings are loaded by the embedded SDK when the host app enables loadRemoteConfig on ActocoreProvider. Props you pass in code still override these dashboard values.",
@@ -767,6 +779,17 @@
       "chatUi": {
         "title": "Interface utilisateur de discussion",
         "description": "Contrôlez ce qui apparaît dans l'expérience de chat."
+      },
+      "widget": {
+        "title": "Widget et lanceur",
+        "description": "Position du widget flottant, disposition du panneau et dimensions.",
+        "inlineRedirect": "Le mode inline est sélectionné. Configurez les dimensions dans Intégration inline et montez ActoChat dans votre application."
+      },
+      "inline": {
+        "title": "Intégration inline",
+        "description": "Dimensionnez le chat lorsque vous intégrez ActoChat dans votre interface plutôt que le widget flottant.",
+        "integrationHint": "Utilisez le mode inline (section Widget) ou montez ActoChat directement. Ces dimensions s'appliquent au conteneur inline.",
+        "snippetTitle": "Exemple d'intégration"
       },
       "copyLauncher": {
         "title": "Copie et lanceur",
@@ -786,7 +809,7 @@
       "defaultOn": "Par défaut : activé",
       "defaultOff": "Par défaut : désactivé",
       "leaveBlankHint": "Laissez vide pour utiliser la valeur par défaut du SDK affichée comme espace réservé.",
-      "copyLauncherHint": "Pré-rempli avec les valeurs par défaut du SDK. Seules les valeurs personnalisées sont enregistrées dans la configuration de votre projet.",
+      "copyLauncherHint": "Pré-rempli avec les valeurs par défaut du SDK. Seules les valeurs personnalisées sont enregistrées. Le libellé d'ouverture du lanceur se configure dans la section Widget.",
       "colorsGroup": "Couleurs de la marque",
       "colorPaletteTabs": "Palette de couleurs",
       "colorPalettes": {
@@ -839,9 +862,29 @@
       "actionsHint": "Indice d'action",
       "placeholder": "Espace réservé au message",
       "send": "Envoyer le libellé du bouton",
+      "stop": "Libellé d'arrêt de génération",
+      "newConversation": "Libellé nouvelle conversation",
+      "minimize": "Libellé réduire",
       "open": "Ouvrir l'étiquette du lanceur",
       "launcherGroup": "Lanceur",
-      "launcherPosition": "Position du lanceur",
+      "launcherPlacement": "Emplacement du lanceur",
+      "launcherPlacements": {
+        "floating": "Coin flottant",
+        "host": "Barre de navigation hôte"
+      },
+      "launcherPlacementFloatingHint": "Le SDK affiche une bulle flottante dans un coin de l'écran.",
+      "launcherPlacementHostHint": "Placez ActoChatLauncher dans votre barre de navigation ou en-tête.",
+      "launcherVariant": "Style du lanceur",
+      "launcherVariants": {
+        "icon": "Icône seule",
+        "button": "Bouton avec libellé",
+        "link": "Lien texte"
+      },
+      "launcherLabel": "Libellé du lanceur",
+      "hostLauncherSnippetTitle": "Intégration navbar",
+      "hostLauncherSnippetHint": "Encapsulez votre interface avec ActoChatWidgetProvider, placez ActoChatLauncher dans la navbar et rendez ActoChatWidgetPanel pour le chat.",
+      "hostLauncherSnippetLabel": "Exemple de lanceur hôte",
+      "launcherPosition": "Position du coin",
       "launcherPositionHint": "Coin de l'écran où apparaît le lanceur de chat.",
       "launcherPositions": {
         "bottom-right": "En bas à droite",
@@ -854,13 +897,39 @@
       "launcherOffsetHint": "Distance du bord de l'écran (par exemple 1,25rem ou 20px).",
       "launcherIconUrl": "URL de l'icône du lanceur",
       "launcherIconUrlDefault": "Par défaut : icône intégrée (laisser vide)",
-      "launcherAriaLabel": "Étiquette de l'aria du lanceur"
+      "launcherAriaLabel": "Libellé d'ouverture / aria du lanceur",
+      "launcherAriaLabelHint": "Étiquette d'accessibilité pour le lanceur flottant. Utilise la valeur par défaut du SDK si vide.",
+      "presentation": "Mode d'intégration",
+      "presentationHint": "Ne monte pas automatiquement les composants — utilisez ActoChatWidget pour le mode widget flottant ou intégrez ActoChat inline dans votre interface. Ce paramètre stylise l'intégration choisie.",
+      "presentationOptions": {
+        "widget": "Widget flottant",
+        "inline": "Intégration inline"
+      },
+      "panelLayout": "Disposition du panneau",
+      "panelLayoutOptions": {
+        "overlay": "Superposition flottante",
+        "dock-right": "Dock à droite",
+        "dock-left": "Dock à gauche"
+      },
+      "panelWidth": "Largeur du panneau",
+      "panelWidthCustom": "Largeur personnalisée",
+      "panelHeight": "Hauteur du panneau (optionnel)",
+      "panelHeightDefault": "Par défaut : min(40rem, viewport)",
+      "widgetZIndex": "Ordre d'empilement (z-index)",
+      "widgetZIndexDefault": "Par défaut : 1000",
+      "hideWhenSelector": "Masquer si le sélecteur correspond",
+      "hideWhenSelectorPlaceholder": "ex. [data-modal-open]",
+      "inlineMaxWidth": "Largeur max",
+      "inlineHeight": "Hauteur",
+      "inlineMinHeight": "Hauteur min"
     },
     "errors": {
       "composerRowsInvalid": "Les lignes du compositeur doivent être constituées de nombres entiers compris entre 1 et 12.",
       "composerRowsOrder": "Le nombre minimum de lignes du composeur ne peut pas être supérieur au maximum.",
       "launcherIconUrlInvalid": "L'URL de l'icône du lanceur doit être une URL http ou https valide.",
       "launcherOffsetInvalid": "Les décalages doivent être des longueurs CSS telles que 1,25rem ou 20px.",
+      "layoutSizeInvalid": "Les dimensions doivent être des longueurs CSS (24rem, 420px, min(40rem, calc(100vh - 6rem)), etc.).",
+      "widgetZIndexInvalid": "Le z-index doit être un entier entre 1 et 999999.",
       "fieldTooLong": "Un ou plusieurs champs dépassent la longueur maximale.",
       "invalidHexColor": "Chaque couleur doit être un code hexadécimal valide (#RGB ou #RRGGBB) ou laissé vide.",
       "fontFamilyTooLong": "La pile de polices est trop longue (200 caractères maximum)."

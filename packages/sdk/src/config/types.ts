@@ -43,12 +43,21 @@ export interface ActocoreUiTextOverrides {
   placeholder?: string;
   send?: string;
   open?: string;
+  newConversation?: string;
+  minimize?: string;
+  stop?: string;
 }
 
 /** Launcher bubble branding — image URL or widget-level React node. */
+export type ActocoreLauncherPlacement = 'floating' | 'host';
+export type ActocoreLauncherVariant = 'icon' | 'button' | 'link';
+
 export interface ActocoreLauncherConfig {
   iconUrl?: string;
   ariaLabel?: string;
+  placement?: ActocoreLauncherPlacement;
+  variant?: ActocoreLauncherVariant;
+  label?: string;
 }
 
 export type ActocoreWidgetPosition =
@@ -57,12 +66,25 @@ export type ActocoreWidgetPosition =
   | 'top-right'
   | 'top-left';
 
+export type ActocorePresentationMode = 'widget' | 'inline';
+
+export type ActocoreWidgetPanelLayout = 'overlay' | 'dock-right' | 'dock-left';
+
 export interface ActocoreWidgetConfig {
   position?: ActocoreWidgetPosition;
   offsetX?: string;
   offsetY?: string;
   zIndex?: number;
   hideWhenSelector?: string;
+  panelLayout?: ActocoreWidgetPanelLayout;
+  panelWidth?: string;
+  panelHeight?: string;
+}
+
+export interface ActocoreInlineConfig {
+  maxWidth?: string;
+  height?: string;
+  minHeight?: string;
 }
 
 /** Optional class names per UI region (host/dashboard overrides). */
@@ -128,6 +150,8 @@ export interface ActocoreUiConfig {
   text?: ActocoreUiTextOverrides;
   launcher?: ActocoreLauncherConfig;
   widget?: ActocoreWidgetConfig;
+  inline?: ActocoreInlineConfig;
+  presentation?: ActocorePresentationMode;
 }
 
 export interface ActocoreI18nConfig {
@@ -177,7 +201,7 @@ export interface ResolvedActocoreConfig {
       | 'composerMaxRows'
     >
   > &
-    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'launcher' | 'widget' | 'seedMessages'>;
+    Pick<ActocoreUiConfig, 'classNames' | 'text' | 'launcher' | 'widget' | 'inline' | 'presentation' | 'seedMessages'>;
   i18n: Required<Pick<ActocoreI18nConfig, 'locale'>> & ActocoreI18nConfig;
   voice: Required<
     Pick<ActocoreVoiceConfig, 'input' | 'output' | 'inputMode' | 'autoSendOnFinalize'>

@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  type CSSProperties,
   type ReactNode,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -170,8 +171,28 @@ export function ActoChat({
     pendingScrollRef.current = false;
   }, [isOpen, isInitializing, transcriptMessages.length, scrollToLatest]);
 
+  const inlineStyle = useMemo((): CSSProperties | undefined => {
+    if (ui.presentation !== 'inline' || !ui.inline) {
+      return undefined;
+    }
+    const style: CSSProperties = {};
+    if (ui.inline.maxWidth?.trim()) {
+      style.maxWidth = ui.inline.maxWidth.trim();
+    }
+    if (ui.inline.height?.trim()) {
+      style.height = ui.inline.height.trim();
+    }
+    if (ui.inline.minHeight?.trim()) {
+      style.minHeight = ui.inline.minHeight.trim();
+    }
+    return Object.keys(style).length > 0 ? style : undefined;
+  }, [ui.inline, ui.presentation]);
+
   return (
-    <div className={mergeClassNames('ac-chat', ui.classNames?.chat, className)}>
+    <div
+      className={mergeClassNames('ac-chat', ui.classNames?.chat, className)}
+      style={inlineStyle}
+    >
       <ChatHeader
         launcherIcon={launcherIcon}
         onMinimize={onMinimize}

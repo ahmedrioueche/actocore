@@ -29,6 +29,7 @@ export function Composer({
   const ui = useActocoreUiConfig();
   const placeholder = useUiText('placeholder');
   const sendLabel = useUiText('send');
+  const stopLabel = useUiText('stop');
   const [value, setValue] = useState('');
   const [isMultiline, setIsMultiline] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -108,10 +109,10 @@ export function Composer({
             )}
             onClick={() => (showStop ? onStop?.() : void submit())}
             disabled={showStop ? false : sendDisabled}
-            aria-label={showStop ? t('chat.stop') : sendLabel}
+            aria-label={showStop ? stopLabel : sendLabel}
             title={
               showStop
-                ? t('chat.stop')
+                ? stopLabel
                 : isSending
                   ? t('chat.sending')
                   : sendLabel

@@ -1,4 +1,10 @@
-import type { SdkWidgetPosition } from '@ahmedrioueche/actocore-shared';
+import type {
+  SdkLauncherPlacement,
+  SdkLauncherVariant,
+  SdkPresentationMode,
+  SdkWidgetPanelLayout,
+  SdkWidgetPosition,
+} from '@ahmedrioueche/actocore-shared';
 
 export { SDK_CONFIG_APP_THEMES_DEFAULT } from '@/constants/sdk-app-themes';
 
@@ -13,6 +19,9 @@ export const SDK_CONFIG_UI_TEXT_DEFAULTS = {
   placeholder: 'Type a message…',
   send: 'Send',
   open: 'Open chat',
+  newConversation: 'New conversation',
+  minimize: 'Minimize chat',
+  stop: 'Stop generating',
   launcherAriaLabel: 'Open chat',
 } as const;
 
@@ -28,8 +37,25 @@ export const SDK_CONFIG_COMPOSER_DEFAULTS = {
   composerMaxRows: 6,
 } as const;
 
+export const SDK_CONFIG_LAUNCHER_DEFAULTS = {
+  placement: 'floating' as const,
+  variant: 'icon' as const,
+  label: '',
+} as const;
+
 export const SDK_CONFIG_WIDGET_DEFAULTS = {
   position: 'bottom-right' as SdkWidgetPosition,
   offsetX: '1.25rem',
   offsetY: '1.25rem',
+  panelLayout: 'overlay' as SdkWidgetPanelLayout,
+  panelWidth: '24rem',
+  panelHeight: '',
+} as const;
+
+export const SDK_CONFIG_PRESENTATION_DEFAULT: SdkPresentationMode = 'widget';
+
+export const SDK_CONFIG_INLINE_DEFAULTS = {
+  maxWidth: '24rem',
+  height: '100%',
+  minHeight: '24rem',
 } as const;

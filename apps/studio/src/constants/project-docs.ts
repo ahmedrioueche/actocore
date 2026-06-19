@@ -29,6 +29,28 @@ export function App() {
   );
 }`;
 
+export const PROJECT_DOCS_HOST_LAUNCHER = `import {
+  ActocoreProvider,
+  ActoChatLauncher,
+  ActoChatWidgetProvider,
+  ActoChatWidgetPanel,
+} from '@ahmedrioueche/actocore-sdk';
+
+export function AppShell() {
+  return (
+    <ActocoreProvider apiKey={apiKey} baseURL={apiUrl} loadRemoteConfig>
+      <ActoChatWidgetProvider>
+        <header>
+          <nav>...</nav>
+          <ActoChatLauncher />
+        </header>
+        <main>...</main>
+        <ActoChatWidgetPanel />
+      </ActoChatWidgetProvider>
+    </ActocoreProvider>
+  );
+}`;
+
 export const PROJECT_DOCS_ENV_EXAMPLE = `# .env (Vite example)
 VITE_ACTOCORE_API_URL=https://actocore.onrender.com
 VITE_ACTOCORE_API_KEY=ac_...`;

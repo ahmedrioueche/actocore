@@ -33,6 +33,8 @@ export function resolveConfig(config: ActocoreSdkConfig): ResolvedActocoreConfig
       text: config.ui?.text,
       launcher: config.ui?.launcher,
       widget: config.ui?.widget,
+      inline: config.ui?.inline,
+      presentation: config.ui?.presentation,
     },
     i18n: {
       locale: config.i18n?.locale ?? 'en',

@@ -73,6 +73,11 @@ function mergeUi(
       ...(remote?.widget ?? {}),
       ...(local?.widget ?? {}),
     },
+    inline: {
+      ...(remote?.inline ?? {}),
+      ...(local?.inline ?? {}),
+    },
+    presentation: local?.presentation ?? remote?.presentation,
     classNames: local?.classNames,
   };
 }

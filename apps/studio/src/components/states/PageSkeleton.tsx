@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { SdkConfigFormSkeleton } from '@/components/sdk-config/SdkConfigFormSkeleton';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/utils/helper';
 
@@ -8,7 +9,8 @@ export type PageSkeletonVariant =
   | 'cards'
   | 'form'
   | 'table'
-  | 'panels';
+  | 'panels'
+  | 'sdk-config';
 
 interface PageSkeletonProps {
   variant?: PageSkeletonVariant;
@@ -133,6 +135,7 @@ export function PageSkeleton({
       {variant === 'form' ? <PageSkeletonForm /> : null}
       {variant === 'table' ? <PageSkeletonTable rows={tableRows} /> : null}
       {variant === 'panels' ? <PageSkeletonPanels /> : null}
+      {variant === 'sdk-config' ? <SdkConfigFormSkeleton /> : null}
       {variant === 'default' ? <PageSkeletonDefault /> : null}
     </div>
   );

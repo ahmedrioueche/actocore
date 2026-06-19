@@ -13,6 +13,9 @@ const I18N_KEYS: Record<TextKey, string> = {
   placeholder: 'chat.placeholder',
   send: 'chat.send',
   open: 'chat.open',
+  newConversation: 'chat.newConversation',
+  minimize: 'chat.minimize',
+  stop: 'chat.stop',
 };
 
 /** Resolves copy from `ui.text` overrides first, then bundled i18n. */

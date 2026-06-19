@@ -1,19 +1,10 @@
-import { useTranslation } from 'react-i18next';
-
-import { SdkLauncherPositionPicker } from '@/components/sdk-config/SdkLauncherPositionPicker';
-import { SdkAppThemesPicker } from '@/components/sdk-config/SdkAppThemesPicker';
-import { SdkThemeColorEditor } from '@/components/sdk-config/SdkThemeColorEditor';
-import { SdkFontField } from '@/components/sdk-config/SdkFontField';
-import InputField from '@/components/ui/InputField';
-import TextArea from '@/components/ui/TextArea';
-import ToggleSwitch from '@/components/ui/ToggleSwitch';
-import {
-  SDK_CONFIG_COMPOSER_DEFAULTS,
-  SDK_CONFIG_UI_TEXT_DEFAULTS,
-  SDK_CONFIG_UI_TOGGLE_DEFAULTS,
-  SDK_CONFIG_WIDGET_DEFAULTS,
-} from '@/constants/sdk-config-defaults';
-import type { SdkConfigFormState } from '@/utils/sdk-config-form';
+import { SdkConfigAppearanceSection } from "@/components/sdk-config/SdkConfigAppearanceSection";
+import { SdkConfigChatBehaviorSection } from "@/components/sdk-config/SdkConfigChatBehaviorSection";
+import { SdkConfigCopySection } from "@/components/sdk-config/SdkConfigCopySection";
+import { SdkConfigInlineSection } from "@/components/sdk-config/SdkConfigInlineSection";
+import { SdkConfigSidebar } from "@/components/sdk-config/SdkConfigSidebar";
+import { SdkConfigWidgetSection } from "@/components/sdk-config/SdkConfigWidgetSection";
+import type { SdkConfigFormState } from "@/utils/sdk-config-form";
 
 interface SdkConfigFormProps {
   value: SdkConfigFormState;
@@ -21,301 +12,42 @@ interface SdkConfigFormProps {
   disabled?: boolean;
 }
 
-function ConfigSection({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm md:p-8">
-      <div>
-        <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-        <p className="mt-1 text-sm text-text-secondary">{description}</p>
-      </div>
-      <div className="space-y-4">{children}</div>
-    </section>
-  );
-}
-
 export function SdkConfigForm({
   value,
   onChange,
   disabled = false,
 }: SdkConfigFormProps) {
-  const { t } = useTranslation();
-
-  const patch = (partial: Partial<SdkConfigFormState>) => {
-    onChange({ ...value, ...partial });
-  };
-
-  const parseRowCount = (raw: string, fallback: number): number => {
-    const parsed = Number.parseInt(raw, 10);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  };
-
-  const defaultToggleHint = (enabled: boolean) =>
-    t(enabled ? 'sdkConfig.fields.defaultOn' : 'sdkConfig.fields.defaultOff');
-
-  const defaultCopyPlaceholder = (value: string) =>
-    t('sdkConfig.fields.defaultPlaceholder', { value });
-
   return (
-    <div className="space-y-6">
-      <ConfigSection
-        title={t('sdkConfig.sections.appearance.title')}
-        description={t('sdkConfig.sections.appearance.description')}
-      >
-        <SdkAppThemesPicker
-          value={value.appThemes}
-          onChange={(appThemes) => patch({ appThemes })}
+    <div className="flex flex-col gap-8 md:flex-row md:items-start">
+      <SdkConfigSidebar />
+      <div className="min-w-0 flex-1 space-y-6">
+        <SdkConfigAppearanceSection
+          value={value}
+          onChange={onChange}
           disabled={disabled}
         />
 
-        <SdkThemeColorEditor
-          appThemes={value.appThemes}
-          value={value.themeColorsByVariant}
-          onChange={(themeColorsByVariant) => patch({ themeColorsByVariant })}
+        <SdkConfigWidgetSection
+          value={value}
+          onChange={onChange}
           disabled={disabled}
         />
-
-        <div className="border-t border-border pt-4">
-          <SdkFontField
-            preset={value.fontPreset}
-            customValue={value.fontCustom}
-            onPresetChange={(fontPreset) => patch({ fontPreset })}
-            onCustomChange={(fontCustom) => patch({ fontCustom })}
-            disabled={disabled}
-          />
-        </div>
-      </ConfigSection>
-
-      <ConfigSection
-        title={t('sdkConfig.sections.chatUi.title')}
-        description={t('sdkConfig.sections.chatUi.description')}
-      >
-        <ToggleSwitch
-          checked={value.showSources}
-          onChange={(showSources) => patch({ showSources })}
-          disabled={disabled}
-          label={t('sdkConfig.fields.showSources')}
-          description={defaultToggleHint(
-            SDK_CONFIG_UI_TOGGLE_DEFAULTS.showSources,
-          )}
-        />
-        <ToggleSwitch
-          checked={value.showIntentBadge}
-          onChange={(showIntentBadge) => patch({ showIntentBadge })}
-          disabled={disabled}
-          label={t('sdkConfig.fields.showIntentBadge')}
-          description={defaultToggleHint(
-            SDK_CONFIG_UI_TOGGLE_DEFAULTS.showIntentBadge,
-          )}
-        />
-        <ToggleSwitch
-          checked={value.showActionsHint}
-          onChange={(showActionsHint) => patch({ showActionsHint })}
-          disabled={disabled}
-          label={t('sdkConfig.fields.showActionsHint')}
-          description={defaultToggleHint(
-            SDK_CONFIG_UI_TOGGLE_DEFAULTS.showActionsHint,
-          )}
-        />
-        <ToggleSwitch
-          checked={value.showActionPicker}
-          onChange={(showActionPicker) => patch({ showActionPicker })}
-          disabled={disabled}
-          label={t('sdkConfig.fields.showActionPicker')}
-          description={defaultToggleHint(
-            SDK_CONFIG_UI_TOGGLE_DEFAULTS.showActionPicker,
-          )}
-        />
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <InputField
-            label={t('sdkConfig.fields.composerMinRows')}
-            type="number"
-            min={1}
-            max={12}
-            value={String(value.composerMinRows)}
-            onChange={(e) =>
-              patch({
-                composerMinRows: parseRowCount(
-                  e.target.value,
-                  value.composerMinRows,
-                ),
-              })
-            }
-            disabled={disabled}
-            placeholder={defaultCopyPlaceholder(
-              String(SDK_CONFIG_COMPOSER_DEFAULTS.composerMinRows),
-            )}
-          />
-          <InputField
-            label={t('sdkConfig.fields.composerMaxRows')}
-            type="number"
-            max={12}
-            min={1}
-            value={String(value.composerMaxRows)}
-            onChange={(e) =>
-              patch({
-                composerMaxRows: parseRowCount(
-                  e.target.value,
-                  value.composerMaxRows,
-                ),
-              })
-            }
-            disabled={disabled}
-            placeholder={defaultCopyPlaceholder(
-              String(SDK_CONFIG_COMPOSER_DEFAULTS.composerMaxRows),
-            )}
-          />
-        </div>
-        <p className="text-xs text-text-secondary">
-          {t('sdkConfig.fields.composerRowsHint')}
-        </p>
-      </ConfigSection>
-
-      <ConfigSection
-        title={t('sdkConfig.sections.copyLauncher.title')}
-        description={t('sdkConfig.sections.copyLauncher.description')}
-      >
-        <p className="text-xs text-text-secondary">
-          {t('sdkConfig.fields.copyLauncherHint')}
-        </p>
-        <InputField
-          label={t('sdkConfig.fields.headerTitle')}
-          value={value.headerTitle}
-          onChange={(e) => patch({ headerTitle: e.target.value })}
-          placeholder={defaultCopyPlaceholder(
-            SDK_CONFIG_UI_TEXT_DEFAULTS.headerTitle,
-          )}
+        <SdkConfigInlineSection
+          value={value}
+          onChange={onChange}
           disabled={disabled}
         />
-        <InputField
-          label={t('sdkConfig.fields.headerSubtitle')}
-          value={value.headerSubtitle}
-          onChange={(e) => patch({ headerSubtitle: e.target.value })}
-          placeholder={defaultCopyPlaceholder(
-            SDK_CONFIG_UI_TEXT_DEFAULTS.headerSubtitle,
-          )}
+        <SdkConfigChatBehaviorSection
+          value={value}
+          onChange={onChange}
           disabled={disabled}
         />
-        <InputField
-          label={t('sdkConfig.fields.emptyTitle')}
-          value={value.emptyTitle}
-          onChange={(e) => patch({ emptyTitle: e.target.value })}
-          placeholder={defaultCopyPlaceholder(
-            SDK_CONFIG_UI_TEXT_DEFAULTS.emptyTitle,
-          )}
+        <SdkConfigCopySection
+          value={value}
+          onChange={onChange}
           disabled={disabled}
         />
-        <TextArea
-          label={t('sdkConfig.fields.emptyDescription')}
-          value={value.emptyDescription}
-          onChange={(e) => patch({ emptyDescription: e.target.value })}
-          placeholder={defaultCopyPlaceholder(
-            SDK_CONFIG_UI_TEXT_DEFAULTS.emptyDescription,
-          )}
-          rows={3}
-          disabled={disabled}
-        />
-        <TextArea
-          label={t('sdkConfig.fields.actionsHint')}
-          value={value.actionsHint}
-          onChange={(e) => patch({ actionsHint: e.target.value })}
-          placeholder={defaultCopyPlaceholder(
-            SDK_CONFIG_UI_TEXT_DEFAULTS.actionsHint,
-          )}
-          rows={2}
-          disabled={disabled}
-        />
-        <InputField
-          label={t('sdkConfig.fields.placeholder')}
-          value={value.placeholder}
-          onChange={(e) => patch({ placeholder: e.target.value })}
-          placeholder={defaultCopyPlaceholder(
-            SDK_CONFIG_UI_TEXT_DEFAULTS.placeholder,
-          )}
-          disabled={disabled}
-        />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <InputField
-            label={t('sdkConfig.fields.send')}
-            value={value.send}
-            onChange={(e) => patch({ send: e.target.value })}
-            placeholder={defaultCopyPlaceholder(
-              SDK_CONFIG_UI_TEXT_DEFAULTS.send,
-            )}
-            disabled={disabled}
-          />
-          <InputField
-            label={t('sdkConfig.fields.open')}
-            value={value.open}
-            onChange={(e) => patch({ open: e.target.value })}
-            placeholder={defaultCopyPlaceholder(
-              SDK_CONFIG_UI_TEXT_DEFAULTS.open,
-            )}
-            disabled={disabled}
-          />
-        </div>
-
-        <div className="border-t border-border pt-4">
-          <p className="mb-4 text-sm font-medium text-text-primary">
-            {t('sdkConfig.fields.launcherGroup')}
-          </p>
-          <div className="space-y-4">
-            <SdkLauncherPositionPicker
-              value={value.launcherPosition}
-              onChange={(launcherPosition) => patch({ launcherPosition })}
-              disabled={disabled}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <InputField
-                label={t('sdkConfig.fields.launcherOffsetX')}
-                value={value.launcherOffsetX}
-                onChange={(e) => patch({ launcherOffsetX: e.target.value })}
-                placeholder={defaultCopyPlaceholder(
-                  SDK_CONFIG_WIDGET_DEFAULTS.offsetX,
-                )}
-                disabled={disabled}
-              />
-              <InputField
-                label={t('sdkConfig.fields.launcherOffsetY')}
-                value={value.launcherOffsetY}
-                onChange={(e) => patch({ launcherOffsetY: e.target.value })}
-                placeholder={defaultCopyPlaceholder(
-                  SDK_CONFIG_WIDGET_DEFAULTS.offsetY,
-                )}
-                disabled={disabled}
-              />
-            </div>
-            <p className="text-xs text-text-secondary">
-              {t('sdkConfig.fields.launcherOffsetHint')}
-            </p>
-            <InputField
-              label={t('sdkConfig.fields.launcherIconUrl')}
-              type="url"
-              value={value.launcherIconUrl}
-              onChange={(e) => patch({ launcherIconUrl: e.target.value })}
-              placeholder={t('sdkConfig.fields.launcherIconUrlDefault')}
-              disabled={disabled}
-            />
-            <InputField
-              label={t('sdkConfig.fields.launcherAriaLabel')}
-              value={value.launcherAriaLabel}
-              onChange={(e) => patch({ launcherAriaLabel: e.target.value })}
-              placeholder={defaultCopyPlaceholder(
-                SDK_CONFIG_UI_TEXT_DEFAULTS.launcherAriaLabel,
-              )}
-              disabled={disabled}
-            />
-          </div>
-        </div>
-      </ConfigSection>
+      </div>
     </div>
   );
 }
