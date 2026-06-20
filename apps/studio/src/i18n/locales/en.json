@@ -783,6 +783,40 @@
       "hookLabel": "React — update on navigation",
       "oneLinerLabel": "One-off update"
     },
+    "menu": {
+      "open": "Layout actions"
+    },
+    "export": {
+      "button": "Export",
+      "title": "Export app layout",
+      "subtitle": "{{pages}} pages · {{links}} links",
+      "description": "Download a JSON file you can reuse in another project or keep as a backup. Page slugs stay stable across imports.",
+      "includeActions": "Include action assignments",
+      "submit": "Download JSON",
+      "success": "App layout exported."
+    },
+    "import": {
+      "button": "Import",
+      "title": "Import app layout",
+      "subtitle": "Upload a layout JSON file exported from App layout.",
+      "dropLabel": "Drop a layout JSON file here",
+      "dropHint": "or click to browse",
+      "parseError": "Could not parse layout file.",
+      "preview": "{{pages}} pages · {{links}} navigation links",
+      "modeLabel": "Import mode",
+      "modeMerge": "Merge",
+      "modeReplace": "Replace all",
+      "modeMergeHint": "Upsert pages and links from the file. Existing pages not in the file are kept.",
+      "modeReplaceHint": "Remove the current layout and import the file as the new source of truth.",
+      "includeActions": "Apply action assignments from file",
+      "submit": "Import layout",
+      "success": "Imported {{created}} new and updated {{updated}} pages.",
+      "successWithWarnings": "Imported {{created}} new and updated {{updated}} pages. Check warnings in the file preview.",
+      "failed": "Import failed.",
+      "replaceConfirmTitle": "Replace app layout?",
+      "replaceConfirmText": "All current pages, links, and page action assignments will be removed before import.",
+      "replaceConfirmSubmit": "Replace and import"
+    },
     "errors": {
       "invalidSlug": "Page id must be a lowercase slug (letters, numbers, hyphens, underscores).",
       "containerDescriptionRequired": "Description is required for container pages.",

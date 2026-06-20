@@ -29,7 +29,10 @@ New projects get a **Root** container page that groups every screen on the map. 
 2. Use **Add container** anytime to create grouping nodes (e.g. an Authentication section under Root with login/signup as children)
 3. Use dashed **contains** edges for grouping — do not link login to every app page
 3. Add solid **navigation** links only for real user paths (e.g. login → projects after sign-in)
-4. In your app, never set `hostContext.currentPage` to `root` — use child screen slugs only
+
+## Export and import
+
+Download the layout as JSON from **Export** in the graph toolbar (or table view). Reuse it in another project with **Import** — choose **Merge** to upsert by page slug, or **Replace** to wipe the current map first. Optional toggles include action assignments when action names match in the target project.
 
 ## Table view
 

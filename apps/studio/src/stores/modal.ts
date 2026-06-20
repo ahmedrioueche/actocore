@@ -100,6 +100,14 @@ export interface EditAppPageLinkModalProps {
   linkId: string;
 }
 
+export interface ExportAppLayoutModalProps {
+  projectId: string;
+}
+
+export interface ImportAppLayoutModalProps {
+  projectId: string;
+}
+
 export type CreateProjectModalProps = Record<string, never>;
 
 export interface InviteMemberModalProps {
@@ -157,6 +165,8 @@ export interface ModalPropsMap {
   createAppPageFunctionality: CreateAppPageFunctionalityModalProps;
   editAppPageFunctionality: EditAppPageFunctionalityModalProps;
   editAppPageLink: EditAppPageLinkModalProps;
+  exportAppLayout: ExportAppLayoutModalProps;
+  importAppLayout: ImportAppLayoutModalProps;
   createProject: CreateProjectModalProps;
   inviteMember: InviteMemberModalProps;
   editMember: EditMemberModalProps;

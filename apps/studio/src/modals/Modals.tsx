@@ -85,6 +85,12 @@ const EditAppPageFunctionalityModal = lazy(
 const EditAppPageLinkModal = lazy(
   () => import('@/components/app-layout/EditAppPageLinkModal'),
 );
+const ExportAppLayoutModal = lazy(
+  () => import('@/components/app-layout/ExportAppLayoutModal'),
+);
+const ImportAppLayoutModal = lazy(
+  () => import('@/components/app-layout/ImportAppLayoutModal'),
+);
 const CreateReportModal = lazy(
   () => import('@/components/reports/CreateReportModal'),
 );
@@ -143,6 +149,10 @@ function ActiveLazyModal({ modalId }: { modalId: FeatureModalId }) {
       return <EditAppPageFunctionalityModal />;
     case 'editAppPageLink':
       return <EditAppPageLinkModal />;
+    case 'exportAppLayout':
+      return <ExportAppLayoutModal />;
+    case 'importAppLayout':
+      return <ImportAppLayoutModal />;
     case 'createReport':
       return <CreateReportModal />;
     case 'viewReport':

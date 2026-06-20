@@ -8,6 +8,8 @@ import { ActionRunnerService } from './action-runner.service';
 import { ActionSchemaValidator } from './action-schema.validator';
 import { ActionSectionsController } from './action-sections.controller';
 import { ActionSectionsService } from './action-sections.service';
+import { AppLayoutController } from './app-layout.controller';
+import { AppLayoutImportService } from './app-layout-import.service';
 import { AppPageLinksController } from './app-page-links.controller';
 import { AppPageLinksService } from './app-page-links.service';
 import { AppPagesController } from './app-pages.controller';
@@ -58,12 +60,14 @@ import {
     ActionSectionsController,
     AppPagesController,
     AppPageLinksController,
+    AppLayoutController,
   ],
   providers: [
     ActionsService,
     ActionSectionsService,
     AppPagesService,
     AppPageLinksService,
+    AppLayoutImportService,
     ActionSchemaValidator,
     ActionSelectorService,
     ActionRunnerService,

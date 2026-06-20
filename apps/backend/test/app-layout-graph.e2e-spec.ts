@@ -127,4 +127,117 @@ describe('App layout graph (e2e)', () => {
       ]),
     );
   });
+
+  it('imports layout JSON with merge and replace modes', async () => {
+    const server = app.getHttpServer();
+
+    const layout = {
+      formatVersion: '1.0',
+      exportedAt: new Date().toISOString(),
+      pages: [
+        {
+          slug: 'root',
+          title: 'Root',
+          route: '/',
+          pageKind: 'container',
+          description: 'Product map root',
+          enabled: true,
+          order: 0,
+          parentPageSlug: null,
+          graphPosition: { x: 0, y: 0 },
+        },
+        {
+          slug: 'billing',
+          title: 'Billing',
+          route: '/billing',
+          enabled: true,
+          order: 1,
+          parentPageSlug: 'root',
+          graphPosition: { x: 200, y: 100 },
+        },
+        {
+          slug: 'usage',
+          title: 'Usage',
+          route: '/usage',
+          enabled: true,
+          order: 2,
+          parentPageSlug: 'root',
+          graphPosition: { x: 400, y: 100 },
+        },
+      ],
+      links: [
+        {
+          sourceSlug: 'billing',
+          targetSlug: 'usage',
+          label: 'View usage',
+        },
+      ],
+    };
+
+    const mergeResult = await request(server)
+      .post(`/v1/web/projects/${projectId}/app-layout/import`)
+      .send({ mode: 'merge', layout })
+      .expect(201);
+
+    expect(mergeResult.body.data.created).toBeGreaterThan(0);
+
+    const afterMerge = await request(server)
+      .get(`/v1/web/projects/${projectId}/app-pages`)
+      .expect(200);
+
+    const billing = afterMerge.body.data.find(
+      (page: { slug: string }) => page.slug === 'billing',
+    );
+    const usage = afterMerge.body.data.find(
+      (page: { slug: string }) => page.slug === 'usage',
+    );
+    expect(billing?.graphPosition).toEqual({ x: 200, y: 100 });
+    expect(billing?.parentPageId).toBeTruthy();
+
+    const linksAfterMerge = await request(server)
+      .get(`/v1/web/projects/${projectId}/app-page-links`)
+      .expect(200);
+    expect(linksAfterMerge.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourcePageId: billing.id,
+          targetPageId: usage.id,
+          label: 'View usage',
+        }),
+      ]),
+    );
+
+    const replaceLayout = {
+      ...layout,
+      pages: layout.pages.filter(
+        (page: { slug: string }) => page.slug !== 'usage',
+      ),
+      links: [],
+    };
+
+    await request(server)
+      .post(`/v1/web/projects/${projectId}/app-layout/import`)
+      .send({ mode: 'replace', layout: replaceLayout })
+      .expect(201);
+
+    const afterReplace = await request(server)
+      .get(`/v1/web/projects/${projectId}/app-pages`)
+      .expect(200);
+
+    expect(
+      afterReplace.body.data.some(
+        (page: { slug: string }) => page.slug === 'usage',
+      ),
+    ).toBe(false);
+    expect(
+      afterReplace.body.data.some(
+        (page: { slug: string }) => page.slug === 'billing',
+      ),
+    ).toBe(true);
+
+    const linksAfterReplace = await request(server)
+      .get(`/v1/web/projects/${projectId}/app-page-links`)
+      .expect(200);
+    expect(linksAfterReplace.body.data).toHaveLength(0);
+  });
 });

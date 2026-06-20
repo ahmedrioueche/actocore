@@ -1,3 +1,4 @@
+import { AppLayoutActionsMenu } from "@/components/app-layout/AppLayoutActionsMenu";
 import { AppLayoutGraphView } from "@/components/app-layout/graph/AppLayoutGraphView";
 import { AppLayoutIntegrationSection } from "@/components/app-layout/AppLayoutIntegrationSection";
 import { AppPagesTable } from "@/components/app-layout/AppPagesTable";
@@ -111,13 +112,26 @@ export default function ProjectAppLayoutPage() {
                 </button>
               </div>
 
-              {canWrite && projectId && viewMode === "table" ? (
-                <Button
-                  icon={<Map className="h-4 w-4" />}
-                  onClick={handleCreatePage}
-                >
-                  {t("projectLayout.create.button")}
-                </Button>
+              {projectId && viewMode === "table" ? (
+                <>
+                  {canWrite ? (
+                    <Button
+                      icon={<Map className="h-4 w-4" />}
+                      onClick={handleCreatePage}
+                    >
+                      {t("projectLayout.create.button")}
+                    </Button>
+                  ) : null}
+                  <AppLayoutActionsMenu
+                    canWrite={canWrite}
+                    onExport={() =>
+                      openModal("exportAppLayout", { projectId })
+                    }
+                    onImport={() =>
+                      openModal("importAppLayout", { projectId })
+                    }
+                  />
+                </>
               ) : null}
             </div>
           }

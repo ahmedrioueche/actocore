@@ -480,6 +480,14 @@ function AppLayoutGraphInner({
     openModal('createAppPage', { projectId, pageKind: 'container' });
   }, [openModal, projectId]);
 
+  const handleExport = useCallback(() => {
+    openModal('exportAppLayout', { projectId });
+  }, [openModal, projectId]);
+
+  const handleImport = useCallback(() => {
+    openModal('importAppLayout', { projectId });
+  }, [openModal, projectId]);
+
   useEffect(
     () => () => {
       if (saveTimerRef.current != null) {
@@ -502,6 +510,8 @@ function AppLayoutGraphInner({
         onToggleFullscreen={onToggleFullscreen}
         onAddPage={handleAddPage}
         onAddContainer={handleAddContainer}
+        onExport={handleExport}
+        onImport={handleImport}
         canWrite={canWrite}
       />
 

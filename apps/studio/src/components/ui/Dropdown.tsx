@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useTheme } from "@/context/ThemeContext";
+
 import useScreen from "@/hooks/useScreen";
+import { cn } from "@/utils/helper";
 
 interface DropdownProps {
   trigger: React.ReactNode;
@@ -23,7 +24,6 @@ export default function Dropdown({
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isDark } = useTheme();
   const { isMobile } = useScreen();
   const useModalLayout = mobileAsModal && isMobile;
 
@@ -106,7 +106,7 @@ export default function Dropdown({
   };
 
   const renderMenu = (closeDropdown: () => void) => (
-    <div className="py-2">
+    <div className="p-1.5">
       {typeof children === "function" ? children(closeDropdown) : children}
     </div>
   );
@@ -226,28 +226,39 @@ export function DropdownItem({
 }: DropdownItemProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`w-full px-4 py-3 flex items-${
-        description ? "start" : "center"
-      } gap-3 transition-colors ${
+      className={cn(
+        "group flex w-full gap-3 rounded-lg px-3 py-2.5 text-start transition-colors duration-150",
+        description ? "items-start" : "items-center",
         variant === "danger"
-          ? "hover:bg-danger/10 text-danger"
-          : "hover:bg-border/50 text-text-primary"
-      } ${className}`}
+          ? "text-danger hover:bg-danger-surface focus-visible:bg-danger-surface"
+          : "text-text-primary hover:bg-surface-hover focus-visible:bg-surface-hover",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
+        className,
+      )}
     >
       {icon && (
-        <span className={`text-lg ${description ? "mt-0.5" : ""}`}>{icon}</span>
+        <span
+          className={cn(
+            "shrink-0 transition-colors duration-150",
+            description ? "mt-0.5" : "",
+            variant === "danger"
+              ? "text-danger group-hover:text-danger"
+              : "text-text-secondary group-hover:text-text-primary",
+          )}
+        >
+          {icon}
+        </span>
       )}
-      <div className="flex-1 text-start">
-        <div className="font-medium text-sm">{label}</div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium">{label}</div>
         {description && (
-          <div className="text-xs text-text-secondary mt-0.5">
-            {description}
-          </div>
+          <div className="mt-0.5 text-xs text-text-secondary">{description}</div>
         )}
       </div>
       {rightContent && (
-        <div className="flex items-center ms-2">{rightContent}</div>
+        <div className="ms-2 flex shrink-0 items-center">{rightContent}</div>
       )}
     </button>
   );
@@ -255,7 +266,7 @@ export function DropdownItem({
 
 // Dropdown.Divider subcomponent
 export function DropdownDivider() {
-  return <div className="my-2 border-t border-border" />;
+  return <div className="my-1 border-t border-border" />;
 }
 
 // Dropdown.Header subcomponent
@@ -270,7 +281,10 @@ export function DropdownHeader({
 }: DropdownHeaderProps) {
   return (
     <div
-      className={`px-4 py-2 text-xs font-semibold text-text-secondary uppercase tracking-wider ${className}`}
+      className={cn(
+        "px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary",
+        className,
+      )}
     >
       {children}
     </div>

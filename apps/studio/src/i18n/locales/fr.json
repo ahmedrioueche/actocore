@@ -782,6 +782,40 @@
       "hookLabel": "React — mise à jour à la navigation",
       "oneLinerLabel": "Mise à jour ponctuelle"
     },
+    "menu": {
+      "open": "Actions sur la carte"
+    },
+    "export": {
+      "button": "Exporter",
+      "title": "Exporter la carte produit",
+      "subtitle": "{{pages}} pages · {{links}} liens",
+      "description": "Téléchargez un fichier JSON réutilisable dans un autre projet ou comme sauvegarde. Les slugs restent stables à l'import.",
+      "includeActions": "Inclure les actions assignées",
+      "submit": "Télécharger le JSON",
+      "success": "Carte produit exportée."
+    },
+    "import": {
+      "button": "Importer",
+      "title": "Importer une carte produit",
+      "subtitle": "Chargez un fichier JSON exporté depuis App layout.",
+      "dropLabel": "Déposez un fichier JSON ici",
+      "dropHint": "ou cliquez pour parcourir",
+      "parseError": "Impossible de lire le fichier.",
+      "preview": "{{pages}} pages · {{links}} liens de navigation",
+      "modeLabel": "Mode d'import",
+      "modeMerge": "Fusionner",
+      "modeReplace": "Tout remplacer",
+      "modeMergeHint": "Met à jour les pages et liens du fichier. Les pages absentes du fichier sont conservées.",
+      "modeReplaceHint": "Supprime la carte actuelle et importe le fichier comme nouvelle référence.",
+      "includeActions": "Appliquer les assignations d'actions du fichier",
+      "submit": "Importer",
+      "success": "{{created}} pages créées, {{updated}} mises à jour.",
+      "successWithWarnings": "{{created}} pages créées, {{updated}} mises à jour. Vérifiez les avertissements.",
+      "failed": "Échec de l'import.",
+      "replaceConfirmTitle": "Remplacer la carte produit ?",
+      "replaceConfirmText": "Toutes les pages, liens et assignations d'actions actuels seront supprimés avant l'import.",
+      "replaceConfirmSubmit": "Remplacer et importer"
+    },
     "errors": {
       "invalidSlug": "L'id de page doit être un slug en minuscules.",
       "containerDescriptionRequired": "La description est obligatoire pour les conteneurs.",
