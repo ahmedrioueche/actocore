@@ -21,6 +21,7 @@ import { useModalStore, type EditAppPageModalProps  } from '@/stores/modal';
 import { canWriteActions } from '@/lib/studio-permissions';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
+import { isContainerPage } from '@/utils/app-layout-root-page';
 
 export default function EditAppPageModal() {
   const { t } = useTranslation();
@@ -32,6 +33,10 @@ export default function EditAppPageModal() {
   const canWrite = canWriteActions(session);
   const pagesQuery = useAppPages(isOpen ? projectId : null);
   const page = pagesQuery.data?.find((entry) => entry.id === pageId);
+  const isContainer = page ? isContainerPage(page) : false;
+  const parentPage = pagesQuery.data?.find(
+    (entry) => entry.id === page?.parentPageId,
+  );
   const updatePage = useUpdateAppPage(projectId);
   const assignActions = useAssignAppPageActions(projectId);
   const actionsQuery = useProjectActions(isOpen ? projectId : null, {
@@ -163,6 +168,26 @@ export default function EditAppPageModal() {
           {t('projectLayout.fields.slugImmutable')}
         </p>
         <InputField
+          label={t('projectLayout.fields.pageKind')}
+          value={
+            isContainer
+              ? t('projectLayout.container.badge')
+              : t('projectLayout.fields.pageKindScreen')
+          }
+          disabled
+        />
+        <InputField
+          label={t('projectLayout.fields.parent')}
+          value={
+            parentPage
+              ? isContainerPage(parentPage)
+                ? parentPage.title
+                : `${parentPage.title} (${parentPage.route})`
+              : t('projectLayout.fields.parentNone')
+          }
+          disabled
+        />
+        <InputField
           label={t('projectLayout.fields.title')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -174,7 +199,7 @@ export default function EditAppPageModal() {
           value={route}
           onChange={(e) => setRoute(e.target.value)}
           placeholder={t('projectLayout.fields.routePlaceholder')}
-          disabled={pagesQuery.isLoading}
+          disabled={pagesQuery.isLoading || isContainer}
         />
         <TextArea
           label={t('projectLayout.fields.description')}
@@ -195,10 +220,10 @@ export default function EditAppPageModal() {
           actions={allActions as ActionData[]}
           selectedActionIds={selectedActionIds}
           onChange={setSelectedActionIds}
-          disabled={pagesQuery.isLoading || actionsQuery.isLoading}
+          disabled={pagesQuery.isLoading || actionsQuery.isLoading || isContainer}
         />
 
-        {projectId && pageId ? (
+        {projectId && pageId && !isContainer ? (
           <AppPageFunctionalitiesPanel
             projectId={projectId}
             pageId={pageId}

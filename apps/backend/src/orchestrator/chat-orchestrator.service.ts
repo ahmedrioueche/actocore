@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
   ActionData,
+  AppPageLinkManifestEntry,
   AppPageManifestEntry,
   ChatIntent,
   ChatMessageData,
@@ -17,6 +18,7 @@ import { ActionRunnerService } from '../actions/action-runner.service';
 import { ActionSelectorService } from '../actions/action-selector.service';
 import { ActionsService } from '../actions/actions.service';
 import { AppPagesService } from '../actions/app-pages.service';
+import { AppPageLinksService } from '../actions/app-page-links.service';
 import {
   QA_NO_CITATIONS_REPLY,
   QaRunnerService,
@@ -64,6 +66,7 @@ interface PreparedIncomingMessage {
   enabledActions: ActionData[];
   hostContext?: HostContext;
   appPages?: AppPageManifestEntry[];
+  pageLinks?: AppPageLinkManifestEntry[];
   currentPageId?: string;
 }
 
@@ -75,6 +78,7 @@ export class ChatOrchestratorService {
     private readonly sessions: SessionsService,
     private readonly actions: ActionsService,
     private readonly appPages: AppPagesService,
+    private readonly appPageLinks: AppPageLinksService,
     private readonly actionSelector: ActionSelectorService,
     private readonly actionRunner: ActionRunnerService,
     private readonly qaRunner: QaRunnerService,
@@ -221,7 +225,8 @@ export class ChatOrchestratorService {
     const prepStartedAt = Date.now();
     const projectId = context.projectId;
 
-    const [enabledActions, history, projectAppPages] = await Promise.all([
+    const [enabledActions, history, projectAppPages, projectPageLinks] =
+      await Promise.all([
       this.listProjectActions(projectId),
       this.sessions.listRecentMessages(
         projectId,
@@ -229,6 +234,7 @@ export class ChatOrchestratorService {
         PREP_HISTORY_LIMIT,
       ),
       this.appPages.listManifest(projectId),
+      this.appPageLinks.listManifest(projectId),
     ]);
 
     const normalizedHostContext = this.normalizeHostContext(body.hostContext);
@@ -277,6 +283,7 @@ export class ChatOrchestratorService {
       enabledActions,
       hostContext,
       appPages,
+      pageLinks: projectPageLinks,
       currentPageId,
     };
   }
@@ -740,7 +747,7 @@ export class ChatOrchestratorService {
     context: RequestContextData,
     prep: Pick<
       PreparedIncomingMessage,
-      'enabledActions' | 'history' | 'hostContext' | 'appPages'
+      'enabledActions' | 'history' | 'hostContext' | 'appPages' | 'pageLinks'
     >,
     modeNote?: string,
   ): LlmMessage[] {
@@ -754,6 +761,7 @@ export class ChatOrchestratorService {
         {
           hostContext: prep.hostContext,
           appPages: prep.appPages,
+          pageLinks: prep.pageLinks,
         },
       ),
     });

@@ -2,6 +2,7 @@ import {
   Background,
   ReactFlow,
   ReactFlowProvider,
+  addEdge,
   type Connection,
   type Edge,
   type Node,
@@ -31,6 +32,8 @@ import {
   useAppPageLinks,
   useCreateAppPageLink,
   useDeleteAppPageLink,
+  buildOptimisticAppPageLinkId,
+  isOptimisticAppPageLinkId,
 } from '@/hooks/use-app-page-links';
 import {
   useAppPages,
@@ -38,7 +41,9 @@ import {
 } from '@/hooks/use-app-pages';
 import { canWriteActions } from '@/lib/studio-permissions';
 import { useModalStore } from '@/stores/modal';
+import { useAppLayoutGraphCollapseStore } from '@/stores/app-layout-graph-collapse';
 import { buildGraphPositions } from '@/utils/app-layout-graph-layout';
+import { countDirectChildren } from '@/utils/app-layout-page-tree';
 
 const nodeTypes = { appPage: AppPageGraphNode };
 
@@ -54,8 +59,14 @@ function isSameGraphNodeData(
     current.projectId !== next.projectId ||
     current.canWrite !== next.canWrite ||
     current.page.id !== next.page.id ||
-    current.page.updatedAt !== next.page.updatedAt
+    current.page.updatedAt !== next.page.updatedAt ||
+    (current.page.parentPageId ?? null) !== (next.page.parentPageId ?? null) ||
+    (current.page.pageKind ?? 'screen') !== (next.page.pageKind ?? 'screen')
   ) {
+    return false;
+  }
+
+  if (current.childCount !== next.childCount) {
     return false;
   }
 
@@ -106,30 +117,79 @@ function mergeGraphNodes(
   return changed ? merged : current;
 }
 
+function isContainsGraphEdge(edge: Edge): boolean {
+  return edge.type === 'contains' || edge.id.startsWith('contains-');
+}
+
+function navigationEdgeKey(edge: Pick<Edge, 'source' | 'target'>): string {
+  return `${edge.source}\0${edge.target}`;
+}
+
 function mergeGraphEdges(current: Edge[], incoming: Edge[]): Edge[] {
   if (incoming.length === 0) {
     return incoming;
   }
 
+  const incomingNavKeys = new Set(
+    incoming
+      .filter((edge) => !isContainsGraphEdge(edge))
+      .map((edge) => navigationEdgeKey(edge)),
+  );
   const currentById = new Map(current.map((edge) => [edge.id, edge]));
+  const currentNavByKey = new Map(
+    current
+      .filter((edge) => !isContainsGraphEdge(edge))
+      .map((edge) => [navigationEdgeKey(edge), edge] as const),
+  );
+
   let changed = current.length !== incoming.length;
 
-  const merged = incoming.map((edge) => {
-    const existing = currentById.get(edge.id);
+  const mergedIncoming = incoming.map((edge) => {
+    const existingById = currentById.get(edge.id);
     if (
-      existing &&
-      existing.source === edge.source &&
-      existing.target === edge.target &&
-      existing.label === edge.label
+      existingById &&
+      existingById.source === edge.source &&
+      existingById.target === edge.target &&
+      existingById.label === edge.label
     ) {
-      return existing;
+      return existingById;
+    }
+
+    if (!isContainsGraphEdge(edge)) {
+      const existingByKey = currentNavByKey.get(navigationEdgeKey(edge));
+      if (
+        existingByKey &&
+        existingByKey.source === edge.source &&
+        existingByKey.target === edge.target &&
+        (existingByKey.label ?? undefined) === (edge.label ?? undefined)
+      ) {
+        if (existingByKey.id !== edge.id) {
+          changed = true;
+          return { ...existingByKey, id: edge.id, label: edge.label };
+        }
+        return existingByKey;
+      }
     }
 
     changed = true;
     return edge;
   });
 
-  return changed ? merged : current;
+  const pendingNavigation = current.filter(
+    (edge) =>
+      !isContainsGraphEdge(edge) &&
+      !incomingNavKeys.has(navigationEdgeKey(edge)),
+  );
+
+  if (pendingNavigation.length > 0) {
+    changed = true;
+  }
+
+  if (!changed) {
+    return current;
+  }
+
+  return [...mergedIncoming, ...pendingNavigation];
 }
 
 interface AppLayoutGraphViewProps {
@@ -147,6 +207,19 @@ function AppLayoutGraphInner({
   const { session } = useAuth();
   const openModal = useModalStore((state) => state.openModal);
   const canWrite = canWriteActions(session);
+  const ensureCollapseLoaded = useAppLayoutGraphCollapseStore(
+    (state) => state.ensureProjectLoaded,
+  );
+  const getHiddenPageIds = useAppLayoutGraphCollapseStore(
+    (state) => state.getHiddenPageIds,
+  );
+  const collapsedByProject = useAppLayoutGraphCollapseStore(
+    (state) => state.collapsedByProject[projectId],
+  );
+
+  useEffect(() => {
+    ensureCollapseLoaded(projectId);
+  }, [ensureCollapseLoaded, projectId]);
 
   const pagesQuery = useAppPages(projectId);
   const linksQuery = useAppPageLinks(projectId);
@@ -159,6 +232,10 @@ function AppLayoutGraphInner({
   const pendingPositionsRef = useRef<Record<string, { x: number; y: number }>>(
     {},
   );
+  const nodePositionsRef = useRef<Map<string, { x: number; y: number }>>(
+    new Map(),
+  );
+  const persistedLayoutRef = useRef<Set<string>>(new Set());
 
   const pages = pagesQuery.data ?? EMPTY_PAGES;
   const links = linksQuery.data ?? EMPTY_LINKS;
@@ -176,9 +253,41 @@ function AppLayoutGraphInner({
     return map;
   }, [actions]);
 
+  const hiddenPageIds = useMemo(
+    () => getHiddenPageIds(projectId, pages),
+    [collapsedByProject, getHiddenPageIds, pages, projectId],
+  );
+
+  const visiblePages = useMemo(
+    () => pages.filter((page) => !hiddenPageIds.has(page.id)),
+    [hiddenPageIds, pages],
+  );
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<AppPageGraphNodeData>>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+  useEffect(() => {
+    nodePositionsRef.current = new Map(
+      nodes.map((node) => [
+        node.id,
+        { x: node.position.x, y: node.position.y },
+      ]),
+    );
+  }, [nodes]);
+
   const initialNodes = useMemo<Node<AppPageGraphNodeData>[]>(() => {
-    const positions = buildGraphPositions(pages);
-    return pages.map((page) => ({
+    const anchors = new Map<string, { x: number; y: number }>();
+    for (const page of pages) {
+      if (page.graphPosition) {
+        anchors.set(page.id, page.graphPosition);
+      }
+    }
+    for (const [id, position] of nodePositionsRef.current) {
+      anchors.set(id, position);
+    }
+
+    const positions = buildGraphPositions(pages, anchors);
+    return visiblePages.map((page) => ({
       id: page.id,
       type: 'appPage',
       position: positions[page.id] ?? { x: 0, y: 0 },
@@ -187,28 +296,72 @@ function AppLayoutGraphInner({
         actionNames: actionsByPage.get(page.id) ?? [],
         projectId,
         canWrite,
+        childCount: countDirectChildren(page.id, pages),
       },
     }));
-  }, [actionsByPage, canWrite, pages, projectId]);
+  }, [actionsByPage, canWrite, pages, projectId, visiblePages]);
 
-  const initialEdges = useMemo<Edge[]>(
-    () =>
-      links.map((link) => ({
+  const initialEdges = useMemo<Edge[]>(() => {
+    const containsEdges: Edge[] = visiblePages
+      .filter((page) => page.parentPageId && !hiddenPageIds.has(page.parentPageId))
+      .map((page) => ({
+        id: `contains-${page.parentPageId}-${page.id}`,
+        source: page.parentPageId!,
+        target: page.id,
+        type: 'contains',
+        selectable: false,
+        deletable: false,
+        focusable: false,
+        animated: false,
+      }));
+
+    const navigationEdges: Edge[] = links
+      .filter(
+        (link) =>
+          !hiddenPageIds.has(link.sourcePageId) &&
+          !hiddenPageIds.has(link.targetPageId),
+      )
+      .map((link) => ({
         id: link.id,
         source: link.sourcePageId,
         target: link.targetPageId,
         label: link.label,
+        type: 'navigation',
         animated: false,
-      })),
-    [links],
-  );
+      }));
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node<AppPageGraphNodeData>>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+    return [...containsEdges, ...navigationEdges];
+  }, [hiddenPageIds, links, visiblePages]);
 
   useEffect(() => {
     setNodes((current) => mergeGraphNodes(current, initialNodes));
   }, [initialNodes, setNodes]);
+
+  useEffect(() => {
+    if (!canWrite) {
+      return;
+    }
+
+    const pending: Record<string, { x: number; y: number }> = {};
+    for (const node of initialNodes) {
+      const page = pages.find((entry) => entry.id === node.id);
+      if (
+        !page ||
+        page.graphPosition ||
+        persistedLayoutRef.current.has(page.id)
+      ) {
+        continue;
+      }
+      pending[page.id] = node.position;
+      persistedLayoutRef.current.add(page.id);
+    }
+
+    if (Object.keys(pending).length === 0) {
+      return;
+    }
+
+    void updateGraphLayout.mutateAsync({ positions: pending });
+  }, [canWrite, initialNodes, pages, updateGraphLayout]);
 
   useEffect(() => {
     setEdges((current) => mergeGraphEdges(current, initialEdges));
@@ -246,12 +399,49 @@ function AppLayoutGraphInner({
       if (!canWrite || !connection.source || !connection.target) {
         return;
       }
+      if (connection.source === connection.target) {
+        return;
+      }
+
+      const alreadyLinked =
+        links.some(
+          (link) =>
+            link.sourcePageId === connection.source &&
+            link.targetPageId === connection.target,
+        ) ||
+        edges.some(
+          (edge) =>
+            !isContainsGraphEdge(edge) &&
+            edge.source === connection.source &&
+            edge.target === connection.target,
+        );
+
+      if (alreadyLinked) {
+        return;
+      }
+
+      const optimisticId = buildOptimisticAppPageLinkId(
+        connection.source,
+        connection.target,
+      );
+
+      setEdges((current) =>
+        addEdge(
+          {
+            ...connection,
+            id: optimisticId,
+            type: 'navigation',
+          },
+          current,
+        ),
+      );
+
       void createLink.mutateAsync({
         sourcePageId: connection.source,
         targetPageId: connection.target,
       });
     },
-    [canWrite, createLink],
+    [canWrite, createLink, edges, links, setEdges],
   );
 
   const handleEdgesDelete = useCallback(
@@ -260,6 +450,12 @@ function AppLayoutGraphInner({
         return;
       }
       for (const edge of deleted) {
+        if (edge.type === 'contains' || edge.id.startsWith('contains-')) {
+          continue;
+        }
+        if (isOptimisticAppPageLinkId(edge.id)) {
+          continue;
+        }
         void deleteLink.mutateAsync(edge.id);
       }
     },
@@ -268,7 +464,7 @@ function AppLayoutGraphInner({
 
   const handleEdgeDoubleClick = useCallback(
     (_event: React.MouseEvent, edge: Edge) => {
-      if (!canWrite) {
+      if (!canWrite || edge.type === 'contains' || edge.id.startsWith('contains-')) {
         return;
       }
       openModal('editAppPageLink', { projectId, linkId: edge.id });
@@ -277,7 +473,11 @@ function AppLayoutGraphInner({
   );
 
   const handleAddPage = useCallback(() => {
-    openModal('createAppPage', { projectId });
+    openModal('createAppPage', { projectId, pageKind: 'screen' });
+  }, [openModal, projectId]);
+
+  const handleAddContainer = useCallback(() => {
+    openModal('createAppPage', { projectId, pageKind: 'container' });
   }, [openModal, projectId]);
 
   useEffect(
@@ -301,6 +501,7 @@ function AppLayoutGraphInner({
         isFullscreen={isFullscreen}
         onToggleFullscreen={onToggleFullscreen}
         onAddPage={handleAddPage}
+        onAddContainer={handleAddContainer}
         canWrite={canWrite}
       />
 
@@ -333,6 +534,9 @@ function AppLayoutGraphInner({
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
+              defaultEdgeOptions={{
+                type: 'navigation',
+              }}
               onNodesChange={handleNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={handleConnect}
@@ -347,7 +551,7 @@ function AppLayoutGraphInner({
               zoomOnPinch
               deleteKeyCode={canWrite ? ['Backspace', 'Delete'] : null}
               proOptions={{ hideAttribution: true }}
-              className="h-full min-h-[28rem] bg-background"
+              className="h-full min-h-[28rem] bg-background [&_.react-flow__edge.contains path]:stroke-text-secondary [&_.react-flow__edge.contains path]:stroke-dasharray-[6_4] [&_.react-flow__edge.contains path]:stroke-[1.5]"
             >
               <Background gap={20} size={1} />
             </ReactFlow>

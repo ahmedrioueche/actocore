@@ -1,5 +1,6 @@
 export * from "./config/api";
 export * from "./config/api-version";
+export * from "./constants/app-page-root";
 export * from "./constants/app";
 export * from "./constants/brand-assets";
 export * from "./constants/knowledge-upload";

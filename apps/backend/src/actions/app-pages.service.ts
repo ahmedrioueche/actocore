@@ -9,6 +9,7 @@ import type {
   AppPageData,
   AppPageFunctionality,
   AppPageFunctionalityManifestEntry,
+  AppPageKind,
   AppPageManifestEntry,
   AssignAppPageActionsDto,
   CreateAppPageDto,
@@ -17,12 +18,19 @@ import type {
   UpdateAppPageFunctionalityDto,
   UpdateAppPageGraphLayoutDto,
 } from '@ahmedrioueche/actocore-shared';
+import {
+  DEFAULT_ROOT_PAGE_DESCRIPTION,
+  DEFAULT_ROOT_PAGE_ROUTE,
+  DEFAULT_ROOT_PAGE_SLUG,
+  DEFAULT_ROOT_PAGE_TITLE,
+} from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import { ProjectsService } from '../projects/projects.service';
 import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
 import { AppPage, AppPageDocument } from './schemas/app-page.schema';
 import { AppPageLink } from './schemas/app-page-link.schema';
+import { wouldCreatePageHierarchyCycle } from './app-page-hierarchy.util';
 import {
   KnowledgeChunk,
   KnowledgeChunkDocument,
@@ -111,6 +119,7 @@ export class AppPagesService {
 
   async list(projectId: string): Promise<AppPageData[]> {
     await this.projects.assertExists(projectId);
+    await this.ensureRootPage(projectId);
 
     const [docs, counts] = await Promise.all([
       this.pageModel
@@ -124,6 +133,9 @@ export class AppPagesService {
   }
 
   async listManifest(projectId: string): Promise<AppPageManifestEntry[]> {
+    await this.projects.assertExists(projectId);
+    await this.ensureRootPage(projectId);
+
     const [docs, actionNames] = await Promise.all([
       this.pageModel
         .find(withProjectId(projectId, { enabled: true }))
@@ -132,11 +144,23 @@ export class AppPagesService {
       this.actionNameMap(projectId),
     ]);
 
-    return docs.map((doc) => this.toManifestEntry(doc, actionNames));
+    const slugById = new Map(
+      docs.map((doc) => [doc._id.toString(), doc.slug] as const),
+    );
+
+    return docs.map((doc) => this.toManifestEntry(doc, actionNames, slugById));
   }
 
   async create(projectId: string, body: CreateAppPageDto): Promise<AppPageData> {
     await this.projects.assertExists(projectId);
+
+    const pageKind = body.pageKind ?? 'screen';
+    const route = this.resolvePageRoute(pageKind, body.route);
+    this.assertCreatePageFields(pageKind, body);
+
+    if (body.parentPageId) {
+      await this.assertValidParent(projectId, null, body.parentPageId);
+    }
 
     const last = await this.pageModel
       .findOne(withProjectId(projectId))
@@ -149,10 +173,12 @@ export class AppPagesService {
         projectId,
         slug: body.slug,
         title: body.title,
-        route: body.route,
+        route,
+        pageKind,
         description: body.description,
         enabled: body.enabled ?? true,
         order,
+        parentPageId: body.parentPageId,
         functionalities: [],
       });
       return this.toData(doc, 0);
@@ -207,12 +233,27 @@ export class AppPagesService {
 
   async remove(projectId: string, pageId: string): Promise<{ id: string }> {
     const doc = await this.pageModel
-      .findOneAndDelete(withProjectId(projectId, { _id: pageId }))
+      .findOne(withProjectId(projectId, { _id: pageId }))
       .exec();
 
     if (!doc) {
       throw new NotFoundException(`App page ${pageId} not found`);
     }
+
+    const reparentUpdate = doc.parentPageId
+      ? { $set: { parentPageId: doc.parentPageId } }
+      : { $unset: { parentPageId: '' } };
+
+    await this.pageModel
+      .updateMany(
+        withProjectId(projectId, { parentPageId: pageId }),
+        reparentUpdate,
+      )
+      .exec();
+
+    await this.pageModel
+      .findOneAndDelete(withProjectId(projectId, { _id: pageId }))
+      .exec();
 
     await this.actionModel
       .updateMany(withProjectId(projectId, { pageIds: pageId }), {
@@ -511,6 +552,94 @@ export class AppPagesService {
     return doc;
   }
 
+  private async ensureRootPage(projectId: string): Promise<void> {
+    const existingCount = await this.pageModel
+      .countDocuments(withProjectId(projectId))
+      .exec();
+    if (existingCount > 0) {
+      return;
+    }
+
+    await this.pageModel.create({
+      projectId,
+      slug: DEFAULT_ROOT_PAGE_SLUG,
+      title: DEFAULT_ROOT_PAGE_TITLE,
+      route: DEFAULT_ROOT_PAGE_ROUTE,
+      pageKind: 'container',
+      description: DEFAULT_ROOT_PAGE_DESCRIPTION,
+      enabled: true,
+      order: 0,
+      functionalities: [],
+    });
+  }
+
+  private resolvePageRoute(pageKind: AppPageKind, route?: string): string {
+    const trimmed = route?.trim();
+    if (pageKind === 'container') {
+      return trimmed || DEFAULT_ROOT_PAGE_ROUTE;
+    }
+    if (!trimmed) {
+      throw new BadRequestException('Route is required for screen pages');
+    }
+    return trimmed;
+  }
+
+  private assertCreatePageFields(
+    pageKind: AppPageKind,
+    body: CreateAppPageDto,
+  ): void {
+    if (pageKind === 'container' && !body.description?.trim()) {
+      throw new BadRequestException(
+        'Description is required for container pages',
+      );
+    }
+  }
+
+  private async assertValidParent(
+    projectId: string,
+    pageId: string | null,
+    parentPageId: string,
+  ): Promise<void> {
+    if (pageId && parentPageId === pageId) {
+      throw new BadRequestException('A page cannot be its own parent');
+    }
+
+    if (!Types.ObjectId.isValid(parentPageId)) {
+      throw new NotFoundException(`App page ${parentPageId} not found`);
+    }
+
+    const parent = await this.pageModel
+      .findOne(withProjectId(projectId, { _id: parentPageId }))
+      .exec();
+
+    if (!parent) {
+      throw new NotFoundException(`App page ${parentPageId} not found`);
+    }
+
+    if (pageId) {
+      const parentMap = await this.parentPageMap(projectId);
+      if (wouldCreatePageHierarchyCycle(pageId, parentPageId, parentMap)) {
+        throw new BadRequestException('Parent assignment would create a cycle');
+      }
+    }
+  }
+
+  private async parentPageMap(
+    projectId: string,
+  ): Promise<Map<string, string | null | undefined>> {
+    const docs = await this.pageModel
+      .find(withProjectId(projectId))
+      .select('_id parentPageId')
+      .exec();
+
+    return new Map(
+      docs.map(
+        (doc) =>
+          [doc._id.toString(), doc.parentPageId ?? null] as const,
+      ),
+    );
+  }
+
   private toData(doc: AppPageDocument, actionCount?: number): AppPageData {
     return {
       id: doc._id.toString(),
@@ -518,12 +647,14 @@ export class AppPagesService {
       slug: doc.slug,
       title: doc.title,
       route: doc.route,
+      pageKind: doc.pageKind ?? 'screen',
       description: doc.description,
       enabled: doc.enabled,
       order: doc.order,
       graphPosition: doc.graphPosition
         ? { x: doc.graphPosition.x, y: doc.graphPosition.y }
         : undefined,
+      parentPageId: doc.parentPageId ?? null,
       functionalities: (doc.functionalities ?? []).map((entry) => ({
         id: entry.id,
         title: entry.title,
@@ -539,6 +670,7 @@ export class AppPagesService {
   private toManifestEntry(
     doc: AppPageDocument,
     actionNames: Map<string, string>,
+    slugById: Map<string, string>,
   ): AppPageManifestEntry {
     const functionalities: AppPageFunctionalityManifestEntry[] | undefined =
       doc.functionalities?.length
@@ -552,12 +684,19 @@ export class AppPagesService {
           }))
         : undefined;
 
+    const parentPageId = doc.parentPageId ?? undefined;
+
     return {
       id: doc.slug,
       pageId: doc._id.toString(),
       title: doc.title,
       route: doc.route,
+      pageKind: doc.pageKind ?? 'screen',
       description: doc.description,
+      parentPageId,
+      parentPageSlug: parentPageId
+        ? slugById.get(parentPageId)
+        : undefined,
       functionalities,
     };
   }

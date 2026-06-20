@@ -5,9 +5,31 @@ Studio **App layout** is your product map: pages, how they connect, what actions
 ## Graph view (default)
 
 - **Pages** are nodes with route, title, linked **actions**, and **functionalities**
-- **Links** between nodes model navigation (draw from one page handle to another)
+- **Create child** on a page card adds a sub-page under it (dashed **contains** edges)
+- **Navigation links** between handles model user navigation (solid edges)
+- Collapse a parent to hide its subtree; tree layout auto-arranges new pages
 - Drag nodes to arrange the map; positions save automatically
 - Fullscreen mode for large apps; pan and zoom on desktop and mobile
+
+## Page hierarchy
+
+Build trees like `/projects` → `/projects/:projectId/knowledge` → detail routes:
+
+1. Create the root page normally (**Add page**)
+2. On the parent card, click **Create child** and enter the child route/title
+3. Repeat for deeper levels
+
+Deleting a parent reparents its direct children to the deleted page’s parent (or root).
+
+## Root container
+
+New projects get a **Root** container page that groups every screen on the map. Root is **not** a user-facing page.
+
+1. Add login, projects, usage, subscription, and other screens as **children of Root** (Create child on Root, or Add page which defaults under Root)
+2. Use **Add container** anytime to create grouping nodes (e.g. an Authentication section under Root with login/signup as children)
+3. Use dashed **contains** edges for grouping — do not link login to every app page
+3. Add solid **navigation** links only for real user paths (e.g. login → projects after sign-in)
+4. In your app, never set `hostContext.currentPage` to `root` — use child screen slugs only
 
 ## Table view
 

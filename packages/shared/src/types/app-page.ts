@@ -4,6 +4,9 @@ export interface AppPageGraphPosition {
   y: number;
 }
 
+/** Screen = real route; container = structural grouping node on the layout map. */
+export type AppPageKind = 'screen' | 'container';
+
 /** Goal-oriented capability on a page (guidance, not execution). */
 export interface AppPageFunctionality {
   /** Stable slug-like id within the page (e.g. "delete_project"). */
@@ -33,12 +36,16 @@ export interface AppPageData {
   title: string;
   /** Host route pattern, e.g. "/members" or "/members/:id". */
   route: string;
+  /** screen (default) or container grouping node. */
+  pageKind?: AppPageKind;
   /** LLM-facing summary of what the page is for. */
   description?: string;
   enabled: boolean;
   order: number;
   /** Graph canvas position in Studio App layout. */
   graphPosition?: AppPageGraphPosition;
+  /** Parent page Mongo id; omit or null for top-level pages. */
+  parentPageId?: string | null;
   /** Goal-oriented capabilities shown on the page node. */
   functionalities?: AppPageFunctionality[];
   /** Actions linked to this page (populated by list/detail endpoints). */
@@ -63,7 +70,12 @@ export interface AppPageManifestEntry {
   pageId?: string;
   title: string;
   route: string;
+  pageKind?: AppPageKind;
   description?: string;
+  /** Parent page Mongo id for hierarchy. */
+  parentPageId?: string;
+  /** Parent page slug for LLM context. */
+  parentPageSlug?: string;
   functionalities?: AppPageFunctionalityManifestEntry[];
 }
 

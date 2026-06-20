@@ -1,6 +1,11 @@
-import type { AppPageManifestEntry, HostContext } from '@ahmedrioueche/actocore-shared';
+import type {
+  AppPageLinkManifestEntry,
+  AppPageManifestEntry,
+  HostContext,
+} from '@ahmedrioueche/actocore-shared';
 import type { RequestContextData } from '@ahmedrioueche/actocore-shared';
 import { resolveCurrentPageTitle } from './current-page-question.util';
+import { buildAppSitemapBlock } from './app-sitemap.util';
 
 /**
  * Base system instructions so the assistant stays scoped to the host application.
@@ -12,6 +17,7 @@ export function buildAppAssistantSystemPrompt(
   options?: {
     hostContext?: HostContext;
     appPages?: AppPageManifestEntry[];
+    pageLinks?: AppPageLinkManifestEntry[];
   },
 ): string {
   const lines = [
@@ -22,13 +28,14 @@ export function buildAppAssistantSystemPrompt(
     'Never pretend to be a general-purpose ChatGPT-style assistant.',
     'When the user asks what pages, screens, or routes the app has, list every entry from Application pages below.',
     'When the user asks what page or screen they are on, answer from Current user context and Application pages — never say you lack documentation for that.',
+    'Container pages (marked [container]) are grouping nodes on the product map only — never tell the user they are on a container page.',
     'NEVER claim an in-app action ran, succeeded, or failed — the host app runs actions only when the user clicks Run on the action card in the chat widget.',
     'NEVER say you are "running" an action or that something was "successfully created/updated/deleted" unless the user already clicked Run and your host app reported the result.',
     'When parameters for an action are still missing, ask for them briefly — do not say an action is ready or waiting for Run.',
     'Format replies with Markdown. For grouped features or topics, use bold section titles on their own line (e.g. **Feature area**: …) instead of bullet lists with asterisks.',
   ];
 
-  const sitemap = buildAppSitemapBlock(options?.appPages);
+  const sitemap = buildAppSitemapBlock(options?.appPages, options?.pageLinks);
   if (sitemap) {
     lines.push('', sitemap);
   }
@@ -66,22 +73,7 @@ export function buildAppAssistantSystemPrompt(
   return lines.join('\n');
 }
 
-export function buildAppSitemapBlock(
-  pages?: AppPageManifestEntry[],
-): string | null {
-  if (!pages?.length) {
-    return null;
-  }
-
-  const lines = pages.map((page) => {
-    const desc = page.description?.trim();
-    return desc
-      ? `- ${page.id} (${page.route}): ${page.title} — ${desc}`
-      : `- ${page.id} (${page.route}): ${page.title}`;
-  });
-
-  return ['Application pages:', ...lines].join('\n');
-}
+export { buildAppSitemapBlock } from './app-sitemap.util';
 
 export function formatHostContextBlock(
   hostContext?: HostContext,

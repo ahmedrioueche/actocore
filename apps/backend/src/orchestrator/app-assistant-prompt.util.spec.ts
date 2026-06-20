@@ -64,7 +64,7 @@ describe('buildAppAssistantSystemPrompt', () => {
       },
     );
 
-    expect(prompt).toContain('Application pages:');
+    expect(prompt).toContain('Application pages (container nodes group screens');
     expect(prompt).toContain('members (/members)');
     expect(prompt).toContain('Current user context:');
     expect(prompt).toContain('Current page: Members (id: members)');

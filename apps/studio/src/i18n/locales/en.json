@@ -414,7 +414,11 @@
         "title": "App layout",
         "description": "Send the current URL path when users navigate. ActoCore matches it against the routes you define here and resolves the page automatically.",
         "graphTitle": "Graph view",
-        "graphBody": "Pages appear as nodes with linked actions and functionalities. Draw links between pages to model navigation. Drag nodes to arrange the map; positions are saved automatically.",
+        "graphBody": "Pages appear as nodes with linked actions and functionalities. Use Create child on a page to build a hierarchy (dashed lines). Draw solid links between handles to model navigation. Drag nodes to arrange the map; positions are saved automatically.",
+        "hierarchyTitle": "Page hierarchy",
+        "hierarchyBody": "Create a top-level page, then use Create child to add screens underneath it—for example /projects, then /projects/:projectId/knowledge as a child. Collapse a parent to hide its subtree on the graph.",
+        "rootContainerTitle": "Root container",
+        "rootContainerBody": "New projects start with a Root container that groups every screen on the map. Root is not a user-facing page — add login, projects, usage, and other screens as its children. Use dashed contains edges for grouping; add solid navigation links only for real user paths (for example login → projects after sign-in).",
         "tableTitle": "Table view",
         "tableBody": "Use the table for bulk editing page fields, toggling enabled state, and sorting through many screens.",
         "tipTitle": "No per-page code",
@@ -627,6 +631,7 @@
     "columns": {
       "page": "Page",
       "route": "Route",
+      "parent": "Parent",
       "actions": "Actions",
       "functionalities": "Functionalities",
       "status": "Status",
@@ -640,6 +645,11 @@
     "graph": {
       "editPage": "Edit page",
       "deletePage": "Delete page",
+      "createChild": "Create child page",
+      "createChildContainer": "Create child container",
+      "collapseChildren": "Collapse child pages",
+      "expandChildren": "Expand child pages",
+      "childCount": "{{count}} child pages",
       "disabledBadge": "Disabled",
       "actionsSection": "Actions",
       "functionalitiesSection": "Functionalities",
@@ -694,7 +704,8 @@
       "edit": {
         "title": "Edit page link",
         "subtitle": "From {{source}} to {{target}}",
-        "submit": "Save link"
+        "submit": "Save link",
+        "delete": "Delete link"
       },
       "fields": {
         "label": "Link label",
@@ -703,9 +714,23 @@
     },
     "create": {
       "button": "Add page",
+      "containerButton": "Add container",
       "title": "New page",
       "subtitle": "Define a host-app screen so the assistant knows where features live.",
+      "containerTitle": "New container page",
+      "containerSubtitle": "Group related screens on the product map. Container pages are not user-facing routes.",
+      "containerChildTitle": "New child container",
+      "containerChildSubtitle": "Container under {{title}}",
+      "containerSubmit": "Create container",
+      "childTitle": "New child page",
+      "childSubtitle": "Child of {{title}}",
+      "underRootSubtitle": "New page under {{title}}",
+      "underRootHint": "New screens are added under Root on the product map. Link auth and app pages with dashed contains edges — use solid navigation links only for real user paths.",
       "submit": "Create page"
+    },
+    "container": {
+      "badge": "Container",
+      "defaultHint": "Groups related screens on the product map. Not a user-facing page."
     },
     "edit": {
       "title": "Edit page",
@@ -721,14 +746,25 @@
     "fields": {
       "slug": "Page id",
       "slugPlaceholder": "e.g. members",
-      "slugHint": "Stable id used in hostContext.currentPage. Lowercase slug only.",
+      "slugContainerPlaceholder": "e.g. auth",
+      "slugHint": "Stable page identifier. Lowercase slug only.",
       "slugImmutable": "Page id cannot be changed after creation.",
       "title": "Title",
       "titlePlaceholder": "e.g. Members",
+      "titleContainerPlaceholder": "e.g. Authentication",
       "route": "Route",
       "routePlaceholder": "e.g. /members or /members/:id",
+      "routeContainerPlaceholder": "Optional — defaults to /",
+      "routeChildPlaceholder": "e.g. {{route}}/settings",
+      "routeChildHint": "Child routes usually extend the parent route ({{route}}/…).",
+      "parent": "Parent page",
+      "parentNone": "None (top level)",
+      "pageKind": "Page type",
+      "pageKindScreen": "Screen",
       "description": "Description",
       "descriptionPlaceholder": "What users do on this page (helps the assistant answer navigation questions)",
+      "descriptionContainerPlaceholder": "e.g. Groups login and signup flows. Not a page users visit directly.",
+      "descriptionContainerHint": "Required for container pages — explain what this group represents for the assistant.",
       "enabled": "Enabled",
       "enablePage": "Enable page",
       "disablePage": "Disable page"
@@ -749,6 +785,7 @@
     },
     "errors": {
       "invalidSlug": "Page id must be a lowercase slug (letters, numbers, hyphens, underscores).",
+      "containerDescriptionRequired": "Description is required for container pages.",
       "requiredFields": "Title and route are required."
     }
   },

@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsNumber,
   IsObject,
   IsOptional,
@@ -9,6 +10,8 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+
+import type { AppPageKind } from '../types/app-page';
 
 const APP_PAGE_SLUG_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
 const FUNCTIONALITY_ID_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
@@ -27,10 +30,15 @@ export class CreateAppPageDto {
   @MaxLength(120)
   title!: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(200)
-  route!: string;
+  route?: string;
+
+  @IsOptional()
+  @IsIn(['screen', 'container'] satisfies AppPageKind[])
+  pageKind?: AppPageKind;
 
   @IsOptional()
   @IsString()
@@ -40,6 +48,10 @@ export class CreateAppPageDto {
   @IsOptional()
   @IsBoolean()
   enabled?: boolean;
+
+  @IsOptional()
+  @IsString()
+  parentPageId?: string;
 }
 
 export class UpdateAppPageDto {

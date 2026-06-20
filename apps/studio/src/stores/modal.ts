@@ -71,8 +71,12 @@ export interface ActionsSdkCodeModalProps {
   projectId: string;
 }
 
+import type { AppPageKind } from '@ahmedrioueche/actocore-shared';
+
 export interface CreateAppPageModalProps {
   projectId: string;
+  parentPageId?: string;
+  pageKind?: AppPageKind;
 }
 
 export interface EditAppPageModalProps {

@@ -1,10 +1,14 @@
-import { Link2 } from 'lucide-react';
+import { Link2, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
-import { useAppPageLinks, useUpdateAppPageLink } from '@/hooks/use-app-page-links';
+import {
+  useAppPageLinks,
+  useDeleteAppPageLink,
+  useUpdateAppPageLink,
+} from '@/hooks/use-app-page-links';
 import { useAppPages } from '@/hooks/use-app-pages';
 import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { toast } from '@/stores/toast';
@@ -22,7 +26,9 @@ export default function EditAppPageLinkModal() {
   const pages = pagesQuery.data ?? [];
 
   const updateLink = useUpdateAppPageLink(projectId);
+  const deleteLink = useDeleteAppPageLink(projectId);
   const [label, setLabel] = useState('');
+  const isBusy = updateLink.isPending || deleteLink.isPending;
 
   useEffect(() => {
     if (isOpen && link) {
@@ -60,6 +66,21 @@ export default function EditAppPageLinkModal() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteLink.mutateAsync(linkId);
+      closeModal();
+    } catch (err) {
+      const code = (err as Error & { errorCode?: string }).errorCode;
+      toast.error(
+        getApiErrorMessage(t, {
+          errorCode: code,
+          message: err instanceof Error ? err.message : undefined,
+        }),
+      );
+    }
+  };
+
   return (
     <BaseModal
       isOpen={isOpen}
@@ -75,10 +96,20 @@ export default function EditAppPageLinkModal() {
         type: 'submit',
         form: 'edit-app-page-link-form',
         loading: updateLink.isPending,
+        disabled: isBusy,
+      }}
+      tertiaryButton={{
+        label: t('projectLayout.links.edit.delete'),
+        icon: Trash2,
+        onClick: () => void handleDelete(),
+        loading: deleteLink.isPending,
+        disabled: isBusy,
+        variant: 'danger',
       }}
       secondaryButton={{
         label: t('common.cancel'),
         onClick: closeModal,
+        disabled: isBusy,
       }}
     >
       <form

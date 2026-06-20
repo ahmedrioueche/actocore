@@ -1,5 +1,5 @@
 import type { AppPageData } from '@ahmedrioueche/actocore-shared';
-import { Map, Pencil, Trash2 } from 'lucide-react';
+import { GitBranchPlus, LayoutGrid, Map as MapIcon, Pencil, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,7 @@ import {
 import { canWriteActions } from '@/lib/studio-permissions';
 import { useModalStore } from '@/stores/modal';
 import type { ColumnDef } from '@/types/table';
+import { isContainerPage } from '@/utils/app-layout-root-page';
 
 interface AppPagesTableProps {
   projectId: string;
@@ -35,6 +36,7 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
   const pages = pagesQuery.data ?? [];
 
   const columns = useMemo<ColumnDef<AppPageData>[]>(() => {
+    const pageById = new Map(pages.map((page) => [page.id, page]));
     const formatDate = (value: string) =>
       new Date(value).toLocaleDateString(i18n.language, {
         month: 'short',
@@ -57,12 +59,19 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
           return (
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-text-secondary">
-                <Map className="h-4 w-4" />
+                <MapIcon className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <p className="truncate font-medium text-text-primary">
-                  {page.title}
-                </p>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="truncate font-medium text-text-primary">
+                    {page.title}
+                  </p>
+                  {isContainerPage(page) ? (
+                    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                      {t('projectLayout.container.badge')}
+                    </span>
+                  ) : null}
+                </div>
                 <p className="truncate font-mono text-xs text-text-secondary">
                   {page.slug}
                 </p>
@@ -86,6 +95,27 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
             {row.original.route}
           </span>
         ),
+      },
+      {
+        id: 'parent',
+        accessorFn: (row) => pageById.get(row.parentPageId ?? '')?.title ?? '',
+        header: t('projectLayout.columns.parent'),
+        meta: {
+          widthClassName: 'w-36',
+          renderSkeleton: () => (
+            <div className="h-4 w-24 animate-pulse rounded bg-surface-hover" />
+          ),
+        },
+        cell: ({ row }) => {
+          const parent = row.original.parentPageId
+            ? pageById.get(row.original.parentPageId)
+            : null;
+          return (
+            <span className="text-sm text-text-primary">
+              {parent?.title ?? t('projectLayout.fields.parentNone')}
+            </span>
+          );
+        },
       },
       {
         id: 'actions',
@@ -191,16 +221,44 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
       header: '',
       enableSorting: false,
       meta: {
-        widthClassName: 'w-28',
+        widthClassName: 'w-36',
         align: 'right',
         renderSkeleton: () => (
-          <div className="ms-auto h-8 w-16 animate-pulse rounded-lg bg-surface-hover" />
+          <div className="ms-auto h-8 w-24 animate-pulse rounded-lg bg-surface-hover" />
         ),
       },
       cell: ({ row }) => {
         const page = row.original;
         return (
           <div className="flex justify-end gap-1">
+            <button
+              type="button"
+              onClick={() =>
+                openModal('createAppPage', {
+                  projectId,
+                  parentPageId: page.id,
+                  pageKind: 'container',
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-primary"
+              aria-label={t('projectLayout.graph.createChildContainer')}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                openModal('createAppPage', {
+                  projectId,
+                  parentPageId: page.id,
+                  pageKind: 'screen',
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-primary"
+              aria-label={t('projectLayout.graph.createChild')}
+            >
+              <GitBranchPlus className="h-4 w-4" />
+            </button>
             <button
               type="button"
               onClick={() =>
@@ -241,6 +299,7 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
     i18n.language,
     openConfirm,
     openModal,
+    pages,
     projectId,
     t,
     updatePage,
@@ -256,12 +315,16 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
       getRowId={(page) => page.id}
       emptyState={
         <EmptyState
-          icon={Map}
+          icon={MapIcon}
           title={t('projectPages.sections.layout.emptyTitle')}
           description={t('projectPages.sections.layout.emptyDescription')}
         />
       }
       renderMobileCard={(page) => {
+        const pageById = new Map(pages.map((entry) => [entry.id, entry]));
+        const parent = page.parentPageId
+          ? pageById.get(page.parentPageId)
+          : null;
         const formatDate = (value: string) =>
           new Date(value).toLocaleDateString(i18n.language, {
             month: 'short',
@@ -300,6 +363,34 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
 
         const rowActions = canWrite ? (
           <>
+            <button
+              type="button"
+              onClick={() =>
+                openModal('createAppPage', {
+                  projectId,
+                  parentPageId: page.id,
+                  pageKind: 'container',
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-primary"
+              aria-label={t('projectLayout.graph.createChildContainer')}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                openModal('createAppPage', {
+                  projectId,
+                  parentPageId: page.id,
+                  pageKind: 'screen',
+                })
+              }
+              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-primary"
+              aria-label={t('projectLayout.graph.createChild')}
+            >
+              <GitBranchPlus className="h-4 w-4" />
+            </button>
             <button
               type="button"
               onClick={() =>
@@ -343,6 +434,10 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
                   }
                 />
                 <MobileDataRow
+                  label={t('projectLayout.columns.parent')}
+                  value={parent?.title ?? t('projectLayout.fields.parentNone')}
+                />
+                <MobileDataRow
                   label={t('projectLayout.columns.actions')}
                   value={String(page.actionCount ?? 0)}
                 />
@@ -359,12 +454,19 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
           >
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-text-secondary">
-                <Map className="h-4 w-4" />
+                <MapIcon className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <p className="truncate font-medium text-text-primary">
-                  {page.title}
-                </p>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="truncate font-medium text-text-primary">
+                    {page.title}
+                  </p>
+                  {isContainerPage(page) ? (
+                    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                      {t('projectLayout.container.badge')}
+                    </span>
+                  ) : null}
+                </div>
                 <p className="truncate font-mono text-xs text-text-secondary">
                   {page.slug}
                 </p>

@@ -14,6 +14,7 @@ interface AppLayoutGraphToolbarProps {
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onAddPage: () => void;
+  onAddContainer: () => void;
   canWrite: boolean;
 }
 
@@ -21,6 +22,7 @@ export function AppLayoutGraphToolbar({
   isFullscreen,
   onToggleFullscreen,
   onAddPage,
+  onAddContainer,
   canWrite,
 }: AppLayoutGraphToolbarProps) {
   const { t } = useTranslation();
@@ -73,9 +75,14 @@ export function AppLayoutGraphToolbar({
       </button>
 
       {canWrite ? (
-        <Button type="button" onClick={onAddPage} className="ml-auto">
-          {t('projectLayout.create.button')}
-        </Button>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <Button type="button" variant="outline" onClick={onAddContainer}>
+            {t('projectLayout.create.containerButton')}
+          </Button>
+          <Button type="button" onClick={onAddPage}>
+            {t('projectLayout.create.button')}
+          </Button>
+        </div>
       ) : null}
     </div>
   );

@@ -31,6 +31,24 @@ export function DocsAppLayoutContent() {
 
       <section className="space-y-2">
         <h3 className="text-sm font-semibold text-text-primary">
+          {t('projectDocs.sections.appLayout.hierarchyTitle')}
+        </h3>
+        <p className="text-sm text-text-secondary">
+          {t('projectDocs.sections.appLayout.hierarchyBody')}
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t('projectDocs.sections.appLayout.rootContainerTitle')}
+        </h3>
+        <p className="text-sm text-text-secondary">
+          {t('projectDocs.sections.appLayout.rootContainerBody')}
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-text-primary">
           {t('projectDocs.sections.appLayout.tableTitle')}
         </h3>
         <p className="text-sm text-text-secondary">

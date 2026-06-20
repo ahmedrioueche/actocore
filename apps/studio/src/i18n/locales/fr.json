@@ -413,7 +413,11 @@
         "title": "App layout",
         "description": "Envoyez le chemin URL actuel lors de la navigation. ActoCore le fait correspondre aux routes définies ici et résout la page automatiquement.",
         "graphTitle": "Vue graphe",
-        "graphBody": "Les pages sont des nœuds avec actions et fonctionnalités liées. Reliez les pages pour modéliser la navigation. Glissez les nœuds pour organiser la carte ; les positions sont enregistrées automatiquement.",
+        "graphBody": "Les pages sont des nœuds avec actions et fonctionnalités liées. Utilisez Créer une page enfant pour construire une hiérarchie (traits pointillés). Reliez les poignées pour la navigation (traits pleins). Glissez les nœuds pour organiser la carte.",
+        "hierarchyTitle": "Hiérarchie des pages",
+        "hierarchyBody": "Créez une page racine, puis une page enfant — par exemple /projects, puis /projects/:projectId/knowledge en dessous. Repliez un parent pour masquer sa sous-arborescence.",
+        "rootContainerTitle": "Conteneur Root",
+        "rootContainerBody": "Les nouveaux projets démarrent avec un conteneur Root qui regroupe tous les écrans. Root n'est pas une page utilisateur — ajoutez login, projects, usage, etc. comme enfants. Traits pointillés pour le regroupement ; liens pleins seulement pour les parcours réels.",
         "tableTitle": "Vue tableau",
         "tableBody": "Utilisez le tableau pour modifier en masse les champs, activer/désactiver les pages et parcourir de nombreux écrans.",
         "tipTitle": "Pas de code par page",
@@ -626,6 +630,7 @@
     "columns": {
       "page": "Page",
       "route": "Route",
+      "parent": "Parent",
       "actions": "Actions",
       "functionalities": "Fonctionnalités",
       "status": "Statut",
@@ -639,6 +644,11 @@
     "graph": {
       "editPage": "Modifier la page",
       "deletePage": "Supprimer la page",
+      "createChild": "Créer une page enfant",
+      "createChildContainer": "Créer un conteneur enfant",
+      "collapseChildren": "Replier les pages enfants",
+      "expandChildren": "Déplier les pages enfants",
+      "childCount": "{{count}} pages enfants",
       "disabledBadge": "Désactivé",
       "actionsSection": "Actions",
       "functionalitiesSection": "Fonctionnalités",
@@ -654,9 +664,23 @@
     },
     "create": {
       "button": "Ajouter une page",
+      "containerButton": "Ajouter un conteneur",
       "title": "Nouvelle page",
       "subtitle": "Définissez un écran de votre app pour la carte produit.",
+      "containerTitle": "Nouveau conteneur",
+      "containerSubtitle": "Regroupe des écrans sur la carte produit. Ce n'est pas une route utilisateur.",
+      "containerChildTitle": "Nouveau conteneur enfant",
+      "containerChildSubtitle": "Conteneur sous {{title}}",
+      "containerSubmit": "Créer le conteneur",
+      "childTitle": "Nouvelle page enfant",
+      "childSubtitle": "Enfant de {{title}}",
+      "underRootSubtitle": "Nouvelle page sous {{title}}",
+      "underRootHint": "Les nouveaux écrans sont ajoutés sous Root sur la carte produit. Reliez auth et app avec des traits pointillés — utilisez les liens pleins seulement pour les parcours utilisateur réels.",
       "submit": "Créer la page"
+    },
+    "container": {
+      "badge": "Conteneur",
+      "defaultHint": "Regroupe des écrans sur la carte produit. Ce n'est pas une page utilisateur."
     },
     "edit": {
       "title": "Modifier la page",
@@ -672,14 +696,25 @@
     "fields": {
       "slug": "Id de page",
       "slugPlaceholder": "ex. members",
-      "slugHint": "Id stable pour hostContext.currentPage.",
+      "slugContainerPlaceholder": "ex. auth",
+      "slugHint": "Identifiant stable de la page. Slug en minuscules uniquement.",
       "slugImmutable": "L'id de page ne peut pas être modifié.",
       "title": "Titre",
       "titlePlaceholder": "ex. Membres",
+      "titleContainerPlaceholder": "ex. Authentification",
       "route": "Route",
       "routePlaceholder": "ex. /members",
+      "routeContainerPlaceholder": "Optionnel — / par défaut",
+      "routeChildPlaceholder": "ex. {{route}}/settings",
+      "routeChildHint": "Les routes enfant prolongent généralement la route parent ({{route}}/…).",
+      "parent": "Page parente",
+      "parentNone": "Aucune (niveau racine)",
+      "pageKind": "Type de page",
+      "pageKindScreen": "Écran",
       "description": "Description",
       "descriptionPlaceholder": "Ce que les utilisateurs font sur cette page",
+      "descriptionContainerPlaceholder": "ex. Regroupe login et inscription. Ce n'est pas une page visitée directement.",
+      "descriptionContainerHint": "Obligatoire pour les conteneurs — expliquez ce que ce groupe représente pour l'assistant.",
       "enabled": "Activé",
       "enablePage": "Activer la page",
       "disablePage": "Désactiver la page"
@@ -731,7 +766,8 @@
       "edit": {
         "title": "Modifier le lien",
         "subtitle": "De {{source}} vers {{target}}",
-        "submit": "Enregistrer le lien"
+        "submit": "Enregistrer le lien",
+        "delete": "Supprimer le lien"
       },
       "fields": {
         "label": "Libellé du lien",
@@ -748,6 +784,7 @@
     },
     "errors": {
       "invalidSlug": "L'id de page doit être un slug en minuscules.",
+      "containerDescriptionRequired": "La description est obligatoire pour les conteneurs.",
       "requiredFields": "Le titre et la route sont requis."
     }
   },

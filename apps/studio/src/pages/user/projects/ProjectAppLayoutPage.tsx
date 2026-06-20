@@ -61,7 +61,7 @@ export default function ProjectAppLayoutPage() {
     if (!projectId) {
       return;
     }
-    openModal("createAppPage", { projectId });
+    openModal("createAppPage", { projectId, pageKind: "screen" });
   };
 
   return (

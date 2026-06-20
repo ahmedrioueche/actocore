@@ -47,6 +47,9 @@ export class AppPage {
   @Prop({ required: true })
   route!: string;
 
+  @Prop({ default: 'screen' })
+  pageKind!: 'screen' | 'container';
+
   @Prop()
   description?: string;
 
@@ -58,6 +61,9 @@ export class AppPage {
 
   @Prop({ type: AppPageGraphPositionSchema })
   graphPosition?: AppPageGraphPositionEmbedded;
+
+  @Prop({ index: true })
+  parentPageId?: string;
 
   @Prop({ type: [AppPageFunctionalitySchema], default: [] })
   functionalities!: AppPageFunctionalityEmbedded[];
@@ -71,3 +77,4 @@ export const AppPageSchema = SchemaFactory.createForClass(AppPage);
 
 AppPageSchema.index({ projectId: 1, slug: 1 }, { unique: true });
 AppPageSchema.index({ projectId: 1, order: 1 });
+AppPageSchema.index({ projectId: 1, parentPageId: 1 });
