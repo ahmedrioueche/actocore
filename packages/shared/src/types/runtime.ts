@@ -1,4 +1,7 @@
-import type { AppPageManifestEntry } from './app-page';
+import type {
+  AppPageLinkManifestEntry,
+  AppPageManifestEntry,
+} from './app-page';
 import type { SdkRuntimeConfigData } from './sdk-config';
 import type { RuntimeVoiceConfig } from './voice';
 
@@ -12,6 +15,8 @@ export interface RuntimeConfigData {
   sdk?: SdkRuntimeConfigData;
   /** Enabled app pages for host route mapping and AI context. */
   pages?: AppPageManifestEntry[];
+  /** Navigation links between app pages. */
+  pageLinks?: AppPageLinkManifestEntry[];
   /**
    * Opaque fingerprint — changes when sdk config, app layout, actions, or
    * knowledge change. Embed polls this to refresh without a full page reload.

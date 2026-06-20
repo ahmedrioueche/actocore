@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Search, X } from "lucide-react";
 import type { ReactNode } from "react";
 import React, { forwardRef, useState } from "react";
 
@@ -10,6 +10,8 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   width?: string;
+  /** Accessible label for the search clear control when `type="search"`. */
+  searchClearLabel?: string;
 }
 
 const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
@@ -23,17 +25,37 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       leftIcon,
       rightIcon,
       type,
+      value,
+      onChange,
+      searchClearLabel = "Clear search",
       ...props
     },
     ref,
   ) => {
     const [showPassword, setShowPassword] = useState(false);
 
-    // Handle password type toggle
     const isPassword = type === "password";
+    const isSearch = type === "search";
     const computedType = isPassword && showPassword ? "text" : type;
 
-    // Default right icon for password fields
+    const hasSearchValue =
+      value !== undefined && value !== null && String(value).length > 0;
+
+    const handleClearSearch = () => {
+      if (disabled || !onChange) {
+        return;
+      }
+      onChange({
+        target: { value: "" },
+        currentTarget: { value: "" },
+      } as React.ChangeEvent<HTMLInputElement>);
+    };
+
+    const defaultLeftIcon =
+      isSearch && leftIcon === undefined ? (
+        <Search className="h-5 w-5" />
+      ) : null;
+
     const defaultRightIcon = isPassword ? (
       <button
         type="button"
@@ -46,17 +68,32 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           <Eye className="h-5 w-5" />
         )}
       </button>
+    ) : isSearch && hasSearchValue && rightIcon === undefined ? (
+      <button
+        type="button"
+        onClick={handleClearSearch}
+        disabled={disabled}
+        aria-label={searchClearLabel}
+        className="cursor-pointer rounded-full p-1 text-text-secondary transition-colors duration-200 hover:bg-danger/10 hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <X className="h-4 w-4" />
+      </button>
     ) : null;
 
-    const finalRightIcon = rightIcon || defaultRightIcon;
+    const effectiveLeftIcon = leftIcon ?? defaultLeftIcon;
+    const effectiveRightIcon = rightIcon ?? defaultRightIcon;
 
     // Base classes with hover effects and password reveal button disabled
     const baseClasses =
       "block w-full py-3 border rounded-xl bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 hover:border-primary/50 [&::-ms-reveal]:hidden [&::-webkit-credentials-auto-fill-button]:hidden [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-70 [&::-webkit-calendar-picker-indicator]:hover:opacity-100";
 
+    const searchClasses = isSearch
+      ? "[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+      : "";
+
     // Dynamic padding based on icons
-    const paddingLeft = leftIcon ? "pl-10" : "pl-3";
-    const paddingRight = finalRightIcon ? "pr-12" : "pr-3";
+    const paddingLeft = effectiveLeftIcon ? "pl-10" : "pl-3";
+    const paddingRight = effectiveRightIcon ? "pr-12" : "pr-3";
 
     // Conditional classes
     const disabledClasses = disabled
@@ -67,7 +104,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       : "border-border";
 
     // Combine all classes
-    const inputClasses = `${baseClasses} ${paddingLeft} ${paddingRight} ${disabledClasses} ${errorClasses} ${className}`;
+    const inputClasses = `${baseClasses} ${searchClasses} ${paddingLeft} ${paddingRight} ${disabledClasses} ${errorClasses} ${className}`;
 
     return (
       <div className="space-y-2" style={{ width }}>
@@ -81,9 +118,9 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
         )}
 
         <div className="relative group">
-          {leftIcon && (
+          {effectiveLeftIcon && (
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-secondary group-hover:text-text-primary transition-colors duration-200">
-              {leftIcon}
+              {effectiveLeftIcon}
             </div>
           )}
 
@@ -92,13 +129,15 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             id={props.id}
             disabled={disabled}
             type={computedType}
+            value={value}
+            onChange={onChange}
             className={inputClasses}
             {...props}
           />
 
-          {finalRightIcon && (
+          {effectiveRightIcon && (
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-              {finalRightIcon}
+              {effectiveRightIcon}
             </div>
           )}
         </div>

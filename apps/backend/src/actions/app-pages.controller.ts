@@ -12,9 +12,12 @@ import {
   apiSuccess,
   AssignAppPageActionsDto,
   CreateAppPageDto,
+  CreateAppPageFunctionalityDto,
   ReorderAppPagesDto,
   StudioPermission,
   UpdateAppPageDto,
+  UpdateAppPageFunctionalityDto,
+  UpdateAppPageGraphLayoutDto,
 } from '@ahmedrioueche/actocore-shared';
 import { RequireStudioPermission } from '../studio/decorators/require-studio-permission.decorator';
 import { StudioCtx } from '../studio/decorators/studio-context.decorator';
@@ -67,6 +70,17 @@ export class AppPagesController {
     return apiSuccess(await this.pages.reorder(projectId, body.pageIds));
   }
 
+  @Patch('graph-layout')
+  @RequireStudioPermission(StudioPermission.ACTIONS_WRITE)
+  async updateGraphLayout(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Body() body: UpdateAppPageGraphLayoutDto,
+  ) {
+    await this.assertRoute(ctx, projectId);
+    return apiSuccess(await this.pages.updateGraphLayout(projectId, body));
+  }
+
   @Patch(':pageId/actions')
   @RequireStudioPermission(StudioPermission.ACTIONS_WRITE)
   async assignActions(
@@ -77,6 +91,58 @@ export class AppPagesController {
   ) {
     await this.assertRoute(ctx, projectId);
     return apiSuccess(await this.pages.assignActions(projectId, pageId, body));
+  }
+
+  @Post(':pageId/functionalities')
+  @RequireStudioPermission(StudioPermission.ACTIONS_WRITE)
+  async createFunctionality(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Param('pageId') pageId: string,
+    @Body() body: CreateAppPageFunctionalityDto,
+  ) {
+    await this.assertRoute(ctx, projectId);
+    return apiSuccess(
+      await this.pages.createFunctionality(projectId, pageId, body),
+    );
+  }
+
+  @Patch(':pageId/functionalities/:functionalityId')
+  @RequireStudioPermission(StudioPermission.ACTIONS_WRITE)
+  async updateFunctionality(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Param('pageId') pageId: string,
+    @Param('functionalityId') functionalityId: string,
+    @Body() body: UpdateAppPageFunctionalityDto,
+  ) {
+    await this.assertRoute(ctx, projectId);
+    return apiSuccess(
+      await this.pages.updateFunctionality(
+        projectId,
+        pageId,
+        functionalityId,
+        body,
+      ),
+    );
+  }
+
+  @Delete(':pageId/functionalities/:functionalityId')
+  @RequireStudioPermission(StudioPermission.ACTIONS_WRITE)
+  async removeFunctionality(
+    @StudioCtx('optional') ctx: StudioRequestContext | null,
+    @Param('projectId') projectId: string,
+    @Param('pageId') pageId: string,
+    @Param('functionalityId') functionalityId: string,
+  ) {
+    await this.assertRoute(ctx, projectId);
+    return apiSuccess(
+      await this.pages.removeFunctionality(
+        projectId,
+        pageId,
+        functionalityId,
+      ),
+    );
   }
 
   @Patch(':pageId')

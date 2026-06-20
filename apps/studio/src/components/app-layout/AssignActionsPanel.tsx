@@ -1,7 +1,8 @@
-import type { ActionData } from '@ahmedrioueche/actocore-shared';
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import type { ActionData } from "@ahmedrioueche/actocore-shared";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
+import InputField from "@/components/ui/InputField";
 interface AssignActionsPanelProps {
   actions: ActionData[];
   selectedActionIds: string[];
@@ -16,7 +17,7 @@ export function AssignActionsPanel({
   disabled = false,
 }: AssignActionsPanelProps) {
   const { t } = useTranslation();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -44,24 +45,26 @@ export function AssignActionsPanel({
   return (
     <div className="rounded-xl border border-border bg-surface p-4 md:p-6">
       <h4 className="text-sm font-semibold text-text-primary">
-        {t('projectLayout.actions.title')}
+        {t("projectLayout.actions.title")}
       </h4>
       <p className="mt-1 text-sm text-text-secondary">
-        {t('projectLayout.actions.description')}
+        {t("projectLayout.actions.description")}
       </p>
 
-      <input
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder={t('projectLayout.actions.searchPlaceholder')}
-        className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-        disabled={disabled}
-      />
-
+      <div className="mt-3">
+        <InputField
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t("projectLayout.actions.searchPlaceholder")}
+          disabled={disabled}
+          className="py-2 text-sm"
+          searchClearLabel={t("common.clearSearch")}
+        />
+      </div>
       {actions.length === 0 ? (
         <p className="mt-4 text-sm text-text-secondary">
-          {t('projectLayout.actions.noActions')}
+          {t("projectLayout.actions.noActions")}
         </p>
       ) : (
         <ul className="mt-4 max-h-72 space-y-2 overflow-y-auto">

@@ -80,6 +80,22 @@ export interface EditAppPageModalProps {
   pageId: string;
 }
 
+export interface CreateAppPageFunctionalityModalProps {
+  projectId: string;
+  pageId: string;
+}
+
+export interface EditAppPageFunctionalityModalProps {
+  projectId: string;
+  pageId: string;
+  functionalityId: string;
+}
+
+export interface EditAppPageLinkModalProps {
+  projectId: string;
+  linkId: string;
+}
+
 export type CreateProjectModalProps = Record<string, never>;
 
 export interface InviteMemberModalProps {
@@ -134,6 +150,9 @@ export interface ModalPropsMap {
   actionsSdkCode: ActionsSdkCodeModalProps;
   createAppPage: CreateAppPageModalProps;
   editAppPage: EditAppPageModalProps;
+  createAppPageFunctionality: CreateAppPageFunctionalityModalProps;
+  editAppPageFunctionality: EditAppPageFunctionalityModalProps;
+  editAppPageLink: EditAppPageLinkModalProps;
   createProject: CreateProjectModalProps;
   inviteMember: InviteMemberModalProps;
   editMember: EditMemberModalProps;

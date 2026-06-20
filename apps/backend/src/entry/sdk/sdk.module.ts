@@ -12,6 +12,7 @@ import { SessionsModule } from '../../sessions/sessions.module';
 import { SdkChatController } from './sdk-chat.controller';
 import { SdkChatService } from './sdk-chat.service';
 import { SdkActionsController } from './sdk-actions.controller';
+import { SdkManifestController } from './sdk-manifest.controller';
 import { SdkRuntimeController } from './sdk-runtime.controller';
 import { SdkSessionsController } from './sdk-sessions.controller';
 import { SdkVoiceController } from './sdk-voice.controller';
@@ -34,6 +35,7 @@ import { StudioModule } from '../../studio/studio.module';
     SdkChatController,
     SdkSessionsController,
     SdkRuntimeController,
+    SdkManifestController,
     SdkActionsController,
     SdkVoiceController,
   ],

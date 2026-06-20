@@ -7,16 +7,22 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import type {
   AppPageData,
+  AppPageFunctionality,
+  AppPageFunctionalityManifestEntry,
   AppPageManifestEntry,
   AssignAppPageActionsDto,
   CreateAppPageDto,
+  CreateAppPageFunctionalityDto,
   UpdateAppPageDto,
+  UpdateAppPageFunctionalityDto,
+  UpdateAppPageGraphLayoutDto,
 } from '@ahmedrioueche/actocore-shared';
 import { Model, Types } from 'mongoose';
 import { withProjectId } from '../common/tenant/tenant-scope';
 import { ProjectsService } from '../projects/projects.service';
 import { SdkConfigService } from '../projects/sdk-config/sdk-config.service';
 import { AppPage, AppPageDocument } from './schemas/app-page.schema';
+import { AppPageLink } from './schemas/app-page-link.schema';
 import {
   KnowledgeChunk,
   KnowledgeChunkDocument,
@@ -30,11 +36,15 @@ import {
   ProjectActionDocument,
 } from './schemas/project-action.schema';
 
+const MAX_FUNCTIONALITIES_PER_PAGE = 20;
+
 @Injectable()
 export class AppPagesService {
   constructor(
     @InjectModel(AppPage.name)
     private readonly pageModel: Model<AppPageDocument>,
+    @InjectModel(AppPageLink.name)
+    private readonly linkModel: Model<AppPageLink>,
     @InjectModel(ProjectAction.name)
     private readonly actionModel: Model<ProjectActionDocument>,
     @InjectModel(KnowledgeSource.name)
@@ -95,6 +105,7 @@ export class AppPagesService {
       ts(latestAction),
       knowledgeCount,
       ts(latestKnowledge),
+      await this.linkModel.countDocuments(filter),
     ].join(':');
   }
 
@@ -113,12 +124,15 @@ export class AppPagesService {
   }
 
   async listManifest(projectId: string): Promise<AppPageManifestEntry[]> {
-    const docs = await this.pageModel
-      .find(withProjectId(projectId, { enabled: true }))
-      .sort({ order: 1, title: 1 })
-      .exec();
+    const [docs, actionNames] = await Promise.all([
+      this.pageModel
+        .find(withProjectId(projectId, { enabled: true }))
+        .sort({ order: 1, title: 1 })
+        .exec(),
+      this.actionNameMap(projectId),
+    ]);
 
-    return docs.map((doc) => this.toManifestEntry(doc));
+    return docs.map((doc) => this.toManifestEntry(doc, actionNames));
   }
 
   async create(projectId: string, body: CreateAppPageDto): Promise<AppPageData> {
@@ -139,6 +153,7 @@ export class AppPagesService {
         description: body.description,
         enabled: body.enabled ?? true,
         order,
+        functionalities: [],
       });
       return this.toData(doc, 0);
     } catch (error) {
@@ -217,7 +232,142 @@ export class AppPagesService {
       })
       .exec();
 
+    await this.linkModel
+      .deleteMany(
+        withProjectId(projectId, {
+          $or: [{ sourcePageId: pageId }, { targetPageId: pageId }],
+        }),
+      )
+      .exec();
+
     return { id: doc._id.toString() };
+  }
+
+  async updateGraphLayout(
+    projectId: string,
+    body: UpdateAppPageGraphLayoutDto,
+  ): Promise<AppPageData[]> {
+    await this.projects.assertExists(projectId);
+
+    const entries = Object.entries(body.positions ?? {});
+    await Promise.all(
+      entries.map(async ([pageId, position]) => {
+        if (!Types.ObjectId.isValid(pageId)) {
+          throw new BadRequestException(`Invalid page id: ${pageId}`);
+        }
+        if (
+          typeof position?.x !== 'number' ||
+          typeof position?.y !== 'number'
+        ) {
+          throw new BadRequestException(`Invalid position for page ${pageId}`);
+        }
+        const updated = await this.pageModel
+          .updateOne(
+            withProjectId(projectId, { _id: pageId }),
+            { $set: { graphPosition: { x: position.x, y: position.y } } },
+          )
+          .exec();
+        if (updated.matchedCount === 0) {
+          throw new NotFoundException(`App page ${pageId} not found`);
+        }
+      }),
+    );
+
+    return this.list(projectId);
+  }
+
+  async createFunctionality(
+    projectId: string,
+    pageId: string,
+    body: CreateAppPageFunctionalityDto,
+  ): Promise<AppPageFunctionality> {
+    const doc = await this.require(projectId, pageId);
+    const existing = doc.functionalities ?? [];
+
+    if (existing.length >= MAX_FUNCTIONALITIES_PER_PAGE) {
+      throw new BadRequestException(
+        `Maximum ${MAX_FUNCTIONALITIES_PER_PAGE} functionalities per page`,
+      );
+    }
+
+    if (existing.some((entry) => entry.id === body.id)) {
+      throw new ConflictException(
+        `Functionality id "${body.id}" already exists on this page`,
+      );
+    }
+
+    if (body.linkedActionId) {
+      await this.requireAction(projectId, body.linkedActionId);
+    }
+
+    const functionality: AppPageFunctionality = {
+      id: body.id,
+      title: body.title,
+      description: body.description,
+      linkedActionId: body.linkedActionId,
+    };
+
+    doc.functionalities = [...existing, functionality];
+    await doc.save();
+    return functionality;
+  }
+
+  async updateFunctionality(
+    projectId: string,
+    pageId: string,
+    functionalityId: string,
+    body: UpdateAppPageFunctionalityDto,
+  ): Promise<AppPageFunctionality> {
+    const doc = await this.require(projectId, pageId);
+    const index = (doc.functionalities ?? []).findIndex(
+      (entry) => entry.id === functionalityId,
+    );
+    if (index < 0) {
+      throw new NotFoundException(
+        `Functionality ${functionalityId} not found on page`,
+      );
+    }
+
+    const current = doc.functionalities[index];
+    if (body.linkedActionId) {
+      await this.requireAction(projectId, body.linkedActionId);
+    }
+
+    const updated: AppPageFunctionality = {
+      id: current.id,
+      title: body.title ?? current.title,
+      description:
+        body.description !== undefined
+          ? body.description
+          : current.description,
+      linkedActionId:
+        body.linkedActionId === null
+          ? undefined
+          : body.linkedActionId ?? current.linkedActionId,
+    };
+
+    doc.functionalities[index] = updated;
+    await doc.save();
+    return updated;
+  }
+
+  async removeFunctionality(
+    projectId: string,
+    pageId: string,
+    functionalityId: string,
+  ): Promise<{ id: string }> {
+    const doc = await this.require(projectId, pageId);
+    const next = (doc.functionalities ?? []).filter(
+      (entry) => entry.id !== functionalityId,
+    );
+    if (next.length === (doc.functionalities ?? []).length) {
+      throw new NotFoundException(
+        `Functionality ${functionalityId} not found on page`,
+      );
+    }
+    doc.functionalities = next;
+    await doc.save();
+    return { id: functionalityId };
   }
 
   async reorder(
@@ -337,6 +487,30 @@ export class AppPagesService {
     return new Map(rows.map((row) => [row._id, row.count]));
   }
 
+  private async actionNameMap(projectId: string): Promise<Map<string, string>> {
+    const docs = await this.actionModel
+      .find(withProjectId(projectId))
+      .select('_id name')
+      .exec();
+    return new Map(docs.map((doc) => [doc._id.toString(), doc.name]));
+  }
+
+  private async requireAction(
+    projectId: string,
+    actionId: string,
+  ): Promise<ProjectActionDocument> {
+    if (!Types.ObjectId.isValid(actionId)) {
+      throw new NotFoundException(`Action ${actionId} not found`);
+    }
+    const doc = await this.actionModel
+      .findOne(withProjectId(projectId, { _id: actionId }))
+      .exec();
+    if (!doc) {
+      throw new NotFoundException(`Action ${actionId} not found`);
+    }
+    return doc;
+  }
+
   private toData(doc: AppPageDocument, actionCount?: number): AppPageData {
     return {
       id: doc._id.toString(),
@@ -347,19 +521,44 @@ export class AppPagesService {
       description: doc.description,
       enabled: doc.enabled,
       order: doc.order,
+      graphPosition: doc.graphPosition
+        ? { x: doc.graphPosition.x, y: doc.graphPosition.y }
+        : undefined,
+      functionalities: (doc.functionalities ?? []).map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+        description: entry.description,
+        linkedActionId: entry.linkedActionId,
+      })),
       actionCount,
       createdAt: (doc.createdAt ?? new Date()).toISOString(),
       updatedAt: (doc.updatedAt ?? new Date()).toISOString(),
     };
   }
 
-  private toManifestEntry(doc: AppPageDocument): AppPageManifestEntry {
+  private toManifestEntry(
+    doc: AppPageDocument,
+    actionNames: Map<string, string>,
+  ): AppPageManifestEntry {
+    const functionalities: AppPageFunctionalityManifestEntry[] | undefined =
+      doc.functionalities?.length
+        ? doc.functionalities.map((entry) => ({
+            id: entry.id,
+            title: entry.title,
+            description: entry.description,
+            linkedActionName: entry.linkedActionId
+              ? actionNames.get(entry.linkedActionId)
+              : undefined,
+          }))
+        : undefined;
+
     return {
       id: doc.slug,
       pageId: doc._id.toString(),
       title: doc.title,
       route: doc.route,
       description: doc.description,
+      functionalities,
     };
   }
 

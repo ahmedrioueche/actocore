@@ -15,6 +15,7 @@
     "error": "Something went wrong",
     "retry": "Try again",
     "dismiss": "Dismiss",
+    "clearSearch": "Clear search",
     "goBack": "Go back",
     "continue": "Continue",
     "viewMode": {
@@ -412,6 +413,10 @@
       "appLayout": {
         "title": "App layout",
         "description": "Send the current URL path when users navigate. ActoCore matches it against the routes you define here and resolves the page automatically.",
+        "graphTitle": "Graph view",
+        "graphBody": "Pages appear as nodes with linked actions and functionalities. Draw links between pages to model navigation. Drag nodes to arrange the map; positions are saved automatically.",
+        "tableTitle": "Table view",
+        "tableBody": "Use the table for bulk editing page fields, toggling enabled state, and sorting through many screens.",
         "tipTitle": "No per-page code",
         "tipBody": "Define routes once in App layout. In your app, pass only route (for example location.pathname). You do not need to set currentPage for each screen.",
         "hookLabel": "React — update on navigation",
@@ -623,8 +628,78 @@
       "page": "Page",
       "route": "Route",
       "actions": "Actions",
+      "functionalities": "Functionalities",
       "status": "Status",
       "updated": "Updated"
+    },
+    "view": {
+      "toggleLabel": "App layout view",
+      "graph": "Graph",
+      "table": "Table"
+    },
+    "graph": {
+      "editPage": "Edit page",
+      "deletePage": "Delete page",
+      "disabledBadge": "Disabled",
+      "actionsSection": "Actions",
+      "functionalitiesSection": "Functionalities",
+      "noActions": "No linked actions",
+      "noFunctionalities": "No functionalities yet",
+      "addFunctionality": "Add",
+      "moreCount": "+{{count}} more",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fitView": "Fit view",
+      "enterFullscreen": "Enter fullscreen",
+      "exitFullscreen": "Exit fullscreen"
+    },
+    "functionalities": {
+      "title": "Functionalities",
+      "description": "Goal-oriented capabilities on this page (how-to guidance for the assistant).",
+      "empty": "Add functionalities to describe what users can accomplish here.",
+      "create": {
+        "button": "Add functionality",
+        "title": "New functionality",
+        "subtitle": "Describe a goal users can accomplish on this page.",
+        "submit": "Add functionality"
+      },
+      "edit": {
+        "title": "Edit functionality",
+        "subtitle": "Update how the assistant explains this capability.",
+        "submit": "Save functionality",
+        "button": "Edit functionality"
+      },
+      "delete": {
+        "title": "Delete functionality?",
+        "text": "“{{title}}” will be removed from this page.",
+        "confirm": "Delete functionality"
+      },
+      "fields": {
+        "id": "Functionality id",
+        "idPlaceholder": "e.g. delete_project",
+        "idHint": "Lowercase slug used in the product map.",
+        "title": "Title",
+        "titlePlaceholder": "e.g. Delete project",
+        "description": "Description",
+        "descriptionPlaceholder": "How users accomplish this on the page",
+        "linkedAction": "Linked action (optional)",
+        "linkedActionEmpty": "None"
+      },
+      "errors": {
+        "invalidId": "Functionality id must be a lowercase slug.",
+        "requiredTitle": "Title is required."
+      }
+    },
+    "links": {
+      "edit": {
+        "title": "Edit page link",
+        "subtitle": "From {{source}} to {{target}}",
+        "submit": "Save link"
+      },
+      "fields": {
+        "label": "Link label",
+        "labelPlaceholder": "e.g. Navigate, Back, Settings"
+      }
     },
     "create": {
       "button": "Add page",

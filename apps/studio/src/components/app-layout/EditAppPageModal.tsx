@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AssignActionsPanel } from '@/components/app-layout/AssignActionsPanel';
+import { AppPageFunctionalitiesPanel } from '@/components/app-layout/AppPageFunctionalitiesPanel';
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
+import { useAuth } from '@/context/AuthContext';
 import { useProjectActions } from '@/hooks/use-actions';
 import {
   useAppPages,
@@ -15,6 +17,7 @@ import {
   useUpdateAppPage,
 } from '@/hooks/use-app-pages';
 import { useModalStore, type EditAppPageModalProps } from '@/stores/modal';
+import { canWriteActions } from '@/lib/studio-permissions';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
@@ -29,6 +32,8 @@ export default function EditAppPageModal() {
   const projectId = props?.projectId ?? null;
   const pageId = props?.pageId ?? null;
 
+  const { session } = useAuth();
+  const canWrite = canWriteActions(session);
   const pagesQuery = useAppPages(isOpen ? projectId : null);
   const page = pagesQuery.data?.find((entry) => entry.id === pageId);
   const updatePage = useUpdateAppPage(projectId);
@@ -43,7 +48,7 @@ export default function EditAppPageModal() {
   const [route, setRoute] = useState('');
   const [description, setDescription] = useState('');
   const [enabled, setEnabled] = useState(true);
-  const [selectedActionIds, setSelectedActionIds] = useState<string[]>([]);
+  const [selectedActionIds, setSelectedActionIds] = useState<string[]>([]);
   const seededRef = useRef(false);
   const actionsSeededRef = useRef(false);
 
@@ -59,7 +64,7 @@ export default function EditAppPageModal() {
       setTitle(page.title);
       setRoute(page.route);
       setDescription(page.description ?? '');
-      setEnabled(page.enabled);
+      setEnabled(page.enabled);
       seededRef.current = true;
     }
   }, [isOpen, page]);
@@ -96,7 +101,7 @@ export default function EditAppPageModal() {
       toast.error(t('projectLayout.errors.requiredFields'));
       return;
     }
-
+
     try {
       await updatePage.mutateAsync({
         pageId,
@@ -196,7 +201,15 @@ export default function EditAppPageModal() {
           onChange={setSelectedActionIds}
           disabled={pagesQuery.isLoading || actionsQuery.isLoading}
         />
-
+
+        {projectId && pageId ? (
+          <AppPageFunctionalitiesPanel
+            projectId={projectId}
+            pageId={pageId}
+            functionalities={page?.functionalities ?? []}
+            canWrite={canWrite}
+          />
+        ) : null}
       </form>
     </BaseModal>
   );

@@ -66,6 +66,15 @@ const CreateAppPageModal = lazy(
 const EditAppPageModal = lazy(
   () => import('@/components/app-layout/EditAppPageModal'),
 );
+const CreateAppPageFunctionalityModal = lazy(
+  () => import('@/components/app-layout/CreateAppPageFunctionalityModal'),
+);
+const EditAppPageFunctionalityModal = lazy(
+  () => import('@/components/app-layout/EditAppPageFunctionalityModal'),
+);
+const EditAppPageLinkModal = lazy(
+  () => import('@/components/app-layout/EditAppPageLinkModal'),
+);
 const CreateReportModal = lazy(
   () => import('@/components/reports/CreateReportModal'),
 );
@@ -118,6 +127,12 @@ function ActiveLazyModal({ modalId }: { modalId: Exclude<ModalId, 'confirm' | nu
       return <CreateAppPageModal />;
     case 'editAppPage':
       return <EditAppPageModal />;
+    case 'createAppPageFunctionality':
+      return <CreateAppPageFunctionalityModal />;
+    case 'editAppPageFunctionality':
+      return <EditAppPageFunctionalityModal />;
+    case 'editAppPageLink':
+      return <EditAppPageLinkModal />;
     case 'createReport':
       return <CreateReportModal />;
     case 'viewReport':

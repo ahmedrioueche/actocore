@@ -7,6 +7,7 @@ ActoCore Studio is the web dashboard (control plane) for developers who integrat
 - **Projects** — one project per app or environment. Each project has its own API keys, knowledge, actions, and SDK settings.
 - **Knowledge** — upload text, URLs, or documents so the assistant can answer questions (RAG).
 - **Actions** — define tools the AI can propose; your app implements handlers with the SDK.
+- **App layout** — map pages in a graph or table; link actions, functionalities, and navigation between screens.
 - **SDK config** — theme, copy, launcher position, UI flags; applied when the host app uses `loadRemoteConfig`.
 - **API keys** — create and revoke keys used by the embeddable SDK (`Authorization: Bearer` on `/v1/sdk/*`).
 - **Team** — workspace admins invite editors and assign project access.

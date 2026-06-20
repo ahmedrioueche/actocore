@@ -104,6 +104,22 @@ export function AppPagesTable({ projectId }: AppPagesTableProps) {
         ),
       },
       {
+        id: 'functionalities',
+        accessorFn: (row) => row.functionalities?.length ?? 0,
+        header: t('projectLayout.columns.functionalities'),
+        meta: {
+          widthClassName: 'w-28',
+          renderSkeleton: () => (
+            <div className="h-4 w-8 animate-pulse rounded bg-surface-hover" />
+          ),
+        },
+        cell: ({ row }) => (
+          <span className="text-sm text-text-primary">
+            {row.original.functionalities?.length ?? 0}
+          </span>
+        ),
+      },
+      {
         id: 'status',
         accessorFn: (row) => row.enabled,
         header: t('projectLayout.columns.status'),

@@ -15,6 +15,7 @@
     "error": "Quelque chose s'est mal passé",
     "retry": "Essayer à nouveau",
     "dismiss": "Fermer",
+    "clearSearch": "Effacer la recherche",
     "goBack": "Retour",
     "continue": "Continuer",
     "viewMode": {
@@ -297,6 +298,11 @@
         "emptyTitle": "Aucune action pour l'instant",
         "emptyDescription": "Définissez les outils que votre assistant peut appeler depuis le chat et la voix."
       },
+      "layout": {
+        "title": "App layout",
+        "emptyTitle": "Aucune page pour l'instant",
+        "emptyDescription": "Définissez les écrans de votre app et modélisez la navigation dans le graphe."
+      },
       "sdkConfig": {
         "title": "Configuration du SDK",
         "emptyTitle": "La configuration du SDK n'est pas configurée",
@@ -406,6 +412,10 @@
       "appLayout": {
         "title": "App layout",
         "description": "Envoyez le chemin URL actuel lors de la navigation. ActoCore le fait correspondre aux routes définies ici et résout la page automatiquement.",
+        "graphTitle": "Vue graphe",
+        "graphBody": "Les pages sont des nœuds avec actions et fonctionnalités liées. Reliez les pages pour modéliser la navigation. Glissez les nœuds pour organiser la carte ; les positions sont enregistrées automatiquement.",
+        "tableTitle": "Vue tableau",
+        "tableBody": "Utilisez le tableau pour modifier en masse les champs, activer/désactiver les pages et parcourir de nombreux écrans.",
         "tipTitle": "Pas de code par page",
         "tipBody": "Définissez les routes une fois dans App layout. Dans votre app, passez uniquement route (par ex. location.pathname). Pas besoin de définir currentPage pour chaque écran.",
         "hookLabel": "React — mise à jour à la navigation",
@@ -610,6 +620,135 @@
       "kindParent": "Section",
       "pdfPage": "p. {{page}}",
       "noChunks": "Aucun chunk pour l'instant. Réindexez une fois la source prête."
+    }
+  },
+  "projectLayout": {
+    "columns": {
+      "page": "Page",
+      "route": "Route",
+      "actions": "Actions",
+      "functionalities": "Fonctionnalités",
+      "status": "Statut",
+      "updated": "Mis à jour"
+    },
+    "view": {
+      "toggleLabel": "Vue App layout",
+      "graph": "Graphe",
+      "table": "Tableau"
+    },
+    "graph": {
+      "editPage": "Modifier la page",
+      "deletePage": "Supprimer la page",
+      "disabledBadge": "Désactivé",
+      "actionsSection": "Actions",
+      "functionalitiesSection": "Fonctionnalités",
+      "noActions": "Aucune action liée",
+      "noFunctionalities": "Aucune fonctionnalité",
+      "addFunctionality": "Ajouter",
+      "moreCount": "+{{count}} de plus",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "fitView": "Ajuster la vue",
+      "enterFullscreen": "Plein écran",
+      "exitFullscreen": "Quitter le plein écran"
+    },
+    "create": {
+      "button": "Ajouter une page",
+      "title": "Nouvelle page",
+      "subtitle": "Définissez un écran de votre app pour la carte produit.",
+      "submit": "Créer la page"
+    },
+    "edit": {
+      "title": "Modifier la page",
+      "subtitle": "Mettez à jour la page et les actions liées.",
+      "submit": "Enregistrer",
+      "saved": "Enregistré"
+    },
+    "delete": {
+      "title": "Supprimer la page ?",
+      "text": "« {{title}} » sera supprimée. Les actions liées restent dans le catalogue.",
+      "confirm": "Supprimer la page"
+    },
+    "fields": {
+      "slug": "Id de page",
+      "slugPlaceholder": "ex. members",
+      "slugHint": "Id stable pour hostContext.currentPage.",
+      "slugImmutable": "L'id de page ne peut pas être modifié.",
+      "title": "Titre",
+      "titlePlaceholder": "ex. Membres",
+      "route": "Route",
+      "routePlaceholder": "ex. /members",
+      "description": "Description",
+      "descriptionPlaceholder": "Ce que les utilisateurs font sur cette page",
+      "enabled": "Activé",
+      "enablePage": "Activer la page",
+      "disablePage": "Désactiver la page"
+    },
+    "actions": {
+      "title": "Actions sur cette page",
+      "description": "Assignez des actions existantes depuis votre catalogue.",
+      "searchPlaceholder": "Rechercher des actions…",
+      "noActions": "Créez d'abord des actions."
+    },
+    "functionalities": {
+      "title": "Fonctionnalités",
+      "description": "Capacités orientées objectif sur cette page (guidage pour l'assistant).",
+      "empty": "Ajoutez des fonctionnalités pour décrire ce que les utilisateurs peuvent accomplir ici.",
+      "create": {
+        "button": "Ajouter une fonctionnalité",
+        "title": "Nouvelle fonctionnalité",
+        "subtitle": "Décrivez un objectif que les utilisateurs peuvent accomplir sur cette page.",
+        "submit": "Ajouter"
+      },
+      "edit": {
+        "title": "Modifier la fonctionnalité",
+        "subtitle": "Mettez à jour la description pour l'assistant.",
+        "submit": "Enregistrer",
+        "button": "Modifier"
+      },
+      "delete": {
+        "title": "Supprimer la fonctionnalité ?",
+        "text": "« {{title}} » sera supprimée de cette page.",
+        "confirm": "Supprimer"
+      },
+      "fields": {
+        "id": "Id de fonctionnalité",
+        "idPlaceholder": "ex. delete_project",
+        "idHint": "Slug en minuscules pour la carte produit.",
+        "title": "Titre",
+        "titlePlaceholder": "ex. Supprimer le projet",
+        "description": "Description",
+        "descriptionPlaceholder": "Comment les utilisateurs accomplissent cela",
+        "linkedAction": "Action liée (optionnel)",
+        "linkedActionEmpty": "Aucune"
+      },
+      "errors": {
+        "invalidId": "L'id doit être un slug en minuscules.",
+        "requiredTitle": "Le titre est requis."
+      }
+    },
+    "links": {
+      "edit": {
+        "title": "Modifier le lien",
+        "subtitle": "De {{source}} vers {{target}}",
+        "submit": "Enregistrer le lien"
+      },
+      "fields": {
+        "label": "Libellé du lien",
+        "labelPlaceholder": "ex. Naviguer, Retour, Paramètres"
+      }
+    },
+    "integration": {
+      "title": "Intégration SDK",
+      "description": "Envoyez le chemin URL actuel lors de la navigation.",
+      "tipTitle": "Pas de code par page",
+      "tipBody": "Définissez les routes une fois dans App layout.",
+      "hookLabel": "React — mise à jour à la navigation",
+      "oneLinerLabel": "Mise à jour ponctuelle"
+    },
+    "errors": {
+      "invalidSlug": "L'id de page doit être un slug en minuscules.",
+      "requiredFields": "Le titre et la route sont requis."
     }
   },
   "projectActions": {

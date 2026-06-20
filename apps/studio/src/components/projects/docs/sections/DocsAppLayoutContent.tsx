@@ -20,6 +20,24 @@ export function DocsAppLayoutContent() {
         <p>{t('projectDocs.sections.appLayout.tipBody')}</p>
       </Tip>
 
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t('projectDocs.sections.appLayout.graphTitle')}
+        </h3>
+        <p className="text-sm text-text-secondary">
+          {t('projectDocs.sections.appLayout.graphBody')}
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t('projectDocs.sections.appLayout.tableTitle')}
+        </h3>
+        <p className="text-sm text-text-secondary">
+          {t('projectDocs.sections.appLayout.tableBody')}
+        </p>
+      </section>
+
       <DocCodeBlock
         label={t('projectDocs.sections.appLayout.hookLabel')}
         code={APP_LAYOUT_HOST_CONTEXT_HOOK}

@@ -1,6 +1,8 @@
 import {
   IsArray,
   IsBoolean,
+  IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Matches,
@@ -9,6 +11,7 @@ import {
 } from 'class-validator';
 
 const APP_PAGE_SLUG_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
+const FUNCTIONALITY_ID_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
 
 export class CreateAppPageDto {
   @IsString()
@@ -73,4 +76,78 @@ export class AssignAppPageActionsDto {
   @IsArray()
   @IsString({ each: true })
   actionIds!: string[];
+}
+
+export class AppPageGraphPositionDto {
+  @IsNumber()
+  x!: number;
+
+  @IsNumber()
+  y!: number;
+}
+
+export class UpdateAppPageGraphLayoutDto {
+  @IsObject()
+  positions!: Record<string, AppPageGraphPositionDto>;
+}
+
+export class CreateAppPageFunctionalityDto {
+  @IsString()
+  @MinLength(1)
+  @Matches(FUNCTIONALITY_ID_PATTERN, {
+    message:
+      'id must be a lowercase slug (letters, numbers, hyphens, underscores)',
+  })
+  id!: string;
+
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  linkedActionId?: string;
+}
+
+export class UpdateAppPageFunctionalityDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  linkedActionId?: string | null;
+}
+
+export class CreateAppPageLinkDto {
+  @IsString()
+  sourcePageId!: string;
+
+  @IsString()
+  targetPageId!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  label?: string;
+}
+
+export class UpdateAppPageLinkDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  label?: string;
 }

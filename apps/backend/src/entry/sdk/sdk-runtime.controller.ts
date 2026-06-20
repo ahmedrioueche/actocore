@@ -8,6 +8,7 @@ import {
 } from '../../auth/guards/api-key.guard';
 import { SdkConfigService } from '../../projects/sdk-config/sdk-config.service';
 import { AppPagesService } from '../../actions/app-pages.service';
+import { AppPageLinksService } from '../../actions/app-page-links.service';
 
 @UseGuards(ApiKeyGuard)
 @Controller('sdk/runtime')
@@ -16,15 +17,17 @@ export class SdkRuntimeController {
     private readonly config: ConfigService,
     private readonly sdkConfig: SdkConfigService,
     private readonly appPages: AppPagesService,
+    private readonly appPageLinks: AppPageLinksService,
   ) {}
 
   @Get()
   async getConfig(@Req() request: AuthenticatedRequest) {
     const voice = this.config.get<VoiceResolvedConfig>('voice');
     const projectId = request.apiKey!.projectId;
-    const [sdk, pages, dataRevision] = await Promise.all([
+    const [sdk, pages, pageLinks, dataRevision] = await Promise.all([
       this.sdkConfig.getConfig(projectId),
       this.appPages.listManifest(projectId),
+      this.appPageLinks.listManifest(projectId),
       this.appPages.getProjectDataRevision(projectId),
     ]);
 
@@ -38,6 +41,7 @@ export class SdkRuntimeController {
       },
       sdk,
       pages: pages.length > 0 ? pages : undefined,
+      pageLinks: pageLinks.length > 0 ? pageLinks : undefined,
       dataRevision,
     };
     return apiSuccess(payload);

@@ -106,6 +106,9 @@ export const queryKeys = {
   appPages: {
     list: (projectId: string) => ["appPages", "list", projectId] as const,
   },
+  appPageLinks: {
+    list: (projectId: string) => ["appPageLinks", "list", projectId] as const,
+  },
   sdkConfig: {
     detail: (projectId: string) => ["sdkConfig", "detail", projectId] as const,
   },
