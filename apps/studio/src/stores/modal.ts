@@ -166,27 +166,114 @@ export interface ModalPropsMap {
   editReport: EditReportModalProps;
 }
 
-export type ModalId = 'confirm' | keyof ModalPropsMap | null;
+export type FeatureModalId = keyof ModalPropsMap;
+export type ModalId = 'confirm' | FeatureModalId | null;
 
-interface ModalState {
+export type ModalStackEntry =
+  | { instanceId: string; modalId: 'confirm'; props: ConfirmModalProps }
+  | {
+      instanceId: string;
+      modalId: FeatureModalId;
+      props: ModalPropsMap[FeatureModalId];
+    };
+
+interface LegacyModalState {
+  /** @deprecated Read from the modal stack instead. Top entry only. */
   currentModal: ModalId;
+  /** @deprecated Read from the modal stack instead. Top confirm entry only. */
   confirmModalProps: ConfirmModalProps | null;
+  /** @deprecated Read from the modal stack instead. Top feature entry only. */
   modalProps: ModalPropsMap[keyof ModalPropsMap] | null;
+}
+
+interface ModalState extends LegacyModalState {
+  stack: ModalStackEntry[];
   openConfirm: (props: ConfirmModalProps) => void;
-  openModal: <K extends keyof ModalPropsMap>(
+  openModal: <K extends FeatureModalId>(
     id: K,
     props: ModalPropsMap[K],
   ) => void;
   closeModal: () => void;
+  closeModalInstance: (instanceId: string) => void;
+  closeAllModals: () => void;
 }
 
+let modalInstanceCounter = 0;
+
+function createModalInstanceId() {
+  modalInstanceCounter += 1;
+  return `modal-${modalInstanceCounter}`;
+}
+
+function deriveLegacyState(stack: ModalStackEntry[]): LegacyModalState {
+  const top = stack[stack.length - 1];
+  if (!top) {
+    return {
+      currentModal: null,
+      confirmModalProps: null,
+      modalProps: null,
+    };
+  }
+
+  if (top.modalId === 'confirm') {
+    return {
+      currentModal: 'confirm',
+      confirmModalProps: top.props,
+      modalProps: null,
+    };
+  }
+
+  return {
+    currentModal: top.modalId,
+    confirmModalProps: null,
+    modalProps: top.props,
+  };
+}
+
+function applyStackUpdate(
+  stack: ModalStackEntry[],
+): Pick<ModalState, keyof LegacyModalState | 'stack'> {
+  return {
+    stack,
+    ...deriveLegacyState(stack),
+  };
+}
+
+export const selectHasOpenModals = (state: ModalState) => state.stack.length > 0;
+
 export const useModalStore = create<ModalState>((set) => ({
+  stack: [],
   currentModal: null,
   confirmModalProps: null,
   modalProps: null,
   openConfirm: (props) =>
-    set({ currentModal: 'confirm', confirmModalProps: props }),
-  openModal: (id, props) => set({ currentModal: id, modalProps: props }),
-  closeModal: () =>
-    set({ currentModal: null, confirmModalProps: null, modalProps: null }),
+    set((state) =>
+      applyStackUpdate([
+        ...state.stack,
+        {
+          instanceId: createModalInstanceId(),
+          modalId: 'confirm',
+          props,
+        },
+      ]),
+    ),
+  openModal: (id, props) =>
+    set((state) =>
+      applyStackUpdate([
+        ...state.stack,
+        {
+          instanceId: createModalInstanceId(),
+          modalId: id,
+          props,
+        },
+      ]),
+    ),
+  closeModal: () => set((state) => applyStackUpdate(state.stack.slice(0, -1))),
+  closeModalInstance: (instanceId) =>
+    set((state) =>
+      applyStackUpdate(
+        state.stack.filter((entry) => entry.instanceId !== instanceId),
+      ),
+    ),
+  closeAllModals: () => set(applyStackUpdate([])),
 }));

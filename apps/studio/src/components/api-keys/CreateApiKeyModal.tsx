@@ -6,19 +6,16 @@ import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { getRandomApiKeyName } from '@/constants/api-keys';
 import { useCreateApiKey } from '@/hooks/use-api-keys';
-import { useModalStore, type CreateApiKeyModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type CreateApiKeyModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateApiKeyModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
+  const { isOpen, props, closeModal } = useFeatureModal('createApiKey');
   const openModal = useModalStore((state) => state.openModal);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'createApiKey';
-  const projectId = (modalProps as CreateApiKeyModalProps | null)?.projectId;
+  const projectId = props?.projectId;
 
   const createKey = useCreateApiKey(projectId ?? null);
 

@@ -10,6 +10,7 @@ import {
   useConfirmDeleteAccount,
   useRequestDeleteAccountOtp,
 } from '@/hooks/use-delete-account';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { useModalStore } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
@@ -23,21 +24,19 @@ function isWorkspaceOwner(role: StudioRole): boolean {
 export default function DeleteAccountModal() {
   const { t } = useTranslation();
   const { session } = useAuth();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const closeModal = useModalStore((state) => state.closeModal);
+  const { isOpen, closeModal } = useFeatureModal('deleteAccount');
   const requestOtp = useRequestDeleteAccountOtp();
   const confirmDelete = useConfirmDeleteAccount();
   const [step, setStep] = useState<Step>('warning');
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState('');
 
-  const isOpen = currentModal === 'deleteAccount';
   const role = session?.role;
   const email = session?.user.email;
 
   useEffect(() => {
     if (!isOpen) {
       setStep('warning');
-      setOtp('');
+      setOtp('');
     }
   }, [isOpen]);
 
@@ -45,7 +44,7 @@ export default function DeleteAccountModal() {
     return null;
   }
 
-  const handleRequestOtp = async () => {
+  const handleRequestOtp = async () => {
     try {
       await requestOtp.mutateAsync();
       setStep('otp');
@@ -54,7 +53,7 @@ export default function DeleteAccountModal() {
     }
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async () => {
     const trimmed = otp.trim();
     if (trimmed.length < 6) {
       toast.error(t('settings.deleteAccount.otpRequired'));
@@ -112,7 +111,7 @@ export default function DeleteAccountModal() {
           step === 'otp'
             ? () => {
                 setStep('warning');
-                setOtp('');
+                setOtp('');
               }
             : closeModal,
       }}
@@ -188,7 +187,7 @@ export default function DeleteAccountModal() {
             </button>
           </>
         )}
-
+
       </div>
     </BaseModal>
   );

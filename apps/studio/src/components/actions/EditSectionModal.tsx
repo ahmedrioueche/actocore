@@ -12,18 +12,14 @@ import {
   useActionSections,
   useUpdateActionSection,
 } from '@/hooks/use-action-sections';
-import { useModalStore, type EditSectionModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditSectionModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditSectionModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'editSection';
-  const props = modalProps as EditSectionModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('editSection');
   const projectId = props?.projectId ?? null;
   const sectionId = props?.sectionId ?? null;
 

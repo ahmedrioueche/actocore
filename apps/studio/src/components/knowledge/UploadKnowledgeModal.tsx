@@ -13,10 +13,7 @@ import {
   validateKnowledgeFile,
 } from '@/constants/knowledge';
 import { useUploadKnowledgeBatch } from '@/hooks/use-knowledge';
-import {
-  useModalStore,
-  type UploadKnowledgeModalProps,
-} from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { toast } from '@/stores/toast';
 import { cn } from '@/utils/helper';
 
@@ -26,18 +23,14 @@ function fileKey(file: File): string {
 
 export default function UploadKnowledgeModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'uploadKnowledge';
-  const projectId = (modalProps as UploadKnowledgeModalProps | null)?.projectId;
+  const { isOpen, props, closeModal } = useFeatureModal('uploadKnowledge');
+  const projectId = props?.projectId;
 
   const uploadBatch = useUploadKnowledgeBatch(projectId ?? null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState('');
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{
@@ -48,7 +41,7 @@ export default function UploadKnowledgeModal() {
   useEffect(() => {
     if (isOpen) {
       setFiles([]);
-      setTitle('');
+      setTitle('');
       setFileErrors({});
       setIsDragging(false);
       setUploadProgress(null);
@@ -99,7 +92,7 @@ export default function UploadKnowledgeModal() {
       setFileErrors(nextErrors);
       return;
     }
-
+
     setFileErrors(nextErrors);
     setFiles(combined);
   };
@@ -135,7 +128,7 @@ export default function UploadKnowledgeModal() {
       toast.error(t('knowledge.upload.errors.required'));
       return;
     }
-
+
     setUploadProgress({ current: 0, total: files.length });
 
     try {
@@ -338,7 +331,7 @@ export default function UploadKnowledgeModal() {
             {t('knowledge.upload.titleBulkHint')}
           </p>
         ) : null}
-
+
       </form>
     </BaseModal>
   );

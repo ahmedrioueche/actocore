@@ -8,6 +8,7 @@ import CustomSelect from '@/components/ui/CustomSelect';
 import InputField from '@/components/ui/InputField';
 import TextArea from '@/components/ui/TextArea';
 import { useCreateReport } from '@/hooks/use-reports';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { useModalStore } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
@@ -19,11 +20,8 @@ const REPORT_TYPES = [
 
 export default function CreateReportModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const closeModal = useModalStore((state) => state.closeModal);
+  const { isOpen, closeModal } = useFeatureModal('createReport');
   const createReport = useCreateReport();
-
-  const isOpen = currentModal === 'createReport';
   const [type, setType] = useState<StudioReportType>(StudioReportType.ISSUE);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');

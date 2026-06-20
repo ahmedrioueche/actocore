@@ -8,18 +8,15 @@ import InputField from '@/components/ui/InputField';
 import TextArea from '@/components/ui/TextArea';
 import { DEFAULT_SECTION_COLOR } from '@/constants/actions';
 import { useCreateActionSection } from '@/hooks/use-action-sections';
-import { useModalStore, type CreateSectionModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type CreateSectionModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateSectionModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'createSection';
-  const projectId = (modalProps as CreateSectionModalProps | null)?.projectId;
+  const { isOpen, props, closeModal } = useFeatureModal('createSection');
+  const projectId = props?.projectId;
 
   const createSection = useCreateActionSection(projectId ?? null);
 

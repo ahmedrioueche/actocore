@@ -16,19 +16,15 @@ import {
   useAssignAppPageActions,
   useUpdateAppPage,
 } from '@/hooks/use-app-pages';
-import { useModalStore, type EditAppPageModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditAppPageModalProps  } from '@/stores/modal';
 import { canWriteActions } from '@/lib/studio-permissions';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditAppPageModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'editAppPage';
-  const props = modalProps as EditAppPageModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('editAppPage');
   const projectId = props?.projectId ?? null;
   const pageId = props?.pageId ?? null;
 

@@ -17,7 +17,8 @@ import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 import { ACTION_NAME_PATTERN } from '@/constants/actions';
 import { useCreateAction } from '@/hooks/use-actions';
-import { useModalStore, type CreateActionModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type CreateActionModalProps  } from '@/stores/modal';
 import {
   resolveInputSchema,
   suggestActionNameFromDescription,
@@ -27,13 +28,8 @@ import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateActionModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
+  const { isOpen, props, closeModal } = useFeatureModal('createAction');
   const openModal = useModalStore((state) => state.openModal);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'createAction';
-  const props = modalProps as CreateActionModalProps | null;
   const projectId = props?.projectId;
 
   const createAction = useCreateAction(projectId ?? null);

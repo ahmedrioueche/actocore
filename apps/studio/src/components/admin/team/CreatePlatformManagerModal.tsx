@@ -12,17 +12,15 @@ import {
 } from '@/components/admin/team/platform-manager-form';
 import BaseModal from '@/components/ui/BaseModal';
 import { useCreatePlatformManager } from '@/hooks/use-platform-auth';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { useModalStore } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { normalizePlatformUsername } from '@/utils/platform-username';
 
 export default function CreatePlatformManagerModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const closeModal = useModalStore((state) => state.closeModal);
+  const { isOpen, closeModal } = useFeatureModal('createPlatformManager');
   const createManager = useCreatePlatformManager();
-
-  const isOpen = currentModal === 'createPlatformManager';
   const [form, setForm] = useState<PlatformManagerFormState>(
     defaultPlatformManagerFormState(),
   );

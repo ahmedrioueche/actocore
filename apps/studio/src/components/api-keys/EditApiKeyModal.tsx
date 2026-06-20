@@ -5,18 +5,14 @@ import { useTranslation } from 'react-i18next';
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { useUpdateApiKey } from '@/hooks/use-api-keys';
-import { useModalStore, type EditApiKeyModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditApiKeyModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditApiKeyModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'editApiKey';
-  const props = modalProps as EditApiKeyModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('editApiKey');
   const projectId = props?.projectId;
   const keyId = props?.keyId;
 

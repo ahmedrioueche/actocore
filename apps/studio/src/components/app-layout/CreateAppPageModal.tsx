@@ -8,18 +8,15 @@ import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 import { ACTION_NAME_PATTERN } from '@/constants/actions';
 import { useCreateAppPage } from '@/hooks/use-app-pages';
-import { useModalStore, type CreateAppPageModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type CreateAppPageModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateAppPageModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'createAppPage';
-  const projectId = (modalProps as CreateAppPageModalProps | null)?.projectId;
+  const { isOpen, props, closeModal } = useFeatureModal('createAppPage');
+  const projectId = props?.projectId;
 
   const createPage = useCreateAppPage(projectId ?? null);
 
@@ -27,7 +24,7 @@ export default function CreateAppPageModal() {
   const [title, setTitle] = useState('');
   const [route, setRoute] = useState('');
   const [description, setDescription] = useState('');
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,7 +32,7 @@ export default function CreateAppPageModal() {
       setTitle('');
       setRoute('');
       setDescription('');
-      setEnabled(true);
+      setEnabled(true);
     }
   }, [isOpen]);
 
@@ -58,7 +55,7 @@ export default function CreateAppPageModal() {
       toast.error(t('projectLayout.errors.requiredFields'));
       return;
     }
-
+
     try {
       await createPage.mutateAsync({
         slug: trimmedSlug,
@@ -138,7 +135,7 @@ export default function CreateAppPageModal() {
           checked={enabled}
           onChange={setEnabled}
           label={t('projectLayout.fields.enabled')}
-        />
+        />
       </form>
     </BaseModal>
   );

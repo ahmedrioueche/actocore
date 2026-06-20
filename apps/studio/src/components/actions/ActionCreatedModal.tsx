@@ -3,17 +3,13 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import BaseModal from '@/components/ui/BaseModal';
-import { useModalStore, type ActionCreatedModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type ActionCreatedModalProps  } from '@/stores/modal';
 import { buildSdkHandlerSnippet } from '@/utils/action-schema-builder';
 
 export default function ActionCreatedModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'actionCreated';
-  const props = modalProps as ActionCreatedModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('actionCreated');
   const actionName = props?.actionName ?? '';
   const parameters = props?.parameters ?? [];
 

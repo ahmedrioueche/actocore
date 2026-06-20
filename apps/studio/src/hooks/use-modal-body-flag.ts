@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 
-import { useModalStore } from '@/stores/modal';
+import { selectHasOpenModals, useModalStore } from '@/stores/modal';
 
 /** Signals open modals so embedded SDK widgets can hide via `hideWhenSelector`. */
 export function useModalBodyFlag() {
-  const currentModal = useModalStore((state) => state.currentModal);
+  const hasOpenModals = useModalStore(selectHasOpenModals);
 
   useEffect(() => {
-    if (currentModal) {
+    if (hasOpenModals) {
       document.body.setAttribute('data-modal-open', '');
       return () => document.body.removeAttribute('data-modal-open');
     }
     document.body.removeAttribute('data-modal-open');
-  }, [currentModal]);
+  }, [hasOpenModals]);
 }

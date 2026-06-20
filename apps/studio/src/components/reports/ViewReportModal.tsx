@@ -5,7 +5,8 @@ import Loading from '@/components/ui/Loading';
 import Error from '@/components/ui/Error';
 import BaseModal from '@/components/ui/BaseModal';
 import { useReport } from '@/hooks/use-reports';
-import { useModalStore, type ViewReportModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type ViewReportModalProps  } from '@/stores/modal';
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -20,12 +21,8 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 export default function ViewReportModal() {
   const { t, i18n } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'viewReport';
-  const reportId = (modalProps as ViewReportModalProps | null)?.reportId;
+  const { isOpen, props, closeModal } = useFeatureModal('viewReport');
+  const reportId = props?.reportId;
   const reportQuery = useReport(isOpen ? reportId : undefined);
 
   if (!isOpen) {

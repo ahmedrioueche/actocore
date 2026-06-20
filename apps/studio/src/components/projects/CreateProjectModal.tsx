@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { useCreateProject } from '@/hooks/use-projects';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { useModalStore } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
@@ -13,10 +14,7 @@ import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 export default function CreateProjectModal() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'createProject';
+  const { isOpen, props, closeModal } = useFeatureModal('createProject');
   const createProject = useCreateProject();
 
   const [name, setName] = useState('');

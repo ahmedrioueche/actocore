@@ -3,16 +3,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import BaseModal from '@/components/ui/BaseModal';
-import { useModalStore, type IssuedApiKeyModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 
 export default function IssuedApiKeyModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'issuedApiKey';
-  const apiKey = (modalProps as IssuedApiKeyModalProps | null)?.apiKey ?? '';
+  const { isOpen, props, closeModal } = useFeatureModal('issuedApiKey');
+  const apiKey = props?.apiKey ?? '';
 
   const [copied, setCopied] = useState(false);
 

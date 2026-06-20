@@ -3,6 +3,9 @@ import React, { type ElementType, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
+import { useModalInstanceContext } from "@/hooks/use-feature-modal";
+import { cn } from "@/utils/helper";
+
 interface FooterButton {
   label?: string;
   onClick?: (e?: React.MouseEvent) => void;
@@ -54,6 +57,8 @@ interface BaseModalProps {
   // Display options
   hideCloseButton?: boolean;
   noPadding?: boolean;
+  zIndex?: number;
+  isTop?: boolean;
 }
 
 const BaseModal: React.FC<BaseModalProps> = ({
@@ -79,8 +84,13 @@ const BaseModal: React.FC<BaseModalProps> = ({
   maxWidth = "max-w-3xl",
   hideCloseButton = false,
   noPadding = false,
+  zIndex: zIndexProp,
+  isTop: isTopProp,
 }) => {
   const { t } = useTranslation();
+  const modalInstance = useModalInstanceContext();
+  const isTop = isTopProp ?? modalInstance?.isTop ?? true;
+  const zIndex = zIndexProp ?? modalInstance?.zIndex ?? 50;
 
   if (!isOpen) return null;
 
@@ -151,8 +161,12 @@ const BaseModal: React.FC<BaseModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end md:items-center justify-center p-0 md:p-4"
-      onClick={hideCloseButton ? undefined : onClose}
+      style={{ zIndex }}
+      className={cn(
+        "fixed inset-0 bg-black/70 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-4",
+        !isTop && "pointer-events-none",
+      )}
+      onClick={hideCloseButton || !isTop ? undefined : onClose}
     >
       <div
         className={`bg-surface shadow-2xl ${maxWidth} w-full border-t md:border border-border overflow-hidden animate-in fade-in duration-300 flex flex-col

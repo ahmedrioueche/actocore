@@ -9,21 +9,13 @@ import TextArea from '@/components/ui/TextArea';
 import { ACTION_NAME_PATTERN } from '@/constants/actions';
 import { useProjectActions } from '@/hooks/use-actions';
 import { useCreateAppPageFunctionality } from '@/hooks/use-app-pages';
-import {
-  useModalStore,
-  type CreateAppPageFunctionalityModalProps,
-} from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreateAppPageFunctionalityModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'createAppPageFunctionality';
-  const props = modalProps as CreateAppPageFunctionalityModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('createAppPageFunctionality');
   const projectId = props?.projectId ?? null;
   const pageId = props?.pageId ?? null;
 

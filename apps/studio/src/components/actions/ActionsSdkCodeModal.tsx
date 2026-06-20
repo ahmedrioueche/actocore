@@ -4,19 +4,15 @@ import { useTranslation } from 'react-i18next';
 
 import BaseModal from '@/components/ui/BaseModal';
 import { useProjectActions } from '@/hooks/use-actions';
-import { useModalStore, type ActionsSdkCodeModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type ActionsSdkCodeModalProps  } from '@/stores/modal';
 import { buildSdkIntegrationCode } from '@/utils/action-schema-builder';
 
 const ACTIONS_FETCH_LIMIT = 100;
 
 export default function ActionsSdkCodeModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'actionsSdkCode';
-  const props = modalProps as ActionsSdkCodeModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('actionsSdkCode');
   const projectId = props?.projectId ?? null;
 
   const actionsQuery = useProjectActions(projectId, {

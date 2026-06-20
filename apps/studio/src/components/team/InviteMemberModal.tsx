@@ -9,6 +9,7 @@ import Tip from '@/components/ui/Tip';
 import { useAuth } from '@/context/AuthContext';
 import { useProjectsList } from '@/hooks/use-projects';
 import { useCreateTeamMember } from '@/hooks/use-team';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { useModalStore } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
@@ -16,10 +17,7 @@ import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 export default function InviteMemberModal() {
   const { t } = useTranslation();
   const { session } = useAuth();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'inviteMember';
+  const { isOpen, props, closeModal } = useFeatureModal('inviteMember');
   const createMember = useCreateTeamMember();
   const projectsQuery = useProjectsList();
 

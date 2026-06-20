@@ -6,21 +6,13 @@ import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { useAppPageLinks, useUpdateAppPageLink } from '@/hooks/use-app-page-links';
 import { useAppPages } from '@/hooks/use-app-pages';
-import {
-  useModalStore,
-  type EditAppPageLinkModalProps,
-} from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditAppPageLinkModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'editAppPageLink';
-  const props = modalProps as EditAppPageLinkModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('editAppPageLink');
   const projectId = props?.projectId ?? null;
   const linkId = props?.linkId ?? null;
 

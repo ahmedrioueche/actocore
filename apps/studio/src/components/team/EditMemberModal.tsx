@@ -6,18 +6,15 @@ import { ProjectAccessPicker } from '@/components/team/ProjectAccessPicker';
 import BaseModal from '@/components/ui/BaseModal';
 import InputField from '@/components/ui/InputField';
 import { useUpdateTeamMember } from '@/hooks/use-team';
-import { useModalStore, type EditMemberModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditMemberModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditMemberModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'editMember';
-  const member = (modalProps as EditMemberModalProps | null) ?? null;
+  const { isOpen, props, closeModal } = useFeatureModal('editMember');
+  const member = props ?? null;
   const updateMember = useUpdateTeamMember();
 
   const [username, setUsername] = useState('');

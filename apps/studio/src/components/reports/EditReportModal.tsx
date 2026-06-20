@@ -16,7 +16,8 @@ import {
   useUpdateReportStatus,
 } from '@/hooks/use-platform-data';
 import { canAccessPlatform } from '@/lib/platform-permissions';
-import { useModalStore, type EditReportModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditReportModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
@@ -38,14 +39,11 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 export default function EditReportModal() {
   const { t, i18n } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-  const isOpen = currentModal === 'editReport';
+  const { isOpen, props, closeModal } = useFeatureModal('editReport');
   const session = usePlatformMe(isOpen).data;
   const updateStatus = useUpdateReportStatus();
 
-  const reportId = (modalProps as EditReportModalProps | null)?.reportId;
+  const reportId = props?.reportId;
   const reportQuery = usePlatformReport(isOpen ? reportId : undefined);
   const canWrite = canAccessPlatform(session, PlatformPermission.REPORTS_WRITE);
 

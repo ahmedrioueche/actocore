@@ -13,20 +13,17 @@ import {
   useSyncPlatformPlanPayPal,
   useUpdatePlatformPlan,
 } from '@/hooks/use-platform-plans';
-import { useModalStore, type EditPlanModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditPlanModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditPlanModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
+  const { isOpen, props, closeModal } = useFeatureModal('editPlan');
   const updatePlan = useUpdatePlatformPlan();
   const syncPayPal = useSyncPlatformPlanPayPal();
 
-  const isOpen = currentModal === 'editPlan';
-  const props = modalProps as EditPlanModalProps | null;
   const plan = props?.plan;
   const planId = plan?.id;
 

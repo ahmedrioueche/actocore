@@ -1,10 +1,20 @@
 import { lazy, Suspense } from 'react';
 
 import ConfirmModal from '@/components/ConfirmModal';
+import {
+  ModalInstanceProvider,
+  type ModalInstanceContextValue,
+} from '@/hooks/use-feature-modal';
 import { useModalBodyFlag } from '@/hooks/use-modal-body-flag';
 import { useWindowPathname } from '@/hooks/use-window-pathname';
 import { isPublicAppPath } from '@/lib/auth-session';
-import { useModalStore, type ModalId } from '@/stores/modal';
+import {
+  useModalStore,
+  type FeatureModalId,
+  type ModalStackEntry,
+} from '@/stores/modal';
+
+const BASE_MODAL_Z_INDEX = 50;
 
 const UploadKnowledgeModal = lazy(
   () => import('@/components/knowledge/UploadKnowledgeModal'),
@@ -85,7 +95,7 @@ const EditReportModal = lazy(
   () => import('@/components/reports/EditReportModal'),
 );
 
-function ActiveLazyModal({ modalId }: { modalId: Exclude<ModalId, 'confirm' | null> }) {
+function ActiveLazyModal({ modalId }: { modalId: FeatureModalId }) {
   switch (modalId) {
     case 'uploadKnowledge':
       return <UploadKnowledgeModal />;
@@ -144,23 +154,54 @@ function ActiveLazyModal({ modalId }: { modalId: Exclude<ModalId, 'confirm' | nu
   }
 }
 
+function ModalStackLayer({
+  entry,
+  stackIndex,
+  stackSize,
+}: {
+  entry: ModalStackEntry;
+  stackIndex: number;
+  stackSize: number;
+}) {
+  const contextValue: ModalInstanceContextValue = {
+    instanceId: entry.instanceId,
+    modalId: entry.modalId,
+    props: entry.props,
+    stackIndex,
+    isTop: stackIndex === stackSize - 1,
+    zIndex: BASE_MODAL_Z_INDEX + stackIndex * 10,
+  };
+
+  return (
+    <ModalInstanceProvider value={contextValue}>
+      {entry.modalId === 'confirm' ? (
+        <ConfirmModal />
+      ) : (
+        <ActiveLazyModal modalId={entry.modalId} />
+      )}
+    </ModalInstanceProvider>
+  );
+}
+
 export default function Modals() {
   useModalBodyFlag();
   const pathname = useWindowPathname();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const showLazyModals =
-    !isPublicAppPath(pathname) &&
-    currentModal !== null &&
-    currentModal !== 'confirm';
+  const stack = useModalStore((state) => state.stack);
+
+  if (isPublicAppPath(pathname)) {
+    return null;
+  }
 
   return (
-    <>
-      <ConfirmModal />
-      {showLazyModals ? (
-        <Suspense fallback={null}>
-          <ActiveLazyModal modalId={currentModal} />
-        </Suspense>
-      ) : null}
-    </>
+    <Suspense fallback={null}>
+      {stack.map((entry, index) => (
+        <ModalStackLayer
+          key={entry.instanceId}
+          entry={entry}
+          stackIndex={index}
+          stackSize={stack.length}
+        />
+      ))}
+    </Suspense>
   );
 }

@@ -18,7 +18,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useResizablePanelWidth } from '@/hooks/use-resizable-panel-width';
 import { createStudioAssistantActions } from '@/lib/studio-assistant-actions';
 import { resolveStudioHostContext } from '@/lib/studio-host-context';
-import { useModalStore } from '@/stores/modal';
+import { selectHasOpenModals, useModalStore } from '@/stores/modal';
 import { cn } from '@/utils/helper';
 
 const API_URL =
@@ -189,7 +189,7 @@ export function StudioAssistant() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const modalOpen = useModalStore((state) => !!state.currentModal);
+  const modalOpen = useModalStore(selectHasOpenModals);
   const hostContext = useMemo(
     () => resolveStudioHostContext(pathname),
     [pathname],

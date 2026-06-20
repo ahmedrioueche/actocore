@@ -10,17 +10,15 @@ import {
 } from '@/components/admin/plans/plan-form';
 import BaseModal from '@/components/ui/BaseModal';
 import { useCreatePlatformPlan } from '@/hooks/use-platform-plans';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { useModalStore } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 import { getUnknownApiErrorMessage } from '@/utils/statusMessage';
 
 export default function CreatePlanModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const closeModal = useModalStore((state) => state.closeModal);
+  const { isOpen, closeModal } = useFeatureModal('createPlan');
   const createPlan = useCreatePlatformPlan();
-
-  const isOpen = currentModal === 'createPlan';
   const [form, setForm] = useState<PlanFormState>(defaultPlanFormState);
 
   useEffect(() => {

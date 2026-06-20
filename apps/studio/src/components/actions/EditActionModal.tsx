@@ -16,19 +16,15 @@ import InputField from '@/components/ui/InputField';
 import TextArea from '@/components/ui/TextArea';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 import { useAction, useUpdateAction } from '@/hooks/use-actions';
-import { useModalStore, type EditActionModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditActionModalProps  } from '@/stores/modal';
 import { resolveInputSchema } from '@/utils/action-schema-builder';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditActionModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'editAction';
-  const props = modalProps as EditActionModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('editAction');
   const projectId = props?.projectId ?? null;
   const actionId = props?.actionId ?? null;
 

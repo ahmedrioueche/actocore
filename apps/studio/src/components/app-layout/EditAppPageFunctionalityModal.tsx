@@ -11,21 +11,13 @@ import {
   useAppPages,
   useUpdateAppPageFunctionality,
 } from '@/hooks/use-app-pages';
-import {
-  useModalStore,
-  type EditAppPageFunctionalityModalProps,
-} from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
 import { toast } from '@/stores/toast';
 import { getApiErrorMessage } from '@/utils/statusMessage';
 
 export default function EditAppPageFunctionalityModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
-
-  const isOpen = currentModal === 'editAppPageFunctionality';
-  const props = modalProps as EditAppPageFunctionalityModalProps | null;
+  const { isOpen, props, closeModal } = useFeatureModal('editAppPageFunctionality');
   const projectId = props?.projectId ?? null;
   const pageId = props?.pageId ?? null;
   const functionalityId = props?.functionalityId ?? null;

@@ -13,18 +13,16 @@ import {
 } from '@/components/admin/team/platform-manager-form';
 import BaseModal from '@/components/ui/BaseModal';
 import { useUpdatePlatformManager } from '@/hooks/use-platform-auth';
-import { useModalStore, type EditPlatformManagerModalProps } from '@/stores/modal';
+import { useFeatureModal } from '@/hooks/use-feature-modal';
+import { useModalStore, type EditPlatformManagerModalProps  } from '@/stores/modal';
 import { toast } from '@/stores/toast';
 
 export default function EditPlatformManagerModal() {
   const { t } = useTranslation();
-  const currentModal = useModalStore((state) => state.currentModal);
-  const modalProps = useModalStore((state) => state.modalProps);
-  const closeModal = useModalStore((state) => state.closeModal);
+  const { isOpen, props, closeModal } = useFeatureModal('editPlatformManager');
   const updateManager = useUpdatePlatformManager();
 
-  const isOpen = currentModal === 'editPlatformManager';
-  const manager = (modalProps as EditPlatformManagerModalProps | null)?.manager;
+  const manager = props?.manager;
   const managerId = manager?.userId;
 
   const [form, setForm] = useState<PlatformManagerFormState | null>(null);
