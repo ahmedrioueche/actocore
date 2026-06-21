@@ -9,6 +9,7 @@ export type CtaButtonProps = {
   variant?: 'primary' | 'outline';
   className?: string;
   external?: boolean;
+  onClick?: ComponentPropsWithoutRef<'a'>['onClick'];
 } & Pick<ComponentPropsWithoutRef<'a'>, 'style'>;
 
 function isExternalHref(href: string): boolean {
@@ -25,6 +26,7 @@ export function CtaButton({
   variant = 'primary',
   className,
   external = false,
+  onClick,
   style,
 }: CtaButtonProps) {
   const base =
@@ -44,6 +46,7 @@ export function CtaButton({
         href={href}
         className={classNames}
         style={style}
+        onClick={onClick}
         {...(external
           ? { target: '_blank', rel: 'noopener noreferrer' }
           : undefined)}
@@ -54,7 +57,7 @@ export function CtaButton({
   }
 
   return (
-    <LocaleLink href={href} className={classNames} style={style}>
+    <LocaleLink href={href} className={classNames} style={style} onClick={onClick}>
       {children}
     </LocaleLink>
   );

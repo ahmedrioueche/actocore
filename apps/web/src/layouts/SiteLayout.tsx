@@ -8,11 +8,13 @@ export function SiteLayout() {
   useHashScroll();
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
-        <Outlet />
-      </main>
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="mesh-gradient flex flex-1 flex-col">
+        <SiteHeader />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </div>
       <SiteFooter />
     </div>
   );

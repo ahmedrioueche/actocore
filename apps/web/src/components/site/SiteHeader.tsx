@@ -1,6 +1,6 @@
 import { useT } from "@/i18n/useT";
 import { Menu, X } from "lucide-react";
-import { useState, type MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -19,6 +19,8 @@ const NAV_LINKS = [
   { href: '/#pricing', key: 'pricing' as const },
   { href: '/docs', key: 'docs' as const },
 ] as const;
+
+const SCROLL_THRESHOLD_PX = 12;
 
 type NavLinkKey = (typeof NAV_LINKS)[number]['key'];
 
@@ -58,15 +60,38 @@ function navLinkClassName(active: boolean, mobile = false) {
   );
 }
 
+function readScrolled(): boolean {
+  return window.scrollY > SCROLL_THRESHOLD_PX;
+}
+
 export function SiteHeader() {
   const { t } = useT("nav");
   const { t: tSite } = useT("site");
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { locale } = useParams();
   const activeLocale = isAppLocale(locale) ? locale : "en";
   const homePathname = `/${activeLocale}`;
+
+  useEffect(() => {
+    const syncScrollState = () => {
+      setScrolled(readScrolled());
+    };
+
+    syncScrollState();
+    window.addEventListener("scroll", syncScrollState, { passive: true });
+    return () => window.removeEventListener("scroll", syncScrollState);
+  }, []);
+
+  useEffect(() => {
+    setScrolled(readScrolled());
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname, location.hash]);
 
   const handleLogoClick = (event: MouseEvent<HTMLAnchorElement>) => {
     const onHome =
@@ -84,8 +109,17 @@ export function SiteHeader() {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   };
 
+  const closeMobileMenu = () => setOpen(false);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface-secondary">
+    <header
+      className={cn(
+        "sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300",
+        scrolled
+          ? "border-border bg-surface-secondary shadow-sm"
+          : "border-transparent bg-transparent",
+      )}
+    >
       <div className="site-container flex h-20 items-center justify-between gap-4">
         <LocaleLink
           href="/"
@@ -143,7 +177,12 @@ export function SiteHeader() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface md:hidden"
+          className={cn(
+            "inline-flex h-10 w-10 items-center justify-center rounded-xl transition-colors md:hidden",
+            scrolled
+              ? "bg-surface text-text-primary"
+              : "text-text-primary hover:bg-surface/60",
+          )}
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-label={t("menu")}
@@ -154,8 +193,9 @@ export function SiteHeader() {
 
       <div
         className={cn(
-          "border-t border-border bg-surface md:hidden",
+          "md:hidden",
           open ? "block" : "hidden",
+          scrolled ? "bg-surface" : "bg-transparent",
         )}
       >
         <div className="site-container flex flex-col gap-4 py-4">
@@ -179,7 +219,7 @@ export function SiteHeader() {
                       : 'page'
                     : undefined
                 }
-                onClick={() => setOpen(false)}
+                onClick={closeMobileMenu}
               >
                 {t(item.key)}
               </LocaleLink>
@@ -192,6 +232,7 @@ export function SiteHeader() {
           <a
             href={studioAuthPath("login")}
             className="text-sm font-medium text-text-secondary"
+            onClick={closeMobileMenu}
           >
             {t("signIn")}
           </a>
@@ -199,12 +240,14 @@ export function SiteHeader() {
             href={playgroundPath()}
             variant="outline"
             className="w-full text-center"
+            onClick={closeMobileMenu}
           >
             {t("tryItNow")}
           </CtaButton>
           <CtaButton
             href={studioAuthPath("signup")}
             className="w-full text-center"
+            onClick={closeMobileMenu}
           >
             {t("getStarted")}
           </CtaButton>

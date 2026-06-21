@@ -14,7 +14,7 @@ export function HomePage() {
   usePageMeta("home");
 
   return (
-    <div className="mesh-gradient">
+    <>
       <HeroSection />
       <TrustedBySection />
       <DemoVideoSection />
@@ -25,6 +25,6 @@ export function HomePage() {
       <ArchitectureSection />
       <TestimonialsSection />
       <FinalCtaSection />
-    </div>
+    </>
   );
 }
