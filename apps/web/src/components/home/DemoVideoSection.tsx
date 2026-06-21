@@ -1,15 +1,15 @@
-import { Play } from 'lucide-react';
-import { useMemo } from 'react';
+import { Play } from "lucide-react";
+import { useMemo } from "react";
 
-import { useT } from '@/i18n/useT';
-import { getDemoVideoUrl, resolveDemoVideoEmbed } from '@/lib/demo-video';
-import { revealStyle } from '@/lib/reveal';
+import { useT } from "@/i18n/useT";
+import { getDemoVideoUrl, resolveDemoVideoEmbed } from "@/lib/demo-video";
+import { revealStyle } from "@/lib/reveal";
 
-import { PlaygroundCta } from './PlaygroundCta';
-import { ScrollReveal } from './ScrollReveal';
+import { PlaygroundCta } from "./PlaygroundCta";
+import { ScrollReveal } from "./ScrollReveal";
 
 export function DemoVideoSection() {
-  const { t } = useT('home.demoVideo');
+  const { t } = useT("home.demoVideo");
   const embed = useMemo(() => {
     const url = getDemoVideoUrl();
     return url ? resolveDemoVideoEmbed(url) : null;
@@ -21,13 +21,13 @@ export function DemoVideoSection() {
         <div className="mx-auto max-w-4xl text-center">
           <div className="reveal-item" style={revealStyle(0)}>
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
-              {t('eyebrow')}
+              {t("eyebrow")}
             </p>
             <h2 className="mb-3 text-3xl font-bold text-text-primary lg:text-4xl">
-              {t('title')}
+              {t("title")}
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-lg text-text-secondary">
-              {t('subtitle')}
+              {t("subtitle")}
             </p>
           </div>
 
@@ -36,20 +36,20 @@ export function DemoVideoSection() {
             style={revealStyle(1)}
           >
             <div className="relative aspect-video bg-surface-secondary">
-              {embed?.kind === 'direct' ? (
+              {embed?.kind === "direct" ? (
                 <video
                   className="absolute inset-0 h-full w-full bg-black object-contain"
                   controls
                   playsInline
                   preload="metadata"
                   src={embed.src}
-                  title={t('title')}
+                  title={t("title")}
                 />
               ) : embed ? (
                 <iframe
                   className="absolute inset-0 h-full w-full border-0"
                   src={embed.embedUrl}
-                  title={t('title')}
+                  title={t("title")}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
@@ -65,9 +65,8 @@ export function DemoVideoSection() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-text-primary">
-                      {t('placeholderTitle')}
+                      {t("placeholderTitle")}
                     </p>
-                    <p className="text-xs text-muted">{t('placeholderHint')}</p>
                   </div>
                 </div>
               )}
@@ -79,7 +78,7 @@ export function DemoVideoSection() {
             style={revealStyle(2)}
           >
             <PlaygroundCta className="px-8 py-3.5 text-base" />
-            <p className="text-sm text-muted">{t('ctaHint')}</p>
+            <p className="text-sm text-muted">{t("ctaHint")}</p>
           </div>
         </div>
       </div>

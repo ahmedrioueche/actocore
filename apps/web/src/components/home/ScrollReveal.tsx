@@ -1,18 +1,6 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ElementType,
-  type ReactNode,
-} from 'react';
+import type { CSSProperties, ElementType, ReactNode } from 'react';
 
-import {
-  getScrollRoot,
-  getScrollRootHeight,
-  revealRootMargin,
-  shouldReveal,
-} from '@/lib/reveal';
+import { useRevealOnScroll } from '@/hooks/useRevealOnScroll';
 import { cn } from '@/lib/utils';
 
 type ScrollRevealProps = {
@@ -24,6 +12,14 @@ type ScrollRevealProps = {
   stagger?: boolean;
 };
 
+type RevealOnScrollProps = {
+  children: ReactNode;
+  className?: string;
+  as?: ElementType;
+  style?: CSSProperties;
+  scale?: boolean;
+};
+
 /** Fades content in once when it enters the viewport — one IntersectionObserver per block, then disconnects. */
 export function ScrollReveal({
   children,
@@ -32,56 +28,7 @@ export function ScrollReveal({
   id,
   stagger = false,
 }: ScrollRevealProps) {
-  const ref = useRef<HTMLElement>(null);
-  const triggerRef = useRef<HTMLSpanElement>(null);
-  const [visible, setVisible] = useState(false);
-  const [instant, setInstant] = useState(false);
-
-  useLayoutEffect(() => {
-    const node = ref.current;
-    const trigger = triggerRef.current;
-    if (!node || !trigger) return;
-
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setInstant(true);
-      setVisible(true);
-      return;
-    }
-
-    const root = getScrollRoot(node);
-    const rootHeight = getScrollRootHeight(root);
-    if (shouldReveal(trigger.getBoundingClientRect(), rootHeight)) {
-      setVisible(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (visible || instant) return;
-
-    const node = ref.current;
-    const trigger = triggerRef.current;
-    if (!node || !trigger) return;
-
-    const root = getScrollRoot(node);
-    const rootHeight = getScrollRootHeight(root);
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      {
-        root,
-        rootMargin: revealRootMargin(rootHeight),
-        threshold: 0,
-      },
-    );
-
-    observer.observe(trigger);
-    return () => observer.disconnect();
-  }, [visible, instant]);
+  const { ref, triggerRef, visible, instant } = useRevealOnScroll();
 
   return (
     <Tag
@@ -95,11 +42,35 @@ export function ScrollReveal({
         className,
       )}
     >
-      <span
-        ref={triggerRef}
-        className="scroll-reveal-trigger"
-        aria-hidden
-      />
+      <span ref={triggerRef} className="scroll-reveal-trigger" aria-hidden />
+      {children}
+    </Tag>
+  );
+}
+
+/** Reveals a single block when it scrolls into view — use for staggered card rows instead of one section trigger. */
+export function RevealOnScroll({
+  children,
+  className,
+  as: Tag = 'div',
+  style,
+  scale = false,
+}: RevealOnScrollProps) {
+  const { ref, triggerRef, visible, instant } = useRevealOnScroll();
+
+  return (
+    <Tag
+      ref={ref as never}
+      className={cn(
+        'reveal-item',
+        scale && 'reveal-item-scale',
+        (visible || instant) && 'is-visible',
+        instant && 'is-instant',
+        className,
+      )}
+      style={style}
+    >
+      <span ref={triggerRef} className="scroll-reveal-trigger" aria-hidden />
       {children}
     </Tag>
   );

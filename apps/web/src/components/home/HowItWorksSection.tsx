@@ -5,7 +5,7 @@ import { useT } from '@/i18n/useT';
 import { revealStyle } from '@/lib/reveal';
 
 import { PlaygroundCta } from './PlaygroundCta';
-import { ScrollReveal } from './ScrollReveal';
+import { RevealOnScroll } from './ScrollReveal';
 
 const STEPS = [
   { key: 'project' as const, icon: FolderKanban, accent: 'primary' as const },
@@ -19,6 +19,9 @@ const ACCENT_ICON = {
   secondary: 'bg-surface-secondary text-secondary',
   accent: 'bg-surface-secondary text-accent',
 } as const;
+
+/** Stagger between cards when several enter the viewport together (e.g. desktop row). */
+const CARD_REVEAL_STEP_MS = 120;
 
 type StepCardProps = {
   step: number;
@@ -58,15 +61,10 @@ export function HowItWorksSection() {
   const { t } = useT('home.howItWorks');
 
   return (
-    <ScrollReveal
-      as="section"
-      id="how-it-works"
-      stagger
-      className="relative overflow-hidden py-16 lg:py-24"
-    >
+    <section id="how-it-works" className="relative overflow-hidden py-16 lg:py-24">
       <div className="site-container relative z-10">
-        <div
-          className="reveal-item mx-auto mb-12 max-w-2xl text-center lg:mb-16"
+        <RevealOnScroll
+          className="mx-auto mb-12 max-w-2xl text-center lg:mb-16"
           style={revealStyle(0)}
         >
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
@@ -74,14 +72,14 @@ export function HowItWorksSection() {
           </p>
           <h2 className="mb-4 text-3xl font-bold text-text-primary lg:text-4xl">{t('title')}</h2>
           <p className="text-lg text-text-secondary">{t('subtitle')}</p>
-        </div>
+        </RevealOnScroll>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {STEPS.map(({ key, icon, accent }, index) => (
-            <div
+            <RevealOnScroll
               key={key}
-              className="reveal-item reveal-item-scale"
-              style={revealStyle(index + 1)}
+              scale
+              style={revealStyle(index, CARD_REVEAL_STEP_MS)}
             >
               <StepCard
                 step={index + 1}
@@ -91,18 +89,18 @@ export function HowItWorksSection() {
                 icon={icon}
                 accent={accent}
               />
-            </div>
+            </RevealOnScroll>
           ))}
         </div>
 
-        <div
-          className="reveal-item mt-12 flex flex-col items-center gap-3 text-center lg:mt-16"
-          style={revealStyle(STEPS.length + 1)}
+        <RevealOnScroll
+          className="mt-12 flex flex-col items-center gap-3 text-center lg:mt-16"
+          style={revealStyle(STEPS.length, CARD_REVEAL_STEP_MS)}
         >
           <p className="max-w-xl text-text-secondary">{t('ctaHint')}</p>
           <PlaygroundCta variant="outline" className="px-8 py-3.5 text-base" />
-        </div>
+        </RevealOnScroll>
       </div>
-    </ScrollReveal>
+    </section>
   );
 }

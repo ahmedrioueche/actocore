@@ -9,11 +9,11 @@ import {
 
 import { CtaButton } from "@/components/site/CtaButton";
 import { useT } from "@/i18n/useT";
-import { studioAuthPath } from "@/lib/site";
 import { revealStyle } from "@/lib/reveal";
+import { studioAuthPath } from "@/lib/site";
 
 import { PlaygroundCta } from "./PlaygroundCta";
-import { ScrollReveal } from "./ScrollReveal";
+import { RevealOnScroll } from "./ScrollReveal";
 
 const FEATURES = [
   { key: "chat" as const, icon: MessageSquare },
@@ -21,6 +21,9 @@ const FEATURES = [
   { key: "actions" as const, icon: Zap },
   { key: "layout" as const, icon: LayoutGrid },
 ] as const;
+
+/** Stagger between feature cards when several enter the viewport together. */
+const FEATURE_REVEAL_STEP_MS = 100;
 
 type FeatureCardProps = {
   title: string;
@@ -46,17 +49,18 @@ export function PlaygroundSection() {
   const { t } = useT("home.playgroundSection");
 
   return (
-    <ScrollReveal
-      as="section"
+    <section
       id="playground"
-      stagger
       className="relative overflow-hidden py-16 lg:py-24"
     >
       <div className="absolute inset-0 -z-10 bg-primary-muted/40" aria-hidden />
       <div className="site-container relative z-10">
         <div className="glass-panel overflow-hidden rounded-3xl border border-border shadow-brand">
           <div className="grid gap-10 p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:p-12">
-            <div className="reveal-item flex flex-col justify-center" style={revealStyle(0)}>
+            <RevealOnScroll
+              className="flex flex-col justify-center"
+              style={revealStyle(0)}
+            >
               <p className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
                 <Sparkles className="h-4 w-4" aria-hidden />
                 {t("eyebrow")}
@@ -81,26 +85,26 @@ export function PlaygroundSection() {
                   {t("ctaSecondary")}
                 </CtaButton>
               </div>
-            </div>
+            </RevealOnScroll>
 
             <div className="grid gap-4 sm:grid-cols-2">
               {FEATURES.map(({ key, icon }, index) => (
-                <div
+                <RevealOnScroll
                   key={key}
-                  className="reveal-item reveal-item-scale"
-                  style={revealStyle(index + 1)}
+                  scale
+                  style={revealStyle(index + 1, FEATURE_REVEAL_STEP_MS)}
                 >
                   <FeatureCard
                     title={t(`features.${key}.title`)}
                     description={t(`features.${key}.description`)}
                     icon={icon}
                   />
-                </div>
+                </RevealOnScroll>
               ))}
             </div>
           </div>
         </div>
       </div>
-    </ScrollReveal>
+    </section>
   );
 }

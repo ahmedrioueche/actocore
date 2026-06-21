@@ -222,29 +222,34 @@
 
   .reveal-item {
     opacity: 0;
-    transform: translate3d(0, 0.75rem, 0);
+    transform: translate3d(0, 1.25rem, 0);
     transition:
-      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
     transition-delay: var(--reveal-delay, 0ms);
   }
 
   .reveal-item.reveal-item-scale {
-    transform: translate3d(0, 0.75rem, 0) scale(0.985);
+    transform: translate3d(0, 1.5rem, 0) scale(0.92);
   }
 
   .scroll-reveal-section.is-visible .reveal-item,
-  .scroll-reveal-section.is-instant .reveal-item {
+  .scroll-reveal-section.is-instant .reveal-item,
+  .reveal-item.is-visible,
+  .reveal-item.is-instant {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
 
   .scroll-reveal-section.is-visible .reveal-item.reveal-item-scale,
-  .scroll-reveal-section.is-instant .reveal-item.reveal-item-scale {
+  .scroll-reveal-section.is-instant .reveal-item.reveal-item-scale,
+  .reveal-item.is-visible.reveal-item-scale,
+  .reveal-item.is-instant.reveal-item-scale {
     transform: translate3d(0, 0, 0) scale(1);
   }
 
-  .scroll-reveal-section.is-instant .reveal-item {
+  .scroll-reveal-section.is-instant .reveal-item,
+  .reveal-item.is-instant {
     transition: none;
   }
 
