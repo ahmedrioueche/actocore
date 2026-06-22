@@ -42,7 +42,7 @@ interface PlanPickerProps {
   onBillingCycleChange: (cycle: AppSubscriptionBillingCycle) => void;
   isLoading: boolean;
   canWrite: boolean;
-  pendingPlanId: string | null;
+  pendingPlanId?: string | null;
   onSelectPlan: (plan: StudioPlan, action: PlanActionKind) => void;
 }
 
@@ -54,7 +54,7 @@ export function PlanPicker({
   onBillingCycleChange,
   isLoading,
   canWrite,
-  pendingPlanId,
+  pendingPlanId = null,
   onSelectPlan,
 }: PlanPickerProps) {
   const { t } = useTranslation();

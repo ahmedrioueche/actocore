@@ -8,6 +8,10 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/ui/Button";
 import type { FreeTrialBadgeState } from "@/utils/free-trial-badge";
 import { cn } from "@/utils/helper";
+import {
+  formatPlanPrice,
+  hasPaidPlanPricing,
+} from "@/utils/format-plan-price";
 import { resolvePlanLocaleText } from "@/utils/plan-locale-text";
 import { resolveYearlyDiscountBadge } from "@/utils/plan-badges";
 import { buildPlanBullets } from "@/utils/plan-bullets";
@@ -18,25 +22,6 @@ export type PlanActionKind =
   | "trial"
   | "upgrade"
   | "unavailable";
-
-function formatPrice(
-  plan: StudioPlan,
-  billingCycle: AppSubscriptionBillingCycle,
-): string | null {
-  const pricing = plan.pricing.USD ?? plan.pricing.EUR;
-  if (!pricing) {
-    return null;
-  }
-  const amount = billingCycle === "yearly" ? pricing.yearly : pricing.monthly;
-  if (amount == null) {
-    return null;
-  }
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: plan.pricing.USD ? "USD" : "EUR",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 interface PlanCardProps {
   plan: StudioPlan;
@@ -60,7 +45,8 @@ export function PlanCard({
   const { t, i18n } = useTranslation();
   const isCurrent = action === "current";
   const isRecommended = Boolean(plan.isRecommended);
-  const price = formatPrice(plan, billingCycle);
+  const price = formatPlanPrice(plan, billingCycle, i18n.language)?.amount ?? null;
+  const showRecurringHint = hasPaidPlanPricing(plan);
   const bullets = buildPlanBullets(plan, t);
   const description = resolvePlanLocaleText(plan.description, i18n.language);
   const yearlyDiscountBadge = resolveYearlyDiscountBadge(
@@ -136,6 +122,11 @@ export function PlanCard({
             </span>
           ) : null}
         </p>
+        {showRecurringHint ? (
+          <p className="mt-1 text-xs text-muted">
+            {t("subscription.consent.recurringHint")}
+          </p>
+        ) : null}
       </div>
 
       <ul className="mt-4 space-y-2 text-sm text-text-secondary">

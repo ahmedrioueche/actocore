@@ -1472,6 +1472,21 @@
       "success": "Abonnement mis à jour avec succès.",
       "failed": "Nous n'avons pas pu confirmer votre paiement. Réessayez ou contactez l'assistance."
     },
+    "consent": {
+      "titleSubscribe": "Confirmer votre abonnement",
+      "titleUpgrade": "Confirmer votre mise à niveau",
+      "subtitle": "Vérifiez les détails de facturation avant de continuer vers le paiement.",
+      "summaryLabel": "Votre sélection",
+      "planSummary": "{{price}} · facturation {{cycle}}",
+      "recurringBody": "Il s'agit d'un abonnement récurrent. Vous serez facturé {{price}} chaque {{cycle}} jusqu'à annulation. Les prélèvements se renouvellent automatiquement au début de chaque période de facturation.",
+      "paymentBody": "Le paiement est traité de manière sécurisée par PayPal. Vous pouvez payer avec votre compte PayPal ou une carte de débit ou de crédit éligible (comme Visa) via le paiement PayPal.",
+      "cancellationBody": "Vous pouvez annuler à tout moment depuis Studio → Abonnement. Après annulation, votre espace de travail conserve un accès complet jusqu'à la fin de la période de facturation en cours.",
+      "termsPrefix": "J'accepte les",
+      "termsAriaLabel": "Accepter les Conditions d'utilisation et la Politique de confidentialité",
+      "continueToPayPal": "Continuer vers PayPal",
+      "confirmUpgrade": "Confirmer la mise à niveau",
+      "recurringHint": "Facturation récurrente jusqu'à annulation"
+    },
     "plans": {
       "title": "Forfaits disponibles",
       "subtitle": "Choisissez le plan qui correspond à votre espace de travail.",

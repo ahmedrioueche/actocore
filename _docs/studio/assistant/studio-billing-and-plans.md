@@ -41,7 +41,7 @@ Token usage is summed from chat across all projects in the workspace for the cur
 
 ## Checkout
 
-Paid plans use PayPal subscription checkout from Studio. After payment, poll confirms activation. Yearly billing may show a discount badge on plan cards.
+Paid plans use PayPal subscription checkout from Studio. Before redirecting to PayPal, admins must review a consent modal that discloses recurring billing, payment via PayPal (account or eligible card), and requires acceptance of the Terms of Service and Privacy Policy. After payment, poll confirms activation. Yearly billing may show a discount badge on plan cards.
 
 ## Cancelling
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import type {
+  AppSubscriptionBillingCycle,
   PlatformManagerData,
   StudioPlan,
 } from '@ahmedrioueche/actocore-shared';
@@ -145,6 +146,12 @@ export interface EditReportModalProps {
   reportId: string;
 }
 
+export interface SubscribeConsentModalProps {
+  planId: string;
+  billingCycle: AppSubscriptionBillingCycle;
+  mode: 'subscribe' | 'upgrade';
+}
+
 /**
  * Registry of feature modals (besides `confirm`) and the props each requires.
  * Props are passed through the store — never directly to the modal component.
@@ -178,6 +185,7 @@ export interface ModalPropsMap {
   createReport: CreateReportModalProps;
   viewReport: ViewReportModalProps;
   editReport: EditReportModalProps;
+  subscribeConsent: SubscribeConsentModalProps;
 }
 
 export type FeatureModalId = keyof ModalPropsMap;

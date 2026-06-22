@@ -1478,6 +1478,21 @@
       "success": "Subscription updated successfully.",
       "failed": "We could not confirm your payment. Try again or contact support."
     },
+    "consent": {
+      "titleSubscribe": "Confirm your subscription",
+      "titleUpgrade": "Confirm your upgrade",
+      "subtitle": "Review billing details before continuing to payment.",
+      "summaryLabel": "Your selection",
+      "planSummary": "{{price}} · billed {{cycle}}",
+      "recurringBody": "This is a recurring subscription. You will be charged {{price}} every {{cycle}} until you cancel. Charges renew automatically at the start of each billing period.",
+      "paymentBody": "Payment is processed securely by PayPal. You can pay with your PayPal account or an eligible debit or credit card (such as Visa) through PayPal checkout.",
+      "cancellationBody": "You can cancel anytime from Studio → Subscription. After cancellation, your workspace keeps full access until the end of the current billing period.",
+      "termsPrefix": "I agree to the",
+      "termsAriaLabel": "Agree to Terms of Service and Privacy Policy",
+      "continueToPayPal": "Continue to PayPal",
+      "confirmUpgrade": "Confirm upgrade",
+      "recurringHint": "Recurring billing until cancelled"
+    },
     "plans": {
       "title": "Available plans",
       "subtitle": "Choose the plan that fits your workspace.",

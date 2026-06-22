@@ -561,11 +561,11 @@
         },
         "billing": {
           "title": "Subscriptions and billing",
-          "body": "Paid plans renew automatically on the billing cycle you select (monthly or yearly) until cancelled. Prices are listed on our pricing page and in Studio. Payment is processed by PayPal."
+          "body": "Paid plans renew automatically on the billing cycle you select (monthly or yearly) until you cancel from Studio → Subscription. Prices are listed on our pricing page and in Studio. Payment is processed by PayPal; you may pay with a PayPal account or an eligible debit or credit card (such as Visa) through PayPal checkout."
         },
         "cancellation": {
           "title": "Cancellation and refunds",
-          "body": "You may cancel from Studio → Subscription. Cancellation stops future charges; access continues until the end of the paid period. Refunds are handled per PayPal policy and applicable law."
+          "body": "You may cancel from Studio → Subscription at any time. Cancellation stops future charges; access continues until the end of the current paid period. Refunds are handled per PayPal policy and applicable consumer law in your region."
         },
         "availability": {
           "title": "Service availability",

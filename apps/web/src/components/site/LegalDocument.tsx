@@ -20,7 +20,7 @@ export function LegalDocument({ title, updated, intro, sections }: LegalDocument
 
       <div className="mt-10 space-y-8">
         {sections.map((section) => (
-          <section key={section.key}>
+          <section key={section.key} id={section.key}>
             <h2 className="text-xl font-semibold text-text-primary">{section.title}</h2>
             <p className="mt-3 leading-relaxed text-text-secondary">{section.body}</p>
           </section>

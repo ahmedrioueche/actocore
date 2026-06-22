@@ -567,11 +567,11 @@
         },
         "billing": {
           "title": "Abonnements et facturation",
-          "body": "Les forfaits payants se renouvellent automatiquement (mensuel ou annuel) jusqu'à annulation. Paiement via PayPal."
+          "body": "Les forfaits payants se renouvellent automatiquement selon le cycle choisi (mensuel ou annuel) jusqu'à annulation depuis Studio → Abonnement. Les prix sont indiqués sur la page Tarifs et dans Studio. Le paiement est traité par PayPal ; vous pouvez payer avec un compte PayPal ou une carte de débit ou de crédit éligible (comme Visa) via le paiement PayPal."
         },
         "cancellation": {
           "title": "Annulation et remboursements",
-          "body": "Annulez depuis Studio → Abonnement. L'accès continue jusqu'à la fin de la période payée. Remboursements selon la politique PayPal et la loi applicable."
+          "body": "Vous pouvez annuler à tout moment depuis Studio → Abonnement. L'annulation arrête les futurs prélèvements ; l'accès continue jusqu'à la fin de la période payée en cours. Les remboursements sont traités selon la politique PayPal et le droit de la consommation applicable dans votre région."
         },
         "availability": {
           "title": "Disponibilité du service",

@@ -38,10 +38,15 @@ function resolveLegalPath(
 /** Locale-aware links to marketing site legal pages. */
 export function getLegalLinks(locale?: string): {
   terms: string;
+  termsBilling: string;
+  termsCancellation: string;
   privacy: string;
 } {
+  const terms = resolveLegalPath('terms', locale);
   return {
-    terms: resolveLegalPath('terms', locale),
+    terms,
+    termsBilling: `${terms}#billing`,
+    termsCancellation: `${terms}#cancellation`,
     privacy: resolveLegalPath('privacy', locale),
   };
 }

@@ -18,13 +18,11 @@ import Error from '@/components/ui/Error';
 import Loading from '@/components/ui/Loading';
 import { useAuth } from '@/context/AuthContext';
 import {
-  useApplyUpgrade,
   useCancelPendingChange,
   useCancelSubscription,
   usePlans,
   usePollPayPalSubscription,
   useReactivateSubscription,
-  useSubscribeOrTrial,
   useSubscriptionSummary,
 } from '@/hooks/use-subscription';
 import { canWriteBilling } from '@/lib/studio-permissions';
@@ -38,6 +36,7 @@ export default function SubscriptionPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const openConfirm = useModalStore((state) => state.openConfirm);
+  const openModal = useModalStore((state) => state.openModal);
   const search = useSearch({ strict: false }) as {
     subscriptionId?: string;
     scrollTo?: 'plans';
@@ -47,15 +46,12 @@ export default function SubscriptionPage() {
   const canWrite = canWriteBilling(session);
   const [billingCycle, setBillingCycle] =
     useState<AppSubscriptionBillingCycle>('monthly');
-  const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
 
   const summaryQuery = useSubscriptionSummary();
   const plansQuery = usePlans();
 
-  const subscribeOrTrial = useSubscribeOrTrial();
   const cancelSubscription = useCancelSubscription();
   const reactivateSubscription = useReactivateSubscription();
-  const applyUpgrade = useApplyUpgrade();
   const cancelPendingChange = useCancelPendingChange();
   const pollSubscription = usePollPayPalSubscription();
 
@@ -163,56 +159,21 @@ export default function SubscriptionPage() {
     isLoading,
   ]);
 
-  const handleSubscribe = async (plan: StudioPlan) => {
-    setPendingPlanId(plan.planId);
-    try {
-      const checkout = await subscribeOrTrial.mutateAsync({
-        planId: plan.planId,
-        billingCycle,
-      });
-      window.location.href = checkout.approval_url;
-    } catch (err: unknown) {
-      toast.error(getUnknownApiErrorMessage(t, err));
-    } finally {
-      setPendingPlanId(null);
-    }
-  };
-
-  const handleUpgrade = (plan: StudioPlan) => {
-    openConfirm({
-      title: t('subscription.upgrade.title'),
-      text: t('subscription.upgrade.confirm', { plan: plan.name }),
-      confirmText: t('subscription.upgrade.submit'),
-      onConfirm: () => {
-        void (async () => {
-          setPendingPlanId(plan.planId);
-          try {
-            const result = await applyUpgrade.mutateAsync({
-              planId: plan.planId,
-              billingCycle,
-            });
-            if (result.approvalUrl) {
-              window.location.href = result.approvalUrl;
-              return;
-            }
-            toast.success(t('subscription.upgrade.success'));
-          } catch (err: unknown) {
-            toast.error(getUnknownApiErrorMessage(t, err));
-          } finally {
-            setPendingPlanId(null);
-          }
-        })();
-      },
-    });
-  };
-
   const handleSelectPlan = (plan: StudioPlan, action: PlanActionKind) => {
     if (action === 'upgrade') {
-      handleUpgrade(plan);
+      openModal('subscribeConsent', {
+        planId: plan.planId,
+        billingCycle,
+        mode: 'upgrade',
+      });
       return;
     }
     if (action === 'subscribe' || action === 'trial') {
-      void handleSubscribe(plan);
+      openModal('subscribeConsent', {
+        planId: plan.planId,
+        billingCycle,
+        mode: 'subscribe',
+      });
     }
   };
 
@@ -316,7 +277,6 @@ export default function SubscriptionPage() {
             onBillingCycleChange={setBillingCycle}
             isLoading={isLoading}
             canWrite={canWrite}
-            pendingPlanId={pendingPlanId}
             onSelectPlan={handleSelectPlan}
           />
         </div>

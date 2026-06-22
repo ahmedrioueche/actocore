@@ -100,6 +100,9 @@ const ViewReportModal = lazy(
 const EditReportModal = lazy(
   () => import('@/components/reports/EditReportModal'),
 );
+const SubscribeConsentModal = lazy(
+  () => import('@/components/billing/SubscribeConsentModal'),
+);
 
 function ActiveLazyModal({ modalId }: { modalId: FeatureModalId }) {
   switch (modalId) {
@@ -159,6 +162,8 @@ function ActiveLazyModal({ modalId }: { modalId: FeatureModalId }) {
       return <ViewReportModal />;
     case 'editReport':
       return <EditReportModal />;
+    case 'subscribeConsent':
+      return <SubscribeConsentModal />;
     default:
       return null;
   }
