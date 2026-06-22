@@ -11,7 +11,7 @@ const HOST_LAUNCHER_SNIPPET = `import {
 
 export function AppShell() {
   return (
-    <ActocoreProvider apiKey={apiKey} baseURL={apiUrl} loadRemoteConfig>
+    <ActocoreProvider apiKey={apiKey} loadRemoteConfig>
       <ActoChatWidgetProvider>
         <header className="app-header">
           <nav>...</nav>

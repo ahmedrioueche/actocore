@@ -15,7 +15,6 @@ Actions are defined in Studio (name, description, JSON schema). Handlers are imp
 ```tsx
 <ActocoreProvider
   apiKey={apiKey}
-  baseURL={baseURL}
   actions={{
     create_invoice: async (input) => {
       await billingApi.createInvoice(input);

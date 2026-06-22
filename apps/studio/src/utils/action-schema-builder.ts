@@ -278,7 +278,6 @@ export function ActocoreAssistant() {
   return (
     <ActocoreProvider
       apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}
-      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}
       security={{
         allowedActionNames: [${allowlist}],
         enforceActionAllowlist: true,

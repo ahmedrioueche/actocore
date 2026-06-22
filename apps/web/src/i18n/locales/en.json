@@ -473,15 +473,15 @@
       },
       "credentials": {
         "title": "2. Get API credentials",
-        "body": "In Studio, open your project → API keys. Create a key and copy it immediately — it is shown only once. Set environment variables in your host app.",
+        "body": "In Studio, open your project → API keys. Create a key and copy it immediately — it is shown only once. Add it to your host app environment.",
         "codeLabel": ".env",
-        "code": "VITE_ACTOCORE_API_URL=https://your-core-host.example\nVITE_ACTOCORE_API_KEY=aco_..."
+        "code": "VITE_ACTOCORE_API_KEY=aco_..."
       },
       "embed": {
         "title": "3. Mount the chat widget",
         "body": "Wrap your app with ActocoreProvider and add ActoChatWidget for a floating launcher. Use ActoChat for inline chat without the bubble.",
         "codeLabel": "React",
-        "code": "import { ActocoreProvider, ActoChatWidget } from '@ahmedrioueche/actocore-sdk';\nimport '@ahmedrioueche/actocore-sdk/styles.css';\n\nexport function App() {\n  return (\n    <ActocoreProvider\n      apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}\n      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}\n    >\n      <ActoChatWidget />\n    </ActocoreProvider>\n  );\n}"
+        "code": "import { ActocoreProvider, ActoChatWidget } from '@ahmedrioueche/actocore-sdk';\nimport '@ahmedrioueche/actocore-sdk/styles.css';\n\nexport function App() {\n  return (\n    <ActocoreProvider apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}>\n      <ActoChatWidget />\n    </ActocoreProvider>\n  );\n}"
       },
       "studio": {
         "title": "4. Configure in Studio",

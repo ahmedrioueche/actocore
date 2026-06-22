@@ -21,9 +21,6 @@ import { resolveStudioHostContext } from '@/lib/studio-host-context';
 import { selectHasOpenModals, useModalStore } from '@/stores/modal';
 import { cn } from '@/utils/helper';
 
-const API_URL =
-  import.meta.env.VITE_ACTOCORE_API_URL?.replace(/\/$/, '') ||
-  'http://localhost:3000';
 const API_KEY = import.meta.env.VITE_ACTOCORE_API_KEY?.trim() ?? '';
 
 const ASSISTANT_PANEL_WIDTH_KEY = 'studio.assistant.panelWidth';
@@ -215,7 +212,6 @@ export function StudioAssistant() {
   return (
     <ActocoreProvider
       apiKey={API_KEY}
-      baseURL={API_URL}
       loadRemoteConfig
       persistSession
       externalUserId={session?.user.id}

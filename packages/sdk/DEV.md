@@ -80,7 +80,6 @@ Smoke-test a published tarball outside the repo: `apps/sdk-install-check` (updat
 `apps/sdk-playground/.env`:
 
 ```env
-VITE_ACTOCORE_API_URL=http://localhost:3000
 VITE_ACTOCORE_API_KEY=ac_...    # from npm run setup
 # VITE_ACTOCORE_PROJECT_ID=     # optional — reuse same project for seeds
 ```

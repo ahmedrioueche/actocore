@@ -11,7 +11,6 @@ import {
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
-const API_URL = import.meta.env.VITE_ACTOCORE_API_URL ?? 'http://localhost:3000';
 const API_KEY = import.meta.env.VITE_ACTOCORE_API_KEY ?? '';
 
 const DEFAULT_ALLOWLIST = PLAYGROUND_ACTION_NAMES.join(',');
@@ -165,7 +164,6 @@ export default function App() {
 
       <ActocoreProvider
         apiKey={API_KEY}
-        baseURL={API_URL}
         loadRemoteConfig={loadRemoteConfig}
         i18n={{ locale }}
         theme={{ mode: themeMode }}

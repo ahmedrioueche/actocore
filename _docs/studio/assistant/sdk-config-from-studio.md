@@ -7,7 +7,6 @@ Studio **SDK config** (`Project → SDK config`) stores presentation settings pe
 ```tsx
 <ActocoreProvider
   apiKey={apiKey}
-  baseURL={baseURL}
   loadRemoteConfig
   actions={{ /* handlers still defined in code */ }}
 >
@@ -41,7 +40,7 @@ Runtime endpoint: `GET /v1/sdk/runtime` (authenticated with the project API key)
 
 ### What stays in code
 
-- `apiKey`, `baseURL` — never from dashboard
+- `apiKey` — never from dashboard
 - `actions` handlers — always implemented in your app
 - `launcherIcon` React node prop — overrides `iconUrl` from dashboard
 

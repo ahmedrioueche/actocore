@@ -18,7 +18,6 @@ export function App() {
   return (
     <ActocoreProvider
       apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}
-      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}
       loadRemoteConfig
       actions={{
         // Register handlers for actions you define in Studio
@@ -38,7 +37,7 @@ export const PROJECT_DOCS_HOST_LAUNCHER = `import {
 
 export function AppShell() {
   return (
-    <ActocoreProvider apiKey={apiKey} baseURL={apiUrl} loadRemoteConfig>
+    <ActocoreProvider apiKey={apiKey} loadRemoteConfig>
       <ActoChatWidgetProvider>
         <header>
           <nav>...</nav>
@@ -52,7 +51,6 @@ export function AppShell() {
 }`;
 
 export const PROJECT_DOCS_ENV_EXAMPLE = `# .env (Vite example)
-VITE_ACTOCORE_API_URL=https://actocore.onrender.com
 VITE_ACTOCORE_API_KEY=ac_...`;
 
 export const PROJECT_DOCS_LOCALE_SYNC = `import { useTranslation } from 'react-i18next';
@@ -65,7 +63,6 @@ export function App() {
   return (
     <ActocoreProvider
       apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}
-      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}
       loadRemoteConfig
       i18n={{ locale }}
     >

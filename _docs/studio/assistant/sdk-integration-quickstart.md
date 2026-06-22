@@ -20,14 +20,11 @@ import '@ahmedrioueche/actocore-sdk/styles.css';
 
 1. In Studio, open your **project → API keys**.
 2. Create a key and copy it immediately.
-3. Set environment variables in your app:
+3. Set the API key in your app:
 
 ```env
-VITE_ACTOCORE_API_URL=https://your-core-host.example
 VITE_ACTOCORE_API_KEY=aco_...
 ```
-
-`baseURL` is the Core origin without `/v1` (the SDK adds the API version).
 
 ## Minimal embed
 
@@ -37,10 +34,7 @@ import '@ahmedrioueche/actocore-sdk/styles.css';
 
 export function App() {
   return (
-    <ActocoreProvider
-      apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}
-      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}
-    >
+    <ActocoreProvider apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}>
       <ActoChatWidget />
     </ActocoreProvider>
   );
@@ -55,11 +49,10 @@ export function App() {
 | Prop | Description |
 |------|-------------|
 | `apiKey` | Project API key (required) |
-| `baseURL` | Core URL, e.g. `http://localhost:3000` |
-| `apiVersion` | Optional; default `v1` |
 
 ## Optional provider props
 
+- `apiVersion` — API prefix segment (default `v1`).
 - `i18n` — locale and translation overrides.
 - `theme` — `light` / `dark` / `system` and CSS token overrides (`--ac-*`).
 - `ui` — show sources, intent badge, composer rows, copy overrides, launcher icon.
@@ -80,7 +73,7 @@ Props you pass in code always win over Studio settings.
 
 | Problem | Fix |
 |---------|-----|
-| Widget does not appear | Check `apiKey` and `baseURL`; verify key is not revoked |
+| Widget does not appear | Check `apiKey`; verify key is not revoked |
 | 401 on chat | Wrong or missing API key |
 | CORS errors | Core must allow your app origin |
 | Settings from Studio ignored | Add `loadRemoteConfig` on `ActocoreProvider` |

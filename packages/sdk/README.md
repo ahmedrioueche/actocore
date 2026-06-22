@@ -21,13 +21,11 @@ Or use `@latest` after publish. Pin an exact version in production when you pref
 | Variable / prop | Purpose |
 |----------------|---------|
 | `apiKey` (required) | Project API key from ActoCore (`Bearer` on SDK routes) |
-| `baseURL` (recommended) | Core origin, e.g. `http://localhost:3000` (Vite: `VITE_ACTOCORE_API_URL`) |
 | `apiVersion` (optional) | API prefix segment (default `v1`) |
 
 Example (Vite):
 
 ```env
-VITE_ACTOCORE_API_URL=http://localhost:3000
 VITE_ACTOCORE_API_KEY=ac_...
 ```
 
@@ -43,7 +41,6 @@ export function App() {
   return (
     <ActocoreProvider
       apiKey={import.meta.env.VITE_ACTOCORE_API_KEY}
-      baseURL={import.meta.env.VITE_ACTOCORE_API_URL}
       i18n={{ locale: 'en' }}
       theme={{ mode: 'light' }}
       security={{ allowedActionNames: ['deploy'], enforceActionAllowlist: true }}
@@ -63,7 +60,6 @@ export function App() {
 ## Configuration
 
 - `apiKey` (required): project SDK/API key from ActoCore.
-- `baseURL` (optional): Core URL (example `http://localhost:3000`).
 - `apiVersion` (optional): API prefix version.
 - `i18n.locale`: current language (`en`, `fr`, ...).
 - `i18n.translations`: deep overrides for SDK copy without forking UI.
@@ -176,4 +172,3 @@ Use design tokens only (`var(--ac-*)`) for colors, spacing, typography, radii, a
 ## Security rule
 
 Core validates action schemas. SDK additionally enforces the host allowlist before invoking handlers.
-

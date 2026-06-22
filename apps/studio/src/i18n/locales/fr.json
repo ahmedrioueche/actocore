@@ -946,7 +946,7 @@
       "button": "Générer du code SDK",
       "title": "Code d'intégration du SDK",
       "subtitle": "Déposez ce composant dans votre application React et remplissez les gestionnaires TODO.",
-      "hint": "Includes imports, ActocoreProvider, security allowlist, and typed handlers for every enabled action. Set VITE_ACTOCORE_API_KEY and VITE_ACTOCORE_API_URL in your environment.",
+      "hint": "Inclut les imports, ActocoreProvider, la liste d'autorisation de sécurité et des gestionnaires typés pour chaque action activée. Définissez VITE_ACTOCORE_API_KEY dans votre environnement.",
       "empty": "Activez au moins une action pour générer du code d'intégration.",
       "loading": "Chargement des actions…",
       "copySnippet": "Copier le code",

@@ -23,12 +23,36 @@ let configuredTimeout = 10000;
 
 export let IS_DEV = false;
 
-/** Core API origin (versioned routes: `/{apiVersion}/...`). */
-export const DEFAULT_BASE_URL = 'http://localhost:3000';
+/** Local Core origin for development. */
+export const ACTOCORE_DEVELOPMENT_API_URL = 'http://localhost:3000';
+
+/** Hosted ActoCore API origin for production builds. */
+export const ACTOCORE_PRODUCTION_API_URL = 'https://api.actocore.pro';
+
+/** @deprecated Use {@link resolveActocoreBaseURL} */
+export const DEFAULT_BASE_URL = ACTOCORE_DEVELOPMENT_API_URL;
 
 export { DEFAULT_API_VERSION, apiPath, getApiVersion, getSdkRoutePrefix, sdkApiPath, setApiVersion, setSdkRoutePrefix } from './api-version';
 
-export const BASE_URL = (): string => configuredBaseURL ?? DEFAULT_BASE_URL;
+export function isActocoreDevelopmentEnvironment(): boolean {
+  if (typeof window === 'undefined') {
+    return true;
+  }
+
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1';
+}
+
+export function resolveActocoreBaseURL(override?: string): string {
+  const trimmed = override?.trim().replace(/\/$/, '');
+  if (trimmed) return trimmed;
+  return isActocoreDevelopmentEnvironment()
+    ? ACTOCORE_DEVELOPMENT_API_URL
+    : ACTOCORE_PRODUCTION_API_URL;
+}
+
+export const BASE_URL = (): string =>
+  configuredBaseURL ?? resolveActocoreBaseURL();
 
 export const getApiBaseUrl = (): string => BASE_URL();
 

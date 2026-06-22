@@ -1,3 +1,5 @@
+import { resolveActocoreBaseURL } from '@ahmedrioueche/actocore-shared';
+
 const VISITOR_STORAGE_KEY = 'actocore-visitor-id';
 
 function getBaseVisitorId(): string {
@@ -43,8 +45,5 @@ export function isMarketingChatEnabled(): boolean {
 }
 
 export function getActocoreApiUrl(): string {
-  return (
-    import.meta.env.VITE_ACTOCORE_API_URL?.replace(/\/$/, '') ||
-    'http://localhost:3000'
-  );
+  return resolveActocoreBaseURL(import.meta.env.VITE_ACTOCORE_API_URL);
 }

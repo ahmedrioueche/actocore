@@ -26,11 +26,14 @@ export function loadEnvFile(path) {
 }
 
 export function getBaseUrl() {
-  return (
-    process.env.ACTOCORE_API_URL ??
-    process.env.VITE_ACTOCORE_API_URL ??
-    'http://localhost:3000'
-  ).replace(/\/$/, '');
+  const override =
+    process.env.ACTOCORE_API_URL ?? process.env.VITE_ACTOCORE_API_URL;
+  if (override?.trim()) {
+    return override.replace(/\/$/, '');
+  }
+  return process.env.NODE_ENV === 'production'
+    ? 'https://api.actocore.pro'
+    : 'http://localhost:3000';
 }
 
 export function getApiKey() {

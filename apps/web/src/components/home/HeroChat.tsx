@@ -6,7 +6,6 @@ import { useTheme } from "@/components/providers/ThemeProvider";
 import { routing } from "@/i18n/routing";
 import { useT } from "@/i18n/useT";
 import {
-  getActocoreApiUrl,
   getHeroChatExternalUserId,
   isMarketingChatEnabled,
 } from "@/lib/marketing-chat";
@@ -49,7 +48,6 @@ export function HeroChat() {
       <ActocoreProvider
         entryMode="marketing"
         apiKey="public"
-        baseURL={getActocoreApiUrl()}
         loadRemoteConfig={false}
         persistSession
         externalUserId={visitorId}

@@ -1,4 +1,6 @@
 import {
+  ACTOCORE_DEVELOPMENT_API_URL,
+  ACTOCORE_PRODUCTION_API_URL,
   configureApi,
   getApiClient,
   platformAuthApi,
@@ -146,7 +148,9 @@ export function ensureApiConfigured(): void {
   }
   const baseURL =
     import.meta.env.VITE_ACTOCORE_API_URL?.replace(/\/$/, '') ||
-    'http://localhost:3000';
+    (import.meta.env.DEV
+      ? ACTOCORE_DEVELOPMENT_API_URL
+      : ACTOCORE_PRODUCTION_API_URL);
   configureApi({
     baseURL,
     isDev: import.meta.env.DEV,

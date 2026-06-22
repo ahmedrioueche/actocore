@@ -2,8 +2,6 @@ import { ActoChatWidget, ActocoreProvider } from '@ahmedrioueche/actocore-sdk';
 import type { ActocoreI18nConfig } from '@ahmedrioueche/actocore-sdk';
 import { memo, useMemo } from 'react';
 
-import { getActocoreApiUrl } from '@/lib/marketing-chat';
-
 import { PlaygroundHostContextSync } from './PlaygroundHostContextSync';
 import type { createPlaygroundActions } from './playground-actions';
 import type { PlaygroundProjectCredentials } from './playground-project';
@@ -39,7 +37,6 @@ export const PlaygroundChatPanel = memo(function PlaygroundChatPanel({
     <div className="playground-chat-widget">
       <ActocoreProvider
         apiKey={credentials.apiKey}
-        baseURL={getActocoreApiUrl()}
         loadRemoteConfig
         remoteConfigVersion={remoteConfigVersion}
         persistSession
