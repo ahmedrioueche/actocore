@@ -8,14 +8,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useReactFlow } from '@xyflow/react';
 
-import Button from '@/components/ui/Button';
 import { AppLayoutActionsMenu } from '@/components/app-layout/AppLayoutActionsMenu';
 
 interface AppLayoutGraphToolbarProps {
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
-  onAddPage: () => void;
-  onAddContainer: () => void;
   onExport: () => void;
   onImport: () => void;
   canWrite: boolean;
@@ -24,8 +21,6 @@ interface AppLayoutGraphToolbarProps {
 export function AppLayoutGraphToolbar({
   isFullscreen,
   onToggleFullscreen,
-  onAddPage,
-  onAddContainer,
   onExport,
   onImport,
   canWrite,
@@ -79,17 +74,7 @@ export function AppLayoutGraphToolbar({
         )}
       </button>
 
-      <div className="ml-auto flex flex-wrap items-center gap-2">
-        {canWrite ? (
-          <>
-            <Button type="button" variant="outline" onClick={onAddContainer}>
-              {t('projectLayout.create.containerButton')}
-            </Button>
-            <Button type="button" onClick={onAddPage}>
-              {t('projectLayout.create.button')}
-            </Button>
-          </>
-        ) : null}
+      <div className="ml-auto">
         <AppLayoutActionsMenu
           canWrite={canWrite}
           onExport={onExport}

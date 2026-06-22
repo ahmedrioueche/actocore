@@ -476,10 +476,6 @@ function AppLayoutGraphInner({
     openModal('createAppPage', { projectId, pageKind: 'screen' });
   }, [openModal, projectId]);
 
-  const handleAddContainer = useCallback(() => {
-    openModal('createAppPage', { projectId, pageKind: 'container' });
-  }, [openModal, projectId]);
-
   const handleExport = useCallback(() => {
     openModal('exportAppLayout', { projectId });
   }, [openModal, projectId]);
@@ -508,8 +504,6 @@ function AppLayoutGraphInner({
       <AppLayoutGraphToolbar
         isFullscreen={isFullscreen}
         onToggleFullscreen={onToggleFullscreen}
-        onAddPage={handleAddPage}
-        onAddContainer={handleAddContainer}
         onExport={handleExport}
         onImport={handleImport}
         canWrite={canWrite}

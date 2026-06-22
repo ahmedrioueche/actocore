@@ -65,6 +65,13 @@ export default function ProjectAppLayoutPage() {
     openModal("createAppPage", { projectId, pageKind: "screen" });
   };
 
+  const handleCreateContainer = () => {
+    if (!projectId) {
+      return;
+    }
+    openModal("createAppPage", { projectId, pageKind: "container" });
+  };
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {!isFullscreen ? (
@@ -76,7 +83,7 @@ export default function ProjectAppLayoutPage() {
               : t("projectPages.sections.layout.emptyDescription")
           }
           actions={
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex w-full flex-col items-center gap-2 md:w-auto md:flex-row md:flex-wrap md:items-center">
               <div
                 className="inline-flex rounded-xl border border-border bg-surface p-1"
                 role="tablist"
@@ -112,8 +119,17 @@ export default function ProjectAppLayoutPage() {
                 </button>
               </div>
 
-              {projectId && viewMode === "table" ? (
-                <>
+              {projectId ? (
+                <div className="flex items-center justify-center gap-2 md:contents">
+                  {canWrite && viewMode === "graph" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCreateContainer}
+                    >
+                      {t("projectLayout.create.containerButton")}
+                    </Button>
+                  ) : null}
                   {canWrite ? (
                     <Button
                       icon={<Map className="h-4 w-4" />}
@@ -122,16 +138,18 @@ export default function ProjectAppLayoutPage() {
                       {t("projectLayout.create.button")}
                     </Button>
                   ) : null}
-                  <AppLayoutActionsMenu
-                    canWrite={canWrite}
-                    onExport={() =>
-                      openModal("exportAppLayout", { projectId })
-                    }
-                    onImport={() =>
-                      openModal("importAppLayout", { projectId })
-                    }
-                  />
-                </>
+                  {viewMode === "table" ? (
+                    <AppLayoutActionsMenu
+                      canWrite={canWrite}
+                      onExport={() =>
+                        openModal("exportAppLayout", { projectId })
+                      }
+                      onImport={() =>
+                        openModal("importAppLayout", { projectId })
+                      }
+                    />
+                  ) : null}
+                </div>
               ) : null}
             </div>
           }
