@@ -84,6 +84,7 @@ export function ActoChatWidgetPanel({
   const panelLayout = ui.widget?.panelLayout ?? 'overlay';
   const isDockLayout =
     panelLayout === 'dock-right' || panelLayout === 'dock-left';
+  const useDockLayout = isDockLayout && !(isOpen && isMobile);
   const showFloatingLauncher = placement === 'floating';
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export function ActoChatWidgetPanel({
   const anchorStyle: CSSProperties =
     isOpen && isMobile
       ? { position: 'fixed', zIndex: widgetZIndex }
-      : isOpen && isDockLayout
+      : isOpen && useDockLayout
         ? { position: 'fixed', zIndex: widgetZIndex }
         : getAnchorPositionStyle(position, offsetX, offsetY, widgetZIndex);
 
@@ -125,8 +126,8 @@ export function ActoChatWidgetPanel({
         className={mergeClassNames(
           'ac-widget',
           isOpen && isMobile && 'ac-widget--mobile-open',
-          isOpen && panelLayout === 'dock-right' && 'ac-widget--dock-right-open',
-          isOpen && panelLayout === 'dock-left' && 'ac-widget--dock-left-open',
+          isOpen && useDockLayout && panelLayout === 'dock-right' && 'ac-widget--dock-right-open',
+          isOpen && useDockLayout && panelLayout === 'dock-left' && 'ac-widget--dock-left-open',
           className,
         )}
       >
@@ -135,8 +136,8 @@ export function ActoChatWidgetPanel({
             className={mergeClassNames(
               'ac-widget__panel',
               !isOpen && 'ac-widget__panel--hidden',
-              panelLayout === 'dock-right' && 'ac-widget__panel--dock-right',
-              panelLayout === 'dock-left' && 'ac-widget__panel--dock-left',
+              useDockLayout && panelLayout === 'dock-right' && 'ac-widget__panel--dock-right',
+              useDockLayout && panelLayout === 'dock-left' && 'ac-widget__panel--dock-left',
               ui.classNames?.panel,
             )}
             aria-hidden={!isOpen}

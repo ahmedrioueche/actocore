@@ -354,7 +354,7 @@
   .hero-chat-shell .hero-chat-panel.ac-chat {
     max-width: 100%;
     width: 100%;
-    min-width: 100%;
+    min-width: 0;
     height: 100%;
     border-radius: 1rem;
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);

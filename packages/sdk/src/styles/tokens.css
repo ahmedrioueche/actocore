@@ -59,6 +59,15 @@
   --ac-launcher-icon-size: 1.375rem;
   --ac-widget-panel-height: min(40rem, calc(100vh - 6rem));
   --ac-backdrop-bg: rgb(15 23 42 / 0.4);
+
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+[data-actocore] *,
+[data-actocore] *::before,
+[data-actocore] *::after {
+  box-sizing: border-box;
 }
 
 [data-actocore][data-actocore-theme='dark'] {
