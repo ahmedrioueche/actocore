@@ -324,9 +324,14 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    height: min(68svh, 32rem);
-    min-height: 26rem;
     --ac-chat-max-width: 100%;
+  }
+
+  @media (max-width: 639px) {
+    .hero-chat-shell {
+      height: min(76svh, 36rem);
+      min-height: 30rem;
+    }
   }
 
   @media (min-width: 640px) {
